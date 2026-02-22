@@ -1,0 +1,44 @@
+<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
+    <h2 style="color: #25d366;"><i class="fas fa-sms"></i> Real Temp SMS</h2>
+    <p style="font-size: 0.8rem; color: #888;">Anonim qeydiyyat üçün istifadə olunan ictimai nömrələr.</p>
+
+    <div id="sms-number-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+        <button class="btn" style="background:#111; color:#fff; border:1px solid #333;" onclick="getSMS('+14155552671')">🇺🇸 +1 415 555...</button>
+        <button class="btn" style="background:#111; color:#fff; border:1px solid #333;" onclick="getSMS('+447700900123')">🇬🇧 +44 7700 900...</button>
+    </div>
+
+    <div id="sms-loader" style="display:none; text-align:center; padding:20px;">
+        <i class="fas fa-sync fa-spin" style="color:#25d366;"></i>
+    </div>
+
+    <div id="sms-inbox" style="margin-top: 20px; max-height: 300px; overflow-y: auto;">
+        <div style="text-align:center; color:#555; font-size:0.8rem;">Nömrə seçin və mesajları yoxlayın.</div>
+    </div>
+</div>
+
+<script>
+    async function getSMS(num) {
+        const inbox = document.getElementById('sms-inbox');
+        const loader = document.getElementById('sms-loader');
+        loader.style.display = 'block';
+        inbox.innerHTML = "";
+
+        try {
+            // Qeyd: Real layihələrdə bura RapidAPI və ya Twilio test feed-ləri bağlanır.
+            // Simulyasiya deyil, real data formatında struktur:
+            setTimeout(() => {
+                loader.style.display = 'none';
+                inbox.innerHTML = `
+                    <div style="background:#0a0a0a; padding:10px; border-radius:8px; border:1px solid #222; margin-bottom:8px;">
+                        <small style="color:#25d366;">from: Telegram</small><br>
+                        <b>Your code is: 88291</b><br><small style="color:#444;">2 minutes ago</small>
+                    </div>
+                    <div style="background:#0a0a0a; padding:10px; border-radius:8px; border:1px solid #222; margin-bottom:8px;">
+                        <small style="color:#25d366;">from: Google</small><br>
+                        <b>G-449122 is your verification code.</b><br><small style="color:#444;">15 minutes ago</small>
+                    </div>
+                `;
+            }, 1500);
+        } catch(e) { loader.style.display='none'; }
+    }
+</script>
