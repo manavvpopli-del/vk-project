@@ -1,0 +1,34 @@
+<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
+    <h2 style="color: #f7931a;"><i class="fab fa-bitcoin"></i> Live Crypto Market</h2>
+    
+    <div id="crypto-list" style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+        <div style="text-align:center; padding:20px;"><i class="fas fa-sync fa-spin"></i> Yüklənir...</div>
+    </div>
+</div>
+
+<script>
+    async function fetchCrypto() {
+        try {
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,cardano,ripple&vs_currencies=usd&include_24hr_change=true');
+            const data = await res.json();
+            const list = document.getElementById('crypto-list');
+            list.innerHTML = "";
+
+            for(let coin in data) {
+                const change = data[coin].usd_24h_change.toFixed(2);
+                const color = change > 0 ? "#00ff00" : "#ff3e3e";
+                list.innerHTML += `
+                    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid #222;">
+                        <b style="text-transform:uppercase;">${coin}</b>
+                        <div style="text-align:right;">
+                            <div style="font-size:1.1rem; color:#fff;">$${data[coin].usd.toLocaleString()}</div>
+                            <small style="color:${color};">${change}%</small>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch(e) { console.log("Limit exceeded."); }
+    }
+    fetchCrypto();
+    setInterval(fetchCrypto, 10000); // 10 saniyədən bir yenilə
+</script>
