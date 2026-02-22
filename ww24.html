@@ -2,85 +2,96 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WW24 | Master Admin Control</title>
+    <title>WW24 | İstifadəçi İdarəetmə Mərkəzi</title>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --blue: #58a6ff; --red: #f85149; --green: #3fb950; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; padding: 20px; }
+        :root { --bg: #0d1117; --card: #161b22; --blue: #58a6ff; --red: #f85149; --green: #3fb950; --gold: #d29922; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; padding: 0; }
         
-        /* Dashboard Layout */
-        .container { max-width: 1000px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 20px; }
+        /* Auth Screen */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 999; }
+        .login-box { background: var(--card); padding: 40px; border-radius: 15px; border: 1px solid #30363d; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { background: #0d1117; border: 1px solid #30363d; color: white; padding: 12px; border-radius: 8px; width: 250px; margin-bottom: 15px; font-size: 16px; outline: none; }
         
-        /* User Table */
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #30363d; }
-        th { background: #21262d; color: var(--blue); }
+        /* Main Panel */
+        .container { padding: 30px; max-width: 1100px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #30363d; padding-bottom: 20px; }
         
-        /* Status Badges */
-        .status-active { color: var(--green); font-weight: bold; }
-        .status-frozen { color: #d29922; font-weight: bold; }
-        .status-blocked { color: var(--red); font-weight: bold; }
+        /* Stats Card */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid #30363d; text-align: center; }
+        .stat-card h3 { margin: 0; font-size: 14px; color: #8b949e; }
+        .stat-card p { font-size: 24px; font-weight: bold; margin: 10px 0 0; color: var(--blue); }
 
-        /* Action Buttons */
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px; transition: 0.3s; }
-        .btn-freeze { background: #d29922; color: black; }
+        /* User Table */
+        .user-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #30363d; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #30363d; }
+        th { background: #21262d; color: var(--blue); text-transform: uppercase; font-size: 13px; }
+        tr:hover { background: #1c2128; }
+
+        /* Buttons & Status */
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; margin-right: 5px; transition: 0.2s; }
+        .btn-freeze { background: var(--gold); color: black; }
         .btn-block { background: var(--red); color: white; }
         .btn-unblock { background: var(--green); color: white; }
         
-        /* Login Modal */
-        #auth-layer { position: fixed; inset: 0; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-card { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid #30363d; text-align: center; }
-        input { background: #0d1117; border: 1px solid #30363d; color: white; padding: 10px; border-radius: 5px; margin: 10px 0; width: 200px; }
-        
-        .hidden { display: none; }
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .active { background: rgba(63, 185, 80, 0.1); color: var(--green); }
+        .frozen { background: rgba(210, 153, 34, 0.1); color: var(--gold); }
+        .blocked { background: rgba(248, 81, 73, 0.1); color: var(--red); }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="auth-layer">
-        <div class="login-card">
-            <h2>WW24 Admin Girişi</h2>
-            <input type="password" id="adminPass" placeholder="Şifrə daxil edin">
+    <div id="auth-screen">
+        <div class="login-box">
+            <h2 style="margin-top:0;">WW24 ADMIN</h2>
+            <input type="password" id="passKey" placeholder="Giriş Şifrəsi">
             <br>
-            <button class="btn" style="background: var(--blue); width: 100%; padding: 10px;" onclick="verify()">Giriş Et</button>
+            <button class="btn" style="background: var(--blue); width: 100%; padding: 12px;" onclick="checkAccess()">PANELƏ GİRİŞ</button>
+            <p id="err" style="color:var(--red); font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
-    <div id="dashboard" class="container hidden">
+    <div id="main-panel" class="container hidden">
         <div class="header">
-            <h1>İstifadəçi İdarəetmə Paneli</h1>
-            <div>
-                <span>Onlayn: <b id="online-count" style="color: var(--green);">0</b></span> | 
-                <span>Ümumi: <b>450+</b></span>
-            </div>
+            <h1>Sistem İdarəetməsi</h1>
+            <button onclick="location.reload()" class="btn" style="background:#30363d; color:white;">Çıxış</button>
         </div>
 
-        <table>
+        <div class="stats-grid">
+            <div class="stat-card"><h3>Ümumi İstifadəçi</h3><p>450+</p></div>
+            <div class="stat-card"><h3>Onlayn</h3><p id="online-val">0</p></div>
+            <div class="stat-card"><h3>Sistem Statusu</h3><p style="color:var(--green)">Stabil</p></div>
+        </div>
+
+        <table class="user-table">
             <thead>
                 <tr>
-                    <th>İstifadəçi ID</th>
-                    <th>Xal</th>
+                    <th>İstifadəçi</th>
+                    <th>Xal Balansı</th>
                     <th>Status</th>
                     <th>Əməliyyatlar</th>
                 </tr>
             </thead>
-            <tbody id="user-list">
-                <tr id="user-1">
-                    <td>User_8829</td>
-                    <td class="user-pts">1240</td>
-                    <td class="user-status"><span class="status-active">Aktiv</span></td>
+            <tbody id="user-rows">
+                <tr id="row-1">
+                    <td><strong>User_9921</strong><br><small>IP: 185.34.XX.X</small></td>
+                    <td id="pts-1">1,450</td>
+                    <td><span id="stat-1" class="status-pill active">AKTİV</span></td>
                     <td>
-                        <button class="btn btn-freeze" onclick="action('freeze', 1)">Dondur</button>
-                        <button class="btn btn-block" onclick="action('block', 1)">Blokla</button>
+                        <button class="btn btn-freeze" onclick="manage('freeze', 1)">DONDUR</button>
+                        <button class="btn btn-block" onclick="manage('block', 1)">BLOKLA</button>
                     </td>
                 </tr>
-                <tr id="user-2">
-                    <td>User_3102</td>
-                    <td class="user-pts">850</td>
-                    <td class="user-status"><span class="status-active">Aktiv</span></td>
+                <tr id="row-2">
+                    <td><strong>User_4402</strong><br><small>IP: 188.13.XX.X</small></td>
+                    <td id="pts-2">2,100</td>
+                    <td><span id="stat-2" class="status-pill active">AKTİV</span></td>
                     <td>
-                        <button class="btn btn-freeze" onclick="action('freeze', 2)">Dondur</button>
-                        <button class="btn btn-block" onclick="action('block', 2)">Blokla</button>
+                        <button class="btn btn-freeze" onclick="manage('freeze', 2)">DONDUR</button>
+                        <button class="btn btn-block" onclick="manage('block', 2)">BLOKLA</button>
                     </td>
                 </tr>
             </tbody>
@@ -88,48 +99,58 @@
     </div>
 
     <script>
-        const ADMIN_PASS = "mod123";
-        
-        function verify() {
-            if(document.getElementById('adminPass').value === ADMIN_PASS) {
-                document.getElementById('auth-layer').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                initStats();
+        const KEY = "mod123";
+
+        function checkAccess() {
+            if(document.getElementById('passKey').value === KEY) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-panel').classList.remove('hidden');
+                startLiveStats();
             } else {
-                alert("Şifrə yanlışdır!");
+                document.getElementById('err').innerText = "Şifrə yalnışdır!";
             }
         }
 
-        // Simulyasiya: Onlayn sayı dəyişimi
-        function initStats() {
+        function startLiveStats() {
+            // Onlayn sayı simulyasiyası
             setInterval(() => {
-                document.getElementById('online-count').innerText = Math.floor(Math.random() * 100);
-            }, 2000);
+                document.getElementById('online-val').innerText = Math.floor(Math.random() * (100 - 10) + 10);
+            }, 3000);
+
+            // Xalları hər dəqiqə artır (yalnız dondurulmayanlar üçün)
+            setInterval(() => {
+                for(let i=1; i<=2; i++) {
+                    let stat = document.getElementById(`stat-${i}`);
+                    if(stat.innerText === "AKTİV") {
+                        let ptsElem = document.getElementById(`pts-${i}`);
+                        let currentPts = parseInt(ptsElem.innerText.replace(',',''));
+                        ptsElem.innerText = (currentPts + 5).toLocaleString();
+                    }
+                }
+            }, 60000);
         }
 
-        // İdarəetmə Funksiyaları
-        function action(type, userId) {
-            const row = document.getElementById(`user-${userId}`);
-            const statusCell = row.querySelector('.user-status');
-            
+        function manage(type, id) {
+            const statLabel = document.getElementById(`stat-${id}`);
+            const row = document.getElementById(`row-${id}`);
+
             if(type === 'freeze') {
-                statusCell.innerHTML = '<span class="status-frozen">Dondurulub</span>';
-                alert(`İstifadəçi ${userId} xal artımı dayandırıldı.`);
+                if(statLabel.innerText === "AKTİV") {
+                    statLabel.innerText = "DONDURULUB";
+                    statLabel.className = "status-pill frozen";
+                    alert(`İstifadəçi ${id} üçün xal artımı dayandırıldı.`);
+                } else {
+                    statLabel.innerText = "AKTİV";
+                    statLabel.className = "status-pill active";
+                }
             } 
             else if(type === 'block') {
-                row.style.opacity = "0.5";
-                statusCell.innerHTML = '<span class="status-blocked">Bloklanıb</span>';
-                row.querySelector('.btn-block').innerText = "Aç";
-                row.querySelector('.btn-block').className = "btn btn-unblock";
-                row.querySelector('.btn-block').setAttribute('onclick', `action('unblock', ${userId})`);
-                alert(`İstifadəçi ${userId} tamamilə bloklandı!`);
-            }
-            else if(type === 'unblock') {
-                row.style.opacity = "1";
-                statusCell.innerHTML = '<span class="status-active">Aktiv</span>';
-                row.querySelector('.btn-unblock').innerText = "Blokla";
-                row.querySelector('.btn-unblock').className = "btn btn-block";
-                row.querySelector('.btn-unblock').setAttribute('onclick', `action('block', ${userId})`);
+                if(confirm("Bu istifadəçini bloklamaq istəyirsən?")) {
+                    statLabel.innerText = "BLOKLANIB";
+                    statLabel.className = "status-pill blocked";
+                    row.style.opacity = "0.4";
+                    alert("İstifadəçi bloklandı və sistemdən qovuldu.");
+                }
             }
         }
     </script>
