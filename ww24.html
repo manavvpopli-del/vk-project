@@ -2,50 +2,36 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WW24 | Admin Control</title>
+    <title>WW24 | God Mode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        :root { --red: #ff3e3e; --cyan: #00f2ff; --bg: #05070a; --glass: rgba(255,255,255,0.05); }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        :root { --red: #ff3e3e; --cyan: #00f2ff; --purple: #a855f7; --green: #25d366; }
+        body { background: #05070a; color: white; font-family: 'Consolas', monospace; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .user-card { background: rgba(255,255,255,0.05); border: 1px solid #222; border-radius: 12px; padding: 15px; border-top: 3px solid var(--cyan); }
         
-        .header { border-left: 5px solid var(--red); padding-left: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
+        button { border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.7rem; opacity: 0.9; }
+        button:hover { opacity: 1; transform: scale(1.02); }
         
-        .user-card { background: var(--glass); border: 1px solid #222; border-radius: 15px; padding: 20px; transition: 0.3s; position: relative; overflow: hidden; }
-        .user-card:hover { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,242,255,0.1); }
-        .user-card.frozen { border-color: #ffcc00; background: rgba(255, 204, 0, 0.05); }
-
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .online { background: #25d366; box-shadow: 0 0 10px #25d366; }
-
-        input { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-size: 0.8rem; }
+        .btn-blue { background: var(--cyan); color: #000; }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-purple { background: var(--purple); color: #fff; }
+        .btn-green { background: var(--green); color: #000; }
         
-        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn { border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.75rem; transition: 0.2s; text-transform: uppercase; }
-        .btn-msg { background: var(--cyan); color: #000; grid-column: 1 / -1; }
-        .btn-freeze { background: #ffcc00; color: #000; }
-        .btn-kick { background: var(--red); color: #fff; }
-        .btn-points { background: #fff; color: #000; grid-column: 1 / -1; }
-        
-        .btn:hover { opacity: 0.8; transform: scale(1.02); }
-        .badge { font-size: 0.7rem; background: #222; padding: 3px 8px; border-radius: 5px; color: var(--cyan); }
+        input, select { background: #000; border: 1px solid #333; color: #00f2ff; padding: 8px; border-radius: 5px; width: 100%; box-sizing: border-box; margin-bottom: 5px; }
+        .badge { background: #111; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--cyan); }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div>
-            <h1 style="margin:0; letter-spacing: 2px;">WW24 COMMANDER <span style="font-size: 0.8rem; color: #666;">v2.0</span></h1>
-            <p style="color: #666; margin: 5px 0 0 0;">Canlı müdaxilə və istifadəçi idarəetmə paneli</p>
-        </div>
-        <div id="global-stats" class="badge">Yüklənir...</div>
-    </div>
+    <h1 style="color: var(--cyan); border-bottom: 1px solid #222; padding-bottom: 10px;">
+        <i class="fas fa-skull-crossbones"></i> WW24 EXPLOIT PANEL <span id="user-count" class="badge">0</span>
+    </h1>
 
-    <div class="grid" id="admin-grid">
-        </div>
+    <div class="grid" id="admin-grid"></div>
 
     <script>
         const firebaseConfig = { 
@@ -56,77 +42,67 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function renderAdmin() {
-            db.ref('users').on('value', (snapshot) => {
+        function renderUsers() {
+            db.ref('users').on('value', (snap) => {
                 const grid = document.getElementById('admin-grid');
                 grid.innerHTML = "";
                 let count = 0;
-
-                snapshot.forEach((child) => {
+                snap.forEach((child) => {
                     count++;
-                    const user = child.val();
                     const name = child.key;
-                    const isFrozen = user.status === 'frozen';
-
+                    const user = child.val();
                     const card = document.createElement('div');
-                    card.className = `user-card ${isFrozen ? 'frozen' : ''}`;
+                    card.className = "user-card";
                     card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
-                            <div>
-                                <span class="status-dot online"></span>
-                                <b style="font-size:1.1rem; color:${isFrozen ? '#ffcc00' : '#fff'}">${name.toUpperCase()}</b>
-                            </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <b><i class="fas fa-terminal"></i> ${name.toUpperCase()}</b>
                             <span class="badge">${user.points || 0} PTS</span>
                         </div>
-
-                        <input type="text" id="msg-${name}" placeholder="Canlı mesaj və ya bildiriş...">
                         
-                        <div class="actions">
-                            <button class="btn btn-msg" onclick="sendCmd('${name}', 'message')"><i class="fas fa-paper-plane"></i> Mesaj Göndər</button>
-                            <button class="btn btn-freeze" onclick="sendCmd('${name}', '${isFrozen ? 'unfreeze' : 'freeze'}')">
-                                <i class="fas fa-${isFrozen ? 'unlock' : 'snowflake'}"></i> ${isFrozen ? 'AÇ' : 'DONDUR'}
-                            </button>
-                            <button class="btn btn-kick" onclick="sendCmd('${name}', 'kick')"><i class="fas fa-door-open"></i> KICK</button>
-                            <input type="number" id="pts-${name}" placeholder="Xal təyin et..." style="margin: 8px 0 0 0;">
-                            <button class="btn btn-points" onclick="updatePoints('${name}')">XALI YENİLƏ</button>
+                        <div style="margin-top:10px;">
+                            <input type="text" id="msg-${name}" placeholder="Ekran mesajı...">
+                            <button class="btn-blue" style="width:100%" onclick="sendCmd('${name}', 'alert')">BİLDİRİŞ GÖNDƏR</button>
                         </div>
+
+                        <div class="action-group">
+                            <button class="btn-red" onclick="sendCmd('${name}', 'freeze')">DONDUR</button>
+                            <button class="btn-blue" onclick="sendCmd('${name}', 'unfreeze')">AÇ</button>
+                            <button class="btn-purple" onclick="sendCmd('${name}', 'glitch')">GLITCH EFFECT</button>
+                            <button class="btn-red" onclick="sendCmd('${name}', 'scare')">SCARE JUMP</button>
+                            <button class="btn-green" onclick="redirectUser('${name}')">YÖNLƏNDİR</button>
+                            <button class="btn-red" onclick="sendCmd('${name}', 'kick')">KICK OUT</button>
+                        </div>
+                        
+                        <input type="number" id="pts-${name}" placeholder="Xal təyin et" style="margin-top:10px;">
+                        <button class="btn-green" style="width:100%" onclick="setPts('${name}')">XALI YENİLƏ</button>
                     `;
                     grid.appendChild(card);
                 });
-                document.getElementById('global-stats').innerText = `TOPLAM: ${count} İSTİFADƏÇİ`;
+                document.getElementById('user-count').innerText = count;
             });
         }
 
         function sendCmd(name, type) {
-            const msgVal = document.getElementById(`msg-${name}`).value;
-            const ref = db.ref(`commands/${name}`);
-            
-            let data = { type: type, time: Date.now() };
-            if(type === 'message') {
-                if(!msgVal) return alert("Mesaj daxil edin!");
-                data.text = msgVal;
-                document.getElementById(`msg-${name}`).value = "";
-            }
-
-            // Əgər dondurma əmridirsə, istifadəçinin statusunu da dəyiş
-            if(type === 'freeze') db.ref(`users/${name}/status`).set('frozen');
-            if(type === 'unfreeze') db.ref(`users/${name}/status`).set('active');
-
-            ref.set(data).then(() => {
-                console.log(`Command sent to ${name}: ${type}`);
+            const text = document.getElementById(`msg-${name}`).value;
+            db.ref(`commands/${name}`).set({
+                type: type,
+                text: text || "",
+                time: Date.now()
             });
+            if(type === 'alert') document.getElementById(`msg-${name}`).value = "";
         }
 
-        function updatePoints(name) {
-            const newPts = document.getElementById(`pts-${name}`).value;
-            if(!newPts) return;
-            db.ref(`users/${name}/points`).set(parseInt(newPts)).then(() => {
-                alert(`${name} üçün xal ${newPts} olaraq dəyişdirildi.`);
-                document.getElementById(`pts-${name}`).value = "";
-            });
+        function redirectUser(name) {
+            const url = prompt("Yönləndiriləcək link (məs: https://google.com):");
+            if(url) db.ref(`commands/${name}`).set({ type: 'redirect', url: url, time: Date.now() });
         }
 
-        renderAdmin();
+        function setPts(name) {
+            const p = document.getElementById(`pts-${name}`).value;
+            if(p) db.ref(`users/${name}/points`).set(parseInt(p));
+        }
+
+        renderUsers();
     </script>
 </body>
 </html>
