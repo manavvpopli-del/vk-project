@@ -1,0 +1,33 @@
+<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
+    <h2 style="color: #ff0055;"><i class="fas fa-radiation"></i> DDoS Stresser</h2>
+    <input type="text" id="target-url" placeholder="https://example.com" style="border-color: #ff0055;">
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+        <select id="attack-method" style="background: #000; color: #ff0055; border: 1px solid #ff0055;">
+            <option>HTTP-FLOOD</option>
+            <option>UDP-BYPASS</option>
+            <option>TCP-KILLER</option>
+        </select>
+        <button class="btn" style="background: #ff0055; color: white; margin: 0;" onclick="startDDoS()">ATTACK</button>
+    </div>
+
+    <div id="ddos-terminal" style="display:none; background: #050000; height: 200px; margin-top: 20px; border-radius: 10px; border: 1px solid #300; font-family: monospace; font-size: 0.7rem; color: #ff0055; padding: 15px; overflow-y: auto;">
+    </div>
+</div>
+
+<script>
+    function startDDoS() {
+        const url = document.getElementById('target-url').value;
+        const term = document.getElementById('ddos-terminal');
+        if(!url) return alert("URL daxil edin!");
+        term.style.display = 'block';
+        term.innerHTML = `> Initializing botnet...<br>> Targeting ${url}<br>`;
+        
+        let req = 0;
+        setInterval(() => {
+            req += Math.floor(Math.random() * 50);
+            term.innerHTML += `> [SENT] Packet ID: ${Math.random().toString(16).slice(2,10)} - Res: 200 OK - RPS: ${req}<br>`;
+            term.scrollTop = term.scrollHeight;
+        }, 100);
+    }
+</script>
