@@ -2,146 +2,134 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WW24 - Advanced Admin Panel</title>
+    <title>WW24 | Master Admin Control</title>
     <style>
-        :root {
-            --bg: #0d1117; --card: #161b22; --accent: #58a6ff; --danger: #f85149; --success: #3fb950;
-        }
-        body { font-family: sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; }
+        :root { --bg: #0d1117; --card: #161b22; --blue: #58a6ff; --red: #f85149; --green: #3fb950; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; padding: 20px; }
         
-        /* Login */
-        #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 100; }
-        .card { background: var(--card); padding: 25px; border-radius: 10px; border: 1px solid #30363d; text-align: center; }
+        /* Dashboard Layout */
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 20px; }
         
-        /* Layout */
-        header { background: var(--card); padding: 15px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; }
-        .stats-bar { display: flex; gap: 15px; }
-        .badge { background: #21262d; padding: 5px 12px; border-radius: 15px; font-size: 14px; }
+        /* User Table */
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #30363d; }
+        th { background: #21262d; color: var(--blue); }
         
-        /* Main Content */
-        main { padding: 30px; text-align: center; }
-        .points { font-size: 50px; font-weight: bold; color: var(--accent); margin: 20px 0; }
-        
-        /* Controls */
-        .controls { margin-top: 30px; padding: 20px; background: #21262d; border-radius: 10px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; color: white; margin: 5px; font-weight: bold; }
-        .btn-freeze { background: #d29922; }
-        .btn-block { background: var(--danger); }
-        .btn-reset { background: #30363d; }
+        /* Status Badges */
+        .status-active { color: var(--green); font-weight: bold; }
+        .status-frozen { color: #d29922; font-weight: bold; }
+        .status-blocked { color: var(--red); font-weight: bold; }
 
-        /* Blocked Overlay */
-        #block-screen { position: fixed; inset: 0; background: black; color: red; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; display: none; }
+        /* Action Buttons */
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px; transition: 0.3s; }
+        .btn-freeze { background: #d29922; color: black; }
+        .btn-block { background: var(--red); color: white; }
+        .btn-unblock { background: var(--green); color: white; }
         
-        .hidden { display: none !important; }
-        .status-msg { font-weight: bold; margin-bottom: 10px; }
+        /* Login Modal */
+        #auth-layer { position: fixed; inset: 0; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid #30363d; text-align: center; }
+        input { background: #0d1117; border: 1px solid #30363d; color: white; padding: 10px; border-radius: 5px; margin: 10px 0; width: 200px; }
+        
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="block-screen">
-        <h1>HESABINIZ BLOKLANIB</h1>
-        <p>Qaydaları pozduğunuz üçün girişiniz qadağan edilib.</p>
-    </div>
-
-    <div id="login-screen">
-        <div class="card">
-            <h2>Admin Girişi</h2>
-            <input type="password" id="passInput" placeholder="Şifrə: mod123" style="padding: 8px; width: 80%;">
-            <button class="btn" style="background: var(--success);" onclick="login()">Giriş</button>
+    <div id="auth-layer">
+        <div class="login-card">
+            <h2>WW24 Admin Girişi</h2>
+            <input type="password" id="adminPass" placeholder="Şifrə daxil edin">
+            <br>
+            <button class="btn" style="background: var(--blue); width: 100%; padding: 10px;" onclick="verify()">Giriş Et</button>
         </div>
     </div>
 
-    <div id="panel" class="hidden">
-        <header>
-            <div><strong>WW24</strong> SYSTEM</div>
-            <div class="stats-bar">
-                <div class="badge">İstifadəçi: 450+</div>
-                <div class="badge">Onlayn: <span id="online-count">0</span></div>
+    <div id="dashboard" class="container hidden">
+        <div class="header">
+            <h1>İstifadəçi İdarəetmə Paneli</h1>
+            <div>
+                <span>Onlayn: <b id="online-count" style="color: var(--green);">0</b></span> | 
+                <span>Ümumi: <b>450+</b></span>
             </div>
-        </header>
+        </div>
 
-        <main>
-            <div id="status-label" class="status-msg" style="color: var(--success);">SİSTEM AKTİVDİR</div>
-            <div class="points" id="points-val">0</div>
-            <p>Hər 1 dəqiqə: +5 Xal</p>
-
-            <div class="controls">
-                <h3>İdarəetmə Paneli</h3>
-                <button class="btn btn-freeze" onclick="toggleFreeze()" id="freeze-btn">Xal Artımını Dondur</button>
-                <button class="btn btn-block" onclick="blockUser()">İstifadəçini Blokla</button>
-                <button class="btn btn-reset" onclick="resetPoints()">Xalları Sıfırla</button>
-            </div>
-        </main>
+        <table>
+            <thead>
+                <tr>
+                    <th>İstifadəçi ID</th>
+                    <th>Xal</th>
+                    <th>Status</th>
+                    <th>Əməliyyatlar</th>
+                </tr>
+            </thead>
+            <tbody id="user-list">
+                <tr id="user-1">
+                    <td>User_8829</td>
+                    <td class="user-pts">1240</td>
+                    <td class="user-status"><span class="status-active">Aktiv</span></td>
+                    <td>
+                        <button class="btn btn-freeze" onclick="action('freeze', 1)">Dondur</button>
+                        <button class="btn btn-block" onclick="action('block', 1)">Blokla</button>
+                    </td>
+                </tr>
+                <tr id="user-2">
+                    <td>User_3102</td>
+                    <td class="user-pts">850</td>
+                    <td class="user-status"><span class="status-active">Aktiv</span></td>
+                    <td>
+                        <button class="btn btn-freeze" onclick="action('freeze', 2)">Dondur</button>
+                        <button class="btn btn-block" onclick="action('block', 2)">Blokla</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <script>
-        let points = parseInt(localStorage.getItem('pts')) || 0;
-        let isFrozen = false;
-        let isBlocked = localStorage.getItem('blocked') === 'true';
-
-        // Blok yoxlanışı
-        if(isBlocked) {
-            document.getElementById('block-screen').style.display = 'flex';
-        }
-
-        function login() {
-            if(document.getElementById('passInput').value === 'mod123') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('panel').classList.remove('hidden');
-                startApp();
-            }
-        }
-
-        function startApp() {
-            document.getElementById('points-val').innerText = points;
-
-            // Xal Artımı (Dondurulmayıbsa)
-            setInterval(() => {
-                if(!isFrozen && !isBlocked) {
-                    points += 5;
-                    document.getElementById('points-val').innerText = points;
-                    localStorage.setItem('pts', points);
-                }
-            }, 60000);
-
-            // Onlayn Sayğacı
-            setInterval(() => {
-                document.getElementById('online-count').innerText = Math.floor(Math.random() * 101);
-            }, 3000);
-        }
-
-        // --- FUNKSİYALAR ---
-
-        function toggleFreeze() {
-            isFrozen = !isFrozen;
-            const btn = document.getElementById('freeze-btn');
-            const status = document.getElementById('status-label');
-            
-            if(isFrozen) {
-                btn.innerText = "Xal Artımını Bərpa Et";
-                status.innerText = "XAL ARTIMI DONDURULUB";
-                status.style.color = "#d29922";
+        const ADMIN_PASS = "mod123";
+        
+        function verify() {
+            if(document.getElementById('adminPass').value === ADMIN_PASS) {
+                document.getElementById('auth-layer').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                initStats();
             } else {
-                btn.innerText = "Xal Artımını Dondur";
-                status.innerText = "SİSTEM AKTİVDİR";
-                status.style.color = "#3fb950";
+                alert("Şifrə yanlışdır!");
             }
         }
 
-        function blockUser() {
-            if(confirm("İstifadəçini bloklamaq istədiyinizə əminsiniz?")) {
-                localStorage.setItem('blocked', 'true');
-                document.getElementById('block-screen').style.display = 'flex';
-                document.getElementById('panel').classList.add('hidden');
-            }
+        // Simulyasiya: Onlayn sayı dəyişimi
+        function initStats() {
+            setInterval(() => {
+                document.getElementById('online-count').innerText = Math.floor(Math.random() * 100);
+            }, 2000);
         }
 
-        function resetPoints() {
-            if(confirm("Bütün xallar sıfırlansın?")) {
-                points = 0;
-                document.getElementById('points-val').innerText = points;
-                localStorage.setItem('pts', points);
+        // İdarəetmə Funksiyaları
+        function action(type, userId) {
+            const row = document.getElementById(`user-${userId}`);
+            const statusCell = row.querySelector('.user-status');
+            
+            if(type === 'freeze') {
+                statusCell.innerHTML = '<span class="status-frozen">Dondurulub</span>';
+                alert(`İstifadəçi ${userId} xal artımı dayandırıldı.`);
+            } 
+            else if(type === 'block') {
+                row.style.opacity = "0.5";
+                statusCell.innerHTML = '<span class="status-blocked">Bloklanıb</span>';
+                row.querySelector('.btn-block').innerText = "Aç";
+                row.querySelector('.btn-block').className = "btn btn-unblock";
+                row.querySelector('.btn-block').setAttribute('onclick', `action('unblock', ${userId})`);
+                alert(`İstifadəçi ${userId} tamamilə bloklandı!`);
+            }
+            else if(type === 'unblock') {
+                row.style.opacity = "1";
+                statusCell.innerHTML = '<span class="status-active">Aktiv</span>';
+                row.querySelector('.btn-unblock').innerText = "Blokla";
+                row.querySelector('.btn-unblock').className = "btn btn-block";
+                row.querySelector('.btn-unblock').setAttribute('onclick', `action('block', ${userId})`);
             }
         }
     </script>
