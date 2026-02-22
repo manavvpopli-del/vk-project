@@ -1,119 +1,69 @@
-<div class="tool-page-inner" style="animation: fadeIn 0.4s ease; color: white; background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 25px; border: 1px solid var(--accent);">
-    <h2 style="color: var(--accent); margin: 0 0 20px 0;"><i class="fas fa-envelope"></i> Anonim Mail (Mail.tm)</h2>
+<div class="module-card" style="background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 20px; border: 1px solid var(--accent); color: white;">
+    <h2 style="color: var(--accent); margin: 0 0 15px 0;"><i class="fas fa-envelope"></i> Anonim Mail (Mail.tm)</h2>
     
-    <div id="mail-box-display" style="padding: 20px; background: rgba(0,0,0,0.6); border: 1px dashed var(--accent); border-radius: 12px; text-align: center; margin-bottom: 20px; font-family: monospace; color: var(--accent); font-size: 1.1rem;">
-        Yaratmaq üçün düyməni sıxın
+    <div id="m-box" style="padding: 20px; background: rgba(0,0,0,0.5); border: 1px dashed var(--accent); border-radius: 12px; text-align: center; margin-bottom: 20px; font-family: monospace; color: var(--accent);">
+        Hazırlanır...
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <button class="btn" id="m-gen-btn" style="margin-top: 0;" onclick="createNewMail()">
-            <i class="fas fa-plus-circle"></i> YENİ MAİL
-        </button>
-        <button class="btn" id="m-refresh-btn" style="background: #1e293b; color: white; display: none; margin-top: 0;" onclick="checkMailMessages()">
-            <i class="fas fa-sync-alt"></i> YOXLA
-        </button>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="btn" id="m-gen" onclick="createNewMailModule()">YENİ MAİL</button>
+        <button class="btn" id="m-refresh" style="background: #1e293b; color: white; display: none;" onclick="checkInboxModule()">YOXLA</button>
     </div>
 
-    <div id="inbox-area" style="margin-top: 25px;">
-        <h4 style="font-size: 0.9rem; color: #eee; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 5px;">Gələn Mesajlar</h4>
-        <div id="email-list-content" style="min-height: 100px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="text-align: center; color: #555; font-size: 0.8rem; padding-top: 20px;">Mesaj yoxdur.</div>
-        </div>
-    </div>
-
-    <div id="email-body-content" style="display:none; background: #080a0f; padding: 20px; margin-top: 15px; border: 1px solid #333; border-radius: 12px; font-size: 0.85rem; color: #ccc; max-height: 300px; overflow-y: auto; white-space: pre-wrap;"></div>
+    <div id="m-list" style="margin-top: 20px; max-height: 200px; overflow-y: auto;"></div>
 </div>
 
 <script>
-    // Dəyişənin itməməsi üçün window obyektinə bağlayırıq
-    window.mToken = ""; 
+    // Tokeni window səviyyəsində saxlayırıq ki, itməsin
+    window.modToken = "";
 
-    async function createNewMail() {
-        const box = document.getElementById('mail-box-display');
-        const btn = document.getElementById('m-gen-btn');
-        btn.disabled = true;
-        box.innerHTML = '<i class="fas fa-cog fa-spin"></i> Yaradılır...';
-
+    async function createNewMailModule() {
+        const box = document.getElementById('m-box');
+        box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yaradılır...';
+        
         try {
-            // 1. Domain siyahısını al
-            const domRes = await fetch('https://api.mail.tm/domains');
-            const doms = await domRes.json();
-            const domain = doms['hydra:member'][0].domain;
-
-            // 2. Random məlumatlar
-            const user = `elite${Math.floor(Math.random()*999999)}@${domain}`;
+            const domains = await (await fetch('https://api.mail.tm/domains')).json();
+            const domain = domains['hydra:member'][0].domain;
+            const email = `elite${Math.floor(Math.random()*999999)}@${domain}`;
             const pass = "password123";
 
-            // 3. Hesab yarat
-            const accRes = await fetch('https://api.mail.tm/accounts', {
+            await fetch('https://api.mail.tm/accounts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address: user, password: pass })
+                body: JSON.stringify({ address: email, password: pass })
             });
 
-            if (!accRes.ok) throw new Error("Account creation failed");
-
-            // 4. Token al
-            const tokRes = await fetch('https://api.mail.tm/token', {
+            const tok = await (await fetch('https://api.mail.tm/token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address: user, password: pass })
-            });
-            const tokData = await tokRes.json();
-            
-            // Tokeni qeyd et
-            window.mToken = tokData.token;
-            
-            // UI Yenilə
-            box.innerText = user;
-            document.getElementById('m-refresh-btn').style.display = 'block';
-            btn.disabled = false;
-            document.getElementById('email-list-content').innerHTML = '<div style="text-align:center; color:var(--green); font-size:0.8rem;">Monitorinq aktivdir.</div>';
+                body: JSON.stringify({ address: email, password: pass })
+            })).json();
 
+            window.modToken = tok.token;
+            box.innerText = email;
+            document.getElementById('m-refresh').style.display = 'block';
+            document.getElementById('m-list').innerHTML = '<div style="text-align:center; color:#555;">Inbox aktivdir.</div>';
         } catch (e) {
-            console.error(e);
-            box.innerHTML = '<span style="color:red">API Xətası! (CORS/Network)</span>';
-            btn.disabled = false;
+            box.innerText = "API Xətası! Serverə qoşulmadı.";
         }
     }
 
-    async function checkMailMessages() {
-        if (!window.mToken) return;
-        const list = document.getElementById('email-list-content');
-        list.innerHTML = '<div style="text-align:center;"><i class="fas fa-sync fa-spin"></i></div>';
-
+    async function checkInboxModule() {
+        if (!window.modToken) return;
+        const list = document.getElementById('m-list');
+        list.innerHTML = "Yoxlanılır...";
+        
         try {
             const res = await fetch('https://api.mail.tm/messages', {
-                headers: { 'Authorization': `Bearer ${window.mToken}` }
+                headers: { 'Authorization': `Bearer ${window.modToken}` }
             });
             const data = await res.json();
             const msgs = data['hydra:member'];
-
-            if (msgs.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:#555; font-size:0.8rem;">Mesaj yoxdur.</div>';
-                return;
-            }
-
-            list.innerHTML = "";
+            
+            list.innerHTML = msgs.length === 0 ? "Mesaj yoxdur." : "";
             msgs.forEach(m => {
-                const div = document.createElement('div');
-                div.style = "background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid #333; cursor: pointer; margin-bottom: 8px; border-left: 3px solid var(--accent);";
-                div.innerHTML = `<b>${m.subject}</b><br><small>Kimdən: ${m.from.address}</small>`;
-                
-                div.onclick = async () => {
-                    const msgRes = await fetch('https://api.mail.tm/messages/' + m.id, {
-                        headers: { 'Authorization': `Bearer ${window.mToken}` }
-                    });
-                    const msgData = await msgRes.json();
-                    const bodyDiv = document.getElementById('email-body-content');
-                    bodyDiv.style.display = 'block';
-                    bodyDiv.innerText = msgData.text || "Məzmun yüklənə bilmədi.";
-                    bodyDiv.scrollIntoView({ behavior: 'smooth' });
-                };
-                list.appendChild(div);
+                list.innerHTML += `<div style="background:#111; padding:10px; border-radius:8px; margin-bottom:5px; border:1px solid #333;"><b>${m.subject}</b><br><small>${m.from.address}</small></div>`;
             });
-        } catch (e) {
-            list.innerHTML = '<div style="color:red; font-size:0.8rem;">Yükləmə xətası.</div>';
-        }
+        } catch (e) { list.innerHTML = "Xəta."; }
     }
 </script>
