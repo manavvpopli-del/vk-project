@@ -1,77 +1,142 @@
-<div style="background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 25px; border: 1px solid var(--accent); animation: fadeIn 0.4s ease;">
-    <h2 style="color: var(--accent); margin:0; font-size: 1.5rem;"><i class="fas fa-envelope-open-text"></i> Anonim Mail Pro</h2>
-    <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">Mail.tm serverlərinə birbaşa bağlantı.</p>
+<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white; padding: 30px; background: rgba(17, 20, 29, 0.95); border-radius: 25px; border: 1px solid var(--accent);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h2 style="color: var(--accent); margin: 0;"><i class="fas fa-envelope-open-text"></i> Anonim Mail Pro</h2>
+        <select id="api-selector" style="width: auto; background: rgba(0,0,0,0.5); color: var(--accent); border: 1px solid var(--accent); padding: 5px; border-radius: 10px; font-size: 0.75rem; cursor: pointer;">
+            <option value="mailtm">Server 1 (Mail.tm)</option>
+            <option value="mailgw">Server 2 (Mail.gw)</option>
+            <option value="onesec">Server 3 (1SecMail)</option>
+        </select>
+    </div>
 
-    <div id="m-box" style="padding: 20px; background: rgba(0,0,0,0.5); border: 1px dashed var(--accent); margin: 20px 0; text-align: center; font-family: monospace; color: var(--accent); font-size: 1rem; word-break: break-all;">
-        Gözlənilir...
+    <p style="font-size: 0.85rem; color: #888; margin-bottom: 20px;">Bir neçə fərqli server dəstəyi. Əgər birində xəta baş verərsə, yuxarıdan serveri dəyişib yenidən yoxlayın.</p>
+
+    <div id="m-display-box" style="padding: 20px; background: rgba(0,0,0,0.6); border: 1px dashed var(--accent); border-radius: 15px; text-align: center; margin-bottom: 15px; position: relative;">
+        <span id="active-mail" style="font-family: monospace; color: var(--accent); font-size: 1.1rem; word-break: break-all;">Server seçin və Yaradın</span>
+        <i class="fas fa-copy" onclick="copyMailText()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #555;"></i>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button class="btn" id="m-create-btn" onclick="getNewMail()">YENİ MAİL</button>
-        <button class="btn" id="m-refresh-btn" style="background: #1e293b; color: white; display: none;" onclick="checkInbox()">YOXLA</button>
+        <button class="btn" id="gen-btn" style="margin-top: 0;" onclick="handleMailGen()">
+            <i class="fas fa-magic"></i> YENİ YARAT
+        </button>
+        <button class="btn" id="chk-btn" style="margin-top: 0; background: #1e293b; color: white; display: none;" onclick="handleInboxCheck()">
+            <i class="fas fa-sync-alt"></i> YOXLA
+        </button>
     </div>
 
-    <div id="m-list" style="margin-top: 20px; font-size: 0.85rem; color: #ccc;"></div>
+    <div id="m-inbox-area" style="margin-top: 25px;">
+        <h4 style="font-size: 0.9rem; color: #eee; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">Gələn Qutusu</h4>
+        <div id="m-inbox-list" style="min-height: 100px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="text-align: center; color: #444; font-size: 0.8rem; padding-top: 20px;">Mesaj yoxdur.</div>
+        </div>
+    </div>
+
+    <div id="m-content-view" style="display:none; background: #080a0f; padding: 20px; margin-top: 15px; border: 1px solid #333; border-radius: 12px; font-size: 0.85rem; color: #ccc; max-height: 300px; overflow-y: auto;"></div>
 </div>
 
 <script>
-    // Qlobal tokeni yoxlayırıq və ya yaradırıq
-    window.m_token = window.m_token || "";
+    // Qlobal Deyişənlər
+    window.m_data = { token: "", email: "", pass: "elite12345", api: "mailtm" };
 
-    async function getNewMail() {
-        const box = document.getElementById('m-box');
-        const btn = document.getElementById('m-create-btn');
+    async function handleMailGen() {
+        const api = document.getElementById('api-selector').value;
+        const disp = document.getElementById('active-mail');
+        const btn = document.getElementById('gen-btn');
+        
+        window.m_data.api = api;
         btn.disabled = true;
-        box.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yaradılır...';
+        disp.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Qoşulur...';
 
         try {
-            // 1. Domain al
-            const d_res = await fetch('https://api.mail.tm/domains');
-            const d_data = await d_res.json();
-            const domain = d_data['hydra:member'][0].domain;
+            if (api === "mailtm" || api === "mailgw") {
+                const base = api === "mailtm" ? "https://api.mail.tm" : "https://api.mail.gw";
+                const domains = await (await fetch(`${base}/domains`)).json();
+                const domain = domains['hydra:member'][0].domain;
+                const email = `elite${Math.floor(Math.random()*999999)}@${domain}`;
+                
+                await fetch(`${base}/accounts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: email, password: window.m_data.pass })
+                });
 
-            // 2. User/Pass
-            const user = `elite${Math.floor(Math.random()*999999)}@${domain}`;
-            const pass = "password123";
+                const tokRes = await fetch(`${base}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address: email, password: window.m_data.pass })
+                });
+                const tokData = await tokRes.json();
+                window.m_data.token = tokData.token;
+                window.m_data.email = email;
 
-            // 3. Hesab yarat
-            await fetch('https://api.mail.tm/accounts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address: user, password: pass })
-            });
+            } else if (api === "onesec") {
+                const doms = await (await fetch('https://www.1secmail.com/api/v1/?action=getMessagesAndCheck&login=test&domain=1secmail.com')).json(); // Just warm up
+                window.m_data.email = `elite${Math.floor(Math.random()*999999)}@1secmail.com`;
+                window.m_data.token = "NOT_REQUIRED";
+            }
 
-            // 4. Token al
-            const t_res = await fetch('https://api.mail.tm/token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address: user, password: pass })
-            });
-            const t_data = await t_res.json();
-            window.m_token = t_data.token;
-
-            box.innerText = user;
-            document.getElementById('m-refresh-btn').style.display = 'block';
-            btn.disabled = false;
+            disp.innerText = window.m_data.email;
+            document.getElementById('chk-btn').style.display = 'block';
+            document.getElementById('m-inbox-list').innerHTML = '<div style="text-align:center; color:var(--green); font-size:0.75rem;">Server Aktivdir.</div>';
         } catch (e) {
-            box.innerHTML = '<span style="color:var(--red)">XƏTA: API bloklanıb və ya internet yoxdur</span>';
-            btn.disabled = false;
+            disp.innerHTML = '<span style="color:red">Server xətası! Digərini seçin.</span>';
         }
+        btn.disabled = false;
     }
 
-    async function checkInbox() {
-        const list = document.getElementById('m-list');
-        list.innerHTML = "Yoxlanılır...";
+    async function handleInboxCheck() {
+        const list = document.getElementById('m-inbox-list');
+        const api = window.m_data.api;
+        list.innerHTML = '<div style="text-align:center;"><i class="fas fa-sync fa-spin"></i></div>';
+
         try {
-            const res = await fetch('https://api.mail.tm/messages', {
-                headers: { 'Authorization': `Bearer ${window.m_token}` }
-            });
-            const data = await res.json();
-            const msgs = data['hydra:member'];
-            list.innerHTML = msgs.length === 0 ? "Mesaj yoxdur." : "";
+            let msgs = [];
+            if (api === "mailtm" || api === "mailgw") {
+                const base = api === "mailtm" ? "https://api.mail.tm" : "https://api.mail.gw";
+                const res = await fetch(`${base}/messages`, {
+                    headers: { 'Authorization': `Bearer ${window.m_data.token}` }
+                });
+                msgs = (await res.json())['hydra:member'];
+            } else if (api === "onesec") {
+                const [login, domain] = window.m_data.email.split('@');
+                msgs = await (await fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`)).json();
+            }
+
+            if (msgs.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#555; font-size:0.8rem;">Mesaj yoxdur.</div>';
+                return;
+            }
+
+            list.innerHTML = "";
             msgs.forEach(m => {
-                list.innerHTML += `<div style="background:#111; padding:10px; border-radius:8px; border:1px solid #333; margin-bottom:5px;"><b>${m.subject}</b><br><small>${m.from.address}</small></div>`;
+                const div = document.createElement('div');
+                div.style = "background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; border:1px solid #333; cursor:pointer;";
+                const subject = m.subject || (m.from ? m.subject : "Yeni Mesaj");
+                const from = m.from.address || m.from;
+                div.innerHTML = `<strong>${subject}</strong><br><small>${from}</small>`;
+                
+                div.onclick = async () => {
+                    const view = document.getElementById('m-content-view');
+                    view.style.display = 'block';
+                    view.innerHTML = "Yüklənir...";
+                    if (api === "mailtm" || api === "mailgw") {
+                        const base = api === "mailtm" ? "https://api.mail.tm" : "https://api.mail.gw";
+                        const c = await (await fetch(`${base}/messages/${m.id}`, { headers: { 'Authorization': `Bearer ${window.m_data.token}` } })).json();
+                        view.innerText = c.text || "Məzmun boşdur.";
+                    } else if (api === "onesec") {
+                        const [login, domain] = window.m_data.email.split('@');
+                        const c = await (await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${m.id}`)).json();
+                        view.innerText = c.textBody || "Məzmun boşdur.";
+                    }
+                };
+                list.appendChild(div);
             });
         } catch (e) { list.innerHTML = "Xəta baş verdi."; }
+    }
+
+    function copyMailText() {
+        const text = document.getElementById('active-mail').innerText;
+        navigator.clipboard.writeText(text);
+        alert("Kopyalandı: " + text);
     }
 </script>
