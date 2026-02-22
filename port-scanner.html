@@ -1,0 +1,33 @@
+<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
+    <h2 style="color: #a855f7;"><i class="fas fa-network-wired"></i> Port Scanner</h2>
+    <input type="text" id="scan-ip" placeholder="Target IP (məs: 8.8.8.8)">
+    <button class="btn" style="background:#a855f7; color:white;" onclick="runScan()">SCAN START</button>
+
+    <div id="scan-res" style="margin-top:20px; font-family:monospace; font-size:0.8rem;"></div>
+</div>
+
+<script>
+    async function runScan() {
+        const ip = document.getElementById('scan-ip').value;
+        const res = document.getElementById('scan-res');
+        if(!ip) return;
+        res.innerHTML = `> Scanning ${ip}...<br>`;
+        
+        const commonPorts = [21, 22, 23, 80, 443, 3306, 8080];
+        
+        for(let port of commonPorts) {
+            res.innerHTML += `> Testing Port ${port}... `;
+            try {
+                // Fetch vasitəsilə real vaxtda portun statusunu yoxlamaq (timeout məntiqi ilə)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                
+                await fetch(`https://${ip}:${port}`, { mode: 'no-cors', signal: controller.signal });
+                res.innerHTML += `<span style="color:#00ff00;">OPEN</span><br>`;
+            } catch(e) {
+                res.innerHTML += `<span style="color:#ff3e3e;">CLOSED / TIMEOUT</span><br>`;
+            }
+            res.scrollTop = res.scrollHeight;
+        }
+    }
+</script>
