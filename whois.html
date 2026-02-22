@@ -1,0 +1,98 @@
+<div class="tool-container" style="animation: fadeIn 0.4s ease-out; color: white; padding: 10px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h2 style="color: #00f2ff; margin: 0; font-size: 1.5rem;">
+            <i class="fas fa-search"></i> Whois Lookup
+        </h2>
+        <div id="whois-status" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff; padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; border: 1px solid rgba(0, 242, 255, 0.3);">
+            <i class="fas fa-network-wired"></i> RDAP CONNECTED
+        </div>
+    </div>
+
+    <p style="font-size: 0.85rem; color: #888; margin-bottom: 20px;">
+        Domenin (məs: google.com) qeydiyyatçı məlumatlarını, yaradılma tarixini və serverlərini (Nameservers) birbaşa mərkəzi bazadan çəkin.
+    </p>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+        <input type="text" id="domain-input" placeholder="saytadi.com" style="border: 1px solid #00f2ff; background: rgba(0,0,0,0.6); flex: 1; margin-top: 0;">
+        <button class="btn" style="background: #00f2ff; color: #000; margin-top: 0; width: auto; padding: 0 25px;" onclick="lookupWhois()">
+            <i class="fas fa-fingerprint"></i> ANALYZE
+        </button>
+    </div>
+
+    <div id="whois-loader" style="display: none; text-align: center; padding: 30px;">
+        <i class="fas fa-spinner fa-spin" style="color: #00f2ff; font-size: 2rem;"></i>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">RDAP serverlərinə sorğu göndərilir...</p>
+    </div>
+
+    <div id="whois-result-box" style="display: none; animation: fadeIn 0.5s ease;">
+        <div style="background: rgba(0,0,0,0.7); border: 1px solid #333; border-radius: 15px; padding: 20px; font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; border-left: 4px solid #00f2ff;">
+            <div id="whois-content" style="color: #ccc; word-break: break-all; white-space: pre-wrap;">
+                </div>
+        </div>
+        
+        <div style="margin-top: 15px; font-size: 0.7rem; color: #555; text-align: center;">
+            <i class="fas fa-info-circle"></i> Məlumatlar RDAP protokoluna əsasən gətirilir.
+        </div>
+    </div>
+</div>
+
+<script>
+    async function lookupWhois() {
+        const domain = document.getElementById('domain-input').value.trim().toLowerCase();
+        const loader = document.getElementById('whois-loader');
+        const resBox = document.getElementById('whois-result-box');
+        const content = document.getElementById('whois-content');
+
+        if(!domain) return alert("Domen adını daxil edin!");
+
+        // Sadə validasiya (nöqtə varmı?)
+        if(!domain.includes('.')) return alert("Düzgün domen formatı daxil edin (məs: google.com)");
+
+        loader.style.display = 'block';
+        resBox.style.display = 'none';
+
+        try {
+            // Real RDAP API (rdap.org bütün əsas domenləri dəstəkləyir)
+            const response = await fetch(`https://rdap.org/domain/${domain}`);
+            
+            if(!response.ok) throw new Error("Domen tapılmadı və ya server xətası.");
+            
+            const data = await response.json();
+
+            // Məlumatları formatlaşdırıb göstəririk
+            let output = "";
+            output += `<b style="color:#00f2ff">DOMEN:</b> ${data.ldhName}\n`;
+            
+            if(data.status) {
+                output += `<b style="color:#00f2ff">STATUS:</b> ${data.status.join(', ')}\n`;
+            }
+
+            if(data.nameservers) {
+                output += `<b style="color:#00f2ff">NAMESERVERS:</b>\n`;
+                data.nameservers.forEach(ns => {
+                    output += `  - ${ns.ldhName}\n`;
+                });
+            }
+
+            // Entity (Qeydiyyatçı) məlumatları
+            if(data.entities && data.entities[0]) {
+                const registrar = data.entities[0].vcardArray ? data.entities[0].vcardArray[1][2][3] : "Gizli və ya Naməlum";
+                output += `<b style="color:#00f2ff">REGISTRAR:</b> ${registrar}\n`;
+            }
+
+            // Təhlükəsizlik və ya digər linklər
+            output += `<b style="color:#00f2ff">RDAP LINK:</b> https://rdap.org/domain/${domain}`;
+
+            content.innerHTML = output;
+            
+            setTimeout(() => {
+                loader.style.display = 'none';
+                resBox.style.display = 'block';
+            }, 800);
+
+        } catch (error) {
+            loader.style.display = 'none';
+            alert("Xəta: " + error.message);
+        }
+    }
+</script>
