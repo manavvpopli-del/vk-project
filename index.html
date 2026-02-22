@@ -3,45 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToolBox Elite v13 | Modular HQ</title>
+    <title>ToolBox HQ | Modular Elite</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root { --accent: #00f2ff; --red: #ff3e3e; --green: #25d366; --panel: rgba(17, 20, 29, 0.9); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', sans-serif; background: #000; color: white; overflow-x: hidden; }
 
-        /* Background */
+        /* Background Video */
         #video-container { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
         #bg-video { width: 100vw; height: 100vh; object-fit: cover; filter: brightness(0.3); }
         .video-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: -1; }
 
-        /* Auth */
+        /* Auth Screen */
         #auth-screen { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: #05070a; }
         .auth-box { background: rgba(17, 20, 29, 0.95); padding: 40px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--accent); backdrop-filter: blur(10px); }
 
-        /* App Layout */
         #app-content { display: none; flex-direction: column; width: 100%; position: relative; }
         .header-bar { display: flex; justify-content: space-around; align-items: center; background: rgba(22, 27, 38, 0.7); backdrop-filter: blur(15px); padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
         .stats-panel { display: flex; justify-content: center; gap: 20px; padding: 10px; background: rgba(0, 242, 255, 0.1); font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        #cyber-map-dashboard { width: 95%; max-width: 1100px; height: 150px; margin: 20px auto; background: rgba(0,0,0,0.5) url('https://i.imgur.com/K7MvWUp.png') center/contain no-repeat; border-radius: 20px; border: 1px solid rgba(0, 242, 255, 0.2); position: relative; overflow: hidden; }
-        .map-dot { position: absolute; width: 5px; height: 5px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3); opacity: 0; } }
-
-        #main-menu { width: 95%; max-width: 1100px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 20px auto; }
+        /* Tools Grid */
+        #main-menu { width: 95%; max-width: 1100px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 30px auto; }
         .tool-card { background: var(--panel); backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
         .tool-card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 0 20px rgba(0,242,255,0.2); }
         .tool-card i { font-size: 2.2rem; color: var(--accent); margin-bottom: 12px; display: block; }
 
-        /* Modular Loader Area */
-        #tool-loader { display: none; width: 90%; max-width: 800px; margin: 20px auto; animation: fadeIn 0.4s ease; }
-        .back-btn { background: #1e293b; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; }
-
-        /* Global UI for Modules */
-        input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: rgba(0,0,0,0.5); color: #fff; margin-top: 10px; box-sizing: border-box; }
+        /* Modular Loader */
+        #module-loader { display: none; width: 90%; max-width: 800px; margin: 20px auto; animation: fadeIn 0.4s ease; }
+        .back-btn { background: #1e293b; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
+        
         .btn { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: rgba(0,0,0,0.5); color: #fff; margin-top: 10px; box-sizing: border-box; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -56,38 +50,33 @@
 
     <div id="auth-screen">
         <div class="auth-box">
-            <h2 style="color: var(--accent);">Elite HQ Access</h2>
-            <input type="text" id="username-input" placeholder="Ləqəb">
-            <input type="password" id="password-input" placeholder="Şifrə">
-            <button class="btn" onclick="secureLogin()">SİSTEMƏ DAXİL OL</button>
+            <h2 style="color: var(--accent);">Elite HQ Login</h2>
+            <input type="text" id="user-in" placeholder="Ləqəb">
+            <input type="password" id="pass-in" placeholder="Şifrə">
+            <button class="btn" onclick="login()">SİSTEMƏ DAXİL OL</button>
         </div>
     </div>
 
     <div id="app-content">
         <div class="stats-panel">
             <span>Ümumi: 400+</span>
-            <span>Onlayn: <b id="online-count">0</b></span>
+            <span>Onlayn: <b id="on-count">0</b></span>
         </div>
 
         <div class="header-bar">
             <div><i class="fas fa-user-circle"></i> <b id="u-name">...</b></div>
-            <div><i class="fas fa-gem" style="color:var(--accent)"></i> <b id="u-points">0</b> xal</div>
-            <div onclick="location.reload()" style="color:#ff4d4d; cursor:pointer;"><i class="fas fa-power-off"></i></div>
+            <div><i class="fas fa-gem" style="color:var(--accent)"></i> <b id="u-pts">0</b></div>
+            <div onclick="location.reload()" style="color:red; cursor:pointer;"><i class="fas fa-power-off"></i></div>
         </div>
-
-        <div id="cyber-map-dashboard"></div>
 
         <div id="main-menu">
-            <div class="tool-card" onclick="loadModule('mail.html', 0)"><i class="fas fa-envelope"></i><h3>Anonim Mail</h3></div>
-            <div class="tool-card" style="border-color:var(--green)" onclick="loadModule('wa.html', 700)"><i class="fab fa-whatsapp" style="color:var(--green)"></i><h3>WhatsApp WW24</h3></div>
-            <div class="tool-card" onclick="loadModule('ip.html', 100)"><i class="fas fa-map-marker-alt" style="color:#f0ad4e"></i><h3>IP Tracker</h3></div>
-            <div class="tool-card" style="border-color:var(--red)" onclick="loadModule('trap.html', 400)"><i class="fas fa-camera" style="color:var(--red)"></i><h3>Camera Trap</h3></div>
-            <div class="tool-card" onclick="loadModule('qr.html', 0)"><i class="fas fa-qrcode"></i><h3>QR Pro Max</h3></div>
+            <div class="tool-card" onclick="fetchModule('mail.html', 0)"><i class="fas fa-envelope"></i><h3>Anonim Mail</h3></div>
+            <div class="tool-card" style="border-color:var(--green)" onclick="fetchModule('wa.html', 700)"><i class="fab fa-whatsapp" style="color:var(--green)"></i><h3>WhatsApp WW24</h3></div>
         </div>
 
-        <div id="tool-loader">
-            <button class="back-btn" onclick="closeModule()">← Geri Qayıt</button>
-            <div id="module-content"></div>
+        <div id="module-loader">
+            <button class="back-btn" onclick="exitModule()">← Geri Qayıt</button>
+            <div id="module-inject-area"></div>
         </div>
     </div>
 
@@ -97,13 +86,13 @@
         const db = firebase.database();
         let loginName = ""; let userPoints = 0;
 
-        async function secureLogin() {
-            const name = document.getElementById('username-input').value.trim().toLowerCase();
-            const pass = document.getElementById('password-input').value.trim();
-            if(name.length < 3) return;
+        async function login() {
+            const name = document.getElementById('user-in').value.trim().toLowerCase();
+            const pass = document.getElementById('pass-in').value.trim();
+            if(name.length < 3) return alert("Nickname daxil edin");
 
             const snap = await db.ref('users/' + name).get();
-            if(snap.exists() && snap.val().password !== pass) return alert("Şifrə səhvdir!");
+            if(snap.exists() && snap.val().password !== pass) return alert("Şifrə yanlışdır!");
             if(!snap.exists()) await db.ref('users/' + name).set({ password: pass, points: 0 });
 
             document.getElementById('bg-music').play();
@@ -114,45 +103,43 @@
             document.getElementById('u-name').innerText = loginName;
 
             db.ref('users/'+loginName+'/points').on('value', s => { 
-                userPoints = s.val() || 0; 
-                document.getElementById('u-points').innerText = userPoints; 
+                userPoints = s.val() || 0;
+                document.getElementById('u-pts').innerText = userPoints; 
             });
-            setInterval(() => db.ref('users/'+loginName+'/points').transaction(p => (p || 0) + 1), 60000);
-            setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 101); }, 4000);
-            startMap();
+            setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random() * 101); }, 3000);
         }
 
-        async function loadModule(file, pts) {
+        async function fetchModule(file, pts) {
             if(userPoints < pts) return alert(pts + " xal lazımdır!");
+            
             try {
                 const res = await fetch(file);
+                if(!res.ok) throw new Error("Fayl tapılmadı");
                 const html = await res.text();
-                document.getElementById('main-menu').style.display = 'none';
-                document.getElementById('cyber-map-dashboard').style.display = 'none';
-                document.getElementById('tool-loader').style.display = 'block';
-                const container = document.getElementById('module-content');
-                container.innerHTML = html;
                 
-                // Scriptləri aktivləşdir
-                const scripts = container.getElementsByTagName('script');
-                for (let n = 0; n < scripts.length; n++) eval(scripts[n].innerHTML);
-            } catch (e) { alert("Xəta: Fayl tapılmadı!"); }
+                document.getElementById('main-menu').style.display = 'none';
+                document.getElementById('module-loader').style.display = 'block';
+                
+                const injectArea = document.getElementById('module-inject-area');
+                injectArea.innerHTML = html;
+
+                // BU HİSSƏ ÇOX VACİBDİR: Modul daxilindəki scriptləri tapıb işlədir
+                const scripts = injectArea.getElementsByTagName('script');
+                for (let i = 0; i < scripts.length; i++) {
+                    const newScript = document.createElement("script");
+                    newScript.text = scripts[i].text;
+                    document.body.appendChild(newScript).parentNode.removeChild(newScript);
+                }
+            } catch (err) {
+                alert("Modul yüklənərkən xəta: " + err.message);
+            }
         }
 
-        function closeModule() {
-            document.getElementById('tool-loader').style.display = 'none';
+        function exitModule() {
+            document.getElementById('module-loader').style.display = 'none';
             document.getElementById('main-menu').style.display = 'grid';
-            document.getElementById('cyber-map-dashboard').style.display = 'block';
-        }
-
-        function startMap() {
-            const map = document.getElementById('cyber-map-dashboard');
-            setInterval(() => {
-                const dot = document.createElement('div'); dot.className = 'map-dot';
-                dot.style.left = Math.random() * 90 + "%"; dot.style.top = Math.random() * 80 + "%";
-                map.appendChild(dot); setTimeout(() => dot.remove(), 1500);
-            }, 2000);
+            document.getElementById('module-inject-area').innerHTML = "";
         }
     </script>
 </body>
-                                                                                                                                     </html>
+</html>
