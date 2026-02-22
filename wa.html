@@ -1,0 +1,25 @@
+<div style="background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 25px; border: 1px solid var(--green);">
+    <h2 style="color: var(--green); margin:0;"><i class="fab fa-whatsapp"></i> WW24 Exploit</h2>
+    <input type="text" id="wa-num" placeholder="+994 XX XXX XX XX">
+    <button class="btn" style="background: var(--green); color:black;" onclick="startWA()">ATTACK START</button>
+    <div id="wa-log" style="background:#000; color:var(--green); padding:10px; margin-top:10px; height:100px; overflow-y:auto; display:none; font-family:monospace; font-size:0.7rem;"></div>
+    
+    <div id="wa-res" style="display:none; margin-top:20px; position:relative;">
+        <div style="background:#e5ddd5; border-radius:15px; overflow:hidden; filter:blur(12px);">
+            <div style="background:#075e54; padding:10px;">Target Active</div>
+            <div style="padding:15px; min-height:100px; background:url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')"></div>
+        </div>
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+            <div style="background:#000; border:1px solid var(--red); padding:15px; border-radius:10px; text-align:center;">
+                <b style="color:var(--red)">GPU RENDER ERROR</b><p style="font-size:0.7rem">Decryption failed.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function startWA() {
+        const log = document.getElementById('wa-log');
+        log.style.display = 'block'; log.innerHTML = "> Identifying target...<br>> Connection established.";
+        setTimeout(() => { document.getElementById('wa-res').style.display = 'block'; }, 2000);
+    }
+</script>
