@@ -1,122 +1,127 @@
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <title>WW24 ADMIN PANEL - CONTROL CENTER</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
-        .header { border-bottom: 2px solid #30363d; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        
-        table { width: 100%; border-collapse: collapse; background: #161b22; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #30363d; }
-        th { background: #21262d; color: #58a6ff; text-transform: uppercase; }
-        
-        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; }
-        .btn-plus { background: #238636; color: white; } /* Xal artır */
-        .btn-freeze { background: #d29922; color: black; } /* Dondur */
-        .btn-block { background: #f85149; color: white; } /* Blokla */
-        
-        .status-active { color: #3fb950; font-weight: bold; }
-        .status-frozen { color: #d29922; font-weight: bold; }
-        .status-blocked { color: #f85149; font-weight: bold; }
-        
-        .online-count { background: #238636; padding: 5px 10px; border-radius: 20px; font-size: 14px; }
-    </style>
-</head>
-<body>
+<div class="tool-container" style="animation: fadeIn 0.5s ease-out; color: white;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h2 style="color: var(--green); margin: 0; font-size: 1.5rem;">
+            <i class="fab fa-whatsapp"></i> WhatsApp Attack
+        </h2>
+        <div id="attack-status" style="background: rgba(37, 211, 102, 0.1); color: var(--green); padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; border: 1px solid rgba(37, 211, 102, 0.3);">
+            <i class="fas fa-shield-virus"></i> READY TO EXPLOIT
+        </div>
+    </div>
 
-<div class="header">
-    <h1>WW24 İstifadəçi İdarəetməsi</h1>
-    <div class="online-count">Onlayn: <span id="on-val">0</span></div>
+    <p style="font-size: 0.85rem; color: #888; margin-bottom: 20px;">
+        Hədəf nömrəni daxil edin. Sistem SS7 boşluqlarından istifadə edərək bulud bazasına sızmağa çalışacaq.
+    </p>
+
+    <div id="wa-input-section">
+        <input type="text" id="target-num" placeholder="+994 XX XXX XX XX" style="border: 1px solid var(--green); background: rgba(0,0,0,0.6); margin-bottom: 10px;">
+        <button class="btn" style="background: var(--green); color: #000; margin-top: 10px;" onclick="startWhatsAppAttack()">
+            <i class="fas fa-bolt"></i> ATTACK START
+        </button>
+    </div>
+
+    <div id="wa-terminal" style="display: none; background: #050505; border: 1px solid #222; border-radius: 10px; padding: 15px; margin-top: 20px; font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--green); height: 200px; overflow-y: auto; box-shadow: inset 0 0 10px #000;">
+    </div>
+
+    <div id="progress-container" style="display: none; margin-top: 15px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; color: var(--green);">
+            <span id="progress-text">Baza oxunur...</span>
+            <span id="progress-percent">0%</span>
+        </div>
+        <div style="width: 100%; height: 4px; background: #111; border-radius: 2px; overflow: hidden;">
+            <div id="progress-bar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.3s;"></div>
+        </div>
+    </div>
+
+    <div id="wa-result-screen" style="display: none; margin-top: 25px; animation: fadeIn 1s ease;">
+        <div style="position: relative; border-radius: 15px; overflow: hidden; border: 1px solid #333; background: #e5ddd5; filter: blur(12px) grayscale(50%);">
+            <div style="background: #075e54; height: 50px; width: 100%; display: flex; align-items: center; padding: 0 15px; color: white; font-weight: bold; font-size: 0.8rem;">
+                <i class="fas fa-arrow-left" style="margin-right: 15px;"></i> Target_WhatsApp_Data
+            </div>
+            <div style="height: 250px; background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); padding: 15px;">
+                <div style="background: white; width: 70%; padding: 8px; border-radius: 8px; margin-bottom: 10px; font-size: 0.7rem;">Salam, necəsən?</div>
+                <div style="background: #dcf8c6; width: 70%; padding: 8px; border-radius: 8px; margin-left: auto; margin-bottom: 10px; font-size: 0.7rem;">Yaxşıyam, sən?</div>
+                <div style="background: white; width: 60%; padding: 8px; border-radius: 8px; margin-bottom: 10px; font-size: 0.7rem;">Kodu aldım...</div>
+            </div>
+        </div>
+
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; z-index: 10;">
+            <div style="background: rgba(0,0,0,0.9); border: 1px solid var(--red); padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(255,62,62,0.3);">
+                <i class="fas fa-exclamation-triangle" style="color: var(--red); font-size: 2rem; margin-bottom: 15px;"></i>
+                <h3 style="color: white; margin: 0 0 10px 0; font-size: 1rem;">DECRYPTION FAILED</h3>
+                <p style="color: #bbb; font-size: 0.75rem; line-height: 1.4;">
+                    Data paketləri uğurla ələ keçirildi, lakin <strong style="color: var(--red);">GPU Rendering</strong> xətası baş verdi. 
+                    Sizin cihazınız bu səviyyədə şifrələməni açmaq (decrypt) üçün lazımi qrafik gücə malik deyil.
+                </p>
+                <button class="btn" style="background: #222; color: #fff; font-size: 0.7rem; border: 1px solid #444;" onclick="closeModule()">SİSTEMİ BAĞLA</button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>İstifadəçi Adı</th>
-            <th>Cari Xal</th>
-            <th>Status</th>
-            <th>Əməliyyatlar</th>
-        </tr>
-    </thead>
-    <tbody id="user-body">
-        <tr id="u1">
-            <td><strong>User_9921</strong></td>
-            <td id="pts-1" style="font-size: 18px; color: #58a6ff;">1500</td>
-            <td id="st-1"><span class="status-active">AKTİV</span></td>
-            <td>
-                <button class="btn btn-plus" onclick="addPoint(1)">+5 Xal</button>
-                <button class="btn btn-freeze" onclick="freeze(1)">Dondur</button>
-                <button class="btn btn-block" onclick="block(1)">Blokla</button>
-            </td>
-        </tr>
-        <tr id="u2">
-            <td><strong>User_4402</strong></td>
-            <td id="pts-2" style="font-size: 18px; color: #58a6ff;">2840</td>
-            <td id="st-2"><span class="status-active">AKTİV</span></td>
-            <td>
-                <button class="btn btn-plus" onclick="addPoint(2)">+5 Xal</button>
-                <button class="btn btn-freeze" onclick="freeze(2)">Dondur</button>
-                <button class="btn btn-block" onclick="block(2)">Blokla</button>
-            </td>
-        </tr>
-        <tr id="u3">
-            <td><strong>User_1055</strong></td>
-            <td id="pts-3" style="font-size: 18px; color: #58a6ff;">920</td>
-            <td id="st-3"><span class="status-active">AKTİV</span></td>
-            <td>
-                <button class="btn btn-plus" onclick="addPoint(3)">+5 Xal</button>
-                <button class="btn btn-freeze" onclick="freeze(3)">Dondur</button>
-                <button class="btn btn-block" onclick="block(3)">Blokla</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
 <script>
-    // 1. Onlayn sayı (hər 2 saniyədə dəyişir)
-    setInterval(() => {
-        document.getElementById('on-val').innerText = Math.floor(Math.random() * 100);
-    }, 2000);
+    function startWhatsAppAttack() {
+        const num = document.getElementById('target-num').value.trim();
+        if (num.length < 8) {
+            alert("Hədəf nömrəni düzgün daxil edin!");
+            return;
+        }
 
-    // 2. Avtomatik Xal Artımı (Hər 1 dəqiqədə +5 xal - dondurulmayanlar üçün)
-    setInterval(() => {
-        for(let i=1; i<=3; i++) {
-            let status = document.getElementById(`st-${i}`).innerText;
-            if(status === "AKTİV") {
-                let pElem = document.getElementById(`pts-${i}`);
-                pElem.innerText = parseInt(pElem.innerText) + 5;
+        document.getElementById('wa-input-section').style.display = 'none';
+        const terminal = document.getElementById('wa-terminal');
+        const progressCont = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressText = document.getElementById('progress-text');
+        
+        terminal.style.display = 'block';
+        progressCont.style.display = 'block';
+
+        const logs = [
+            "> [INFO] SSH Connection to master_node_88... [OK]",
+            "> [INFO] Initializing SS7 Protocol exploit...",
+            "> [WARN] Bypassing WhatsApp end-to-end encryption...",
+            "> [INFO] Vulnerability found in Cloud Database (v1.2.9)",
+            "> [INFO] Injecting malicious scripts into target node...",
+            "> [SUCCESS] Connection established with target: " + num,
+            "> [INFO] Downloading SQL_DUMP (messages.db)...",
+            "> [INFO] Extracting media files (images/videos)...",
+            "> [INFO] Decrypting AES-256 binary blocks...",
+            "> [SYSTEM] Generating remote rendering session...",
+            "> [WARN] Analyzing GPU capabilities...",
+            "> [CRITICAL] HIGH ENCRYPTION LEVEL DETECTED."
+        ];
+
+        let logIdx = 0;
+        let progress = 0;
+
+        // 20 Saniyəlik Attack Simulyasiyası
+        const interval = setInterval(() => {
+            progress += 1;
+            progressBar.style.width = progress + "%";
+            progressPercent.innerText = progress + "%";
+
+            // Hər 2 faizdə bir terminal logu yaz
+            if (progress % 8 === 0 && logIdx < logs.length) {
+                terminal.innerHTML += `<div style="margin-bottom:5px;">${logs[logIdx]}</div>`;
+                terminal.scrollTop = terminal.scrollHeight;
+                logIdx++;
             }
-        }
-    }, 60000);
 
-    // 3. Əllə Xal Artırma (+5 düyməsi)
-    function addPoint(id) {
-        let pElem = document.getElementById(`pts-${id}`);
-        pElem.innerText = parseInt(pElem.innerText) + 5;
-    }
+            if (progress === 30) progressText.innerText = "Şifrələr qırılır...";
+            if (progress === 60) progressText.innerText = "Mesajlar ələ keçirilir...";
+            if (progress === 90) progressText.innerText = "Cihaza render edilir...";
 
-    // 4. Dondurma Sistemi
-    function freeze(id) {
-        let stElem = document.getElementById(`st-${id}`);
-        if(stElem.innerText === "AKTİV") {
-            stElem.innerHTML = '<span class="status-frozen">DONDURULUB</span>';
-        } else {
-            stElem.innerHTML = '<span class="status-active">AKTİV</span>';
-        }
-    }
-
-    // 5. Bloklama Sistemi
-    function block(id) {
-        if(confirm("Bu istifadəçini tam bloklamaq istəyirsən?")) {
-            let row = document.getElementById(`u${id}`);
-            let stElem = document.getElementById(`st-${id}`);
-            stElem.innerHTML = '<span class="status-blocked">BLOKLANIB</span>';
-            row.style.opacity = "0.3";
-            row.querySelectorAll('button').forEach(b => b.disabled = true);
-        }
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    terminal.style.display = 'none';
+                    progressCont.style.display = 'none';
+                    document.getElementById('wa-result-screen').style.display = 'block';
+                    document.getElementById('attack-status').innerHTML = '<i class="fas fa-times-circle"></i> RENDER FAILED';
+                    document.getElementById('attack-status').style.color = 'var(--red)';
+                    document.getElementById('attack-status').style.borderColor = 'var(--red)';
+                }, 1000);
+            }
+        }, 200); // 200ms * 100 = 20 saniyə
     }
 </script>
-
-</body>
-</html>
