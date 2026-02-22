@@ -2,107 +2,192 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WW24 | God Mode</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WW24 - Admin Panel</title>
     <style>
-        :root { --red: #ff3e3e; --cyan: #00f2ff; --purple: #a855f7; --green: #25d366; }
-        body { background: #05070a; color: white; font-family: 'Consolas', monospace; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .user-card { background: rgba(255,255,255,0.05); border: 1px solid #222; border-radius: 12px; padding: 15px; border-top: 3px solid var(--cyan); }
-        
-        .action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
-        button { border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.7rem; opacity: 0.9; }
-        button:hover { opacity: 1; transform: scale(1.02); }
-        
-        .btn-blue { background: var(--cyan); color: #000; }
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-purple { background: var(--purple); color: #fff; }
-        .btn-green { background: var(--green); color: #000; }
-        
-        input, select { background: #000; border: 1px solid #333; color: #00f2ff; padding: 8px; border-radius: 5px; width: 100%; box-sizing: border-box; margin-bottom: 5px; }
-        .badge { background: #111; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--cyan); }
+        :root {
+            --primary-bg: #0d1117;
+            --secondary-bg: #161b22;
+            --accent-color: #58a6ff;
+            --danger-color: #f85149;
+            --text-main: #c9d1d9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Giriş Ekranı */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--primary-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-card {
+            background: var(--secondary-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            text-align: center;
+            width: 300px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: white;
+            border-radius: 6px;
+        }
+
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Əsas Panel */
+        header {
+            background: var(--secondary-bg);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-badge {
+            background: #21262d;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #30363d;
+        }
+
+        .online-dot {
+            height: 8px;
+            width: 8px;
+            background-color: #3fb950;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .points-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <h1 style="color: var(--cyan); border-bottom: 1px solid #222; padding-bottom: 10px;">
-        <i class="fas fa-skull-crossbones"></i> WW24 EXPLOIT PANEL <span id="user-count" class="badge">0</span>
-    </h1>
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>Giriş Tələb Olunur</h2>
+            <input type="password" id="passInput" placeholder="Şifrəni yazın...">
+            <button class="btn" onclick="checkPassword()">Daxil Ol</button>
+            <p id="error-msg" style="color: var(--danger-color); font-size: 12px; margin-top: 10px;"></p>
+        </div>
+    </div>
 
-    <div class="grid" id="admin-grid"></div>
+    <div id="main-content" class="hidden">
+        <header>
+            <div class="logo"><strong>WW24</strong> Panel</div>
+            <div class="stats-bar">
+                <div class="stat-badge">İstifadəçi: 450+</div>
+                <div class="stat-badge">
+                    <span class="online-dot"></span> Onlayn: <span id="online-val">0</span>
+                </div>
+            </div>
+            <button onclick="location.reload()" style="background:none; border:none; color:gray; cursor:pointer;">Çıxış</button>
+        </header>
+
+        <main>
+            <h3>Cari Balansınız</h3>
+            <div class="points-display" id="total-points">0</div>
+            <p>Hər dəqiqə +5 xal qazanırsınız</p>
+        </main>
+    </div>
 
     <script>
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", 
-            projectId: "sevgili-testi" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const correctPass = "mod123";
+        let points = 0;
 
-        function renderUsers() {
-            db.ref('users').on('value', (snap) => {
-                const grid = document.getElementById('admin-grid');
-                grid.innerHTML = "";
-                let count = 0;
-                snap.forEach((child) => {
-                    count++;
-                    const name = child.key;
-                    const user = child.val();
-                    const card = document.createElement('div');
-                    card.className = "user-card";
-                    card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between;">
-                            <b><i class="fas fa-terminal"></i> ${name.toUpperCase()}</b>
-                            <span class="badge">${user.points || 0} PTS</span>
-                        </div>
-                        
-                        <div style="margin-top:10px;">
-                            <input type="text" id="msg-${name}" placeholder="Ekran mesajı...">
-                            <button class="btn-blue" style="width:100%" onclick="sendCmd('${name}', 'alert')">BİLDİRİŞ GÖNDƏR</button>
-                        </div>
-
-                        <div class="action-group">
-                            <button class="btn-red" onclick="sendCmd('${name}', 'freeze')">DONDUR</button>
-                            <button class="btn-blue" onclick="sendCmd('${name}', 'unfreeze')">AÇ</button>
-                            <button class="btn-purple" onclick="sendCmd('${name}', 'glitch')">GLITCH EFFECT</button>
-                            <button class="btn-red" onclick="sendCmd('${name}', 'scare')">SCARE JUMP</button>
-                            <button class="btn-green" onclick="redirectUser('${name}')">YÖNLƏNDİR</button>
-                            <button class="btn-red" onclick="sendCmd('${name}', 'kick')">KICK OUT</button>
-                        </div>
-                        
-                        <input type="number" id="pts-${name}" placeholder="Xal təyin et" style="margin-top:10px;">
-                        <button class="btn-green" style="width:100%" onclick="setPts('${name}')">XALI YENİLƏ</button>
-                    `;
-                    grid.appendChild(card);
-                });
-                document.getElementById('user-count').innerText = count;
-            });
+        // 1. Şifrə Yoxlanışı
+        function checkPassword() {
+            const input = document.getElementById('passInput').value;
+            if(input === correctPass) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                startSystems();
+            } else {
+                document.getElementById('error-msg').innerText = "Yanlış şifrə!";
+            }
         }
 
-        function sendCmd(name, type) {
-            const text = document.getElementById(`msg-${name}`).value;
-            db.ref(`commands/${name}`).set({
-                type: type,
-                text: text || "",
-                time: Date.now()
-            });
-            if(type === 'alert') document.getElementById(`msg-${name}`).value = "";
-        }
+        function startSystems() {
+            // 2. Onlayn Sayğacı (0-100 arası təsadüfi)
+            function updateOnline() {
+                const count = Math.floor(Math.random() * 101);
+                document.getElementById('online-val').innerText = count;
+            }
+            setInterval(updateOnline, 3000);
+            updateOnline();
 
-        function redirectUser(name) {
-            const url = prompt("Yönləndiriləcək link (məs: https://google.com):");
-            if(url) db.ref(`commands/${name}`).set({ type: 'redirect', url: url, time: Date.now() });
-        }
+            // 3. Xal Artımı (Hər 60 saniyədə +5)
+            setInterval(() => {
+                points += 5;
+                document.getElementById('total-points').innerText = points;
+                // Brauzer yaddaşına yaz (Səhifə yenilənsə də itməsin)
+                localStorage.setItem('userPoints', points);
+            }, 60000);
 
-        function setPts(name) {
-            const p = document.getElementById(`pts-${name}`).value;
-            if(p) db.ref(`users/${name}/points`).set(parseInt(p));
+            // Köhnə xalları yüklə
+            if(localStorage.getItem('userPoints')) {
+                points = parseInt(localStorage.getItem('userPoints'));
+                document.getElementById('total-points').innerText = points;
+            }
         }
-
-        renderUsers();
+        
+        // Enter düyməsi ilə giriş dəstəyi
+        document.getElementById('passInput').addEventListener("keypress", (e) => {
+            if (e.key === "Enter") checkPassword();
+        });
     </script>
 </body>
 </html>
