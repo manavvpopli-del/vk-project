@@ -1,0 +1,108 @@
+<div class="tool-container" style="color: white; text-align: center; max-width: 600px; margin: auto;">
+    <h2 style="color: #ffcc00;"><i class="fas fa-brain"></i> Psixoloji Profil Analizi</h2>
+    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">20 suala səmimi cavab verərək gizli xarakterinizi kəşf edin.</p>
+    <div id="quiz-progress" style="width: 100%; height: 4px; background: #222; margin-bottom: 20px; border-radius: 2px;">
+        <div id="progress-bar" style="width: 5%; height: 100%; background: #ffcc00; transition: 0.3s;"></div>
+    </div>
+
+    <div id="quiz-area">
+        <p id="q-num" style="font-size: 0.7rem; color: #ffcc00; text-transform: uppercase; letter-spacing: 2px;"></p>
+        <p id="question" style="font-size: 1.1rem; margin: 15px 0 25px 0; line-height: 1.5; min-height: 60px;"></p>
+        <div id="options-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+            </div>
+    </div>
+
+    <div id="quiz-result" style="display: none; animation: fadeIn 0.8s ease;">
+        <div style="background: rgba(255, 204, 0, 0.1); border: 1px solid #ffcc00; padding: 25px; border-radius: 20px;">
+            <i class="fas fa-fingerprint" style="font-size: 3rem; color: #ffcc00; margin-bottom: 15px;"></i>
+            <h3 id="char-type" style="margin: 10px 0; color: #fff;"></h3>
+            <p id="char-desc" style="font-size: 0.9rem; color: #ccc; line-height: 1.6; text-align: justify;"></p>
+            <button class="btn" style="margin-top: 20px;" onclick="renderMenu()">ANA MENYUYA QAYIT</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const psycQuestions = [
+        { q: "Böyük bir qrupda olduğunuz zaman enerjiniz artır, yoxsa tək qalanda bərpa olursunuz?", a: ["İnsanlar arasında enerji yığıram", "Təklikdə dincəlirəm"], v: [1, 0] },
+        { q: "Qərar verərkən məntiqlə hərəkət edirsiniz, yoxsa hisslərinizə güvənirsiniz?", a: ["Soyuq məntiq və faktlar", "Hisslər və insanların duyğuları"], v: [2, 0] },
+        { q: "Gözlənilməz bir problem çıxanda nə edirsiniz?", a: ["Tez bir plan qururam", "Həyəcanlanıram və vəziyyətə uyğunlaşmağa çalışıram"], v: [1, 0] },
+        { q: "Tanımadığınız bir ortamda ilk addımı siz atırsınız?", a: ["Bəli, söhbəti mən başlatmağı sevirəm", "Xeyr, kiminsə mənə yaxınlaşmasını gözləyirəm"], v: [1, 0] },
+        { q: "Başqalarının sizin haqqınızda nə düşündüyü nə dərəcədə vacibdir?", a: ["Çox vacibdir, hər kəslə yaxşı olmaq istəyirəm", "Vacib deyil, mən öz doğrularımla yaşayıram"], v: [0, 1] },
+        { q: "Həyatınızda hər şey planlıdır, yoxsa hər şeyi axışına buraxırsınız?", a: ["Hər şeyin vaxtı və yeri məlumdur", "Spontan yaşamağı sevirəm"], v: [2, 0] },
+        { q: "Xəyallarınızda keçmişə çox qayıdırsınız, yoxsa gələcəyə fokuslanırsınız?", a: ["Keçmiş təcrübələr və xatirələr", "Gələcək planlar və xəyallar"], v: [0, 1] },
+        { q: "Biri sizdən kömək istədikdə, öz planlarınızı təxirə salırsınız?", a: ["Bəli, mən çox fədakar biriyəm", "Xeyr, əvvəlcə öz işlərimi bitirməliyəm"], v: [0, 2] },
+        { q: "Mübahisə zamanı hansı tərəf olursunuz?", a: ["Haqqlı olduğumu sübut edən", "Sülh bağlamağa çalışan"], v: [2, 0] },
+        { q: "İşləriniz son ana qalanda özünüzü necə hiss edirsiniz?", a: ["Stresli və təzyiq altında", "Daha məhsuldar və enerjili"], v: [0, 1] },
+        { q: "Yeni bir hobbiyə başlayanda nə qədər davamlı olursunuz?", a: ["Sona qədər gedirəm", "Tez bezirəm və başqa şeyə keçirəm"], v: [1, 0] },
+        { q: "İnsanların gizli niyyətlərini tez hiss edirsiniz?", a: ["Bəli, intuisiyam çox güclüdür", "Xeyr, hər kəsə inanıram"], v: [1, 0] },
+        { q: "Maddi qazanclı bir iş, yoxsa mənəvi rahatlıqlı bir iş?", a: ["Maddi mənfəət", "Mənəvi məmnuniyyət"], v: [2, 0] },
+        { q: "Tənqidə qarşı münasibətiniz necədir?", a: ["Tez inciyirəm", "Nəticə çıxarıram"], v: [0, 1] },
+        { q: "Gələcəyi necə görürsünüz?", a: ["Nikbin və parlaq", "Bədbin və qorxulu"], v: [1, 0] },
+        { q: "Haqqsızlıq görəndə susursunuz?", a: ["Səsimi yüksəldirəm", "Münaqişədən qaçıram"], v: [2, 0] },
+        { q: "Özünüzü lider kimi görürsünüz?", a: ["Bəli, idarə etməyi sevirəm", "Xeyr, mən yaxşı bir icraçıyam"], v: [1, 0] },
+        { q: "Detallara fikir verirsiniz, yoxsa böyük rəsmi görürsünüz?", a: ["Xırda detallar mənim üçün hər şeydir", "Ümumi mənzərə mənə bəs edir"], v: [1, 0] },
+        { q: "Tez-tez əhvalınız dəyişir?", a: ["Bəli, çox həssas biriyəm", "Xeyr, emosional stabiləm"], v: [0, 2] },
+        { q: "Həyatınızda ən böyük motivasiya nədir?", a: ["Güc və uğur", "Sevgi və hüzur"], v: [2, 1] }
+    ];
+
+    let current = 0;
+    let totalScore = 0;
+
+    function nextQ() {
+        if(current < psycQuestions.length) {
+            document.getElementById('q-num').innerText = `Sual ${current + 1} / 20`;
+            document.getElementById('question').innerText = psycQuestions[current].q;
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = "";
+            psycQuestions[current].a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "btn";
+                btn.style.background = "rgba(255,255,255,0.05)";
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    totalScore += psycQuestions[current].v[idx];
+                    current++;
+                    updateProgress();
+                    nextQ();
+                };
+                grid.appendChild(btn);
+            });
+        } else {
+            showResult();
+        }
+    }
+
+    function updateProgress() {
+        document.getElementById('progress-bar').style.width = (current / 20 * 100) + "%";
+    }
+
+    function showResult() {
+        document.getElementById('quiz-area').style.display = "none";
+        document.getElementById('quiz-progress').style.display = "none";
+        const res = document.getElementById('quiz-result');
+        res.style.display = "block";
+
+        let title = "";
+        let desc = "";
+
+        if(totalScore <= 8) {
+            title = "Həssas və Düşüncəli (The Guardian)";
+            desc = "Siz dərin daxili dünyaya sahib, emosional intellekti yüksək olan birisiniz. İnsanların duyğularını hiss etmək sizin üçün çox asandır. Sülhsevərsiniz və münaqişələrdən qaçırsınız. Bəzən özünüzü başqaları üçün fəda edirsiniz, buna görə də öz ehtiyaclarınızı unutmamağınız vacibdir.";
+        } else if(totalScore <= 15) {
+            title = "Analitik və Realist (The Architect)";
+            desc = "Siz məntiq və duyğu arasında mükəmməl bir balans saxlayırsınız. Problemləri həll etmək, plan qurmaq və reallığı olduğu kimi görmək sizin güclü tərəfinizdir. İnsanlar sizə güvənir, çünki çətin anlarda soyuqqanlı qala bilirsiniz. Sizin üçün dürüstlük hər şeydən öndə gəlir.";
+        } else if(totalScore <= 22) {
+            title = "Strateji Lider (The Commander)";
+            desc = "Siz güclü iradəli, məqsədyönlü və idarəetmə qabiliyyəti yüksək olan bir xarakterə sahibsiniz. Çətinliklər sizi qorxutmur, əksinə motivasiya edir. Haqqlı olduğunuzu bildiyiniz zaman sona qədər mübarizə aparırsınız. Cəmiyyətdə nüfuz sahibi olmaq və iz qoymaq sizin əsas hədəfinizdir.";
+        } else {
+            title = "Azad Ruhlu Kəşfiyyatçı (The Visionary)";
+            desc = "Siz heç bir qəlibə sığmayan, yenilikçi və risk almağı sevən birisiniz. Daim hərəkətdə olmaq və yeni bir şeylər kəşf etmək sizin həyat tərzinizdir. Məhdudiyyətləri sevmirsiniz və azadlığınıza hər şeydən çox dəyər verirsiniz. İnsanları ilhamlandırmaq qabiliyyətiniz var.";
+        }
+
+        document.getElementById('char-type').innerText = title;
+        document.getElementById('char-desc').innerText = desc;
+    }
+
+    nextQ();
+</script>
