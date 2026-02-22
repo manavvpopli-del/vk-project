@@ -1,0 +1,13 @@
+<div style="background: rgba(17, 20, 29, 0.95); padding: 30px; border-radius: 25px; border: 1px solid var(--accent);">
+    <h2 style="color: var(--accent); margin:0;">Anonim Mail</h2>
+    <div id="m-box" style="padding:15px; background:#000; border:1px dashed var(--accent); margin:15px 0; text-align:center; font-family:monospace;">Yaratmaq üçün düyməni sıxın</div>
+    <button class="btn" onclick="getMail()">YENİ MAİL YARAT</button>
+</div>
+<script>
+    async function getMail() {
+        const b = document.getElementById('m-box'); b.innerText = "Yaradılır...";
+        const doms = await (await fetch('https://api.mail.tm/domains')).json();
+        const user = `elite${Math.floor(Math.random()*9999)}@${doms['hydra:member'][0].domain}`;
+        b.innerText = user;
+    }
+</script>
