@@ -1,0 +1,52 @@
+<div class="tool-container" style="color: white; text-align: center;">
+    <h3 style="color: #00f2ff;"><i class="fas fa-map-signs"></i> CYBER PATH (GÜVƏN TESTİ)</h3>
+    <div id="path-setup">
+        <input type="text" id="path-room" placeholder="Otaq Kodu">
+        <button class="btn" onclick="joinPath('commander')">KOMANDİR OL (Yolu görür)</button>
+        <button class="btn" style="background:#ff3e3e" onclick="joinPath('pilot')">PİLOT OL (Yolu görmür)</button>
+    </div>
+
+    <div id="game-area" style="display:none; margin-top: 20px;">
+        <div id="maze-map" class="glass" style="width: 250px; height: 250px; margin: auto; position: relative; border: 2px solid #333;">
+            <div id="player" style="width: 20px; height: 20px; background: #00f2ff; position: absolute; left:0; top:0; transition: 0.2s;"></div>
+            <div id="goal" style="width: 20px; height: 20px; background: #ffcc00; position: absolute; right:0; bottom:0;"></div>
+        </div>
+        <div id="controls" style="margin-top: 20px;">
+            <button class="btn" style="width: 60px;" onclick="move('up')">↑</button><br>
+            <button class="btn" style="width: 60px;" onclick="move('left')">←</button>
+            <button class="btn" style="width: 60px;" onclick="move('down')">↓</button>
+            <button class="btn" style="width: 60px;" onclick="move('right')">→</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let role = "";
+    let room = "";
+    function joinPath(r) {
+        role = r; room = document.getElementById('path-room').value;
+        document.getElementById('path-setup').style.display = 'none';
+        document.getElementById('game-area').style.display = 'block';
+        if(role === 'pilot') document.getElementById('maze-map').style.background = "black";
+        listenPath();
+    }
+    function move(dir) {
+        window.db.ref('games/path/'+room).transaction(d => {
+            if(!d) d = {x:0, y:0};
+            if(dir === 'up') d.y -= 20;
+            if(dir === 'down') d.y += 20;
+            if(dir === 'left') d.x -= 20;
+            if(dir === 'right') d.x += 20;
+            return d;
+        });
+    }
+    function listenPath() {
+        window.db.ref('games/path/'+room).on('value', s => {
+            const d = s.val();
+            if(d) {
+                const p = document.getElementById('player');
+                p.style.left = d.x + "px"; p.style.top = d.y + "px";
+            }
+        });
+    }
+</script>
