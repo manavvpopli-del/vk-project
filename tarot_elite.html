@@ -1,0 +1,99 @@
+<div class="tool-container" style="color: white; text-align: center; max-width: 600px; margin: auto;">
+    <h2 style="color: #ffcc00;"><i class="fas fa-magic"></i> ELİTE TAROT RİTUARI</h2>
+    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Enerjini topla, sualını düşün və kartlara toxun.</p>
+
+    <div id="tarot-init" class="glass" style="padding: 20px; border-radius: 20px;">
+        <select id="reading-type" style="margin-bottom: 15px; background: #000; color: #ffcc00; border: 1px solid #ffcc00; padding: 10px; border-radius: 8px; width: 100%;">
+            <option value="all">Ümumi Tale Analizi</option>
+            <option value="love">Sevgi və Münasibətlər</option>
+            <option value="career">Karyera və Maliyyə</option>
+        </select>
+        <button class="btn" onclick="openDeck()">GÖSTƏRİCİ KARTLARI AÇ</button>
+    </div>
+
+    <div id="deck-area" style="display: none; grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); gap: 10px; margin-top: 20px;">
+        </div>
+
+    <div id="reading-process" style="display: none; margin-top: 30px;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #ffcc00;"></i>
+        <p id="process-text">Kartların ruhu oxunur...</p>
+    </div>
+
+    <div id="tarot-final" style="display: none; margin-top: 20px; animation: fadeIn 1s ease;">
+        <div class="glass" style="padding: 25px; border: 1px solid #ffcc00; text-align: justify; border-radius: 20px;">
+            <h3 id="card-name" style="text-align: center; color: #ffcc00;"></h3>
+            <div id="card-meaning" style="line-height: 1.7; font-size: 0.95rem;"></div>
+            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+            <p style="color: #25d366; font-size: 0.85rem;"><b>Ruhun tövsiyəsi:</b> <span id="soul-advice"></span></p>
+            <button class="btn" onclick="renderMenu()">RİTUALLI BİTİR</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const tarotData = [
+        { 
+            name: "Tale Çarxı (Wheel of Fortune)", 
+            love: "Münasibətinizdə qaçılmaz bir dönüş nöqtəsi gəlir. Əgər tənha deyilsinizsə, münasibət yeni bir mərhələyə keçəcək. Tənhalar üçün tale qəfil bir qarşılaşma hazırlayır.",
+            career: "Maliyyə vəziyyətinizdə gözlənilməz bir yüksəliş var. Risk etməyin tam zamanıdır, çünki şans çarxı sizin xeyrinizə dönür.",
+            all: "Həyatınızda böyük bir dövr qapanır və yenisi açılır. Hadisələrin sürətinə hazır olun, nəzarət sizin əlinizdə deyil, taleyin axışına buraxın.",
+            advice: "Dəyişiklikdən qorxma, hər şey sənin xeyrinədir."
+        },
+        { 
+            name: "Ali Baş Kahinə (The High Priestess)", 
+            love: "Hisslərinizdə gizli qalan məqamlar var. Qarşı tərəf sizə hər şeyi demir, yaxud siz öz intuisiyanızı boğursunuz. Sükut bu dövrdə ən böyük cavabdır.",
+            career: "Karyerada hələ ki, hərəkət etmək zamanı deyil. Məlumat toplayın və hər kəsə planlarınızdan danışmayın. Gizli biliklər sizə uğur gətirəcək.",
+            all: "İntuisiyanızın səsini dinləyin. Ətrafda baş verən gizli oyunları ancaq daxili səsinizlə hiss edə bilərsiniz. Yuxularınıza diqqət edin.",
+            advice: "Sirləri qoru və daxili səsinə güvən."
+        },
+        { 
+            name: "Qüllə (The Tower)", 
+            love: "Sarsıntılı bir dövr. Yanlış təməllər üzərində qurulan münasibətlər dağıla bilər, lakin bu, daha sağlam bir gələcək üçün lazımdır.",
+            career: "İş həyatında gözlənilməz dəyişikliklər, bəlkə də bir layihənin sonu. Bu dağıntı sizin üçün yeni bir fürsətdir.",
+            all: "Anidən baş verən hadisələr sizi təşvişə sala bilər. Lakin bu, həyatınızdakı lazımsız yüklərin təmizlənməsidir.",
+            advice: "Köhnəni burax ki, yenisi gəlsin."
+        }
+        // ... Digər professional kartlar (Aşiqlər, İmperator, Ölüm və s.) bura əlavə edilə bilər
+    ];
+
+    function openDeck() {
+        document.getElementById('tarot-init').style.display = 'none';
+        const deck = document.getElementById('deck-area');
+        deck.style.display = 'grid';
+        for(let i=0; i<20; i++) {
+            const card = document.createElement('div');
+            card.style = "height:80px; background:#111; border:1px solid #444; border-radius:5px; cursor:pointer; transition:0.3s;";
+            card.onclick = () => selectCard();
+            deck.append(card);
+        }
+    }
+
+    function selectCard() {
+        document.getElementById('deck-area').style.display = 'none';
+        document.getElementById('reading-process').style.display = 'block';
+        
+        let i = 0;
+        const texts = ["Kartın enerjisi daxil olur...", "Keçmiş və gələcək birləşir...", "Tale yolu müəyyənləşir..."];
+        const int = setInterval(() => {
+            document.getElementById('process-text').innerText = texts[i];
+            i++;
+            if(i >= texts.length) {
+                clearInterval(int);
+                showResult();
+            }
+        }, 1200);
+    }
+
+    function showResult() {
+        document.getElementById('reading-process').style.display = 'none';
+        const final = document.getElementById('tarot-final');
+        final.style.display = 'block';
+
+        const type = document.getElementById('reading-type').value;
+        const card = tarotData[Math.floor(Math.random() * tarotData.length)];
+        
+        document.getElementById('card-name').innerText = card.name;
+        document.getElementById('card-meaning').innerText = card[type];
+        document.getElementById('soul-advice').innerText = card.advice;
+    }
+</script>
