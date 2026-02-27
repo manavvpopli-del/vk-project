@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToolBox Elite v21 | Command Center</title>
+    <title>ToolBox Elite | Full Version</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -11,72 +11,70 @@
         :root { --accent: #00f2ff; --red: #ff3e3e; --purple: #a855f7; --bg: #000; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', sans-serif; color: white; background: var(--bg); overflow: hidden; }
         
-        /* BACKGROUND VIDEO */
         #video-bg { position: fixed; inset: 0; z-index: -2; }
-        #bg-video { width: 100%; height: 100%; object-fit: cover; }
+        #bg-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
 
-        /* SCROLLER & GLASS */
         #app-content, #auth-screen { position: relative; width: 100%; height: 100vh; overflow-y: auto; z-index: 1; }
-        .glass { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; }
+        .glass { background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
         
-        /* AUTH UI */
         .auth-box { width: 90%; max-width: 350px; padding: 40px; text-align: center; margin: 15vh auto; border-top: 2px solid var(--accent); }
         
-        /* HEADER & STATS */
-        .header-bar { display: flex; justify-content: space-around; align-items: center; padding: 15px; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .stats-panel { display: flex; justify-content: center; gap: 20px; padding: 8px; background: rgba(0,242,255,0.1); font-size: 0.75rem; }
+        .header-bar { display: flex; justify-content: space-around; align-items: center; padding: 15px; background: rgba(0,0,0,0.7); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .stats-panel { display: flex; justify-content: center; gap: 20px; padding: 8px; background: rgba(0,242,255,0.1); font-size: 0.75rem; letter-spacing: 1px; }
 
-        /* CATEGORY GRID */
-        #main-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; padding: 30px; max-width: 1200px; margin: 0 auto; }
-        .card { padding: 40px; text-align: center; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.03); }
-        .card:hover { transform: translateY(-8px); background: rgba(255,255,255,0.1); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,242,255,0.1); }
-        .card i { font-size: 3rem; margin-bottom: 15px; display: block; }
+        #main-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding: 30px; max-width: 1200px; margin: 0 auto; }
+        .card { padding: 40px; text-align: center; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.08); border-color: var(--accent); box-shadow: 0 0 20px rgba(0,242,255,0.2); }
+        .card i { font-size: 3.5rem; margin-bottom: 15px; display: block; }
 
-        /* BUTTONS */
-        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; margin-top: 10px; box-sizing: border-box; }
-        .btn { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; text-transform: uppercase; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; margin-top: 10px; outline: none; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; text-transform: uppercase; transition: 0.3s; }
+        .btn:hover { letter-spacing: 1px; box-shadow: 0 0 15px var(--accent); }
         
-        #module-loader { display: none; padding: 25px; max-width: 800px; margin: 0 auto; }
+        #module-loader { display: none; padding: 25px; max-width: 900px; margin: 0 auto; }
         
-        @keyframes glitch { 0% { transform: translate(0); } 25% { transform: translate(-4px, 4px); } 50% { transform: translate(4px, -4px); } 100% { transform: translate(0); } }
+        @keyframes glitch { 0% { transform: translate(0); } 25% { transform: translate(-3px, 3px); } 50% { transform: translate(3px, -3px); } 100% { transform: translate(0); } }
+        ::-webkit-scrollbar { width: 0; }
     </style>
 </head>
 <body>
 
     <div id="video-bg"><video autoplay muted loop playsinline id="bg-video"><source src="video.mp4" type="video/mp4"></video></div>
+    
     <audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
     <div id="auth-screen">
         <div class="auth-box glass">
-            <h2 style="letter-spacing: 2px; color: var(--accent);">TERMINAL LOGIN</h2>
+            <h2 style="letter-spacing: 3px; color: var(--accent);">SYSTEM ACCESS</h2>
+            <p style="font-size: 0.7rem; color: #888; margin-top: -10px;">AUTHORIZED PERSONNEL ONLY</p>
             <input type="text" id="user-in" placeholder="Username">
-            <input type="password" id="pass-in" placeholder="Security Code">
-            <button class="btn" onclick="login()">Enter System</button>
+            <input type="password" id="pass-in" placeholder="Access Code">
+            <button class="btn" onclick="login()">Initialize</button>
         </div>
     </div>
 
     <div id="app-content" style="display: none;">
         <div class="stats-panel">
-            <span><i class="fas fa-users"></i> DATA: 450+</span>
-            <span><i class="fas fa-signal" style="color:#25d366"></i> ONLINE: <b id="on-count">0</b></span>
+            <span><i class="fas fa-database"></i> USERS: 450+</span>
+            <span><i class="fas fa-circle" style="color:#25d366; font-size: 0.5rem;"></i> ONLINE: <b id="on-count">0</b></span>
         </div>
 
         <div class="header-bar">
-            <div><i class="fas fa-user-circle"></i> <b id="u-name">...</b></div>
-            <div><i class="fas fa-bolt" style="color:#ffcc00"></i> <b id="u-pts">0</b></div>
+            <div><i class="fas fa-user-shield"></i> <b id="u-name">...</b></div>
+            <div><i class="fas fa-microchip" style="color:#ffcc00"></i> <b id="u-pts">0</b></div>
             <div onclick="location.reload()" style="color:var(--red); cursor:pointer;"><i class="fas fa-power-off"></i></div>
         </div>
 
         <div id="main-menu"></div>
 
         <div id="module-loader">
-            <button class="btn" style="width:auto; padding:8px 20px; background:rgba(0,0,0,0.5); color:#fff;" onclick="renderMenu()">← BACK</button>
-            <div id="module-inject-area" class="glass" style="padding: 25px; margin-top: 20px;"></div>
+            <button class="btn" style="width:auto; padding:8px 25px; background:rgba(0,0,0,0.6); color:#fff; border: 1px solid #333;" onclick="renderMenu()">← RETURN</button>
+            <div id="module-inject-area" class="glass" style="padding: 30px; margin-top: 20px; border: 1px solid rgba(0,242,255,0.2);"></div>
         </div>
     </div>
 
     <script>
-        // CONFIGURATION WITH "FOR FUN" CATEGORY
+        const originalMusic = "music.mp3";
         const categories = {
             "tools": {
                 title: "Hacking Tools",
@@ -91,6 +89,7 @@
                     { name: "DDoS Simulator", file: "ddos.html", icon: "fas fa-radiation", points: 500, color: "#ff0055" },
                     { name: "Vulnerability Scan", file: "scanner.html", icon: "fas fa-search-plus", points: 250, color: "#ff3e3e" },
                     { name: "Leak Finder", file: "leak.html", icon: "fas fa-database", points: 300, color: "#3b82f6" },
+                    { name: "Fake ID Gen", file: "id-card.html", icon: "fas fa-id-card", points: 200, color: "#a855f7" },
                     { name: "Crypto Track", file: "crypto-track.html", icon: "fab fa-bitcoin", points: 0, color: "#f7931a" }
                 ]
             },
@@ -112,19 +111,29 @@
         firebase.initializeApp(firebaseConfig);
         window.db = firebase.database();
 
+        function handleMusic(type) {
+            const audio = document.getElementById('bg-music');
+            const targetSrc = (type === "fun") ? "fun.mp3" : originalMusic;
+            if (!audio.src.includes(targetSrc)) {
+                audio.src = targetSrc;
+                audio.play().catch(e => console.log("Interaction required"));
+            }
+        }
+
         async function login() {
             const name = document.getElementById('user-in').value.trim().toLowerCase();
             const pass = document.getElementById('pass-in').value.trim();
             if(!name || !pass) return;
 
             const snap = await window.db.ref('users/' + name).get();
-            if(snap.exists() && snap.val().password !== pass) return alert("Şifrə səhvdir!");
+            if(snap.exists() && snap.val().password !== pass) return alert("ACCESS DENIED: Wrong code.");
             if(!snap.exists()) await window.db.ref('users/' + name).set({ password: pass, points: 150 });
 
             window.loginName = name;
             document.getElementById('u-name').innerText = name.toUpperCase();
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
+            
             document.getElementById('bg-music').play();
 
             window.db.ref('users/' + name + '/points').on('value', s => {
@@ -139,7 +148,6 @@
         function startLiveSystem(name) {
             setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random() * 85) + 15; }, 4000);
             
-            // AUTOMATIC POINTS & ADMIN LISTENER
             setInterval(async () => {
                 const snap = await window.db.ref(`users/${name}`).get();
                 const user = snap.val();
@@ -152,23 +160,21 @@
             window.db.ref(`commands/${name}`).on('value', snap => {
                 const cmd = snap.val();
                 if(!cmd || Date.now() - cmd.time > 10000) return;
-                executeCommand(cmd);
+                
+                if(cmd.type === 'alert') alert("ADMIN COMMAND: " + cmd.text);
+                if(cmd.type === 'freeze') {
+                    const f = document.createElement('div'); f.id = "frz-lay";
+                    f.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;color:red;";
+                    f.innerHTML = "<h1>SYSTEM ENCRYPTED BY ADMIN</h1>"; document.body.appendChild(f);
+                }
+                if(cmd.type === 'unfreeze') { const l = document.getElementById('frz-lay'); if(l) l.remove(); }
+                if(cmd.type === 'glitch') { document.body.style.animation = "glitch 0.2s infinite"; setTimeout(()=>document.body.style.animation="", 3000); }
+                if(cmd.type === 'kick') location.reload();
             });
         }
 
-        function executeCommand(cmd) {
-            if(cmd.type === 'alert') alert("ADMİN: " + cmd.text);
-            if(cmd.type === 'freeze') {
-                const f = document.createElement('div'); f.id = "frz-lay";
-                f.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;color:red;";
-                f.innerHTML = "<h1>SYSTEM LOCKED</h1>"; document.body.appendChild(f);
-            }
-            if(cmd.type === 'unfreeze') { const l = document.getElementById('frz-lay'); if(l) l.remove(); }
-            if(cmd.type === 'glitch') { document.body.style.animation = "glitch 0.2s infinite"; setTimeout(()=>document.body.style.animation="", 3000); }
-            if(cmd.type === 'kick') location.reload();
-        }
-
         function renderMenu() {
+            handleMusic("main");
             document.getElementById('module-loader').style.display = "none";
             const menu = document.getElementById('main-menu');
             menu.style.display = "grid"; menu.innerHTML = "";
@@ -176,34 +182,37 @@
                 const cat = categories[key];
                 const card = document.createElement('div'); card.className = "card glass";
                 card.onclick = () => renderCategoryItems(key);
-                card.innerHTML = `<i class="${cat.icon}" style="color:${cat.color}"></i><h2>${cat.title}</h2>`;
+                card.innerHTML = `<i class="${cat.icon}" style="color:${cat.color}"></i><h2 style="letter-spacing:1px;">${cat.title}</h2>`;
                 menu.appendChild(card);
             }
         }
 
         function renderCategoryItems(key) {
+            handleMusic(key);
             const menu = document.getElementById('main-menu');
             const cat = categories[key];
-            menu.innerHTML = `<div style="grid-column: 1/-1; text-align:left;"><button class="btn" style="width:auto; padding:8px 15px;" onclick="renderMenu()">← BACK</button><h2 style="color:${cat.color}; margin-top:15px;">${cat.title}</h2></div>`;
+            menu.innerHTML = `<div style="grid-column: 1/-1; text-align:left;"><button class="btn" style="width:auto; padding:8px 15px;" onclick="renderMenu()">← BACK</button><h2 style="color:${cat.color}; margin-top:20px; border-left: 4px solid ${cat.color}; padding-left: 15px;">${cat.title}</h2></div>`;
             cat.items.forEach(t => {
                 const card = document.createElement('div'); card.className = "card glass";
                 card.onclick = () => fetchModule(t.file, t.points);
-                card.innerHTML = `<i class="${t.icon}" style="color:${t.color}"></i><h3>${t.name}</h3><p style="font-size:0.75rem; color:#888;">${t.points} PTS</p>`;
+                card.innerHTML = `<i class="${t.icon}" style="color:${t.color}"></i><h3>${t.name}</h3><p style="font-size:0.75rem; color:#888;">REQUIRED: ${t.points} PTS</p>`;
                 menu.appendChild(card);
             });
         }
 
         async function fetchModule(file, pts) {
-            if(window.userPoints < pts) return alert("Kifayət qədər xalınız yoxdur!");
-            const res = await fetch(file); const html = await res.text();
-            document.getElementById('main-menu').style.display = "none";
-            document.getElementById('module-loader').style.display = "block";
-            const area = document.getElementById('module-inject-area'); area.innerHTML = html;
-            const scripts = area.getElementsByTagName('script');
-            for (let s of scripts) { 
-                const ns = document.createElement("script"); 
-                ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); 
-            }
+            if(window.userPoints < pts) return alert("INSUFFICIENT POINTS: Keep system online to earn more.");
+            try {
+                const res = await fetch(file); const html = await res.text();
+                document.getElementById('main-menu').style.display = "none";
+                document.getElementById('module-loader').style.display = "block";
+                const area = document.getElementById('module-inject-area'); area.innerHTML = html;
+                const scripts = area.getElementsByTagName('script');
+                for (let s of scripts) { 
+                    const ns = document.createElement("script"); 
+                    ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); 
+                }
+            } catch(e) { alert("ERROR: Module file not found."); }
         }
     </script>
 </body>
