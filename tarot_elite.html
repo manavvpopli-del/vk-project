@@ -1,31 +1,42 @@
-<div class="tool-container" style="color: white; text-align: center; max-width: 600px; margin: auto;">
-    <h2 style="color: #ffcc00;"><i class="fas fa-magic"></i> ELİTE TAROT RİTUARI</h2>
-    <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Enerjini topla, sualını düşün və kartlara toxun.</p>
+<div class="tool-container" style="color: white; text-align: center; max-width: 700px; margin: auto; font-family: 'Georgia', serif;">
+    <h2 style="color: #ffcc00; text-shadow: 0 0 15px rgba(255,204,0,0.5);"><i class="fas fa-scroll"></i> ELİTE TAROT ANALİZİ</h2>
+    <p style="font-size: 0.9rem; color: #aaa; font-style: italic;">Kainatın sirləri detallarda gizlidir. Sualına fokuslan.</p>
 
-    <div id="tarot-init" class="glass" style="padding: 20px; border-radius: 20px;">
-        <select id="reading-type" style="margin-bottom: 15px; background: #000; color: #ffcc00; border: 1px solid #ffcc00; padding: 10px; border-radius: 8px; width: 100%;">
-            <option value="all">Ümumi Tale Analizi</option>
-            <option value="love">Sevgi və Münasibətlər</option>
-            <option value="career">Karyera və Maliyyə</option>
+    <div id="tarot-init" class="glass" style="padding: 30px; border-radius: 20px; border: 1px solid #444;">
+        <p style="margin-bottom: 10px; color: #ffcc00;">Hansı sahədə dərin analiz istəyirsiniz?</p>
+        <select id="reading-type" style="margin-bottom: 20px; background: #111; color: #ffcc00; border: 1px solid #444; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer;">
+            <option value="all">Ümumi Tale və Həyat Yolu</option>
+            <option value="love">Sevgi, Ehtiras və Münasibətlər</option>
+            <option value="career">Karyera, Pul və Gələcək Planlar</option>
         </select>
-        <button class="btn" onclick="openDeck()">GÖSTƏRİCİ KARTLARI AÇ</button>
+        <button class="btn" style="background: #ffcc00; color: #000;" onclick="openDeck()">RİTUALLI BAŞLAT</button>
     </div>
 
-    <div id="deck-area" style="display: none; grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); gap: 10px; margin-top: 20px;">
+    <div id="deck-area" style="display: none; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 12px; margin-top: 25px;">
         </div>
 
-    <div id="reading-process" style="display: none; margin-top: 30px;">
-        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #ffcc00;"></i>
-        <p id="process-text">Kartların ruhu oxunur...</p>
+    <div id="reading-process" style="display: none; margin-top: 40px; padding: 20px;">
+        <i class="fas fa-sync fa-spin" style="font-size: 3rem; color: #ffcc00; margin-bottom: 20px;"></i>
+        <p id="process-text" style="letter-spacing: 2px;">Enerji dalğaları analiz edilir...</p>
     </div>
 
-    <div id="tarot-final" style="display: none; margin-top: 20px; animation: fadeIn 1s ease;">
-        <div class="glass" style="padding: 25px; border: 1px solid #ffcc00; text-align: justify; border-radius: 20px;">
-            <h3 id="card-name" style="text-align: center; color: #ffcc00;"></h3>
-            <div id="card-meaning" style="line-height: 1.7; font-size: 0.95rem;"></div>
-            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-            <p style="color: #25d366; font-size: 0.85rem;"><b>Ruhun tövsiyəsi:</b> <span id="soul-advice"></span></p>
-            <button class="btn" onclick="renderMenu()">RİTUALLI BİTİR</button>
+    <div id="tarot-final" style="display: none; margin-top: 25px; animation: fadeIn 1.2s ease;">
+        <div class="glass" style="padding: 35px; border: 1px solid #ffcc00; text-align: justify; border-radius: 25px; background: rgba(0,0,0,0.8);">
+            <h3 id="card-name" style="text-align: center; color: #ffcc00; font-size: 1.6rem; border-bottom: 1px solid #333; padding-bottom: 15px;"></h3>
+            
+            <div style="margin-top: 20px;">
+                <b style="color: #ffcc00; display: block; margin-bottom: 10px;"><i class="fas fa-star"></i> ƏTRAFLI PROQNOZ:</b>
+                <div id="card-meaning" style="line-height: 1.8; font-size: 1rem; color: #ddd;"></div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #222; margin: 25px 0;">
+            
+            <div style="background: rgba(37, 211, 102, 0.1); padding: 15px; border-radius: 10px; border-left: 5px solid #25d366;">
+                <b style="color: #25d366;"><i class="fas fa-lightbulb"></i> KİBER-KAHİNİN MƏSLƏHƏTİ:</b>
+                <p id="soul-advice" style="margin: 8px 0 0 0; font-size: 0.9rem; font-style: italic;"></p>
+            </div>
+
+            <button class="btn" onclick="renderMenu()" style="margin-top: 30px; background: transparent; border: 1px solid #ffcc00; color: #ffcc00;">RİTUALLI BİTİR</button>
         </div>
     </div>
 </div>
@@ -33,36 +44,39 @@
 <script>
     const tarotData = [
         { 
+            name: "Məsləhətçi (The Magician)", 
+            love: "Sizin sevgi həyatınızda yeni bir enerji formalaşır. Əgər tənha deyilsinizsə, tərəfdaşınızla aranızda olan soyuqluq sizin yaradıcı və isti yanaşmanız sayəsində tamamilə yox olacaq. İndi manipulyasiya etmək yox, dürüst hisslərlə hərəkət etmək zamanıdır. Tənhalar üçün isə bu kart deyir ki, sən öz cazibə qüvvənin zirvəsindəsən; istədiyin insanı özünə cəlb etmək üçün bütün alətlər əlindədir. Sadəcə ilk addımı atmaqdan qorxma.",
+            career: "İş dünyasında sizin üçün 'qızıl dövr' başlayır. Zəkanız və bacarıqlarınız rəhbərlik tərəfindən fərq ediləcək. Yeni bir layihəyə başlamaq və ya öz işinizi qurmaq üçün ən ideal vaxtdır. Qarşınıza çıxan maneələr əslində sizin üçün gizli imkanlardır. Maliyyə baxımından gözlənilməz bir qaynaqdan gəlir əldə edə bilərsiniz, lakin bu vəsaiti mütləq gələcək investisiyaya yönləndirməlisiniz.",
+            all: "Kainatın bütün elementləri sizin xeyrinizə birləşib. Həyatınızın bu mərhələsində 'Yox' sözünü lüğətinizdən çıxarın. Nəyi arzulayırsınızsa, onu reallaşdırmaq üçün daxili gücünüz kifayətdir. Taleyin yazısı sizin öz əlinizlə yazılır. Bu dövrdə qəbul edəcəyiniz qərarlar növbəti bir ilinizi müəyyən edəcək.",
+            advice: "Gücünün fərqinə var, sən sadəcə bir oyunçu deyil, həm də oyunun qurucususan."
+        },
+        { 
             name: "Tale Çarxı (Wheel of Fortune)", 
-            love: "Münasibətinizdə qaçılmaz bir dönüş nöqtəsi gəlir. Əgər tənha deyilsinizsə, münasibət yeni bir mərhələyə keçəcək. Tənhalar üçün tale qəfil bir qarşılaşma hazırlayır.",
-            career: "Maliyyə vəziyyətinizdə gözlənilməz bir yüksəliş var. Risk etməyin tam zamanıdır, çünki şans çarxı sizin xeyrinizə dönür.",
-            all: "Həyatınızda böyük bir dövr qapanır və yenisi açılır. Hadisələrin sürətinə hazır olun, nəzarət sizin əlinizdə deyil, taleyin axışına buraxın.",
-            advice: "Dəyişiklikdən qorxma, hər şey sənin xeyrinədir."
+            love: "Sevgi həyatınızda 'karma' qanunu işə düşür. Keçmişdə etdiyiniz yaxşılıqların və ya səhvlərin nəticəsini görmək üzrəsiniz. Əgər münasibətinizdə durğunluq var idisə, qəfil bir hadisə hər şeyi yerindən oynadacaq. Bu, həm də ruh əkizinizlə qarşılaşma ehtimalını artırır. Baş verən dəyişikliklərə müqavimət göstərməyin, çünki çarx sizi daha xoşbəxt bir limana doğru aparır.",
+            career: "Karyeranızda gözlənilməz dönüş nöqtəsi gəlir. Bəlkə də heç ağlınızda olmayan bir sahədən təklif alacaqsınız və ya iş yerinizdə böyük bir struktur dəyişikliyi sizin xeyrinizə nəticələnəcək. Maliyyə çarxı yuxarıya doğru hərəkət edir. Şans oyunlarında və ya riskli yatırımlarda kiçik uğurlar qazana bilərsiniz. Lakin unutmayın: bu çarx həmişə dönür, ona görə də qazandığınız vaxt ehtiyatlı olmağı da yaddan çıxarmayın.",
+            all: "Həyatınızda kontrol edə bilməyəcəyiniz hadisələr zənciri başlayır. Bu kart deyir ki, bəzi şeylər alnınıza yazılıb və onlar mütləq baş verəcək. Yaxşı xəbərlər qapıdadır. Dəyişikliklərdən qorxmaq yerinə, onlarla birlikdə axmağı öyrənin. Bu dövr sizin üçün imtahan deyil, bir hədiyyədir.",
+            advice: "Hadisələri zorlamayın, axın sizi mütləq mənzil başına çatdıracaq."
         },
         { 
-            name: "Ali Baş Kahinə (The High Priestess)", 
-            love: "Hisslərinizdə gizli qalan məqamlar var. Qarşı tərəf sizə hər şeyi demir, yaxud siz öz intuisiyanızı boğursunuz. Sükut bu dövrdə ən böyük cavabdır.",
-            career: "Karyerada hələ ki, hərəkət etmək zamanı deyil. Məlumat toplayın və hər kəsə planlarınızdan danışmayın. Gizli biliklər sizə uğur gətirəcək.",
-            all: "İntuisiyanızın səsini dinləyin. Ətrafda baş verən gizli oyunları ancaq daxili səsinizlə hiss edə bilərsiniz. Yuxularınıza diqqət edin.",
-            advice: "Sirləri qoru və daxili səsinə güvən."
-        },
-        { 
-            name: "Qüllə (The Tower)", 
-            love: "Sarsıntılı bir dövr. Yanlış təməllər üzərində qurulan münasibətlər dağıla bilər, lakin bu, daha sağlam bir gələcək üçün lazımdır.",
-            career: "İş həyatında gözlənilməz dəyişikliklər, bəlkə də bir layihənin sonu. Bu dağıntı sizin üçün yeni bir fürsətdir.",
-            all: "Anidən baş verən hadisələr sizi təşvişə sala bilər. Lakin bu, həyatınızdakı lazımsız yüklərin təmizlənməsidir.",
-            advice: "Köhnəni burax ki, yenisi gəlsin."
+            name: "Ay (The Moon)", 
+            love: "Münasibətinizdə dumanlı bir dövrdür. Qarşı tərəfin sizdən gizlətdiyi sirlər ola bilər, yaxud siz öz xəyallarınızda yaratdığınız insana aşiq olmusunuz. Reallığı görmək çətindir, çünki hissləriniz məntiqinizi üstələyib. Qısqanclıq və şübhələrdən uzaq durun, çünki onlar çox vaxt əsassızdır. Ayın işığı hər şeyi tam göstərmir, ona görə də ciddi qərarlar vermək üçün dumanın dağılmasını gözləyin.",
+            career: "İş mühitində qeyri-müəyyənlik hökm sürür. Arxa planda bəzi gizli danışıqlar gedə bilər. Hər kəsə güvənməyin və mühüm sənədləri imzalamazdan əvvəl iki dəfə yoxlayın. Rəqibləriniz özlərini dost kimi göstərə bilər. Bu dövrdə ən böyük silahınız intuisiyanızdır; əgər daxilinizdə bir narahatlıq varsa, deməli orada bir yanlışlıq var.",
+            all: "Daxili qorxularınızla üzləşmək zamanıdır. Həyatınızda bəzi şeylər göründüyü kimi deyil. İllüziyalara qapılmaqdan çəkinin. Psixoloji olaraq həssas bir dövrdəsiniz, ona görə də özünüzə vaxt ayırın. Qaranlıqdan qorxmayın, çünki Ay həm də daxili kəşfiyyatın simvoludur.",
+            advice: "Daxili səsinə güvən, lakin gözlərinlə gördüyün hər şeyə inanma."
         }
-        // ... Digər professional kartlar (Aşiqlər, İmperator, Ölüm və s.) bura əlavə edilə bilər
     ];
 
     function openDeck() {
         document.getElementById('tarot-init').style.display = 'none';
         const deck = document.getElementById('deck-area');
         deck.style.display = 'grid';
-        for(let i=0; i<20; i++) {
+        deck.innerHTML = "";
+        for(let i=0; i<24; i++) {
             const card = document.createElement('div');
-            card.style = "height:80px; background:#111; border:1px solid #444; border-radius:5px; cursor:pointer; transition:0.3s;";
+            card.style = "height:90px; background:linear-gradient(45deg, #111, #222); border:1px solid #444; border-radius:8px; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; color:#444;";
+            card.innerHTML = '<i class="fas fa-eye"></i>';
+            card.onmouseover = () => card.style.borderColor = "#ffcc00";
+            card.onmouseout = () => card.style.borderColor = "#444";
             card.onclick = () => selectCard();
             deck.append(card);
         }
@@ -73,7 +87,12 @@
         document.getElementById('reading-process').style.display = 'block';
         
         let i = 0;
-        const texts = ["Kartın enerjisi daxil olur...", "Keçmiş və gələcək birləşir...", "Tale yolu müəyyənləşir..."];
+        const texts = [
+            "Aura təmizlənir...", 
+            "Keçmişin qalıqları silinir...", 
+            "Gələcək xətləri toxunur...", 
+            "Kartın ruhu ilə əlaqə qurulur..."
+        ];
         const int = setInterval(() => {
             document.getElementById('process-text').innerText = texts[i];
             i++;
@@ -81,7 +100,7 @@
                 clearInterval(int);
                 showResult();
             }
-        }, 1200);
+        }, 1000);
     }
 
     function showResult() {
