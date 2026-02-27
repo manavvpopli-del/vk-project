@@ -27,100 +27,69 @@
         }
 
         /* BACKGROUND ELEMENTS */
-        #video-bg {
-            position: fixed; inset: 0; z-index: -2;
-            filter: brightness(0.4) contrast(1.2);
-        }
+        #video-bg { position: fixed; inset: 0; z-index: -2; filter: brightness(0.4); }
         #bg-video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .scanline {
-            position: fixed; top: 0; left: 0; width: 100%; height: 2px;
-            background: rgba(0, 242, 255, 0.1);
-            z-index: 10; pointer-events: none;
-            animation: scan 4s linear infinite;
-        }
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 242, 255, 0.1); z-index: 10; pointer-events: none; animation: scan 4s linear infinite; }
 
-        /* ANIMATIONS */
         @keyframes scan { from { top: 0; } to { top: 100%; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes glow { 0% { box-shadow: 0 0 5px var(--accent); } 50% { box-shadow: 0 0 20px var(--accent); } 100% { box-shadow: 0 0 5px var(--accent); } }
 
         /* AUTH SCREEN */
-        #auth-screen {
-            display: flex; align-items: center; justify-content: center;
-            height: 100vh; perspective: 1000px;
-        }
+        #auth-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
         .auth-box {
             width: 350px; padding: 40px; text-align: center;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
             border: 1px solid var(--border); border-radius: 30px;
-            animation: fadeIn 1s ease-out;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: fadeIn 0.8s ease-out;
+            box-shadow: 0 0 30px rgba(0,242,255,0.1);
         }
-        .auth-box h2 { font-family: 'Orbitron', sans-serif; letter-spacing: 4px; color: var(--accent); margin-bottom: 30px; }
+        .auth-box h2 { font-family: 'Orbitron', sans-serif; letter-spacing: 3px; color: var(--accent); margin-bottom: 25px; }
 
         input {
-            width: 100%; padding: 12px 20px; margin: 10px 0;
+            width: 100%; padding: 15px; margin: 10px 0;
             background: rgba(255,255,255,0.05); border: 1px solid #333;
             border-radius: 12px; color: white; font-family: 'Rajdhani';
-            transition: 0.3s; box-sizing: border-box;
+            transition: 0.3s; box-sizing: border-box; text-align: center; font-size: 1.1rem;
         }
         input:focus { border-color: var(--accent); background: rgba(0, 242, 255, 0.05); outline: none; }
 
         .btn {
-            width: 100%; padding: 15px; margin-top: 20px;
+            width: 100%; padding: 15px; margin-top: 15px;
             background: linear-gradient(45deg, var(--accent), #00a8ff);
             border: none; border-radius: 12px; color: black;
             font-weight: 700; text-transform: uppercase; cursor: pointer;
             transition: 0.3s; font-family: 'Orbitron';
         }
-        .btn:hover { transform: scale(1.02); filter: brightness(1.2); box-shadow: 0 0 20px var(--accent); }
+        .btn:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent); }
 
         /* MAIN APP UI */
         #app-content { display: none; height: 100vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; background: var(--glass); backdrop-filter: blur(10px);
+            padding: 20px; background: var(--glass); backdrop-filter: blur(15px);
             border-radius: 20px; border: 1px solid var(--border);
             margin-bottom: 30px; position: sticky; top: 0; z-index: 100;
         }
         .user-info b { color: var(--accent); font-size: 1.2rem; }
 
-        /* GRID SYSTEM */
-        .category-section { margin-bottom: 40px; animation: fadeIn 1s ease; }
-        .section-title { font-family: 'Orbitron'; font-size: 1.5rem; margin-bottom: 20px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1200px; margin: auto; }
+        .category-title { font-family: 'Orbitron'; font-size: 1.4rem; margin: 30px 0 15px 0; border-left: 4px solid var(--accent); padding-left: 15px; }
 
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
         .card {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
             padding: 30px 20px; border-radius: 24px; text-align: center;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer; position: relative; overflow: hidden;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
         }
-        .card:hover {
-            background: rgba(0, 242, 255, 0.05); border-color: var(--accent);
-            transform: translateY(-10px);
-        }
-        .card i { font-size: 2.5rem; margin-bottom: 15px; display: block; transition: 0.3s; }
-        .card:hover i { transform: scale(1.2) rotate(10deg); }
+        .card:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--accent); transform: translateY(-10px); }
+        .card i { font-size: 2.5rem; margin-bottom: 15px; display: block; }
 
-        /* MODULE LOADER */
         #module-loader {
             display: none; position: fixed; inset: 20px; z-index: 1000;
-            background: rgba(5,5,5,0.95); backdrop-filter: blur(30px);
+            background: rgba(5,5,5,0.98); backdrop-filter: blur(30px);
             border-radius: 30px; border: 1px solid var(--border);
-            padding: 40px; overflow-y: auto;
+            padding: 40px; overflow-y: auto; animation: fadeIn 0.5s ease;
         }
-
-        .close-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: var(--danger); color: white; border: none;
-            padding: 10px 20px; border-radius: 10px; cursor: pointer;
-        }
+        .close-btn { position: absolute; top: 20px; right: 20px; background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; }
     </style>
 </head>
 <body>
@@ -131,11 +100,11 @@
 
     <div id="auth-screen">
         <div class="auth-box">
-            <i class="fas fa-shield-halved" style="font-size: 3rem; color: var(--accent); margin-bottom: 15px;"></i>
-            <h2>ELITE ACCESS</h2>
-            <input type="text" id="user-in" placeholder="Username">
-            <input type="password" id="pass-in" placeholder="Access Key">
-            <button class="btn" onclick="login()">Initialize System</button>
+            <i class="fas fa-fingerprint" style="font-size: 3.5rem; color: var(--accent); margin-bottom: 15px;"></i>
+            <h2>IDENTITY ACCESS</h2>
+            <p style="font-size: 0.8rem; color: #888; margin-top: -15px;">Şifrəsiz, sürətli giriş</p>
+            <input type="text" id="user-in" placeholder="Username daxil edin" maxlength="15">
+            <button class="btn" onclick="login()">Sistemə Daxil Ol</button>
             <p id="auth-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 15px; display: none;"></p>
         </div>
     </div>
@@ -143,16 +112,16 @@
     <div id="app-content">
         <div class="header glass">
             <div class="user-info">
-                <i class="fas fa-user-ninja"></i> <span>WELCOME, </span><b id="u-name">...</b>
+                <i class="fas fa-id-badge"></i> <span style="font-size:0.8rem">SYSTEM ID: </span><b id="u-name">...</b>
             </div>
             <div class="user-stats">
-                <i class="fas fa-microchip" style="color: var(--accent)"></i> <b id="u-pts">0</b> PTS
-                <i class="fas fa-signal" style="color: #25d366; margin-left: 20px;"></i> ONLINE: <b id="on-count">12</b>
+                <i class="fas fa-bolt" style="color: var(--accent)"></i> <b id="u-pts">0</b> PTS
+                <i class="fas fa-users" style="color: #25d366; margin-left: 20px;"></i> ONLINE: <b id="on-count">0</b>
             </div>
             <div onclick="location.reload()" style="cursor: pointer; color: var(--danger)"><i class="fas fa-power-off"></i></div>
         </div>
 
-        <div id="menu-container"></div>
+        <div id="dashboard"></div>
     </div>
 
     <div id="module-loader">
@@ -163,23 +132,23 @@
     <script>
         const originalMusic = "music.mp3";
         const categories = {
-      "tools": {
-    title: "HACKING TOOLS",
-    icon: "fas fa-user-secret",
-    color: "#00f2ff",
-    items: [
-        { name: "Anonim Mail", file: "mail.html", icon: "fas fa-envelope", points: 0, color: "#00f2ff" },
-        { name: "WhatsApp Attack", file: "wa.html", icon: "fab fa-whatsapp", points: 700, color: "#25d366" },
-        { name: "IP Tracker", file: "ip.html", icon: "fas fa-map-marker-alt", points: 100, color: "#f0ad4e" },
-        { name: "Camera Trap", file: "trap.html", icon: "fas fa-camera", points: 400, color: "#ff3e3e" },
-        { name: "Whois Lookup", file: "whois.html", icon: "fas fa-search", points: 50, color: "#00f2ff" },
-        { name: "DDoS Simulator", file: "ddos.html", icon: "fas fa-radiation", points: 500, color: "#ff0055" },
-        { name: "Vulnerability Scan", file: "scanner.html", icon: "fas fa-search-plus", points: 250, color: "#ff3e3e" },
-        { name: "Leak Finder", file: "leak.html", icon: "fas fa-database", points: 300, color: "#3b82f6" },
-        { name: "Fake ID Gen", file: "id-card.html", icon: "fas fa-id-card", points: 200, color: "#a855f7" },
-        { name: "Crypto Track", file: "crypto-track.html", icon: "fab fa-bitcoin", points: 0, color: "#f7931a" }
-    ]
-}
+            "tools": {
+                title: "HACKING TOOLS",
+                icon: "fas fa-user-secret",
+                color: "#00f2ff",
+                items: [
+                    { name: "Anonim Mail", file: "mail.html", icon: "fas fa-envelope", points: 0, color: "#00f2ff" },
+                    { name: "WhatsApp Attack", file: "wa.html", icon: "fab fa-whatsapp", points: 700, color: "#25d366" },
+                    { name: "IP Tracker", file: "ip.html", icon: "fas fa-map-marker-alt", points: 100, color: "#f0ad4e" },
+                    { name: "Camera Trap", file: "trap.html", icon: "fas fa-camera", points: 400, color: "#ff3e3e" },
+                    { name: "Whois Lookup", file: "whois.html", icon: "fas fa-search", points: 50, color: "#00f2ff" },
+                    { name: "DDoS Simulator", file: "ddos.html", icon: "fas fa-radiation", points: 500, color: "#ff0055" },
+                    { name: "Vulnerability Scan", file: "scanner.html", icon: "fas fa-search-plus", points: 250, color: "#ff3e3e" },
+                    { name: "Leak Finder", file: "leak.html", icon: "fas fa-database", points: 300, color: "#3b82f6" },
+                    { name: "Fake ID Gen", file: "id-card.html", icon: "fas fa-id-card", points: 200, color: "#a855f7" },
+                    { name: "Crypto Track", file: "crypto-track.html", icon: "fab fa-bitcoin", points: 0, color: "#f7931a" }
+                ]
+            },
             "fun": {
                 title: "FOR FUN (MULTIPLAYER)",
                 icon: "fas fa-ghost",
@@ -190,7 +159,9 @@
                     { name: "Binary Soul", file: "binary_soul.html", icon: "fas fa-microchip", points: 200, color: "#25d366" },
                     { name: "Sevgi Şifrəsi", file: "love_password.html", icon: "fas fa-lock", points: 80, color: "#ff3e3e" },
                     { name: "Cyber Path", file: "cyber_path.html", icon: "fas fa-map-signs", points: 100, color: "#00f2ff" },
-                    { name: "Cyber Compass", file: "cyber_compass.html", icon: "fas fa-compass", points: 80, color: "#25d366" }
+                    { name: "Cyber Compass", file: "cyber_compass.html", icon: "fas fa-compass", points: 80, color: "#25d366" },
+                    { name: "Cyber RPS", file: "rps_game.html", icon: "fas fa-hand-fist", points: 30, color: "#00f2ff" },
+                    { name: "Truth or Dare", file: "truth_or_dare.html", icon: "fas fa-mask", points: 40, color: "#a855f7" }
                 ]
             }
         };
@@ -203,81 +174,78 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function handleMusic(type) {
-            const audio = document.getElementById('bg-music');
-            const target = (type === "fun") ? "fun.mp3" : originalMusic;
-            if(!audio.src.includes(target)) {
-                audio.src = target;
-                audio.play().catch(() => {});
-            }
-        }
-
         async function login() {
-            const btn = document.querySelector('.btn');
             const user = document.getElementById('user-in').value.trim().toLowerCase();
-            const pass = document.getElementById('pass-in').value.trim();
             const error = document.getElementById('auth-error');
+            const btn = document.querySelector('.btn');
 
-            if(!user || !pass) return;
-            btn.innerText = "CONNECTING...";
-
+            if(!user || user.length < 3) return alert("Username ən az 3 hərfdən ibarət olmalıdır!");
+            
+            btn.innerText = "AUTHENTICATING...";
+            
             try {
                 const snap = await db.ref('users/' + user).get();
-                if(snap.exists() && snap.val().password !== pass) {
-                    error.innerText = "ACCESS DENIED: WRONG KEY";
-                    error.style.display = "block";
-                    btn.innerText = "Initialize System";
-                    return;
-                }
-                if(!snap.exists()) {
-                    await db.ref('users/' + user).set({ password: pass, points: 200, lastLogin: Date.now() });
+                
+                // MULTIPLAYER CHECK: Ad artıq varsa və cihaz ID-si uyğun deyilsə (sadələşdirilmiş tək cihaz qoruması)
+                if(snap.exists()) {
+                    let localId = localStorage.getItem('elite_device_id');
+                    if(!localId) {
+                        error.innerText = "BU AD ARTIQ İSTİFADƏ EDİLİR!";
+                        error.style.display = "block";
+                        btn.innerText = "Sistemə Daxil Ol";
+                        return;
+                    }
+                } else {
+                    // Yeni qeydiyyat
+                    const newDeviceId = Math.random().toString(36).substring(7);
+                    localStorage.setItem('elite_device_id', newDeviceId);
+                    await db.ref('users/' + user).set({ points: 200, deviceId: newDeviceId, createdAt: Date.now() });
                 }
 
                 window.loginName = user;
                 document.getElementById('auth-screen').style.display = "none";
                 document.getElementById('app-content').style.display = "block";
                 document.getElementById('u-name').innerText = user.toUpperCase();
-                document.getElementById('bg-music').play();
+                document.getElementById('bg-music').play().catch(() => {});
 
                 db.ref('users/' + user + '/points').on('value', s => {
                     document.getElementById('u-pts').innerText = s.val() || 0;
                     window.userPoints = s.val() || 0;
                 });
 
-                renderDashboard();
+                renderUI();
                 startLiveStats();
             } catch(e) {
-                error.innerText = "CONNECTION ERROR: Check Console";
-                error.style.display = "block";
                 console.error(e);
+                alert("Firebase xətası! İnterneti və ya qaydaları yoxlayın.");
             }
         }
 
-        function renderDashboard() {
-            const container = document.getElementById('menu-container');
-            container.innerHTML = "";
+        function renderUI() {
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = "";
             for(let key in categories) {
                 const cat = categories[key];
-                let section = `<div class="category-section">
-                    <h2 class="section-title" style="color:${cat.color}">${cat.title}</h2>
-                    <div class="grid">`;
-                
+                let html = `<div class="category-title" style="color:${cat.color}">${cat.title}</div><div class="grid">`;
                 cat.items.forEach(item => {
-                    section += `
+                    html += `
                         <div class="card" onclick="openModule('${item.file}', ${item.points}, '${key}')">
                             <i class="${item.icon}" style="color:${item.color}"></i>
-                            <h3>${item.name}</h3>
-                            <span style="font-size:0.8rem; color:#666;">${item.points} PTS REQUIRED</span>
+                            <h3 style="margin:0; font-size:1.1rem;">${item.name}</h3>
+                            <div style="font-size:0.7rem; color:#666; margin-top:10px;">Cost: ${item.points} PTS</div>
                         </div>`;
                 });
-                section += `</div></div>`;
-                container.innerHTML += section;
+                html += `</div>`;
+                dashboard.innerHTML += html;
             }
         }
 
-        async function openModule(file, pts, catKey) {
-            if(window.userPoints < pts) return alert("INSUFFICIENT DATA POINTS!");
-            handleMusic(catKey);
+        async function openModule(file, pts, cat) {
+            if(window.userPoints < pts) return alert("KİFAYƏT QƏDƏR XALINIZ YOXDUR!");
+            
+            const audio = document.getElementById('bg-music');
+            if(cat === "fun") { audio.src = "fun.mp3"; audio.play(); }
+
             try {
                 const res = await fetch(file);
                 const html = await res.text();
@@ -289,22 +257,18 @@
                     const ns = document.createElement("script");
                     ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns);
                 }
-            } catch(e) { alert("FILE NOT FOUND: " + file); }
+            } catch(e) { alert("Fayl tapılmadı: " + file); }
         }
 
         function closeModule() {
             document.getElementById('module-loader').style.display = "none";
-            handleMusic("main");
+            const audio = document.getElementById('bg-music');
+            if(!audio.src.includes(originalMusic)) { audio.src = originalMusic; audio.play(); }
         }
 
         function startLiveStats() {
-            setInterval(() => {
-                document.getElementById('on-count').innerText = Math.floor(Math.random() * 50) + 20;
-            }, 3000);
-            
-            setInterval(() => {
-                db.ref('users/' + window.loginName + '/points').transaction(p => (p || 0) + 5);
-            }, 60000);
+            setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random() * 40) + 15; }, 3000);
+            setInterval(() => { db.ref('users/' + window.loginName + '/points').transaction(p => (p || 0) + 5); }, 60000);
         }
     </script>
 </body>
