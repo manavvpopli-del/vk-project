@@ -1,34 +1,845 @@
-<div class="tool-container" style="animation: fadeIn 0.4s ease; color: white;">
-    <h2 style="color: #3b82f6;"><i class="fas fa-database"></i> Leak Finder v4.0</h2>
-    <input type="email" id="leak-email" placeholder="email@example.com">
-    <button class="btn" style="background: #3b82f6; color: white;" onclick="findLeaks()">DATA SEARCH</button>
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bizim Uşağımız ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <link rel="apple-touch-icon" href="https://picsum.photos/id/1015/192/192">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .child-avatar { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .stat-bar { transition: width 0.6s ease; }
+        .heart-beat { animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        .modal { animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .message { max-width: 75%; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-rose-500 via-purple-600 to-indigo-700 text-white min-h-screen overflow-hidden">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col relative" id="app">
 
-    <div id="leak-res" style="display:none; margin-top:20px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; border-left: 4px solid #3b82f6;">
-        <div id="leak-status" style="font-weight: bold; margin-bottom: 10px;">Searching...</div>
-        <div id="leak-details" style="font-size: 0.8rem; line-height: 1.6;"></div>
+        <!-- LANDING -->
+        <div id="screen-landing" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div class="text-7xl mb-4 heart-beat">❤️</div>
+            <h1 class="text-5xl font-bold mb-2 tracking-tighter">Bizim Uşağımız</h1>
+            <p class="text-xl opacity-90 mb-12">Sevgilinlə birlikdə uşaq böyüt</p>
+            
+            <div class="space-y-4 w-full max-w-xs">
+                <button onclick="showCreateRoom()" 
+                        class="w-full bg-white text-rose-600 font-semibold py-5 rounded-3xl text-xl shadow-xl active:scale-95 transition">
+                    Otaq Yarat
+                </button>
+                <button onclick="showJoinRoom()" 
+                        class="w-full bg-white/20 backdrop-blur-md border-2 border-white font-semibold py-5 rounded-3xl text-xl active:scale-95 transition">
+                    Otağa Qoşul
+                </button>
+                <button onclick="showAddToHome()" 
+                        class="w-full bg-white/10 text-white font-medium py-4 rounded-3xl flex items-center justify-center gap-2">
+                    <span class="text-2xl">📱</span>
+                    <span>Ana ekrana əlavə et</span>
+                </button>
+            </div>
+            
+            <div class="mt-auto text-xs opacity-60">Firebase ilə real-time multiplayer</div>
+        </div>
+
+        <!-- CREATE ROOM -->
+        <div id="screen-create" class="hidden flex-1 flex flex-col p-6">
+            <button onclick="goBack()" class="self-start mb-6 text-2xl">←</button>
+            <h2 class="text-3xl font-bold mb-8">Yeni Otaq Yarat</h2>
+            <input id="create-myname" type="text" placeholder="Sənin adın (məsələn: Aysel)" 
+                   class="w-full bg-white/10 border border-white/30 rounded-3xl px-6 py-5 text-lg placeholder-white/50 mb-6">
+            <button onclick="createRoom()" 
+                    class="w-full bg-white text-rose-600 font-bold py-6 rounded-3xl text-2xl">Otaq Yarad & Kod Al</button>
+        </div>
+
+        <!-- JOIN ROOM -->
+        <div id="screen-join" class="hidden flex-1 flex flex-col p-6">
+            <button onclick="goBack()" class="self-start mb-6 text-2xl">←</button>
+            <h2 class="text-3xl font-bold mb-8">Otağa Qoşul</h2>
+            <input id="join-roomid" type="text" placeholder="Otaq kodu (6 simvol)" maxlength="6"
+                   class="w-full bg-white/10 border border-white/30 rounded-3xl px-6 py-5 text-2xl tracking-widest uppercase text-center mb-6">
+            <input id="join-myname" type="text" placeholder="Sənin adın" 
+                   class="w-full bg-white/10 border border-white/30 rounded-3xl px-6 py-5 text-lg placeholder-white/50 mb-6">
+            <button onclick="joinRoom()" 
+                    class="w-full bg-white text-rose-600 font-bold py-6 rounded-3xl text-2xl">Qoşul</button>
+        </div>
+
+        <!-- WAITING ROOM -->
+        <div id="screen-waiting" class="hidden flex-1 flex flex-col p-6">
+            <div class="flex-1 flex flex-col items-center justify-center text-center">
+                <div class="text-6xl mb-6">🔑</div>
+                <h2 class="text-3xl font-bold mb-2">Otaq yaradıldı!</h2>
+                <div id="room-code-display" onclick="copyCode()" 
+                     class="bg-white/20 text-4xl font-mono tracking-widest px-10 py-6 rounded-3xl mb-8 cursor-pointer active:scale-95"></div>
+                <p class="text-lg opacity-90">Bu kodu sevgilinə göndər ❤️</p>
+                
+                <div class="mt-12 w-full">
+                    <div class="flex justify-between text-sm mb-3">
+                        <div id="p1-name" class="font-medium"></div>
+                        <div id="p2-name" class="font-medium text-white/60">Gözlənilir...</div>
+                    </div>
+                    <div class="h-2 bg-white/20 rounded-full overflow-hidden">
+                        <div id="players-bar" class="h-full bg-white w-1/2 transition-all"></div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="startChildCreation()" id="btn-start-creation"
+                    class="hidden mt-auto w-full bg-white text-rose-600 font-bold py-5 rounded-3xl text-xl">Uşaq yaratmağa başla ❤️</button>
+        </div>
+
+        <!-- CHILD CREATION -->
+        <div id="screen-creation" class="hidden flex-1 flex flex-col p-6">
+            <h2 class="text-3xl font-bold text-center mb-8">Uşağımızı yaradaq ❤️</h2>
+            
+            <!-- Name -->
+            <div class="mb-8">
+                <label class="block text-sm opacity-75 mb-2">Uşağın adı</label>
+                <input id="creation-name" onkeyup="debounceSaveCreation()" type="text" placeholder="Adı nə olsun?"
+                       class="w-full bg-white/10 border border-white/30 rounded-3xl px-6 py-5 text-2xl">
+            </div>
+            
+            <!-- Gender -->
+            <div class="mb-8">
+                <label class="block text-sm opacity-75 mb-3">Cins</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="selectGender('boy')" id="gender-boy"
+                            class="gender-btn py-6 rounded-3xl font-semibold text-xl flex flex-col items-center gap-2 border-4 border-transparent">
+                        👦 Oğlan
+                    </button>
+                    <button onclick="selectGender('girl')" id="gender-girl"
+                            class="gender-btn py-6 rounded-3xl font-semibold text-xl flex flex-col items-center gap-2 border-4 border-transparent">
+                        👧 Qız
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Style -->
+            <div class="mb-8">
+                <label class="block text-sm opacity-75 mb-3">İlk stil (sonra dəyişə bilərsən)</label>
+                <div id="style-grid" class="grid grid-cols-3 gap-3">
+                    <!-- JS ilə doldurulacaq -->
+                </div>
+            </div>
+            
+            <div class="flex gap-4 mt-auto">
+                <button onclick="confirmCreation()" id="confirm-btn"
+                        class="flex-1 bg-white/20 py-6 rounded-3xl font-bold text-xl">Mən təsdiq edirəm</button>
+                <button onclick="finishCreation()" id="finish-btn" disabled
+                        class="flex-1 bg-white text-rose-600 py-6 rounded-3xl font-bold text-xl">Uşaq hazırdır →</button>
+            </div>
+        </div>
+
+        <!-- MAIN GAME -->
+        <div id="screen-game" class="hidden flex-1 flex flex-col">
+            <!-- Header -->
+            <div class="bg-black/30 backdrop-blur-md p-4 flex items-center justify-between sticky top-0 z-50">
+                <div class="flex items-center gap-3">
+                    <div id="child-name-header" class="font-bold text-2xl"></div>
+                </div>
+                <div onclick="toggleChat()" class="flex items-center gap-2 text-sm cursor-pointer">
+                    <span id="partner-name-header" class="opacity-75"></span>
+                    <span class="text-2xl">💬</span>
+                </div>
+                <div onclick="showShop()" class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-3xl cursor-pointer">🛒</div>
+            </div>
+            
+            <!-- Child Avatar -->
+            <div class="flex-1 flex items-center justify-center p-6 relative" id="avatar-container"
+                 style="background-size: cover; background-position: center;">
+                <img id="child-avatar" src="https://picsum.photos/id/1005/420/520" 
+                     class="child-avatar w-80 h-96 object-contain drop-shadow-2xl rounded-[4rem]">
+                
+                <!-- Stats overlay -->
+                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-8 py-4 rounded-3xl flex gap-8 text-xs">
+                    <div class="text-center">
+                        <div class="text-amber-300">🍎</div>
+                        <div id="stat-hunger" class="h-1.5 w-10 bg-amber-400 rounded-full mt-1 overflow-hidden">
+                            <div class="stat-bar h-full bg-white w-[80%]"></div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-pink-300">❤️</div>
+                        <div id="stat-happiness" class="h-1.5 w-10 bg-pink-400 rounded-full mt-1 overflow-hidden">
+                            <div class="stat-bar h-full bg-white w-[80%]"></div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-cyan-300">🛁</div>
+                        <div id="stat-hygiene" class="h-1.5 w-10 bg-cyan-400 rounded-full mt-1 overflow-hidden">
+                            <div class="stat-bar h-full bg-white w-[80%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-4 gap-3 p-6 bg-black/40">
+                <button onclick="openFeedModal()" class="flex flex-col items-center gap-1 text-xs font-medium">
+                    <div class="w-14 h-14 bg-white/20 rounded-3xl flex items-center justify-center text-4xl">🍎</div>
+                    <span>Yedizdir</span>
+                </button>
+                <button onclick="openDressModal()" class="flex flex-col items-center gap-1 text-xs font-medium">
+                    <div class="w-14 h-14 bg-white/20 rounded-3xl flex items-center justify-center text-4xl">👕</div>
+                    <span>Geyindir</span>
+                </button>
+                <button onclick="playWithChild()" class="flex flex-col items-center gap-1 text-xs font-medium">
+                    <div class="w-14 h-14 bg-white/20 rounded-3xl flex items-center justify-center text-4xl">🎾</div>
+                    <span>Oyna</span>
+                </button>
+                <button onclick="putToSleep()" class="flex flex-col items-center gap-1 text-xs font-medium">
+                    <div class="w-14 h-14 bg-white/20 rounded-3xl flex items-center justify-center text-4xl">🌙</div>
+                    <span>Yatızdır</span>
+                </button>
+            </div>
+            
+            <!-- Age -->
+            <div class="text-center text-xs opacity-60 pb-4">
+                Yaş: <span id="age-display" class="font-mono">0.0</span>
+            </div>
+        </div>
+
+        <!-- SHOP MODAL -->
+        <div id="modal-shop" class="hidden fixed inset-0 bg-black/80 flex items-end">
+            <div class="bg-zinc-900 w-full max-h-[85vh] rounded-t-3xl overflow-hidden modal">
+                <div class="p-5 border-b border-white/10 flex items-center justify-between">
+                    <h3 class="text-2xl font-bold">Mağaza (Pulsuz)</h3>
+                    <button onclick="hideShop()" class="text-4xl leading-none">×</button>
+                </div>
+                <div class="flex border-b border-white/10">
+                    <button onclick="switchShopTab(0)" id="tab-0" class="flex-1 py-4 font-medium tab-active">Yemək</button>
+                    <button onclick="switchShopTab(1)" id="tab-1" class="flex-1 py-4 font-medium">Geyim</button>
+                    <button onclick="switchShopTab(2)" id="tab-2" class="flex-1 py-4 font-medium">Ev</button>
+                </div>
+                <div id="shop-content" class="p-6 grid grid-cols-2 gap-6 overflow-auto max-h-[55vh]">
+                    <!-- JS doldurur -->
+                </div>
+            </div>
+        </div>
+
+        <!-- FEED MODAL -->
+        <div id="modal-feed" class="hidden fixed inset-0 bg-black/80 flex items-end">
+            <div class="bg-zinc-900 w-full max-h-[70vh] rounded-t-3xl p-6 modal">
+                <div class="flex justify-between mb-6">
+                    <h3 class="text-2xl font-bold">Yemək seç</h3>
+                    <button onclick="hideFeedModal()" class="text-4xl">×</button>
+                </div>
+                <div id="feed-items" class="grid grid-cols-3 gap-4">
+                    <!-- JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- DRESS MODAL -->
+        <div id="modal-dress" class="hidden fixed inset-0 bg-black/80 flex items-end">
+            <div class="bg-zinc-900 w-full max-h-[70vh] rounded-t-3xl p-6 modal">
+                <div class="flex justify-between mb-6">
+                    <h3 class="text-2xl font-bold">Geyim seç</h3>
+                    <button onclick="hideDressModal()" class="text-4xl">×</button>
+                </div>
+                <div id="dress-items" class="grid grid-cols-3 gap-4">
+                    <!-- JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT -->
+        <div id="chat-panel" class="hidden fixed inset-x-0 bottom-0 bg-zinc-900 h-3/4 rounded-t-3xl flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <div class="font-semibold">Söhbət</div>
+                <button onclick="toggleChat()" class="text-3xl">×</button>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-auto p-4 space-y-4">
+                <!-- JS -->
+            </div>
+            <div class="p-4 border-t flex gap-3">
+                <input id="chat-input" type="text" placeholder="Mesaj yaz..." 
+                       class="flex-1 bg-white/10 rounded-3xl px-6 py-4">
+                <button onclick="sendChatMessage()" class="bg-rose-500 w-14 h-14 rounded-3xl flex items-center justify-center text-3xl">↑</button>
+            </div>
+        </div>
+
+        <!-- ADD TO HOME MODAL -->
+        <div id="modal-addhome" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-6">
+            <div class="bg-zinc-900 rounded-3xl p-8 max-w-xs w-full text-center modal">
+                <div class="text-6xl mb-6">📱</div>
+                <h3 class="text-2xl font-bold mb-8">Ana ekrana əlavə et</h3>
+                
+                <div id="ios-instructions" class="hidden text-left space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 bg-white/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl">1</div>
+                        <div>Safari-də bu səhifəni aç</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 bg-white/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl">2</div>
+                        <div>Paylaş düyməsinə (□) toxun</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 bg-white/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl">3</div>
+                        <div>"Ana ekrana əlavə et" seç</div>
+                    </div>
+                </div>
+                
+                <div id="android-instructions" class="hidden text-left space-y-6">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 bg-white/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl">1</div>
+                        <div>Chrome-da bu səhifəni aç</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 bg-white/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl">2</div>
+                        <div>Üç nöqtə menyusuna toxun</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 bg-white/20 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl">3</div>
+                        <div>"Əlavə et" → "Ana ekrana" və ya "Quraşdır"</div>
+                    </div>
+                </div>
+                
+                <button onclick="hideAddToHome()" 
+                        class="mt-10 w-full bg-white text-zinc-900 font-bold py-5 rounded-3xl">Anladım</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    function findLeaks() {
-        const email = document.getElementById('leak-email').value;
-        const res = document.getElementById('leak-res');
-        const status = document.getElementById('leak-status');
-        const details = document.getElementById('leak-details');
+    <script>
+        // ==================== FIREBASE ====================
+        const firebaseConfig = {
+          apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+          authDomain: "sevgili-testi.firebaseapp.com",
+          databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+          projectId: "sevgili-testi",
+          storageBucket: "sevgili-testi.firebasestorage.app",
+          messagingSenderId: "399260477557",
+          appId: "1:399260477557:web:584204a698d7bf145bb03c",
+          measurementId: "G-44P21XCZ7G"
+        };
         
-        if(!email) return;
-        res.style.display = "block";
-        status.innerText = "Analyzing databases...";
-        details.innerHTML = "";
-
-        setTimeout(() => {
-            status.innerHTML = `<span style="color:#ff3e3e">CRITICAL LEAKS FOUND!</span>`;
-            details.innerHTML = `
-                • <b>LinkedIn (2021 Leak):</b> Password, Phone<br>
-                • <b>Canva Data Breach:</b> Full Name, Email<br>
-                • <b>Adobe Exploit:</b> Security Questions<br>
-                • <b>Status:</b> <span style="color:#ff3e3e">At Risk</span>
+        let firebaseApp, db, roomRef, childRef, playersRef, creationRef, messagesRef;
+        let currentRoomId = null;
+        let myPlayerSlot = null;
+        let myName = "";
+        let partnerName = "";
+        let childData = {
+            name: "Uşağımız",
+            gender: "boy",
+            currentOutfit: "default",
+            age: 0,
+            stats: { hunger: 85, happiness: 80, hygiene: 75, health: 90 },
+            inventory: { food: { milk: 5, apple: 3 }, clothes: ["default"] },
+            equipped: { clothes: "default" },
+            background: "https://picsum.photos/id/1015/800/1200"
+        };
+        
+        const outfitMap = {
+            default: { boy: "https://picsum.photos/id/1005/420/520", girl: "https://picsum.photos/id/1011/420/520" },
+            casual: { boy: "https://picsum.photos/id/133/420/520", girl: "https://picsum.photos/id/201/420/520" },
+            party: { boy: "https://picsum.photos/id/251/420/520", girl: "https://picsum.photos/id/316/420/520" },
+            sport: { boy: "https://picsum.photos/id/180/420/520", girl: "https://picsum.photos/id/292/420/520" }
+        };
+        
+        const shopItems = [
+            { id: "milk", type: "food", name: "Ana südü", img: "https://picsum.photos/id/292/200/200", value: 25 },
+            { id: "apple", type: "food", name: "Şirin alma", img: "https://picsum.photos/id/312/200/200", value: 20 },
+            { id: "banana", type: "food", name: "Banan", img: "https://picsum.photos/id/431/200/200", value: 18 },
+            { id: "default", type: "clothes", name: "Əsas geyim", img: "https://picsum.photos/id/1005/200/200", outfitKey: "default" },
+            { id: "casual", type: "clothes", name: "Gündəlik", img: "https://picsum.photos/id/133/200/200", outfitKey: "casual" },
+            { id: "party", type: "clothes", name: "Parti donu", img: "https://picsum.photos/id/201/200/200", outfitKey: "party" },
+            { id: "sport", type: "clothes", name: "İdman", img: "https://picsum.photos/id/180/200/200", outfitKey: "sport" },
+            { id: "home1", type: "house", name: "Şirin bağ evi", img: "https://picsum.photos/id/1015/300/200", bg: "https://picsum.photos/id/1015/800/1200" },
+            { id: "home2", type: "house", name: "Qala evi", img: "https://picsum.photos/id/133/300/200", bg: "https://picsum.photos/id/133/800/1200" }
+        ];
+        
+        let creationData = { name: "", gender: "boy", style: "default", confirmed: { player1: false, player2: false } };
+        let chatMessages = [];
+        let lastUpdate = Date.now();
+        
+        function initFirebase() {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        }
+        
+        // ==================== SCREEN SWITCH ====================
+        function hideAllScreens() {
+            document.querySelectorAll('[id^="screen-"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById('modal-shop').classList.add('hidden');
+            document.getElementById('modal-feed').classList.add('hidden');
+            document.getElementById('modal-dress').classList.add('hidden');
+            document.getElementById('chat-panel').classList.add('hidden');
+        }
+        
+        function showScreen(id) {
+            hideAllScreens();
+            document.getElementById(id).classList.remove('hidden');
+        }
+        
+        // ==================== LANDING ====================
+        function showCreateRoom() {
+            showScreen('screen-create');
+            document.getElementById('create-myname').focus();
+        }
+        
+        function showJoinRoom() {
+            showScreen('screen-join');
+            document.getElementById('join-roomid').focus();
+        }
+        
+        // ==================== ROOM CREATE / JOIN ====================
+        function createRoom() {
+            myName = document.getElementById('create-myname').value.trim() || "Sevgili1";
+            currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            myPlayerSlot = "player1";
+            
+            roomRef = db.ref('rooms/' + currentRoomId);
+            roomRef.set({
+                status: "waiting",
+                createdAt: Date.now(),
+                players: {},
+                child: null,
+                creation: null,
+                messages: []
+            });
+            
+            playersRef = db.ref('rooms/' + currentRoomId + '/players');
+            playersRef.child(myPlayerSlot).set({ name: myName, online: true });
+            playersRef.child(myPlayerSlot).onDisconnect().remove();
+            
+            listenToRoom();
+            showScreen('screen-waiting');
+            document.getElementById('room-code-display').textContent = currentRoomId;
+            document.getElementById('p1-name').textContent = myName;
+        }
+        
+        function joinRoom() {
+            const code = document.getElementById('join-roomid').value.trim().toUpperCase();
+            myName = document.getElementById('join-myname').value.trim() || "Sevgili2";
+            if (!code || code.length !== 6) return alert("6 simvollu kod daxil et!");
+            
+            currentRoomId = code;
+            roomRef = db.ref('rooms/' + currentRoomId);
+            
+            roomRef.once('value', snap => {
+                if (!snap.exists()) return alert("Belə otaq yoxdur!");
+                
+                const data = snap.val();
+                let slot = "player2";
+                if (!data.players || !data.players.player1) slot = "player1";
+                else if (data.players.player2) return alert("Otaq doludur!");
+                
+                myPlayerSlot = slot;
+                playersRef = db.ref('rooms/' + currentRoomId + '/players');
+                playersRef.child(slot).set({ name: myName, online: true });
+                playersRef.child(slot).onDisconnect().remove();
+                
+                listenToRoom();
+                showScreen('screen-waiting');
+                document.getElementById('room-code-display').textContent = currentRoomId;
+            });
+        }
+        
+        function listenToRoom() {
+            // Players
+            playersRef.on('value', snap => {
+                const p = snap.val() || {};
+                const count = Object.keys(p).length;
+                
+                if (p.player1) document.getElementById('p1-name').textContent = p.player1.name;
+                if (p.player2) {
+                    document.getElementById('p2-name').textContent = p.player2.name;
+                    partnerName = p.player2.name;
+                }
+                
+                document.getElementById('players-bar').style.width = count === 2 ? '100%' : '50%';
+                
+                if (count === 2 && document.getElementById('btn-start-creation').classList.contains('hidden')) {
+                    document.getElementById('btn-start-creation').classList.remove('hidden');
+                }
+            });
+            
+            // Child data
+            childRef = db.ref('rooms/' + currentRoomId + '/child');
+            childRef.on('value', snap => {
+                if (snap.val()) {
+                    childData = snap.val();
+                    if (document.getElementById('screen-game').classList.contains('hidden') === false) updateGameUI();
+                }
+            });
+            
+            // Creation
+            creationRef = db.ref('rooms/' + currentRoomId + '/creation');
+            creationRef.on('value', snap => {
+                if (snap.val()) {
+                    creationData = snap.val();
+                    if (!document.getElementById('screen-creation').classList.contains('hidden')) renderCreation();
+                }
+            });
+            
+            // Messages
+            messagesRef = db.ref('rooms/' + currentRoomId + '/messages');
+            messagesRef.on('value', snap => {
+                chatMessages = snap.val() || [];
+                renderChat();
+            });
+        }
+        
+        function copyCode() {
+            navigator.clipboard.writeText(currentRoomId);
+            alert("Kod kopyalandı: " + currentRoomId);
+        }
+        
+        // ==================== CHILD CREATION ====================
+        function startChildCreation() {
+            creationRef.set({
+                name: "Uşağımız",
+                gender: "boy",
+                style: "default",
+                confirmed: { player1: false, player2: false }
+            });
+            showScreen('screen-creation');
+            renderCreationStyles();
+        }
+        
+        function renderCreationStyles() {
+            const container = document.getElementById('style-grid');
+            container.innerHTML = `
+                <div onclick="selectStyle('default')" class="style-card cursor-pointer rounded-3xl overflow-hidden border-4 border-transparent" data-style="default">
+                    <img src="https://picsum.photos/id/1005/150/150" class="w-full">
+                    <div class="text-center py-2 text-sm">Əsas</div>
+                </div>
+                <div onclick="selectStyle('casual')" class="style-card cursor-pointer rounded-3xl overflow-hidden border-4 border-transparent" data-style="casual">
+                    <img src="https://picsum.photos/id/133/150/150" class="w-full">
+                    <div class="text-center py-2 text-sm">Gündəlik</div>
+                </div>
+                <div onclick="selectStyle('party')" class="style-card cursor-pointer rounded-3xl overflow-hidden border-4 border-transparent" data-style="party">
+                    <img src="https://picsum.photos/id/201/150/150" class="w-full">
+                    <div class="text-center py-2 text-sm">Parti</div>
+                </div>
             `;
-        }, 2500);
-    }
-</script>
+        }
+        
+        function selectGender(g) {
+            creationData.gender = g;
+            creationRef.update({ gender: g });
+            document.querySelectorAll('.gender-btn').forEach(b => {
+                b.classList.toggle('border-white', b.id === 'gender-' + g);
+            });
+        }
+        
+        function selectStyle(s) {
+            creationData.style = s;
+            creationRef.update({ style: s });
+            document.querySelectorAll('.style-card').forEach(c => {
+                c.classList.toggle('border-white', c.dataset.style === s);
+            });
+        }
+        
+        let saveTimeout;
+        function debounceSaveCreation() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                const name = document.getElementById('creation-name').value.trim();
+                if (name) creationRef.update({ name: name });
+            }, 800);
+        }
+        
+        function renderCreation() {
+            document.getElementById('creation-name').value = creationData.name || "";
+            selectGender(creationData.gender);
+            selectStyle(creationData.style);
+            
+            const meConfirmed = creationData.confirmed[myPlayerSlot];
+            document.getElementById('confirm-btn').textContent = meConfirmed ? "✅ Təsdiq olundu" : "Mən təsdiq edirəm";
+            document.getElementById('finish-btn').disabled = !(creationData.confirmed.player1 && creationData.confirmed.player2);
+        }
+        
+        function confirmCreation() {
+            creationData.confirmed[myPlayerSlot] = true;
+            creationRef.update({ confirmed: creationData.confirmed });
+        }
+        
+        function finishCreation() {
+            // Create final child
+            childData = {
+                name: creationData.name || "Uşağımız",
+                gender: creationData.gender,
+                currentOutfit: creationData.style,
+                age: 0,
+                stats: { hunger: 85, happiness: 82, hygiene: 78, health: 92 },
+                inventory: { food: { milk: 5, apple: 4, banana: 3 }, clothes: ["default", "casual"] },
+                equipped: { clothes: creationData.style },
+                background: "https://picsum.photos/id/1015/800/1200"
+            };
+            
+            childRef.set(childData);
+            creationRef.remove();
+            roomRef.update({ status: "playing" });
+            showScreen('screen-game');
+            updateGameUI();
+            setInterval(gameTick, 12000); // 12 saniyədə bir decay
+        }
+        
+        // ==================== GAME UI ====================
+        function updateGameUI() {
+            document.getElementById('child-name-header').textContent = childData.name;
+            document.getElementById('partner-name-header').textContent = partnerName || "Sevgili";
+            
+            // Avatar
+            const genderOutfit = outfitMap[childData.equipped.clothes || "default"] || outfitMap.default;
+            document.getElementById('child-avatar').src = childData.gender === "boy" ? genderOutfit.boy : genderOutfit.girl;
+            
+            // Background
+            document.getElementById('avatar-container').style.backgroundImage = `url('${childData.background}')`;
+            
+            // Stats
+            document.querySelector('#stat-hunger .stat-bar').style.width = childData.stats.hunger + '%';
+            document.querySelector('#stat-happiness .stat-bar').style.width = childData.stats.happiness + '%';
+            document.querySelector('#stat-hygiene .stat-bar').style.width = childData.stats.hygiene + '%';
+            
+            document.getElementById('age-display').textContent = childData.age.toFixed(1);
+        }
+        
+        function gameTick() {
+            if (!childData || !currentRoomId) return;
+            childData.stats.hunger = Math.max(0, childData.stats.hunger - 4);
+            childData.stats.happiness = Math.max(0, childData.stats.happiness - 3);
+            childData.stats.hygiene = Math.max(0, childData.stats.hygiene - 2);
+            childData.age += 0.02;
+            childRef.set(childData);
+        }
+        
+        function playWithChild() {
+            childData.stats.happiness = Math.min(100, childData.stats.happiness + 22);
+            childData.stats.hunger = Math.max(0, childData.stats.hunger - 5);
+            childRef.set(childData);
+            showFloatingHeart();
+        }
+        
+        function putToSleep() {
+            childData.stats.health = Math.min(100, childData.stats.health + 15);
+            childData.stats.hunger = Math.max(0, childData.stats.hunger - 8);
+            childData.stats.happiness = Math.max(0, childData.stats.happiness - 5);
+            childRef.set(childData);
+            alert("😴 Uşaq yatdı...");
+        }
+        
+        function showFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.textContent = '❤️';
+            heart.style.position = 'absolute';
+            heart.style.left = '50%';
+            heart.style.top = '40%';
+            heart.style.fontSize = '3rem';
+            heart.style.transition = 'all 1.2s';
+            heart.style.zIndex = '100';
+            document.getElementById('avatar-container').appendChild(heart);
+            setTimeout(() => {
+                heart.style.transform = 'translate(-50%, -150px)';
+                heart.style.opacity = '0';
+            }, 50);
+            setTimeout(() => heart.remove(), 1500);
+        }
+        
+        // ==================== SHOP ====================
+        function showShop() {
+            document.getElementById('modal-shop').classList.remove('hidden');
+            switchShopTab(0);
+        }
+        
+        function hideShop() {
+            document.getElementById('modal-shop').classList.add('hidden');
+        }
+        
+        function switchShopTab(tab) {
+            document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.remove('tab-active', 'border-b-4', 'border-white'));
+            document.getElementById('tab-' + tab).classList.add('tab-active', 'border-b-4', 'border-white');
+            
+            const container = document.getElementById('shop-content');
+            container.innerHTML = "";
+            
+            const filtered = shopItems.filter(item => {
+                if (tab === 0) return item.type === "food";
+                if (tab === 1) return item.type === "clothes";
+                if (tab === 2) return item.type === "house";
+            });
+            
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-white/10 rounded-3xl overflow-hidden cursor-pointer active:scale-95";
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-full h-36 object-cover">
+                    <div class="p-4">
+                        <div class="font-medium">${item.name}</div>
+                        <button onclick="buyItem('${item.id}'); event.stopImmediatePropagation();" 
+                                class="mt-3 w-full bg-white text-rose-600 text-sm font-bold py-3 rounded-2xl">PULSUZ AL</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function buyItem(id) {
+            const item = shopItems.find(i => i.id === id);
+            if (!item) return;
+            
+            if (item.type === "food") {
+                if (!childData.inventory.food[item.id]) childData.inventory.food[item.id] = 0;
+                childData.inventory.food[item.id] += 3;
+            } else if (item.type === "clothes") {
+                if (!childData.inventory.clothes.includes(item.outfitKey)) {
+                    childData.inventory.clothes.push(item.outfitKey);
+                }
+            } else if (item.type === "house") {
+                childData.background = item.bg;
+            }
+            
+            childRef.set(childData);
+            alert(item.name + " alındı! ❤️");
+        }
+        
+        // ==================== FEED ====================
+        function openFeedModal() {
+            hideShop();
+            const container = document.getElementById('feed-items');
+            container.innerHTML = "";
+            
+            Object.keys(childData.inventory.food || {}).forEach(key => {
+                const count = childData.inventory.food[key];
+                if (count <= 0) return;
+                const item = shopItems.find(i => i.id === key);
+                if (!item) return;
+                
+                const div = document.createElement('div');
+                div.className = "bg-white/10 rounded-3xl p-3 cursor-pointer active:scale-95 text-center";
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-20 h-20 mx-auto rounded-2xl object-cover">
+                    <div class="mt-2 text-sm">${item.name}</div>
+                    <div class="text-xs opacity-60">x${count}</div>
+                `;
+                div.onclick = () => feedChild(key);
+                container.appendChild(div);
+            });
+            
+            document.getElementById('modal-feed').classList.remove('hidden');
+        }
+        
+        function feedChild(foodKey) {
+            if (!childData.inventory.food[foodKey]) return;
+            childData.inventory.food[foodKey]--;
+            if (childData.inventory.food[foodKey] <= 0) delete childData.inventory.food[foodKey];
+            
+            childData.stats.hunger = Math.min(100, childData.stats.hunger + 28);
+            childData.stats.happiness = Math.min(100, childData.stats.happiness + 12);
+            childRef.set(childData);
+            hideFeedModal();
+            showFloatingHeart();
+        }
+        
+        function hideFeedModal() {
+            document.getElementById('modal-feed').classList.add('hidden');
+        }
+        
+        // ==================== DRESS ====================
+        function openDressModal() {
+            hideShop();
+            const container = document.getElementById('dress-items');
+            container.innerHTML = "";
+            
+            (childData.inventory.clothes || []).forEach(key => {
+                const div = document.createElement('div');
+                div.className = "bg-white/10 rounded-3xl p-3 cursor-pointer active:scale-95";
+                const imgSrc = (outfitMap[key] && outfitMap[key][childData.gender]) ? outfitMap[key][childData.gender] : outfitMap.default[childData.gender];
+                div.innerHTML = `
+                    <img src="${imgSrc}" class="w-full h-40 object-contain">
+                    <div class="text-center text-sm mt-2 capitalize">${key}</div>
+                `;
+                div.onclick = () => {
+                    childData.equipped.clothes = key;
+                    childRef.set(childData);
+                    hideDressModal();
+                };
+                container.appendChild(div);
+            });
+            
+            document.getElementById('modal-dress').classList.remove('hidden');
+        }
+        
+        function hideDressModal() {
+            document.getElementById('modal-dress').classList.add('hidden');
+        }
+        
+        // ==================== CHAT ====================
+        function toggleChat() {
+            const panel = document.getElementById('chat-panel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) renderChat();
+        }
+        
+        function renderChat() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = "";
+            chatMessages.forEach(msg => {
+                const isMe = msg.from === myName;
+                const bubble = document.createElement('div');
+                bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'} message`;
+                bubble.innerHTML = `
+                    <div class="${isMe ? 'bg-rose-500' : 'bg-white/20'} px-5 py-3 rounded-3xl rounded-tr-none text-sm">
+                        <div class="opacity-70 text-xs">${msg.from}</div>
+                        ${msg.text}
+                    </div>
+                `;
+                container.appendChild(bubble);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !currentRoomId) return;
+            
+            const newMsg = { from: myName, text: text, time: Date.now() };
+            messagesRef.once('value', snap => {
+                let msgs = snap.val() || [];
+                msgs.push(newMsg);
+                if (msgs.length > 50) msgs.shift();
+                messagesRef.set(msgs);
+            });
+            input.value = "";
+        }
+        
+        // ==================== ADD TO HOME ====================
+        function showAddToHome() {
+            document.getElementById('modal-addhome').classList.remove('hidden');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /android/i.test(navigator.userAgent);
+            
+            document.getElementById('ios-instructions').classList.toggle('hidden', !isIOS);
+            document.getElementById('android-instructions').classList.toggle('hidden', !isAndroid || isIOS);
+        }
+        
+        function hideAddToHome() {
+            document.getElementById('modal-addhome').classList.add('hidden');
+        }
+        
+        function goBack() {
+            hideAllScreens();
+            showScreen('screen-landing');
+        }
+        
+        // ==================== START APP ====================
+        window.onload = () => {
+            initFirebase();
+            showScreen('screen-landing');
+            
+            // Tailwind script already loaded
+            console.log('%c❤️ Bizim Uşağımız hazırdır! Firebase bağlı.', 'color:#ec4899; font-size:13px');
+        };
+    </script>
+</body>
+</html>
