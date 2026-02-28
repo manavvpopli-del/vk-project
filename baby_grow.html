@@ -3,182 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestial Life | Virtual Cradle</title>
+    <title>Celestial Life | Bizim Körpəmiz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&family=Playfair+Display:wght@700&display=swap');
 
-        body { margin: 0; background: #050507; color: #fff; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
+        body { margin: 0; background: #0a0a0c; color: #fff; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
         .app-shell { max-width: 450px; margin: auto; min-height: 100vh; padding: 20px; display: flex; flex-direction: column; }
         
         /* PWA Button */
-        .install-btn { background: linear-gradient(45deg, #f5b942, #c5a059); color: #000; padding: 15px; border-radius: 15px; border: none; font-weight: 800; width: 100%; margin-bottom: 20px; cursor: pointer; display: none; }
+        .install-btn { background: #f5b942; color: #000; padding: 15px; border-radius: 15px; border: none; font-weight: 800; width: 100%; margin-bottom: 20px; cursor: pointer; display: none; }
 
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(245, 185, 66, 0.1); border-radius: 25px; padding: 25px; }
+        .glass { background: rgba(20, 22, 30, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(245, 185, 66, 0.15); border-radius: 30px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 
-        /* Setup Phase */
-        .setup-input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; box-sizing: border-box; text-align: center; }
-        .gender-select { display: flex; gap: 10px; margin-bottom: 20px; }
-        .g-btn { flex: 1; padding: 12px; border: 1px solid #333; border-radius: 10px; cursor: pointer; background: transparent; color: #fff; }
-        .g-btn.active { border-color: #f5b942; background: rgba(245, 185, 66, 0.1); }
+        /* Ailə Qurma Ekranı */
+        .setup-input { width: 100%; padding: 15px; background: #161822; border: 1px solid #333; border-radius: 12px; color: #fff; margin-bottom: 15px; box-sizing: border-box; text-align: center; font-size: 1rem; }
+        .setup-input:focus { border-color: #f5b942; outline: none; }
+        
+        .choice-row { display: flex; gap: 10px; margin: 15px 0; }
+        .choice-btn { flex: 1; padding: 12px; border: 1px solid #333; border-radius: 10px; cursor: pointer; background: #161822; color: #888; transition: 0.3s; font-weight: 700; }
+        .choice-btn.active { border-color: #f5b942; color: #f5b942; background: rgba(245, 185, 66, 0.1); }
 
-        /* Baby Display */
-        .baby-stage { width: 100%; height: 320px; position: relative; display: flex; align-items: center; justify-content: center; margin: 20px 0; }
-        .baby-img { max-width: 250px; transition: 0.5s transform cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2; }
-        .overlay-item { position: absolute; width: 250px; z-index: 3; pointer-events: none; }
-        .background-house { position: absolute; width: 100%; height: 100%; object-fit: cover; border-radius: 20px; opacity: 0.4; z-index: 1; }
+        /* Oyun Ekranı */
+        .baby-room { width: 100%; height: 350px; position: relative; display: flex; align-items: center; justify-content: center; margin: 20px 0; border-radius: 25px; overflow: hidden; background: #111; }
+        .house-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 0.5s; }
+        .baby-main { width: 220px; z-index: 5; transition: 0.5s transform; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+        .clothing-layer { position: absolute; width: 220px; z-index: 6; pointer-events: none; }
 
-        /* Stats & Shop */
-        .stat-line { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; font-weight: 700; color: #f5b942; }
-        .progress-bg { width: 100%; height: 6px; background: #111; border-radius: 5px; margin-bottom: 15px; }
-        .progress-fill { height: 100%; background: #f5b942; width: 50%; transition: 0.8s; border-radius: 5px; }
+        /* Göstəricilər */
+        .stat-box { margin-bottom: 15px; }
+        .label { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: #c5a059; margin-bottom: 5px; }
+        .bar-outer { width: 100%; height: 8px; background: #000; border-radius: 10px; overflow: hidden; }
+        .bar-inner { height: 100%; width: 0%; transition: 1s cubic-bezier(0.1, 0.8, 0.2, 1); }
 
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .shop-card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 10px; text-align: center; cursor: pointer; }
-        .shop-card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px; }
-        .shop-card:hover { border-color: #f5b942; }
+        /* Mağaza */
+        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .market-item { background: #161822; border: 1px solid #222; border-radius: 20px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .market-item:hover { border-color: #f5b942; transform: translateY(-5px); }
+        .market-item img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px; }
+        .market-item b { display: block; font-size: 0.8rem; margin-bottom: 5px; }
+        .price { font-size: 0.7rem; color: #f5b942; font-weight: 700; }
 
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        .floating { animation: float 3s ease-in-out infinite; }
+        .btn-gold { width: 100%; padding: 18px; background: #f5b942; border: none; border-radius: 15px; color: #000; font-weight: 800; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
+        
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .bounce { animation: bounce 2s infinite ease-in-out; }
     </style>
 </head>
 <body>
 
     <div class="app-shell">
-        <button id="pwa-btn" class="install-btn" onclick="installApp()"><i class="fas fa-plus"></i> ANA EKRANA ƏLAVƏ ET</button>
+        <button id="pwa-btn" class="install-btn" onclick="triggerInstall()"><i class="fas fa-heart"></i> ANA EKRANA ƏLAVƏ ET</button>
 
         <div id="setup-screen" class="glass">
-            <h2 style="font-family:'Cinzel Decorative'; color:#f5b942; text-align:center;">CELESTIAL LIFE</h2>
-            <p style="text-align:center; font-size:0.8rem; color:#888;">Ortaq ailə otağı yaradın və ya qoşulun</p>
+            <h2 style="font-family:'Playfair Display'; color:#f5b942; text-align:center; font-size: 2rem;">Ailə Ocağı</h2>
+            <p style="text-align:center; font-size:0.85rem; color:#888; margin-bottom: 30px;">Həyatın yeni mərhələsinə xoş gəldiniz.</p>
             
-            <input type="text" id="room-id" class="setup-input" placeholder="Otaq Kodu (məs: e_n_2026)">
+            <input type="text" id="partner-name" class="setup-input" placeholder="Sevgilinin İstifadəçi Adı">
             
-            <div id="creation-part" style="display:none;">
+            <div id="creation-ui" style="display:none; animation: fadeIn 0.5s;">
                 <input type="text" id="baby-name" class="setup-input" placeholder="Körpənin Adı">
-                <div class="gender-select">
-                    <button class="g-btn" onclick="selG('boy')" id="b-boy">OĞLAN</button>
-                    <button class="g-btn" onclick="selG('girl')" id="b-girl">QIZ</button>
+                <div class="choice-row">
+                    <button class="choice-btn" id="g-boy" onclick="setG('boy')">OĞLAN</button>
+                    <button class="choice-btn" id="g-girl" onclick="setG('girl')">QIZ</button>
                 </div>
-                <div style="font-size:0.7rem; margin-bottom:10px; color:#f5b942;">İRQ / DƏRİ RƏNGİ:</div>
-                <div class="gender-select">
-                    <button class="g-btn" onclick="selS('light')" id="s-light">AÇIQ</button>
-                    <button class="g-btn" onclick="selS('dark')" id="s-dark">TÜND</button>
+                <div class="choice-row">
+                    <button class="choice-btn" id="s-light" onclick="setS('light')">AÇIQ DƏRİ</button>
+                    <button class="choice-btn" id="s-dark" onclick="setS('dark')">TÜND DƏRİ</button>
                 </div>
             </div>
 
-            <button class="btn-celestial" onclick="handleEntry()" style="width:100%; padding:18px; background:#f5b942; border:none; border-radius:12px; font-weight:700; cursor:pointer;">PORTALI AÇ</button>
+            <button class="btn-gold" onclick="initiateFamily()">HƏYATI BAŞLAT</button>
+            <p id="setup-msg" style="color:#ff4757; font-size:0.75rem; text-align:center; margin-top:15px; display:none;"></p>
         </div>
 
         <div id="game-screen" style="display:none;">
-            <div class="nav-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <div style="font-family:'Cinzel Decorative'; color:#f5b942; font-size:1.2rem;" id="disp-name">Körpə</div>
-                <div style="font-weight:700; color:#2ed573;"><i class="fas fa-gem"></i> <span id="pts-val">0</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div>
+                    <span style="font-size:0.7rem; color:#888; display:block;">VALİDEYNLƏR</span>
+                    <span id="parents-tag" style="font-weight:700; color:#f5b942; font-size:0.9rem;">...</span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-size:0.7rem; color:#888; display:block;">BALANSINIZ</span>
+                    <span style="font-weight:700; color:#2ed573; font-size:1.1rem;"><i class="fas fa-coins"></i> <span id="current-pts">0</span></span>
+                </div>
             </div>
 
-            <div class="baby-stage glass">
-                <img id="bg-home" src="" class="background-house" style="display:none;">
-                <img id="baby-img" src="https://i.ibb.co/LkhKzG9/baby-light.png" class="baby-img floating">
-                <img id="overlay-cloth" src="" class="overlay-item">
+            <div class="baby-room">
+                <img id="room-bg" src="" class="house-bg">
+                <img id="baby-img" src="" class="baby-main bounce">
+                <img id="baby-cloth" src="" class="clothing-layer">
             </div>
 
-            <div class="stats-area glass">
-                <div class="stat-line"><span>ACLIQ</span> <span id="txt-h">50%</span></div>
-                <div class="progress-bg"><div id="bar-h" class="progress-fill"></div></div>
+            <div class="glass" style="padding: 20px; margin-bottom: 20px;">
+                <h3 id="baby-display-name" style="margin:0 0 15px 0; text-align:center; font-family:'Playfair Display'; color:#f5b942;">Ad</h3>
                 
-                <div class="stat-line"><span>XOŞBƏXTLİK</span> <span id="txt-l">50%</span></div>
-                <div class="progress-bg"><div id="bar-l" class="progress-fill" style="background:#ff4757;"></div></div>
+                <div class="stat-box">
+                    <div class="label"><span>TOXLUQ</span> <span id="txt-h">0%</span></div>
+                    <div class="bar-outer"><div id="bar-h" class="bar-inner" style="background:#f5b942;"></div></div>
+                </div>
+                <div class="stat-box">
+                    <div class="label"><span>XOŞBƏXTLİK</span> <span id="txt-l">0%</span></div>
+                    <div class="bar-outer"><div id="bar-l" class="bar-inner" style="background:#ff4757;"></div></div>
+                </div>
 
-                <div style="display:flex; gap:10px;">
-                    <button class="g-btn" onclick="action('hunger')" style="flex:1;"><i class="fas fa-utensils"></i> Yedirt</button>
-                    <button class="g-btn" onclick="action('love')" style="flex:1;"><i class="fas fa-heart"></i> Oyna</button>
+                <div class="choice-row">
+                    <button class="choice-btn" onclick="action('hunger')"><i class="fas fa-cookie-bite"></i> Yedirt</button>
+                    <button class="choice-btn" onclick="action('love')"><i class="fas fa-heart"></i> Oyna</button>
                 </div>
             </div>
 
-            <div class="shop-grid">
-                <div class="shop-card" onclick="buy('cloth', 300, 'https://i.ibb.co/m0f4kYm/suit.png')">
-                    <img src="https://i.ibb.co/m0f4kYm/suit.png"><div>Kostyum (300)</div>
+            <h4 style="font-family:'Playfair Display'; color:#f5b942;">Mağaza</h4>
+            <div class="market-grid">
+                <div class="market-item" onclick="buy('cloth', 300, 'https://i.ibb.co/m0f4kYm/suit.png')">
+                    <img src="https://i.ibb.co/m0f4kYm/suit.png">
+                    <b>İpək Kostyum</b>
+                    <span class="price">300 PTS</span>
                 </div>
-                <div class="shop-card" onclick="buy('home', 1000, 'https://i.ibb.co/QjGfXvQ/modern-house.jpg')">
-                    <img src="https://i.ibb.co/QjGfXvQ/modern-house.jpg"><div>Müasir Ev (1000)</div>
+                <div class="market-item" onclick="buy('home', 1200, 'https://i.ibb.co/QjGfXvQ/modern-house.jpg')">
+                    <img src="https://i.ibb.co/QjGfXvQ/modern-house.jpg">
+                    <b>Müasir Ev</b>
+                    <span class="price">1200 PTS</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let roomRef = null;
-        let selectedGender = "boy";
-        let selectedSkin = "light";
-        let deferredPrompt;
+        let familyId = null;
+        let babyGender = "boy";
+        let babySkin = "light";
+        let installPrompt = null;
 
-        // PWA Setup
+        // PWA Installation
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
+            e.preventDefault(); installPrompt = e;
             document.getElementById('pwa-btn').style.display = 'block';
         });
 
-        function installApp() {
-            if(deferredPrompt) deferredPrompt.prompt();
-            else alert("Safari menyusundan 'Add to Home Screen' seçin.");
+        function triggerInstall() {
+            if(installPrompt) installPrompt.prompt();
+            else alert("Safari: Paylaş -> Ana Ekrana Əlavə Et");
         }
 
-        function selG(g) { selectedGender = g; document.getElementById('b-boy').classList.toggle('active', g==='boy'); document.getElementById('b-girl').classList.toggle('active', g==='girl'); }
-        function selS(s) { selectedSkin = s; document.getElementById('s-light').classList.toggle('active', s==='light'); document.getElementById('s-dark').classList.toggle('active', s==='dark'); }
+        function setG(v) { babyGender = v; document.getElementById('g-boy').classList.toggle('active', v==='boy'); document.getElementById('g-girl').classList.toggle('active', v==='girl'); }
+        function setS(v) { babySkin = v; document.getElementById('s-light').classList.toggle('active', v==='light'); document.getElementById('s-dark').classList.toggle('active', v==='dark'); }
 
-        async function handleEntry() {
-            const rid = document.getElementById('room-id').value.trim();
-            if(!rid) return;
+        async function initiateFamily() {
+            const partner = document.getElementById('partner-name').value.trim().toLowerCase();
+            const me = window.loginName;
+            if(!partner || partner === me) return alert("Düzgün tərəfdaş adı yazın!");
 
-            roomRef = window.db.ref('games/celestial_life/' + rid);
-            const snap = await roomRef.get();
+            // Database-də partnyoru yoxla
+            const partnerSnap = await window.db.ref('users/' + partner).get();
+            if(!partnerSnap.exists()) return alert("Bu adda istifadəçi tapılmadı!");
+
+            // Ailə ID-si yarat (Həmişə eyni olsun deyə alfabetik sırala)
+            familyId = [me, partner].sort().join("_");
+            const famRef = window.db.ref('families/' + familyId);
+            const snap = await famRef.get();
 
             if(!snap.exists()) {
-                document.getElementById('creation-part').style.display = 'block';
-                if(!document.getElementById('baby-name').value) return alert("Yeni körpə üçün ad və xüsusiyyətləri seçin!");
+                document.getElementById('creation-ui').style.display = 'block';
+                const bName = document.getElementById('baby-name').value.trim();
+                if(!bName) return;
                 
-                await roomRef.set({
-                    name: document.getElementById('baby-name').value,
-                    gender: selectedGender,
-                    skin: selectedSkin,
-                    hunger: 50, love: 50,
-                    clothing: "", home: "",
-                    parents: [window.loginName]
+                await famRef.set({
+                    babyName: bName, gender: babyGender, skin: babySkin,
+                    hunger: 50, love: 50, age: 0,
+                    cloth: "", home: "", parents: [me, partner]
                 });
             }
-            
+
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block';
-            startSync();
+            syncFamily();
         }
 
-        function startSync() {
-            roomRef.on('value', snap => {
+        function syncFamily() {
+            window.db.ref('families/' + familyId).on('value', snap => {
                 const data = snap.val();
-                document.getElementById('disp-name').innerText = data.name.toUpperCase();
+                document.getElementById('baby-display-name').innerText = data.babyName;
+                document.getElementById('parents-tag').innerText = data.parents.join(" & ").toUpperCase();
+                document.getElementById('current-pts').innerText = window.userPoints;
+                
                 document.getElementById('bar-h').style.width = data.hunger + "%";
+                document.getElementById('txt-h').innerText = data.hunger + "%";
                 document.getElementById('bar-l').style.width = data.love + "%";
-                document.getElementById('pts-val').innerText = window.userPoints;
-                
-                // Real Image Logic
-                const baseImg = data.skin === 'light' ? 'https://i.ibb.co/LkhKzG9/baby-light.png' : 'https://i.ibb.co/YyYhYhY/baby-dark.png';
-                document.getElementById('baby-img').src = baseImg;
-                
-                if(data.clothing) {
-                    document.getElementById('overlay-cloth').src = data.clothing;
-                    document.getElementById('overlay-cloth').style.display = 'block';
-                }
-                if(data.home) {
-                    document.getElementById('bg-home').src = data.home;
-                    document.getElementById('bg-home').style.display = 'block';
-                }
+                document.getElementById('txt-l').innerText = data.love + "%";
+
+                // Vizual yükləmə
+                const img = data.skin === 'light' ? 'https://i.ibb.co/LkhKzG9/baby-light.png' : 'https://i.ibb.co/YyYhYhY/baby-dark.png';
+                document.getElementById('baby-img').src = img;
+                if(data.cloth) { document.getElementById('baby-cloth').src = data.cloth; document.getElementById('baby-cloth').style.display = 'block'; }
+                if(data.home) { document.getElementById('room-bg').src = data.home; document.getElementById('room-bg').style.display = 'block'; }
             });
         }
 
-        function action(t) {
-            roomRef.transaction(d => {
-                if(d) d[t] = Math.min(100, (d[t] || 0) + 10);
+        function action(type) {
+            window.db.ref('families/' + familyId).transaction(d => {
+                if(d) {
+                    d[type] = Math.min(100, (d[type] || 0) + 10);
+                    d.age = (d.age || 0) + 0.1;
+                }
                 return d;
             });
         }
@@ -186,14 +215,14 @@
         async function buy(type, price, url) {
             if(window.userPoints < price) return alert("PTS kifayət deyil!");
             
-            // Deduct PTS from main user account
+            // Ana balansdan çıx
             await window.db.ref('users/' + window.loginName + '/points').transaction(p => p - price);
             
-            let update = {};
-            if(type === 'cloth') update.clothing = url;
-            if(type === 'home') update.home = url;
-            await roomRef.update(update);
-            alert("Uğurla alındı!");
+            let up = {};
+            if(type === 'cloth') up.cloth = url;
+            if(type === 'home') up.home = url;
+            await window.db.ref('families/' + familyId).update(up);
+            alert("Təbrik edirik! Körpə üçün yeni əşya alındı.");
         }
     </script>
 </body>
