@@ -1,0 +1,100 @@
+<div class="life-container" style="color: white; text-align: center; font-family: 'Montserrat', sans-serif;">
+    
+    <div id="install-banner" style="display:none; background: rgba(245, 185, 66, 0.1); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px dashed #f5b942;">
+        <p style="font-size: 0.8rem; margin: 0 0 10px 0;">Bu modulu telefona ana ekrana əlavə et:</p>
+        <button onclick="installApp()" style="background:#f5b942; color:#000; border:none; padding:8px 20px; border-radius:10px; font-weight:700; cursor:pointer;">TƏTBİQİ YÜKLƏ</button>
+    </div>
+
+    <h2 style="font-family: 'Cinzel Decorative'; color: #f5b942;">CELESTIAL LIFE</h2>
+    
+    <div id="life-setup">
+        <input type="text" id="family-code" placeholder="Ailə Kodunuz (məs: elnur_nigar)" style="margin-bottom: 10px;">
+        <button class="btn-celestial" onclick="joinLife()" style="background:#f5b942; color:#000; border:none; padding:15px; width:100%; border-radius:10px; font-weight:700;">HƏYATA BAŞLA</button>
+    </div>
+
+    <div id="life-core" style="display:none; margin-top: 30px;">
+        <div id="baby-visual" style="font-size: 6rem; margin-bottom: 20px; transition: 0.5s;">👶</div>
+        <h3 id="baby-status" style="color:#f5b942;">Yenidoğulmuş</h3>
+        
+        <div style="display: grid; gap: 15px; margin: 30px 0;">
+            <div class="stat-bar">Aclıq: <span id="stat-hunger">0</span>% <div class="progress"><div id="bar-hunger" class="fill"></div></div></div>
+            <div class="stat-bar">Sevgi: <span id="stat-love">0</span>% <div class="progress"><div id="bar-love" class="fill" style="background:#ff4757"></div></div></div>
+            <div class="stat-bar">Enerji: <span id="stat-energy">0</span>% <div class="progress"><div id="bar-energy" class="fill" style="background:#2ed573"></div></div></div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 15px;">
+            <button class="action-btn" onclick="updateLife('hunger', 20)"><i class="fas fa-apple-whole"></i> YEDİRT</button>
+            <button class="action-btn" onclick="updateLife('love', 20)"><i class="fas fa-heart"></i> SEV</button>
+            <button class="action-btn" onclick="updateLife('energy', 20)"><i class="fas fa-bed"></i> YATIZDIR</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-bar { font-size: 0.8rem; text-align: left; }
+    .progress { width: 100%; height: 8px; background: #222; border-radius: 4px; margin-top: 5px; }
+    .fill { height: 100%; background: #f5b942; width: 0%; border-radius: 4px; transition: 0.5s; }
+    .action-btn { background: rgba(255,255,255,0.05); border: 1px solid #444; color: #fff; padding: 15px; border-radius: 15px; cursor: pointer; flex: 1; font-size: 0.7rem; font-weight: 700; }
+    .action-btn:hover { border-color: #f5b942; color: #f5b942; }
+</style>
+
+<script>
+    let currentFamily = "";
+    let deferredPrompt;
+
+    // PWA INSTALL LOGIC
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('install-banner').style.display = 'block';
+    });
+
+    async function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
+            deferredPrompt = null;
+        } else {
+            alert("İOS-da Safari menyusundan 'Add to Home Screen' seçin.");
+        }
+    }
+
+    function joinLife() {
+        const code = document.getElementById('family-code').value.trim();
+        if(!code) return;
+        currentFamily = code;
+        document.getElementById('life-setup').style.display = 'none';
+        document.getElementById('life-core').style.display = 'block';
+
+        const ref = window.db.ref('games/life/' + currentFamily);
+        ref.on('value', (snap) => {
+            const data = snap.val() || { hunger: 50, love: 50, energy: 50, age: 0 };
+            updateUI(data);
+        });
+    }
+
+    function updateUI(data) {
+        document.getElementById('stat-hunger').innerText = data.hunger;
+        document.getElementById('bar-hunger').style.width = data.hunger + "%";
+        document.getElementById('stat-love').innerText = data.love;
+        document.getElementById('bar-love').style.width = data.love + "%";
+        document.getElementById('stat-energy').innerText = data.energy;
+        document.getElementById('bar-energy').style.width = data.energy + "%";
+
+        const visual = document.getElementById('baby-visual');
+        if(data.age > 100) { visual.innerText = "👦"; document.getElementById('baby-status').innerText = "Uşaq"; }
+        else if(data.hunger < 20) { visual.innerText = "😢"; }
+        else { visual.innerText = "👶"; }
+    }
+
+    function updateLife(stat, value) {
+        const ref = window.db.ref('games/life/' + currentFamily + '/' + stat);
+        ref.transaction(current => {
+            let newVal = (current || 0) + value;
+            return newVal > 100 ? 100 : newVal;
+        });
+        // Yaşı da artırırıq
+        window.db.ref('games/life/' + currentFamily + '/age').transaction(a => (a || 0) + 1);
+    }
+</script>
