@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestial Hub | Elite Experience</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/awesome/6.4.0/css/all.min.css">
+    <title>Celestial Hub | Elite Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
@@ -15,209 +15,180 @@
             --gold: #f5b942;
             --gold-dim: #c5a059;
             --text: #e2e8f0;
-            --card-bg: rgba(20, 22, 31, 0.6);
-            --glow: rgba(245, 185, 66, 0.3);
+            --cyan: #00f2ff;
+            --purple: #a855f7;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             font-family: 'Montserrat', sans-serif;
             background-color: var(--bg); color: var(--text);
-            overflow: hidden; perspective: 1000px;
+            overflow: hidden;
         }
 
-        /* STARFIELD BACKGROUND ANIMATION */
+        /* STARFIELD ANIMATION */
         #starfield { position: fixed; inset: 0; z-index: -1; }
-        @keyframes stars { from { transform: translateY(0); } to { transform: translateY(-1000px); } }
-
-        /* VORTEX ANIMATION */
-        .vortex {
-            position: fixed; top: 50%; left: 50%; width: 2px; height: 2px;
-            border-radius: 50%; box-shadow: 0 0 100px 50px rgba(245, 185, 66, 0.1);
-            animation: vortex-pulse 10s infinite alternate; z-index: -1;
-        }
-        @keyframes vortex-pulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.2; } 100% { transform: translate(-50%, -50%) scale(20); opacity: 0.5; } }
 
         /* AUTH SCREEN */
-        #auth-screen {
-            display: flex; align-items: center; justify-content: center;
-            height: 100vh; animation: fadeIn 1.5s ease;
-        }
+        #auth-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
         .auth-box {
-            width: 380px; padding: 60px 40px; text-align: center;
-            background: rgba(20, 22, 31, 0.8); backdrop-filter: blur(20px);
-            border: 2px solid var(--gold-dim); border-radius: 20px;
-            box-shadow: 0 0 50px rgba(245, 185, 66, 0.2);
-            position: relative; overflow: hidden;
+            width: 380px; padding: 40px; text-align: center;
+            background: rgba(10, 10, 15, 0.95); border: 1px solid var(--gold-dim);
+            border-radius: 25px; box-shadow: 0 0 40px rgba(245, 185, 66, 0.15);
+            animation: fadeIn 1.2s ease;
         }
-        .auth-box::after {
-            content: ""; position: absolute; inset: -50%;
-            background: conic-gradient(from 0deg, transparent, var(--gold), transparent);
-            animation: rotate 4s linear infinite; z-index: -1;
-        }
-        .auth-box-inner { background: rgba(20, 22, 31, 1); padding: 40px; border-radius: 15px; }
-
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        h2.logo { font-family: 'Cinzel Decorative', cursive; color: var(--gold); font-size: 2.2rem; margin-bottom: 30px; text-shadow: 0 0 15px var(--gold); }
+        .auth-box h2 { font-family: 'Cinzel Decorative'; color: var(--gold); font-size: 2rem; }
 
         input {
-            width: 100%; padding: 18px; margin: 15px 0;
-            background: #111; border: 1px solid #333;
-            border-radius: 10px; color: white; outline: none;
-            transition: 0.3s; text-align: center; font-size: 1.1rem;
+            width: 100%; padding: 15px; margin: 20px 0; background: #0a0a0c;
+            border: 1px solid #333; border-radius: 12px; color: #fff;
+            text-align: center; font-family: 'Montserrat'; outline: none; transition: 0.3s;
         }
         input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(245, 185, 66, 0.2); }
 
-        .btn-celestial {
-            width: 100%; padding: 18px; background: linear-gradient(45deg, var(--gold-dim), var(--gold));
-            border: none; border-radius: 10px; color: black; font-weight: 700;
-            cursor: pointer; text-transform: uppercase; letter-spacing: 3px;
-            font-family: 'Montserrat'; transition: 0.4s;
+        .btn-portal {
+            width: 100%; padding: 16px; background: var(--gold);
+            border: none; border-radius: 12px; color: #000;
+            font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
         }
-        .btn-celestial:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--gold); }
 
-        /* MAIN APP UI */
-        #app-content { display: none; height: 100vh; overflow-y: auto; padding: 30px; box-sizing: border-box; }
+        /* APP CONTENT */
+        #app-content { display: none; height: 100vh; overflow-y: auto; padding: 40px; box-sizing: border-box; }
         
-        .header {
-            max-width: 1200px; margin: 0 auto 50px auto;
+        .nav-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 40px; background: rgba(20, 22, 31, 0.8);
-            backdrop-filter: blur(15px); border-radius: 20px;
-            border: 1px solid var(--gold-dim); animation: slideDown 1s ease;
+            max-width: 1200px; margin: 0 auto 60px auto; padding: 15px 40px;
+            background: rgba(255,255,255,0.02); backdrop-filter: blur(15px);
+            border-radius: 50px; border: 1px solid rgba(245, 185, 66, 0.2);
         }
 
-        .user-identity b { font-family: 'Cinzel Decorative', cursive; color: var(--gold); font-size: 1.3rem; }
+        /* PORTAL SYSTEM */
+        #portal-selection { display: flex; justify-content: center; gap: 60px; height: 60vh; align-items: center; }
 
-        .dashboard-group { margin-bottom: 60px; animation: fadeIn 1.2s ease; }
-        .group-title {
-            font-family: 'Cinzel Decorative', cursive; font-size: 1.8rem; color: var(--gold);
-            margin-bottom: 30px; text-align: center; text-shadow: 0 0 10px var(--gold);
+        .portal {
+            width: 300px; height: 300px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 2px solid transparent; background: rgba(255,255,255,0.01);
         }
+        .portal:hover { transform: scale(1.1) rotate(5deg); border-color: var(--p-color); box-shadow: 0 0 60px var(--p-glow); }
+        .portal i { font-size: 4.5rem; color: var(--p-color); margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--p-glow)); }
+        .portal h2 { font-family: 'Cinzel Decorative'; margin: 0; letter-spacing: 3px; color: var(--p-color); }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        /* CATEGORY VIEW */
+        #category-view { display: none; max-width: 1200px; margin: auto; animation: slideUp 0.6s ease; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
 
-        .celestial-card {
-            background: var(--card-bg); padding: 50px 30px; border-radius: 25px;
-            text-align: center; border: 1px solid #222;
-            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); cursor: pointer;
-            position: relative; transform-style: preserve-3d;
+        .item-card {
+            background: rgba(20, 20, 25, 0.6); padding: 40px 20px; border-radius: 25px;
+            text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s ease; position: relative; overflow: hidden;
         }
-        .celestial-card:hover {
-            transform: rotateX(10deg) rotateY(10deg) translateY(-15px);
-            border-color: var(--gold); box-shadow: 0 20px 50px rgba(245, 185, 66, 0.2);
-        }
-        .celestial-card::before {
-            content: ""; position: absolute; inset: 0; background: radial-gradient(circle at center, var(--glow) 0%, transparent 70%);
-            opacity: 0; transition: 0.5s; border-radius: 25px;
-        }
-        .celestial-card:hover::before { opacity: 1; }
+        .item-card:hover { transform: translateY(-10px); border-color: var(--gold); background: rgba(245, 185, 66, 0.05); }
+        .item-card i { font-size: 3.2rem; color: var(--gold); margin-bottom: 15px; display: block; }
+        .item-card h3 { font-size: 1rem; margin: 0; font-weight: 600; }
+        .item-card p { font-size: 0.7rem; color: var(--gold-dim); margin-top: 10px; font-weight: 700; }
 
-        .celestial-card i { font-size: 3.5rem; color: var(--gold); margin-bottom: 25px; display: block; text-shadow: 0 0 20px var(--gold); }
-        .celestial-card h3 { font-family: 'Montserrat'; font-weight: 700; font-size: 1.3rem; margin: 0; color: white; }
-        .celestial-card p { font-size: 0.8rem; color: var(--gold-dim); margin-top: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+        .back-btn { margin-bottom: 40px; cursor: pointer; color: var(--gold); font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .back-btn:hover { letter-spacing: 1px; }
 
-        /* PORTAL LOADER */
-        #portal-layer {
-            display: none; position: fixed; inset: 0; z-index: 10000;
-            background: var(--bg); padding: 50px; overflow-y: auto; animation: portalOpen 0.6s ease forwards;
-        }
-        @keyframes portalOpen { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .portal-close {
-            position: fixed; top: 30px; right: 40px; background: transparent;
-            border: 2px solid var(--gold); color: var(--gold);
-            padding: 12px 30px; cursor: pointer; font-family: 'Montserrat'; font-weight: 700;
-            letter-spacing: 2px; transition: 0.3s;
-        }
-        .portal-close:hover { background: var(--gold); color: black; box-shadow: 0 0 20px var(--gold); }
+        /* MODAL */
+        #modal-layer { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--bg); padding: 40px; overflow-y: auto; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <canvas id="starfield"></canvas>
-    <div class="vortex"></div>
     <audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
     <div id="auth-screen">
         <div class="auth-box">
-            <div class="auth-box-inner">
-                <h2 class="logo">Celestial</h2>
-                <p style="color: var(--gold-dim); font-size: 0.9rem; margin-top: -15px; font-weight: 500;">Qalaktikaya daxil ol</p>
-                <input type="text" id="user-in" placeholder="Username daxil edin" maxlength="12">
-                <button class="btn-celestial" onclick="login()">Bağlantı Qur</button>
-                <p id="auth-error" style="color: #ff3e3e; font-size: 0.8rem; margin-top: 15px; display: none; font-weight: 600;"></p>
-            </div>
+            <h2 style="margin:0;">CELESTIAL</h2>
+            <p style="color: #666; font-size: 0.8rem; margin-top: 5px;">SİSTEMƏ GİRİŞ</p>
+            <input type="text" id="user-in" placeholder="Username" maxlength="12">
+            <button class="btn-portal" onclick="login()">PORTALI AÇ</button>
+            <p id="auth-error" style="color:#ff3e3e; font-size:0.8rem; margin-top:10px; display:none;"></p>
         </div>
     </div>
 
     <div id="app-content">
-        <div class="header">
-            <div class="user-identity"><i class="fas fa-jedi" style="color:var(--gold);"></i> <span id="u-name">...</span></div>
-            <div style="display:flex; gap:40px; font-weight:700;">
-                <span><i class="fas fa-star" style="color:var(--gold);"></i> <b id="u-pts">0</b></span>
-                <span><i class="fas fa-satellite" style="color:#22c55e;"></i> Online: <b id="on-count">0</b></span>
+        <div class="nav-header">
+            <div style="font-family:'Cinzel Decorative'; color:var(--gold);"><i class="fas fa-jedi"></i> <span id="u-name">...</span></div>
+            <div style="display:flex; gap:35px; font-weight:700; font-size: 0.9rem;">
+                <span><i class="fas fa-star" style="color:var(--gold);"></i> <b id="u-pts">0</b> PTS</span>
+                <span><i class="fas fa-satellite" style="color:#22c55e;"></i> ONLINE: <b id="on-count">0</b></span>
             </div>
-            <div onclick="location.reload()" style="cursor:pointer; color:#555;"><i class="fas fa-power-off"></i></div>
+            <div onclick="location.reload()" style="cursor:pointer; opacity:0.3;"><i class="fas fa-power-off"></i></div>
         </div>
-        <div id="celestial-root"></div>
+
+        <div id="portal-selection">
+            <div class="portal" onclick="showCategory('tools')" style="--p-color: var(--cyan); --p-glow: rgba(0,242,255,0.2);">
+                <i class="fas fa-microchip"></i>
+                <h2>ALƏTLƏR</h2>
+            </div>
+            <div class="portal" onclick="showCategory('fun')" style="--p-color: var(--gold); --p-glow: rgba(245,185,66,0.2);">
+                <i class="fas fa-wand-sparkles"></i>
+                <h2>ƏYLƏNCƏ</h2>
+            </div>
+        </div>
+
+        <div id="category-view">
+            <div class="back-btn" onclick="goBack()"><i class="fas fa-chevron-left"></i> GERİ QAYIT</div>
+            <h1 id="cat-title" style="font-family:'Cinzel Decorative'; color:var(--gold); margin-bottom:50px; text-shadow: 0 0 15px rgba(245,185,66,0.3);"></h1>
+            <div class="grid" id="items-grid"></div>
+        </div>
     </div>
 
-    <div id="portal-layer">
-        <button class="portal-close" onclick="closePortal()"><i class="fas fa-portal-exit"></i> GERİ QAYIT</button>
-        <div id="portal-content" style="max-width:1000px; margin: 60px auto 0 auto;"></div>
+    <div id="modal-layer">
+        <button onclick="closeModal()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:10px 25px; cursor:pointer; position:fixed; top:25px; right:25px; z-index:10001; font-family:'Montserrat'; font-weight:700;">BAĞLA</button>
+        <div id="modal-content" style="max-width:1100px; margin:70px auto 0 auto;"></div>
     </div>
 
     <script>
-        // BACKGROUND ANIMATION CODE
+        // STARS BACKGROUND
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         const stars = [];
-        for(let i=0; i<200; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, size: Math.random()*2, speed: Math.random()*0.5 });
-        function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'white';
-            stars.forEach(star => {
-                ctx.beginPath(); ctx.arc(star.x, star.y, star.size, 0, Math.random()*Math.PI*2); ctx.fill();
-                star.y += star.speed; if(star.y > canvas.width) star.y = 0;
-            });
-            requestAnimationFrame(drawStars);
+        for(let i=0; i<180; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5 });
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="#fff";
+            stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += 0.4; if(s.y > canvas.height) s.y=0; });
+            requestAnimationFrame(animate);
         }
-        drawStars();
+        animate();
 
-        // LOGIC CODE
-        const originalMusic = "music.mp3";
-        const structure = {
-            "main_tools": {
-                name: "Qalaktik Alətlər",
+        // FULL ARSENAL DATA
+        const categories = {
+            "tools": {
+                name: "Özəl Alətlər",
                 items: [
                     { n: "IP Tracker", f: "ip.html", i: "fas fa-satellite-dish", p: 100 },
                     { n: "Anonim Mail", f: "mail.html", i: "fas fa-paper-plane", p: 0 },
-                    { n: "Temp SMS", f: "sms.html", i: "fas fa-sim-card", p: 150 },
                     { n: "WhatsApp Sürət", f: "wa.html", i: "fab fa-whatsapp", p: 700 },
-                    { n: "Whois Search", f: "whois.html", i: "fas fa-search", p: 50 },
+                    { n: "Whois Search", f: "whois.html", i: "fas fa-magnifying-glass", p: 50 },
                     { n: "Kamera Sistemi", f: "trap.html", i: "fas fa-camera", p: 400 },
-                    { n: "Sızıntı Yoxla", f: "leak.html", i: "fas fa-database", p: 300 },
-                    { n: "Fake ID Gen", f: "id-card.html", i: "fas fa-id-card", p: 200 },
-                    { n: "Kripto Analiz", f: "crypto-track.html", i: "fas fa-chart-line", p: 0 }
+                    { n: "Sızıntı Yoxla", f: "leak.html", i: "fas fa-shield-halved", p: 300 },
+                    { n: "Kripto Analiz", f: "crypto-track.html", i: "fas fa-chart-line", p: 0 },
+                    { n: "DDoS Simulator", f: "ddos.html", i: "fas fa-radiation", p: 500 },
+                    { n: "Temp SMS", f: "sms.html", i: "fas fa-comment-sms", p: 150 },
+                    { n: "Fake ID Gen", f: "id-card.html", i: "fas fa-id-card", p: 200 }
                 ]
             },
-            "multiplayer_fun": {
+            "fun": {
                 name: "İnteraktiv Zonalar",
                 items: [
-                    { n: "Tarot Analizi", f: "tarot_elite.html", i: "fas fa-hand-holding-sparkles", p: 150 },
-                    { n: "Cyber X-O", f: "tic_tac_toe.html", i: "fas fa-gamepad", p: 50 },
+                    { n: "Tarot Analizi", f: "tarot_elite.html", i: "fas fa-star-and-crescent", p: 150 },
+                    { n: "Elite X-O", f: "tic_tac_toe.html", i: "fas fa-gamepad", p: 50 },
                     { n: "Soul Quiz", f: "binary_soul.html", i: "fas fa-dna", p: 200 },
-                    { n: "Sirr Şifrəsi", f: "love_password.html", i: "fas fa-user-secret", p: 80 },
-                    { n: "Hissiyyat Testi", f: "binary_pulse.html", i: "fas fa-heartbeat", p: 120 },
-                    { n: "Cyber Path", f: "cyber_path.html", i: "fas fa-map-location-dot", p: 100 },
-                    { n: "Daş-Kağız", f: "rps_game.html", i: "fas fa-hand-scissors", p: 30 },
-                    { n: "Truth or Dare", f: "truth_or_dare.html", i: "fas fa-user-ninja", p: 40 }
+                    { n: "Sirr Şifrəsi", f: "love_password.html", i: "fas fa-lock", p: 80 },
+                    { n: "Cyber Path", f: "cyber_path.html", i: "fas fa-map", p: 100 },
+                    { n: "Hissiyyat Testi", f: "binary_pulse.html", i: "fas fa-bolt", p: 120 },
+                    { n: "Daş-Kağız", f: "rps_game.html", i: "fas fa-hand-back-fist", p: 30 },
+                    { n: "Truth or Dare", f: "truth_or_dare.html", i: "fas fa-mask", p: 40 }
                 ]
             }
         };
@@ -232,82 +203,68 @@
 
         async function login() {
             const user = document.getElementById('user-in').value.trim().toLowerCase();
-            const err = document.getElementById('auth-error');
             if(!user || user.length < 3) return;
-
             try {
                 const snap = await db.ref('users/' + user).get();
                 if(snap.exists()) {
-                    let localId = localStorage.getItem('celestial_id');
-                    if(!localId) {
-                        err.innerText = "BU AD ARTIQ TUTULUB!";
-                        err.style.display = "block";
+                    let key = localStorage.getItem('celestial_key');
+                    if(!key) {
+                        document.getElementById('auth-error').innerText = "BU AD ARTIQ İSTİFADƏ EDİLİR!";
+                        document.getElementById('auth-error').style.display = "block";
                         return;
                     }
                 } else {
-                    const devId = Math.random().toString(36).substring(7);
-                    localStorage.setItem('celestial_id', devId);
-                    await db.ref('users/' + user).set({ points: 250, createdAt: Date.now() });
+                    localStorage.setItem('celestial_key', 'registered');
+                    await db.ref('users/' + user).set({ points: 200, createdAt: Date.now() });
                 }
-
-                window.loginUser = user;
-                document.getElementById('auth-screen').style.display = "none";
-                document.getElementById('app-content').style.display = "block";
+                window.loginName = user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
                 document.getElementById('u-name').innerText = user.toUpperCase();
                 document.getElementById('bg-music').play().catch(()=>{});
 
                 db.ref('users/' + user + '/points').on('value', s => {
                     document.getElementById('u-pts').innerText = s.val() || 0;
-                    window.currentPoints = s.val() || 0;
+                    window.userPoints = s.val() || 0;
                 });
-
-                renderCelestialDashboard();
-                setInterval(()=> { document.getElementById('on-count').innerText = Math.floor(Math.random()*20)+10; }, 4000);
+                setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random()*15)+8; }, 4000);
             } catch(e) { console.error(e); }
         }
 
-        function renderCelestialDashboard() {
-            const root = document.getElementById('celestial-root');
-            root.innerHTML = "";
-            for(let key in structure) {
-                const cat = structure[key];
-                let group = `<div class="dashboard-group"><div class="group-title">${cat.name}</div><div class="grid">`;
-                cat.items.forEach(item => {
-                    group += `
-                    <div class="celestial-card" onclick="openPortal('${item.f}', ${item.p}, '${key}')">
-                        <i class="${item.i}"></i>
-                        <h3>${item.n}</h3>
-                        <p>${item.p} Xal</p>
-                    </div>`;
-                });
-                root.innerHTML += group + `</div></div>`;
-            }
+        function showCategory(key) {
+            const cat = categories[key];
+            document.getElementById('portal-selection').style.display = 'none';
+            document.getElementById('category-view').style.display = 'block';
+            document.getElementById('cat-title').innerText = cat.name;
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = "";
+            cat.items.forEach(item => {
+                grid.innerHTML += `
+                <div class="item-card" onclick="openItem('${item.f}', ${item.p})">
+                    <i class="${item.i}"></i>
+                    <h3>${item.n}</h3>
+                    <p>${item.p} XAL</p>
+                </div>`;
+            });
         }
 
-        async function openPortal(file, pts, cat) {
-            if(window.currentPoints < pts) return alert("Xalınız kifayət etmir.");
-            if(cat === "multiplayer_fun") {
-                const aud = document.getElementById('bg-music');
-                aud.src = "fun.mp3"; aud.play();
-            }
+        function goBack() {
+            document.getElementById('category-view').style.display = 'none';
+            document.getElementById('portal-selection').style.display = 'flex';
+        }
+
+        async function openItem(file, pts) {
+            if(window.userPoints < pts) return alert("KİFAYƏT QƏDƏR XALINIZ YOXDUR!");
             try {
                 const res = await fetch(file);
-                document.getElementById('portal-content').innerHTML = await res.text();
-                document.getElementById('portal-layer').style.display = "block";
-                
-                const scripts = document.getElementById('portal-content').getElementsByTagName('script');
-                for(let s of scripts) {
-                    const ns = document.createElement("script");
-                    ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns);
-                }
-            } catch(e) { alert("Sistem Xətası!"); }
+                document.getElementById('modal-content').innerHTML = await res.text();
+                document.getElementById('modal-layer').style.display = 'block';
+                const sc = document.getElementById('modal-content').getElementsByTagName('script');
+                for(let s of sc) { const ns = document.createElement("script"); ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); }
+            } catch(e) { alert("MODUL YÜKLƏNMƏDİ!"); }
         }
 
-        function closePortal() {
-            document.getElementById('portal-layer').style.display = "none";
-            const aud = document.getElementById('bg-music');
-            if(!aud.src.includes(originalMusic)) { aud.src = originalMusic; aud.play(); }
-        }
+        function closeModal() { document.getElementById('modal-layer').style.display = 'none'; }
     </script>
 </body>
 </html>
