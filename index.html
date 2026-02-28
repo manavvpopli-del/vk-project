@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestial Hub | Elite Portal</title>
+    <title>Elite Celestial | Premium Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <link rel="manifest" href="manifest.json">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Montserrat:wght@300;500;700&display=swap');
 
@@ -25,31 +26,33 @@
             overflow: hidden;
         }
 
-        /* STARFIELD ANIMATION */
+        /* BACKGROUND ANIMATION */
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
         /* AUTH SCREEN */
         #auth-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
         .auth-box {
-            width: 380px; padding: 40px; text-align: center;
-            background: rgba(10, 10, 15, 0.95); border: 1px solid var(--gold-dim);
-            border-radius: 25px; box-shadow: 0 0 40px rgba(245, 185, 66, 0.15);
-            animation: fadeIn 1.2s ease;
+            width: 380px; padding: 50px 40px; text-align: center;
+            background: rgba(10, 10, 15, 0.98); border: 1px solid var(--gold-dim);
+            border-radius: 30px; box-shadow: 0 0 50px rgba(245, 185, 66, 0.1);
+            animation: fadeIn 1.5s ease;
         }
-        .auth-box h2 { font-family: 'Cinzel Decorative'; color: var(--gold); font-size: 2rem; margin: 0; }
+        .auth-box h2 { font-family: 'Cinzel Decorative'; color: var(--gold); font-size: 2.2rem; margin: 0; letter-spacing: 5px; }
 
         input {
-            width: 100%; padding: 15px; margin: 25px 0 20px 0; background: #0a0a0c;
-            border: 1px solid #333; border-radius: 12px; color: #fff;
-            text-align: center; font-family: 'Montserrat'; outline: none; transition: 0.3s;
+            width: 100%; padding: 18px; margin: 30px 0 20px 0; background: #000;
+            border: 1px solid #333; border-radius: 15px; color: #fff;
+            text-align: center; font-family: 'Montserrat'; outline: none; transition: 0.3s; font-size: 1rem;
         }
-        input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(245, 185, 66, 0.2); }
+        input:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(245, 185, 66, 0.2); }
 
         .btn-portal {
-            width: 100%; padding: 16px; background: var(--gold);
-            border: none; border-radius: 12px; color: #000;
-            font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+            width: 100%; padding: 18px; background: var(--gold);
+            border: none; border-radius: 15px; color: #000;
+            font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 3px;
+            transition: 0.4s;
         }
+        .btn-portal:hover { transform: scale(1.02); box-shadow: 0 0 30px var(--gold); }
 
         /* APP CONTENT */
         #app-content { display: none; height: 100vh; overflow-y: auto; padding: 40px; box-sizing: border-box; }
@@ -57,45 +60,47 @@
         .nav-header {
             display: flex; justify-content: space-between; align-items: center;
             max-width: 1200px; margin: 0 auto 60px auto; padding: 15px 40px;
-            background: rgba(255,255,255,0.02); backdrop-filter: blur(15px);
-            border-radius: 50px; border: 1px solid rgba(245, 185, 66, 0.2);
+            background: rgba(255,255,255,0.03); backdrop-filter: blur(20px);
+            border-radius: 60px; border: 1px solid rgba(245, 185, 66, 0.2);
         }
 
-        /* PORTAL SYSTEM */
-        #portal-selection { display: flex; justify-content: center; gap: 60px; height: 60vh; align-items: center; }
+        /* PORTAL SYSTEM (2 CATEGORIES ONLY) */
+        #portal-selection { display: flex; justify-content: center; gap: 80px; height: 60vh; align-items: center; }
 
         .portal {
-            width: 300px; height: 300px; border-radius: 50%;
+            width: 320px; height: 320px; border-radius: 50%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
             border: 2px solid transparent; background: rgba(255,255,255,0.01);
+            position: relative;
         }
-        .portal:hover { transform: scale(1.1) rotate(5deg); border-color: var(--p-color); box-shadow: 0 0 60px var(--p-glow); }
-        .portal i { font-size: 4.5rem; color: var(--p-color); margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--p-glow)); }
-        .portal h2 { font-family: 'Cinzel Decorative'; margin: 0; letter-spacing: 3px; color: var(--p-color); }
+        .portal:hover { transform: scale(1.1); border-color: var(--p-color); box-shadow: 0 0 60px var(--p-glow); }
+        .portal i { font-size: 5rem; color: var(--p-color); margin-bottom: 25px; filter: drop-shadow(0 0 15px var(--p-glow)); }
+        .portal h2 { font-family: 'Cinzel Decorative'; margin: 0; letter-spacing: 4px; color: var(--p-color); font-size: 1.5rem; }
 
         /* CATEGORY VIEW */
-        #category-view { display: none; max-width: 1200px; margin: auto; animation: slideUp 0.6s ease; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        #category-view { display: none; max-width: 1200px; margin: auto; animation: slideUp 0.7s ease; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; }
 
         .item-card {
-            background: rgba(20, 20, 25, 0.6); padding: 40px 20px; border-radius: 25px;
+            background: rgba(20, 20, 25, 0.8); padding: 45px 25px; border-radius: 30px;
             text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s ease; position: relative; overflow: hidden;
+            transition: 0.4s;
         }
-        .item-card:hover { transform: translateY(-10px); border-color: var(--gold); background: rgba(245, 185, 66, 0.05); }
-        .item-card i { font-size: 3.2rem; color: var(--gold); margin-bottom: 15px; display: block; }
-        .item-card h3 { font-size: 1rem; margin: 0; font-weight: 600; }
-        .item-card p { font-size: 0.7rem; color: var(--gold-dim); margin-top: 10px; font-weight: 700; }
+        .item-card:hover { transform: translateY(-15px); border-color: var(--gold); background: rgba(245, 185, 66, 0.08); }
+        .item-card i { font-size: 3.5rem; color: var(--gold); margin-bottom: 20px; display: block; }
+        .item-card h3 { font-size: 1.1rem; margin: 0; font-weight: 700; letter-spacing: 1px; }
 
-        .back-btn { margin-bottom: 40px; cursor: pointer; color: var(--gold); font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
-        .back-btn:hover { letter-spacing: 1px; }
+        .back-btn { margin-bottom: 40px; cursor: pointer; color: var(--gold); font-weight: 700; display: inline-flex; align-items: center; gap: 12px; transition: 0.3s; font-family: 'Cinzel Decorative'; }
+        .back-btn:hover { letter-spacing: 2px; }
 
-        /* MODAL */
-        #modal-layer { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--bg); padding: 40px; overflow-y: auto; }
+        /* MODAL LAYER */
+        #modal-layer { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--bg); padding: 50px; overflow-y: auto; }
+        .close-portal { position: fixed; top: 30px; right: 40px; background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px 30px; cursor: pointer; font-family: 'Montserrat'; font-weight: 700; border-radius: 10px; z-index: 10001; transition: 0.3s; }
+        .close-portal:hover { background: var(--gold); color: #000; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -106,21 +111,21 @@
     <div id="auth-screen">
         <div class="auth-box">
             <h2>CELESTIAL</h2>
-            <p style="color: #666; font-size: 0.8rem; margin-top: 5px; letter-spacing: 2px;">SİSTEMƏ GİRİŞ</p>
-            <input type="text" id="user-in" placeholder="İdentifikasiya Adı" maxlength="15">
-            <button class="btn-portal" onclick="login()">PORTALI AÇ</button>
+            <p style="color: #555; font-size: 0.75rem; margin-top: 10px; letter-spacing: 3px; font-weight: 700;">ELITE ACCESS ONLY</p>
+            <input type="text" id="user-in" placeholder="Username" maxlength="15">
+            <button class="btn-portal" onclick="login()">Bağlantı Qur</button>
             <p id="auth-error" style="color:#ff3e3e; font-size:0.8rem; margin-top:15px; display:none;"></p>
         </div>
     </div>
 
     <div id="app-content">
         <div class="nav-header">
-            <div style="font-family:'Cinzel Decorative'; color:var(--gold);"><i class="fas fa-jedi"></i> <span id="u-name">...</span></div>
-            <div style="display:flex; gap:35px; font-weight:700; font-size: 0.9rem;">
+            <div style="font-family:'Cinzel Decorative'; color:var(--gold); font-size: 1.2rem;"><i class="fas fa-crown"></i> <span id="u-name">...</span></div>
+            <div style="display:flex; gap:40px; font-weight:700; font-size: 0.85rem; letter-spacing: 1px;">
                 <span><i class="fas fa-star" style="color:var(--gold);"></i> <b id="u-pts">0</b> PTS</span>
                 <span><i class="fas fa-users" style="color:#22c55e;"></i> İSTİFADƏÇİ: <b>897+</b></span>
             </div>
-            <div onclick="location.reload()" style="cursor:pointer; opacity:0.3; transition: 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.3'"><i class="fas fa-power-off"></i></div>
+            <div onclick="location.reload()" style="cursor:pointer; opacity:0.2;"><i class="fas fa-power-off"></i></div>
         </div>
 
         <div id="portal-selection">
@@ -129,38 +134,38 @@
                 <h2>ALƏTLƏR</h2>
             </div>
             <div class="portal" onclick="showCategory('fun')" style="--p-color: var(--gold); --p-glow: rgba(245,185,66,0.2);">
-                <i class="fas fa-moon"></i>
+                <i class="fas fa-sparkles"></i>
                 <h2>ƏYLƏNCƏ</h2>
             </div>
         </div>
 
         <div id="category-view">
-            <div class="back-btn" onclick="goBack()"><i class="fas fa-chevron-left"></i> GERİ QAYIT</div>
-            <h1 id="cat-title" style="font-family:'Cinzel Decorative'; color:var(--gold); margin-bottom:50px; text-shadow: 0 0 15px rgba(245,185,66,0.3);"></h1>
+            <div class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> GERİ QAYIT</div>
+            <h1 id="cat-title" style="font-family:'Cinzel Decorative'; color:var(--gold); margin-bottom:50px; text-shadow: 0 0 20px rgba(245,185,66,0.4);"></h1>
             <div class="grid" id="items-grid"></div>
         </div>
     </div>
 
     <div id="modal-layer">
-        <button onclick="closeModal()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:10px 25px; cursor:pointer; position:fixed; top:25px; right:25px; z-index:10001; font-family:'Montserrat'; font-weight:700; transition: 0.3s;" onmouseover="this.style.background='var(--gold)'; this.style.color='#000';" onmouseout="this.style.background='none'; this.style.color='var(--gold)';">BAĞLA</button>
-        <div id="modal-content" style="max-width:1100px; margin:70px auto 0 auto;"></div>
+        <button class="close-portal" onclick="closeModal()">BAĞLA</button>
+        <div id="modal-content" style="max-width:1100px; margin:80px auto 0 auto;"></div>
     </div>
 
     <script>
-        // STARS BACKGROUND
+        // BACKGROUND STARS LOGIC
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         const stars = [];
-        for(let i=0; i<180; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5 });
+        for(let i=0; i<200; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.8, sp: Math.random()*0.5 });
         function animate() {
-            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="#fff";
-            stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += 0.4; if(s.y > canvas.height) s.y=0; });
+            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="white";
+            stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += s.sp; if(s.y > canvas.height) s.y=0; });
             requestAnimationFrame(animate);
         }
         animate();
 
-        // UPDATED DATA STRUCTURE
+        // REFINED DATA STRUCTURE
         const categories = {
             "tools": {
                 name: "Özəl Alətlər",
@@ -177,13 +182,14 @@
                     { n: "Fake ID Gen", f: "id-card.html", i: "fas fa-id-card", p: 200 }
                 ]
             },
-         "fun": {
-    name: "Tale Portalı",
-    items: [
-        { n: "Tarot Analizi", f: "tarot_elite.html", i: "fas fa-star-and-crescent", p: 150 },
-        { n: "Celestial Life", f: "baby_grow.html", i: "fas fa-baby-carriage", p: 300 }
-    ]
-}
+            "fun": {
+                name: "Tale Portalı",
+                items: [
+                    { n: "Tarot Analizi", f: "tarot_elite.html", i: "fas fa-star-and-crescent", p: 150 },
+                    { n: "Celestial Life", f: "baby_grow.html", i: "fas fa-baby-carriage", p: 300 }
+                ]
+            }
+        };
 
         const firebaseConfig = { 
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
@@ -207,16 +213,13 @@
                     }
                 } else {
                     localStorage.setItem('celestial_key', 'registered');
-                    await db.ref('users/' + user).set({ points: 200, createdAt: Date.now() });
+                    await db.ref('users/' + user).set({ points: 200 });
                 }
                 window.loginName = user;
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
                 document.getElementById('u-name').innerText = user.toUpperCase();
-                
-                // Play audio if allowed by browser
-                const audio = document.getElementById('bg-music');
-                audio.play().catch(()=>{});
+                document.getElementById('bg-music').play().catch(()=>{});
 
                 db.ref('users/' + user + '/points').on('value', s => {
                     document.getElementById('u-pts').innerText = s.val() || 0;
@@ -251,7 +254,8 @@
             if(window.userPoints < pts) return alert("KİFAYƏT QƏDƏR XALINIZ YOXDUR!");
             try {
                 const res = await fetch(file);
-                document.getElementById('modal-content').innerHTML = await res.text();
+                const html = await res.text();
+                document.getElementById('modal-content').innerHTML = html;
                 document.getElementById('modal-layer').style.display = 'block';
                 const sc = document.getElementById('modal-content').getElementsByTagName('script');
                 for(let s of sc) { const ns = document.createElement("script"); ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); }
