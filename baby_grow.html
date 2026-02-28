@@ -1,157 +1,189 @@
-<div class="family-app" style="color: #e2e8f0; font-family: 'Montserrat', sans-serif; max-width: 450px; margin: auto;">
+<div class="family-container" style="color: #e2e8f0; font-family: 'Montserrat', sans-serif; max-width: 450px; margin: auto; padding: 20px;">
     
-    <button id="pwa-btn" style="display:none; width:100%; padding:15px; background:#f5b942; border:none; border-radius:15px; font-weight:800; margin-bottom:20px; cursor:pointer;">
-        <i class="fas fa-heart"></i> ANA EKRANA ƏLAVƏ ET
+    <button id="pwa-btn" style="display:none; width:100%; padding:15px; background:#f5b942; border:none; border-radius:15px; font-weight:800; margin-bottom:20px; cursor:pointer; font-family: 'Montserrat';">
+        <i class="fas fa-home"></i> ANA EKRANA ƏLAVƏ ET
     </button>
 
-    <div id="setup-area" class="glass-panel" style="background:rgba(20,22,30,0.9); padding:30px; border-radius:30px; border:1px solid #c5a059;">
-        <h2 style="font-family:'Playfair Display'; color:#f5b942; text-align:center;">Ailə Ocağı</h2>
+    <div id="setup-screen" class="glass-panel" style="background:rgba(20,22,30,0.95); padding:30px; border-radius:30px; border:1px solid #c5a059; text-align:center;">
+        <h2 style="font-family:'Playfair Display', serif; color:#f5b942; margin-bottom:10px;">Ailə Ocağı</h2>
+        <p style="font-size:0.8rem; color:#888; margin-bottom:25px;">Otaq kodu yaradın və ya mövcud koda qoşulun.</p>
         
-        <input type="text" id="partner-id" placeholder="Sevgilinin İstifadəçi Adı" style="width:100%; padding:15px; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:15px; text-align:center;">
+        <input type="text" id="room-code-input" placeholder="Ailə Kodu (məs: bizimlider)" style="width:100%; padding:15px; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:20px; text-align:center; font-size:1rem;">
         
-        <div id="new-baby-form" style="display:none; border-top:1px solid #333; padding-top:20px; margin-top:10px;">
-            <input type="text" id="baby-n" placeholder="Körpəyə Ad Qoyun" style="width:100%; padding:15px; background:#000; border:1px solid #333; border-radius:12px; color:#fff; margin-bottom:15px; text-align:center;">
-            
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button class="opt-btn" id="m-boy" onclick="setGender('boy')">OĞLAN</button>
-                <button class="opt-btn" id="m-girl" onclick="setGender('girl')">QIZ</button>
-            </div>
-            
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="opt-btn" id="s-light" onclick="setSkin('light')">AÇIQ DƏRİ</button>
-                <button class="opt-btn" id="s-dark" onclick="setSkin('dark')">TÜND DƏRİ</button>
+        <div id="new-baby-setup" style="display:none; margin-bottom:20px; border-top:1px solid #222; padding-top:20px;">
+            <input type="text" id="baby-name-in" placeholder="Körpənin Adı" style="width:100%; padding:12px; background:#111; border:1px solid #333; border-radius:10px; color:#fff; margin-bottom:15px; text-align:center;">
+            <div style="display:flex; gap:10px;">
+                <button class="choice-btn" id="btn-boy" onclick="setGender('boy')">OĞLAN</button>
+                <button class="choice-btn" id="btn-girl" onclick="setGender('girl')">QIZ</button>
             </div>
         </div>
 
-        <button onclick="startFamilyLife()" style="width:100%; padding:18px; background:#f5b942; color:#000; border:none; border-radius:12px; font-weight:800; cursor:pointer;">HƏYATI BAŞLAT</button>
+        <button onclick="handleRoomAccess()" style="width:100%; padding:18px; background:#f5b942; color:#000; border:none; border-radius:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">Giriş Et</button>
     </div>
 
-    <div id="main-game" style="display:none; animation: fadeIn 1s ease;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <div style="font-size:0.7rem; color:#f5b942;">VALİDEYNLƏR: <b id="parent-names">...</b></div>
-            <div style="font-size:0.7rem; color:#2ed573;">PTS: <b id="user-pts">0</b></div>
+    <div id="game-screen" style="display:none; animation: fadeIn 1s ease;">
+        <div class="status-bar" style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:0.8rem;">
+            <div style="color:#f5b942;"><i class="fas fa-key"></i> KOD: <b id="display-room-code">...</b></div>
+            <div style="color:#2ed573;"><i class="fas fa-coins"></i> <span id="user-pts">0</span> PTS</div>
         </div>
 
-        <div class="cradle" style="height:300px; background:#111; border-radius:25px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-            <img id="house-view" src="" style="position:absolute; width:100%; height:100%; object-fit:cover; opacity:0.4; display:none;">
-            <img id="baby-view" src="" style="width:180px; z-index:2; transition: 0.5s;">
-            <img id="cloth-view" src="" style="position:absolute; width:180px; z-index:3; display:none;">
+        <div class="nursery" style="height:320px; background:#111; border-radius:25px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #222;">
+            <img id="room-bg" src="https://images.unsplash.com/photo-1544126592-807daa2b565b?q=80&w=1000&auto=format&fit=crop" style="position:absolute; width:100%; height:100%; object-fit:cover; opacity:0.3; display:none;">
+            <div id="baby-avatar" style="font-size: 7rem; z-index: 5; filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));">👶</div>
+            <img id="baby-suit" src="" style="position:absolute; width:180px; z-index:6; display:none;">
         </div>
 
-        <div style="margin-top:20px;">
-            <h3 id="baby-title" style="text-align:center; color:#f5b942; font-family:'Playfair Display';">Ad</h3>
-            <div class="bar-wrap">TOXLUQ: <span id="th">0%</span> <div class="bar"><div id="bh" class="inner"></div></div></div>
-            <div class="bar-wrap">XOŞBƏXTLİK: <span id="tl">0%</span> <div class="bar"><div id="bl" class="inner" style="background:#ff4757;"></div></div></div>
+        <div style="text-align:center; margin-top:20px;">
+            <h3 id="baby-name-display" style="font-family:'Playfair Display', serif; color:#f5b942; margin:0;">Ad</h3>
+            <p id="notification-text" style="font-size:0.75rem; color:#ff4757; font-weight:700; height:20px;"></p>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="opt-btn" onclick="babyAction('hunger')" style="flex:1;">YEDİRT</button>
-            <button class="opt-btn" onclick="babyAction('love')" style="flex:1;">OYNA</button>
+        <div class="stats" style="margin-top:10px;">
+            <div class="bar-label">ACLIQ: <span id="val-h">50</span>%</div>
+            <div class="bar-bg"><div id="bar-h" class="bar-fill" style="background:#f5b942;"></div></div>
+            
+            <div class="bar-label" style="margin-top:10px;">SEVGİ: <span id="val-l">50</span>%</div>
+            <div class="bar-bg"><div id="bar-l" class="bar-fill" style="background:#ff4757;"></div></div>
         </div>
 
-        <div class="market" style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-            <div class="market-card" onclick="buyItem('cloth', 300, 'https://i.ibb.co/m0f4kYm/suit.png')">
-                <img src="https://i.ibb.co/m0f4kYm/suit.png" style="width:60px;">
-                <p>Kostyum (300)</p>
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button class="action-btn" onclick="babyCare('hunger')"><i class="fas fa-apple-whole"></i> YEDİRT</button>
+            <button class="action-btn" onclick="babyCare('love')"><i class="fas fa-heart"></i> OYNA</button>
+        </div>
+
+        <div class="market" style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="market-item" onclick="buyGift('cloth', 350, 'https://cdn-icons-png.flaticon.com/512/963/963861.png')">
+                <i class="fas fa-shirt" style="font-size:2rem; color:#f5b942;"></i>
+                <p>Paltar (350)</p>
             </div>
-            <div class="market-card" onclick="buyItem('home', 1200, 'https://i.ibb.co/QjGfXvQ/modern-house.jpg')">
-                <img src="https://i.ibb.co/QjGfXvQ/modern-house.jpg" style="width:60px;">
-                <p>Ev (1200)</p>
+            <div class="market-item" onclick="buyGift('home', 1500, 'https://cdn-icons-png.flaticon.com/512/619/619153.png')">
+                <i class="fas fa-house-chimney" style="font-size:2rem; color:#f5b942;"></i>
+                <p>Yeni Ev (1500)</p>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .opt-btn { background:#161822; border:1px solid #333; color:#888; padding:10px; border-radius:10px; cursor:pointer; font-weight:700; transition:0.3s; }
-    .opt-btn.active { border-color:#f5b942; color:#f5b942; }
-    .bar-wrap { font-size:0.7rem; margin-bottom:10px; }
-    .bar { width:100%; height:8px; background:#000; border-radius:5px; margin-top:5px; overflow:hidden; }
-    .inner { height:100%; width:0%; background:#f5b942; transition:0.5s; }
-    .market-card { background:#161822; padding:15px; border-radius:15px; border:1px solid #222; text-align:center; cursor:pointer; }
+    .choice-btn { flex:1; padding:10px; background:#161822; border:1px solid #333; color:#888; border-radius:10px; cursor:pointer; font-weight:700; }
+    .choice-btn.active { border-color:#f5b942; color:#f5b942; background:rgba(245,185,66,0.1); }
+    .bar-label { font-size:0.7rem; font-weight:800; margin-bottom:5px; color:#c5a059; }
+    .bar-bg { width:100%; height:8px; background:#000; border-radius:5px; overflow:hidden; }
+    .bar-fill { height:100%; width:0%; transition:0.8s ease-out; }
+    .action-btn { flex:1; padding:15px; background:#161822; border:1px solid #333; color:#fff; border-radius:15px; cursor:pointer; font-weight:700; font-size:0.8rem; }
+    .action-btn:hover { border-color:#f5b942; }
+    .market-item { background:#161822; padding:20px; border-radius:20px; border:1px solid #222; text-align:center; cursor:pointer; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 </style>
 
 <script>
-    // Firebase Bağlantısı (Müstəqil)
+    // Firebase bağlantısı mütləq index.html-də olmalıdır, amma burada müstəqil yoxlayırıq
     if (!firebase.apps.length) {
         firebase.initializeApp({
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com"
         });
     }
-    const babyDB = firebase.database();
+    const dbRef = firebase.database();
     
-    let activeFamilyId = null;
-    let bGen = "boy";
-    let bSkin = "light";
-    let myName = localStorage.getItem('active_user') || "Qonaq";
+    let currentRoom = null;
+    let babySex = "boy";
+    let myUser = localStorage.getItem('active_user') || "Qonaq";
     let myPts = parseInt(localStorage.getItem('active_pts')) || 0;
 
-    function setGender(v) { bGen = v; document.getElementById('m-boy').className = v==='boy'?'opt-btn active':'opt-btn'; document.getElementById('m-girl').className = v==='girl'?'opt-btn active':'opt-btn'; }
-    function setSkin(v) { bSkin = v; document.getElementById('s-light').className = v==='light'?'opt-btn active':'opt-btn'; document.getElementById('s-dark').className = v==='dark'?'opt-btn active':'opt-btn'; }
+    function setGender(g) {
+        babySex = g;
+        document.getElementById('btn-boy').classList.toggle('active', g==='boy');
+        document.getElementById('btn-girl').classList.toggle('active', g==='girl');
+    }
 
-    async function startFamilyLife() {
-        const partner = document.getElementById('partner-id').value.trim().toLowerCase();
-        if(!partner || partner === myName) return alert("Düzgün tərəfdaş adı!");
+    async function handleRoomAccess() {
+        const roomCode = document.getElementById('room-code-input').value.trim().toLowerCase();
+        if(!roomCode) return alert("Kod daxil edin!");
 
-        activeFamilyId = [myName, partner].sort().join("_");
-        const ref = babyDB.ref('families/' + activeFamilyId);
+        currentRoom = roomCode;
+        const ref = dbRef.ref('families/' + currentRoom);
         const snap = await ref.get();
 
         if(!snap.exists()) {
-            document.getElementById('new-baby-form').style.display = 'block';
-            const bName = document.getElementById('baby-n').value.trim();
-            if(!bName) return; // İkinci dəfə basanda yaradacaq
+            // Otaq yoxdursa yaradılış ekranını göstər
+            document.getElementById('new-baby-setup').style.display = 'block';
+            const bName = document.getElementById('baby-name-in').value.trim();
+            if(!bName) return alert("Körpəyə ad verin və təkrar Giriş düyməsini basın.");
             
             await ref.set({
-                babyName: bName, gender: bGen, skin: bSkin,
-                hunger: 50, love: 50, age: 0,
-                cloth: "", home: "", parents: [myName, partner]
+                name: bName, gender: babySex, hunger: 100, love: 100,
+                cloth: "", home: "", lastUpdate: Date.now()
             });
         }
 
-        document.getElementById('setup-area').style.display = 'none';
-        document.getElementById('main-game').style.display = 'block';
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        document.getElementById('display-room-code').innerText = currentRoom.toUpperCase();
         
-        // Real-time Sinxronizasiya
-        ref.on('value', s => {
-            const d = s.val();
-            if(!d) return;
-            document.getElementById('baby-title').innerText = d.babyName;
-            document.getElementById('parent-names').innerText = d.parents.join(" & ");
-            document.getElementById('user-pts').innerText = myPts;
-            document.getElementById('bh').style.width = d.hunger + "%";
-            document.getElementById('th').innerText = d.hunger + "%";
-            document.getElementById('bl').style.width = d.love + "%";
-            document.getElementById('tl').innerText = d.love + "%";
-            
-            const img = d.skin === 'light' ? 'https://i.ibb.co/LkhKzG9/baby-light.png' : 'https://i.ibb.co/YyYhYhY/baby-dark.png';
-            document.getElementById('baby-view').src = img;
-            
-            if(d.cloth) { document.getElementById('cloth-view').src = d.cloth; document.getElementById('cloth-view').style.display = 'block'; }
-            if(d.home) { document.getElementById('house-view').src = d.home; document.getElementById('house-view').style.display = 'block'; }
-        });
+        startLiveSync();
     }
 
-    function babyAction(t) {
-        babyDB.ref('families/' + activeFamilyId).transaction(d => {
-            if(d) d[t] = Math.min(100, (d[t] || 0) + 10);
+    function startLiveSync() {
+        const ref = dbRef.ref('families/' + currentRoom);
+        
+        ref.on('value', snap => {
+            const data = snap.val();
+            if(!data) return;
+
+            // Stats yenilə
+            document.getElementById('baby-name-display').innerText = data.name;
+            document.getElementById('val-h').innerText = Math.floor(data.hunger);
+            document.getElementById('bar-h').style.width = data.hunger + "%";
+            document.getElementById('val-l').innerText = Math.floor(data.love);
+            document.getElementById('bar-l').style.width = data.love + "%";
+            document.getElementById('user-pts').innerText = myPts;
+
+            // Xəbərdarlıq sistemi (Ehtiyaclar)
+            const notify = document.getElementById('notification-text');
+            if(data.hunger < 30) notify.innerText = "⚠️ KÖRPƏ ÇOX ACDIR!";
+            else if(data.love < 30) notify.innerText = "⚠️ KÖRPƏ DARIXIR!";
+            else notify.innerText = "";
+
+            // Görünüş
+            const avatar = document.getElementById('baby-avatar');
+            avatar.innerText = (data.gender === 'boy') ? "👦" : "👧";
+            if(data.hunger < 20) avatar.innerText = "😭";
+
+            if(data.cloth) { document.getElementById('baby-suit').src = data.cloth; document.getElementById('baby-suit').style.display = 'block'; }
+            if(data.home) { document.getElementById('room-bg').src = data.home; document.getElementById('room-bg').style.display = 'block'; }
+        });
+
+        // Arxa planda acma məntiqi (Hər dəfə kimsə girəndə zaman fərqinə görə hesablanır)
+        setInterval(() => {
+            ref.transaction(current => {
+                if(current) {
+                    current.hunger = Math.max(0, current.hunger - 0.05); // Yavaşca acır
+                    current.love = Math.max(0, current.love - 0.03);
+                }
+                return current;
+            });
+        }, 10000);
+    }
+
+    function babyCare(type) {
+        dbRef.ref('families/' + currentRoom).transaction(d => {
+            if(d) d[type] = Math.min(100, d[type] + 15);
             return d;
         });
     }
 
-    async function buyItem(type, price, url) {
-        if(myPts < price) return alert("Xalınız çatmır!");
+    async function buyGift(type, cost, url) {
+        if(myPts < cost) return alert("Kifayət qədər PTS yoxdur!");
         
-        // Balansdan çıx və LocalStorage-i yenilə
-        myPts -= price;
+        myPts -= cost;
         localStorage.setItem('active_pts', myPts);
-        await babyDB.ref('users/' + myName + '/points').set(myPts);
+        await dbRef.ref('users/' + myUser + '/points').set(myPts);
 
-        let up = {};
-        if(type === 'cloth') up.cloth = url;
-        if(type === 'home') up.home = url;
-        await babyDB.ref('families/' + activeFamilyId).update(up);
-        alert("Alındı!");
+        let update = {};
+        if(type === 'cloth') update.cloth = url;
+        if(type === 'home') update.home = url;
+        await dbRef.ref('families/' + currentRoom).update(update);
+        alert("Hədiyyə alındı!");
     }
 </script>
