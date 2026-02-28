@@ -1,118 +1,114 @@
-<div class="tool-container" style="color: white; text-align: center; max-width: 700px; margin: auto; font-family: 'Georgia', serif;">
-    <h2 style="color: #ffcc00; text-shadow: 0 0 15px rgba(255,204,0,0.5);"><i class="fas fa-scroll"></i> ELİTE TAROT ANALİZİ</h2>
-    <p style="font-size: 0.9rem; color: #aaa; font-style: italic;">Kainatın sirləri detallarda gizlidir. Sualına fokuslan.</p>
-
-    <div id="tarot-init" class="glass" style="padding: 30px; border-radius: 20px; border: 1px solid #444;">
-        <p style="margin-bottom: 10px; color: #ffcc00;">Hansı sahədə dərin analiz istəyirsiniz?</p>
-        <select id="reading-type" style="margin-bottom: 20px; background: #111; color: #ffcc00; border: 1px solid #444; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer;">
-            <option value="all">Ümumi Tale və Həyat Yolu</option>
-            <option value="love">Sevgi, Ehtiras və Münasibətlər</option>
-            <option value="career">Karyera, Pul və Gələcək Planlar</option>
-        </select>
-        <button class="btn" style="background: #ffcc00; color: #000;" onclick="openDeck()">RİTUALLI BAŞLAT</button>
+<div class="oracle-container" style="color: #e2e8f0; font-family: 'Montserrat', sans-serif; text-align: center; max-width: 800px; margin: auto;">
+    
+    <div id="oracle-header" style="margin-bottom: 40px; animation: fadeIn 1.5s ease;">
+        <h2 style="font-family: 'Cinzel Decorative', cursive; color: #f5b942; font-size: 2rem; text-shadow: 0 0 20px rgba(245, 185, 66, 0.4);">MÜQƏDDƏS TAROT ANALİZİ</h2>
+        <p style="color: #c5a059; font-style: italic; letter-spacing: 1px;">Kainatın sirləri sənin enerjinlə birləşir...</p>
     </div>
 
-    <div id="deck-area" style="display: none; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 12px; margin-top: 25px;">
+    <div id="oracle-init" class="glass-box" style="background: rgba(255,255,255,0.03); padding: 40px; border-radius: 30px; border: 1px solid rgba(197, 160, 89, 0.2); backdrop-filter: blur(10px);">
+        <p style="margin-bottom: 20px; font-weight: 500;">Hansı sahəni işıqlandırmaq istəyirsiniz?</p>
+        <div class="aura-options" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;">
+            <button class="aura-btn" onclick="setAura('love')"><i class="fas fa-heart"></i> SEVGİ</button>
+            <button class="aura-btn" onclick="setAura('career')"><i class="fas fa-briefcase"></i> KARYERA</button>
+            <button class="aura-btn" onclick="setAura('all')"><i class="fas fa-eye"></i> TALE</button>
         </div>
-
-    <div id="reading-process" style="display: none; margin-top: 40px; padding: 20px;">
-        <i class="fas fa-sync fa-spin" style="font-size: 3rem; color: #ffcc00; margin-bottom: 20px;"></i>
-        <p id="process-text" style="letter-spacing: 2px;">Enerji dalğaları analiz edilir...</p>
+        <button class="btn-celestial" onclick="startRitual()" style="padding: 15px 40px; border-radius: 50px; background: #f5b942; color: #000; border: none; font-weight: 700; cursor: pointer; letter-spacing: 2px;">RİTUALLI BAŞLAT</button>
     </div>
 
-    <div id="tarot-final" style="display: none; margin-top: 25px; animation: fadeIn 1.2s ease;">
-        <div class="glass" style="padding: 35px; border: 1px solid #ffcc00; text-align: justify; border-radius: 25px; background: rgba(0,0,0,0.8);">
-            <h3 id="card-name" style="text-align: center; color: #ffcc00; font-size: 1.6rem; border-bottom: 1px solid #333; padding-bottom: 15px;"></h3>
-            
-            <div style="margin-top: 20px;">
-                <b style="color: #ffcc00; display: block; margin-bottom: 10px;"><i class="fas fa-star"></i> ƏTRAFLI PROQNOZ:</b>
-                <div id="card-meaning" style="line-height: 1.8; font-size: 1rem; color: #ddd;"></div>
-            </div>
+    <div id="oracle-loading" style="display: none; margin-top: 50px;">
+        <div class="loader-circle"></div>
+        <p id="ritual-text" style="margin-top: 20px; color: #f5b942; letter-spacing: 3px; font-size: 0.8rem;">AURA ANALİZ EDİLİR...</p>
+    </div>
 
-            <hr style="border: 0; border-top: 1px solid #222; margin: 25px 0;">
-            
-            <div style="background: rgba(37, 211, 102, 0.1); padding: 15px; border-radius: 10px; border-left: 5px solid #25d366;">
-                <b style="color: #25d366;"><i class="fas fa-lightbulb"></i> KİBER-KAHİNİN MƏSLƏHƏTİ:</b>
-                <p id="soul-advice" style="margin: 8px 0 0 0; font-size: 0.9rem; font-style: italic;"></p>
+    <div id="oracle-final" style="display: none; margin-top: 30px; animation: portalOpen 1s ease-out forwards;">
+        <div class="result-card" style="background: rgba(10, 10, 15, 0.9); padding: 40px; border-radius: 40px; border: 2px solid #f5b942; box-shadow: 0 0 50px rgba(245, 185, 66, 0.1);">
+            <div id="card-art" style="font-size: 5rem; color: #f5b942; margin-bottom: 20px; text-shadow: 0 0 30px #f5b942;"></div>
+            <h3 id="card-name" style="font-family: 'Cinzel Decorative'; color: #f5b942; font-size: 1.8rem; margin-bottom: 10px;"></h3>
+            <div id="card-desc" style="line-height: 1.8; text-align: justify; font-size: 1rem; color: #ddd; padding: 20px;"></div>
+            <div style="margin-top: 20px; padding: 15px; background: rgba(245, 185, 66, 0.05); border-radius: 15px; border-left: 4px solid #f5b942;">
+                <b style="color: #f5b942;">RUHUN MESAJI:</b>
+                <p id="soul-quote" style="font-style: italic; margin-top: 5px;"></p>
             </div>
-
-            <button class="btn" onclick="renderMenu()" style="margin-top: 30px; background: transparent; border: 1px solid #ffcc00; color: #ffcc00;">RİTUALLI BİTİR</button>
+            <button class="btn-celestial" onclick="location.reload()" style="margin-top: 30px; background: transparent; border: 1px solid #f5b942; color: #f5b942; padding: 10px 30px; border-radius: 10px; cursor: pointer;">TERMİNALA QAYIT</button>
         </div>
     </div>
 </div>
 
+<style>
+    .aura-btn {
+        background: rgba(255,255,255,0.05); border: 1px solid #333; color: #fff; padding: 12px 20px;
+        border-radius: 15px; cursor: pointer; transition: 0.3s;
+    }
+    .aura-btn:hover, .aura-btn.active { border-color: #f5b942; background: rgba(245, 185, 66, 0.1); color: #f5b942; }
+    
+    .loader-circle {
+        width: 80px; height: 80px; border: 3px solid transparent; border-top: 3px solid #f5b942;
+        border-radius: 50%; margin: auto; animation: spin 1s infinite linear;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes portalOpen { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+</style>
+
 <script>
-    const tarotData = [
+    let selectedAura = "all";
+    const cards = [
         { 
-            name: "Məsləhətçi (The Magician)", 
-            love: "Sizin sevgi həyatınızda yeni bir enerji formalaşır. Əgər tənha deyilsinizsə, tərəfdaşınızla aranızda olan soyuqluq sizin yaradıcı və isti yanaşmanız sayəsində tamamilə yox olacaq. İndi manipulyasiya etmək yox, dürüst hisslərlə hərəkət etmək zamanıdır. Tənhalar üçün isə bu kart deyir ki, sən öz cazibə qüvvənin zirvəsindəsən; istədiyin insanı özünə cəlb etmək üçün bütün alətlər əlindədir. Sadəcə ilk addımı atmaqdan qorxma.",
-            career: "İş dünyasında sizin üçün 'qızıl dövr' başlayır. Zəkanız və bacarıqlarınız rəhbərlik tərəfindən fərq ediləcək. Yeni bir layihəyə başlamaq və ya öz işinizi qurmaq üçün ən ideal vaxtdır. Qarşınıza çıxan maneələr əslində sizin üçün gizli imkanlardır. Maliyyə baxımından gözlənilməz bir qaynaqdan gəlir əldə edə bilərsiniz, lakin bu vəsaiti mütləq gələcək investisiyaya yönləndirməlisiniz.",
-            all: "Kainatın bütün elementləri sizin xeyrinizə birləşib. Həyatınızın bu mərhələsində 'Yox' sözünü lüğətinizdən çıxarın. Nəyi arzulayırsınızsa, onu reallaşdırmaq üçün daxili gücünüz kifayətdir. Taleyin yazısı sizin öz əlinizlə yazılır. Bu dövrdə qəbul edəcəyiniz qərarlar növbəti bir ilinizi müəyyən edəcək.",
-            advice: "Gücünün fərqinə var, sən sadəcə bir oyunçu deyil, həm də oyunun qurucususan."
+            n: "Kainatın Hakimi (The Emperor)", 
+            art: "👑",
+            love: "Bu kart münasibətlərdə güclü bir təməlin xəbərçisidir. Əgər bir münasibətiniz varsa, o, daha ciddi bir mərhələyə - bəlkə də bir ömürlük bağlılığa doğru gedir. Tərəfdaşınızın sizə olan etibarı sarsılmazdır. Tənha olanlar üçün isə bu, qarşılarına çıxacaq insanın çox nüfuzlu və qoruyucu bir xarakter olacağına işarədir.",
+            career: "Karyeranızda liderlik zirvəsinə hazır olun. İdarəetmə sizin əlinizə keçir. Yeni və böyük məsuliyyətlər gəlir, lakin siz bu yükü daşıyacaq qədər güclüsiniz. Maliyyə baxımından sabitlik dövrüdür.",
+            all: "Həyatınız üzərində mütləq kontrolu bərpa edirsiniz. Dağınıq olan hər şey nizama düşür. Kainat sizin iradənizə boyun əyir.",
+            msg: "Güc sənin içindədir, sadəcə ona əmr ver."
         },
         { 
-            name: "Tale Çarxı (Wheel of Fortune)", 
-            love: "Sevgi həyatınızda 'karma' qanunu işə düşür. Keçmişdə etdiyiniz yaxşılıqların və ya səhvlərin nəticəsini görmək üzrəsiniz. Əgər münasibətinizdə durğunluq var idisə, qəfil bir hadisə hər şeyi yerindən oynadacaq. Bu, həm də ruh əkizinizlə qarşılaşma ehtimalını artırır. Baş verən dəyişikliklərə müqavimət göstərməyin, çünki çarx sizi daha xoşbəxt bir limana doğru aparır.",
-            career: "Karyeranızda gözlənilməz dönüş nöqtəsi gəlir. Bəlkə də heç ağlınızda olmayan bir sahədən təklif alacaqsınız və ya iş yerinizdə böyük bir struktur dəyişikliyi sizin xeyrinizə nəticələnəcək. Maliyyə çarxı yuxarıya doğru hərəkət edir. Şans oyunlarında və ya riskli yatırımlarda kiçik uğurlar qazana bilərsiniz. Lakin unutmayın: bu çarx həmişə dönür, ona görə də qazandığınız vaxt ehtiyatlı olmağı da yaddan çıxarmayın.",
-            all: "Həyatınızda kontrol edə bilməyəcəyiniz hadisələr zənciri başlayır. Bu kart deyir ki, bəzi şeylər alnınıza yazılıb və onlar mütləq baş verəcək. Yaxşı xəbərlər qapıdadır. Dəyişikliklərdən qorxmaq yerinə, onlarla birlikdə axmağı öyrənin. Bu dövr sizin üçün imtahan deyil, bir hədiyyədir.",
-            advice: "Hadisələri zorlamayın, axın sizi mütləq mənzil başına çatdıracaq."
+            n: "Məhəbbət İlahəsi (The Lovers)", 
+            art: "💖",
+            love: "İki ruhun tam qovuşması! Bu kart həm fiziki, həm də mənəvi baxımdan mükəmməl uyğunluğu təmsil edir. Aranızdakı bütün suallar cavabını tapacaq. Əgər qərar verməkdə çətinlik çəkirsinizsə, ürəyinizin səsinə qulaq asın, çünki o heç vaxt yanılmır.",
+            career: "İş həyatında tərəfdaşlıqlar ön plana çıxır. Tək yox, birgə işləmək sizə daha çox qazandıracaq. Seçim qarşısındasınızsa, dəyərlərinizə ən uyğun olanı seçin.",
+            all: "Həyatınızda mühüm bir seçim nöqtəsindəsiniz. Bu seçim sadəcə bu günü yox, gələcək taleyinizi dəyişəcək. Harmoniya yaxınlaşır.",
+            msg: "Seçimin sevgi üzərində olsun, o zaman uduzmayacaqsan."
         },
         { 
-            name: "Ay (The Moon)", 
-            love: "Münasibətinizdə dumanlı bir dövrdür. Qarşı tərəfin sizdən gizlətdiyi sirlər ola bilər, yaxud siz öz xəyallarınızda yaratdığınız insana aşiq olmusunuz. Reallığı görmək çətindir, çünki hissləriniz məntiqinizi üstələyib. Qısqanclıq və şübhələrdən uzaq durun, çünki onlar çox vaxt əsassızdır. Ayın işığı hər şeyi tam göstərmir, ona görə də ciddi qərarlar vermək üçün dumanın dağılmasını gözləyin.",
-            career: "İş mühitində qeyri-müəyyənlik hökm sürür. Arxa planda bəzi gizli danışıqlar gedə bilər. Hər kəsə güvənməyin və mühüm sənədləri imzalamazdan əvvəl iki dəfə yoxlayın. Rəqibləriniz özlərini dost kimi göstərə bilər. Bu dövrdə ən böyük silahınız intuisiyanızdır; əgər daxilinizdə bir narahatlıq varsa, deməli orada bir yanlışlıq var.",
-            all: "Daxili qorxularınızla üzləşmək zamanıdır. Həyatınızda bəzi şeylər göründüyü kimi deyil. İllüziyalara qapılmaqdan çəkinin. Psixoloji olaraq həssas bir dövrdəsiniz, ona görə də özünüzə vaxt ayırın. Qaranlıqdan qorxmayın, çünki Ay həm də daxili kəşfiyyatın simvoludur.",
-            advice: "Daxili səsinə güvən, lakin gözlərinlə gördüyün hər şeyə inanma."
+            n: "Sirli Rahibə (The High Priestess)", 
+            art: "🌙",
+            love: "Hər şey göründüyü kimi deyil. Münasibətinizdə bəzi sirlər və ya gizli hisslər ola bilər. Bu dövrdə intuisiyanıza güvənin. Tərəfdaşınızın demədiklərini hiss etməyə çalışın. Səbr və sükut sizin ən böyük silahınızdır.",
+            career: "İş yerində planlarınızı hələlik gizli saxlayın. Hər kəsə güvənmək zamanı deyil. Bilik və təcrübənizi artırmaq üçün əla dövrdür. Gizli bir dəstək alacaqsınız.",
+            all: "Daxili aləminizə qayıdın. Kainat sizə yuxular və işarələrlə mesaj göndərir. Qaranlıq görünən yolların sonunda böyük bir aydınlıq var.",
+            msg: "Gözlərinlə deyil, ruhunla gör."
         }
     ];
 
-    function openDeck() {
-        document.getElementById('tarot-init').style.display = 'none';
-        const deck = document.getElementById('deck-area');
-        deck.style.display = 'grid';
-        deck.innerHTML = "";
-        for(let i=0; i<24; i++) {
-            const card = document.createElement('div');
-            card.style = "height:90px; background:linear-gradient(45deg, #111, #222); border:1px solid #444; border-radius:8px; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; color:#444;";
-            card.innerHTML = '<i class="fas fa-eye"></i>';
-            card.onmouseover = () => card.style.borderColor = "#ffcc00";
-            card.onmouseout = () => card.style.borderColor = "#444";
-            card.onclick = () => selectCard();
-            deck.append(card);
-        }
+    function setAura(a) {
+        selectedAura = a;
+        document.querySelectorAll('.aura-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
     }
 
-    function selectCard() {
-        document.getElementById('deck-area').style.display = 'none';
-        document.getElementById('reading-process').style.display = 'block';
+    function startRitual() {
+        document.getElementById('oracle-init').style.display = 'none';
+        document.getElementById('oracle-loading').style.display = 'block';
         
+        let steps = ["ENERJİ TOPLANIR...", "ULDUZLAR DÜZÜLÜR...", "TALE OXUNUR..."];
         let i = 0;
-        const texts = [
-            "Aura təmizlənir...", 
-            "Keçmişin qalıqları silinir...", 
-            "Gələcək xətləri toxunur...", 
-            "Kartın ruhu ilə əlaqə qurulur..."
-        ];
-        const int = setInterval(() => {
-            document.getElementById('process-text').innerText = texts[i];
+        let int = setInterval(() => {
+            document.getElementById('ritual-text').innerText = steps[i];
             i++;
-            if(i >= texts.length) {
+            if(i >= steps.length) {
                 clearInterval(int);
-                showResult();
+                showOracleResult();
             }
-        }, 1000);
+        }, 1200);
     }
 
-    function showResult() {
-        document.getElementById('reading-process').style.display = 'none';
-        const final = document.getElementById('tarot-final');
+    function showOracleResult() {
+        document.getElementById('oracle-loading').style.display = 'none';
+        const final = document.getElementById('oracle-final');
         final.style.display = 'block';
 
-        const type = document.getElementById('reading-type').value;
-        const card = tarotData[Math.floor(Math.random() * tarotData.length)];
-        
-        document.getElementById('card-name').innerText = card.name;
-        document.getElementById('card-meaning').innerText = card[type];
-        document.getElementById('soul-advice').innerText = card.advice;
+        const card = cards[Math.floor(Math.random() * cards.length)];
+        document.getElementById('card-art').innerText = card.art;
+        document.getElementById('card-name').innerText = card.n;
+        document.getElementById('card-desc').innerText = card[selectedAura];
+        document.getElementById('soul-quote').innerText = card.msg;
     }
 </script>
