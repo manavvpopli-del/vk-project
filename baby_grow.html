@@ -1,100 +1,116 @@
-<div class="life-container" style="color: white; text-align: center; font-family: 'Montserrat', sans-serif;">
+<div class="life-app-wrapper" style="color: white; font-family: 'Montserrat', sans-serif; text-align: center; max-width: 500px; margin: auto;">
     
-    <div id="install-banner" style="display:none; background: rgba(245, 185, 66, 0.1); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px dashed #f5b942;">
-        <p style="font-size: 0.8rem; margin: 0 0 10px 0;">Bu modulu telefona ana ekrana əlavə et:</p>
-        <button onclick="installApp()" style="background:#f5b942; color:#000; border:none; padding:8px 20px; border-radius:10px; font-weight:700; cursor:pointer;">TƏTBİQİ YÜKLƏ</button>
+    <div id="pwa-install-btn" style="display:none; background: linear-gradient(45deg, #f5b942, #c5a059); color: black; padding: 15px; border-radius: 20px; margin-bottom: 25px; cursor: pointer; font-weight: 700; box-shadow: 0 10px 20px rgba(245, 185, 66, 0.2);" onclick="triggerInstall()">
+        <i class="fas fa-mobile-screen-button"></i> BU MODULU TELEFONA ƏLAVƏ ET
     </div>
 
-    <h2 style="font-family: 'Cinzel Decorative'; color: #f5b942;">CELESTIAL LIFE</h2>
-    
-    <div id="life-setup">
-        <input type="text" id="family-code" placeholder="Ailə Kodunuz (məs: elnur_nigar)" style="margin-bottom: 10px;">
-        <button class="btn-celestial" onclick="joinLife()" style="background:#f5b942; color:#000; border:none; padding:15px; width:100%; border-radius:10px; font-weight:700;">HƏYATA BAŞLA</button>
+    <div id="life-header" style="margin-bottom: 30px;">
+        <h2 style="font-family: 'Cinzel Decorative'; color: #f5b942; letter-spacing: 2px;">CELESTIAL LIFE</h2>
+        <p style="font-size: 0.8rem; color: #888;">İki ruh, bir yeni həyat.</p>
     </div>
 
-    <div id="life-core" style="display:none; margin-top: 30px;">
-        <div id="baby-visual" style="font-size: 6rem; margin-bottom: 20px; transition: 0.5s;">👶</div>
-        <h3 id="baby-status" style="color:#f5b942;">Yenidoğulmuş</h3>
+    <div id="life-join" class="glass-card" style="background: rgba(255,255,255,0.02); padding: 30px; border-radius: 25px; border: 1px solid rgba(245, 185, 66, 0.1);">
+        <p style="margin-bottom: 15px; font-size: 0.9rem;">Ailə Kodunuzu daxil edin:</p>
+        <input type="text" id="family-id" placeholder="Məs: elvin_ayten_2026" style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; text-align: center; margin-bottom: 20px; outline: none;">
+        <button class="btn-gold" onclick="connectLife()" style="width: 100%; padding: 15px; background: #f5b942; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; letter-spacing: 1px;">BAĞLANTI QUR</button>
+    </div>
+
+    <div id="life-display" style="display:none; animation: fadeIn 1s ease;">
+        <div id="visual-container" style="height: 200px; display: flex; align-items: center; justify-content: center; position: relative;">
+            <div id="entity-visual" style="font-size: 7rem; filter: drop-shadow(0 0 20px rgba(245, 185, 66, 0.3)); transition: 0.5s transform;">👶</div>
+        </div>
         
-        <div style="display: grid; gap: 15px; margin: 30px 0;">
-            <div class="stat-bar">Aclıq: <span id="stat-hunger">0</span>% <div class="progress"><div id="bar-hunger" class="fill"></div></div></div>
-            <div class="stat-bar">Sevgi: <span id="stat-love">0</span>% <div class="progress"><div id="bar-love" class="fill" style="background:#ff4757"></div></div></div>
-            <div class="stat-bar">Enerji: <span id="stat-energy">0</span>% <div class="progress"><div id="bar-energy" class="fill" style="background:#2ed573"></div></div></div>
+        <h3 id="entity-name" style="color: #f5b942; font-family: 'Cinzel Decorative';">Körpə</h3>
+        
+        <div class="stats-grid" style="margin: 30px 0; display: grid; gap: 20px;">
+            <div class="stat-item">
+                <div style="display:flex; justify-content:space-between; font-size: 0.7rem; margin-bottom: 5px;"><span>ACLIQ</span> <span id="val-hunger">50%</span></div>
+                <div class="bar-bg"><div id="bar-hunger" class="bar-fill" style="background: #f5b942;"></div></div>
+            </div>
+            <div class="stat-item">
+                <div style="display:flex; justify-content:space-between; font-size: 0.7rem; margin-bottom: 5px;"><span>SEVGİ</span> <span id="val-love">50%</span></div>
+                <div class="bar-bg"><div id="bar-love" class="bar-fill" style="background: #ff4757;"></div></div>
+            </div>
         </div>
 
-        <div style="display: flex; justify-content: center; gap: 15px;">
-            <button class="action-btn" onclick="updateLife('hunger', 20)"><i class="fas fa-apple-whole"></i> YEDİRT</button>
-            <button class="action-btn" onclick="updateLife('love', 20)"><i class="fas fa-heart"></i> SEV</button>
-            <button class="action-btn" onclick="updateLife('energy', 20)"><i class="fas fa-bed"></i> YATIZDIR</button>
+        <div style="display: flex; gap: 10px;">
+            <button class="act-btn" onclick="care('hunger')"><i class="fas fa-cookie-bite"></i> QİDALANDIR</button>
+            <button class="act-btn" onclick="care('love')"><i class="fas fa-heart"></i> SEVGİ VER</button>
         </div>
     </div>
 </div>
 
 <style>
-    .stat-bar { font-size: 0.8rem; text-align: left; }
-    .progress { width: 100%; height: 8px; background: #222; border-radius: 4px; margin-top: 5px; }
-    .fill { height: 100%; background: #f5b942; width: 0%; border-radius: 4px; transition: 0.5s; }
-    .action-btn { background: rgba(255,255,255,0.05); border: 1px solid #444; color: #fff; padding: 15px; border-radius: 15px; cursor: pointer; flex: 1; font-size: 0.7rem; font-weight: 700; }
-    .action-btn:hover { border-color: #f5b942; color: #f5b942; }
+    .glass-card { backdrop-filter: blur(10px); }
+    .bar-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 50%; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .act-btn { flex: 1; padding: 15px; background: rgba(255,255,255,0.03); border: 1px solid #333; color: white; border-radius: 15px; cursor: pointer; font-size: 0.7rem; font-weight: 700; transition: 0.3s; }
+    .act-btn:hover { border-color: #f5b942; background: rgba(245, 185, 66, 0.05); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 <script>
-    let currentFamily = "";
-    let deferredPrompt;
+    let famRef = null;
+    let installPrompt = null;
 
-    // PWA INSTALL LOGIC
+    // Detect PWA Installation capability
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('install-banner').style.display = 'block';
+        installPrompt = e;
+        document.getElementById('pwa-install-btn').style.display = 'block';
     });
 
-    async function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') document.getElementById('install-banner').style.display = 'none';
-            deferredPrompt = null;
+    function triggerInstall() {
+        if (installPrompt) {
+            installPrompt.prompt();
+            installPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') document.getElementById('pwa-install-btn').style.display = 'none';
+            });
         } else {
-            alert("İOS-da Safari menyusundan 'Add to Home Screen' seçin.");
+            // iOS Logic
+            alert("iOS üçün: Safari menyusunda 'Add to Home Screen' (Ana ekrana əlavə et) düyməsini seçin.");
         }
     }
 
-    function joinLife() {
-        const code = document.getElementById('family-code').value.trim();
-        if(!code) return;
-        currentFamily = code;
-        document.getElementById('life-setup').style.display = 'none';
-        document.getElementById('life-core').style.display = 'block';
+    function connectLife() {
+        const id = document.getElementById('family-id').value.trim();
+        if(!id) return alert("Kod daxil edin!");
+        
+        document.getElementById('life-join').style.display = 'none';
+        document.getElementById('life-display').style.display = 'block';
 
-        const ref = window.db.ref('games/life/' + currentFamily);
-        ref.on('value', (snap) => {
-            const data = snap.val() || { hunger: 50, love: 50, energy: 50, age: 0 };
-            updateUI(data);
+        // window.db is the global Firebase ref from index.html
+        famRef = window.db.ref('games/celestial_life/' + id);
+        
+        famRef.on('value', (snap) => {
+            const data = snap.val() || { hunger: 50, love: 50, age: 0 };
+            syncUI(data);
         });
     }
 
-    function updateUI(data) {
-        document.getElementById('stat-hunger').innerText = data.hunger;
+    function syncUI(data) {
+        document.getElementById('val-hunger').innerText = data.hunger + "%";
         document.getElementById('bar-hunger').style.width = data.hunger + "%";
-        document.getElementById('stat-love').innerText = data.love;
+        document.getElementById('val-love').innerText = data.love + "%";
         document.getElementById('bar-love').style.width = data.love + "%";
-        document.getElementById('stat-energy').innerText = data.energy;
-        document.getElementById('bar-energy').style.width = data.energy + "%";
-
-        const visual = document.getElementById('baby-visual');
-        if(data.age > 100) { visual.innerText = "👦"; document.getElementById('baby-status').innerText = "Uşaq"; }
-        else if(data.hunger < 20) { visual.innerText = "😢"; }
-        else { visual.innerText = "👶"; }
+        
+        const visual = document.getElementById('entity-visual');
+        if(data.hunger < 20) visual.innerText = "😭";
+        else if(data.age > 100) { visual.innerText = "🧒"; document.getElementById('entity-name').innerText = "Böyümüş Uşaq"; }
+        else visual.innerText = "👶";
     }
 
-    function updateLife(stat, value) {
-        const ref = window.db.ref('games/life/' + currentFamily + '/' + stat);
-        ref.transaction(current => {
-            let newVal = (current || 0) + value;
-            return newVal > 100 ? 100 : newVal;
+    function care(type) {
+        if(!famRef) return;
+        famRef.transaction(current => {
+            if(!current) current = { hunger: 50, love: 50, age: 0 };
+            current[type] = Math.min(100, current[type] + 15);
+            current.age = (current.age || 0) + 1;
+            return current;
         });
-        // Yaşı da artırırıq
-        window.db.ref('games/life/' + currentFamily + '/age').transaction(a => (a || 0) + 1);
+        // Feedback animation
+        const v = document.getElementById('entity-visual');
+        v.style.transform = "scale(1.2)";
+        setTimeout(() => v.style.transform = "scale(1)", 200);
     }
 </script>
