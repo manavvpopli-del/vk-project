@@ -1,116 +1,150 @@
-<div class="life-app-wrapper" style="color: white; font-family: 'Montserrat', sans-serif; text-align: center; max-width: 500px; margin: auto;">
+<div class="life-webapp" style="color: #e2e8f0; font-family: 'Montserrat', sans-serif; max-width: 500px; margin: auto;">
     
-    <div id="pwa-install-btn" style="display:none; background: linear-gradient(45deg, #f5b942, #c5a059); color: black; padding: 15px; border-radius: 20px; margin-bottom: 25px; cursor: pointer; font-weight: 700; box-shadow: 0 10px 20px rgba(245, 185, 66, 0.2);" onclick="triggerInstall()">
-        <i class="fas fa-mobile-screen-button"></i> BU MODULU TELEFONA ƏLAVƏ ET
+    <div id="pwa-prompt" style="display:none; background: linear-gradient(45deg, #f5b942, #c5a059); padding: 15px; border-radius: 20px; margin-bottom: 25px; cursor: pointer; color: #000; font-weight: 800; text-align: center; box-shadow: 0 10px 30px rgba(245, 185, 66, 0.3);" onclick="installProcess()">
+        <i class="fas fa-cloud-arrow-down"></i> ANA EKRANA ƏLAVƏ ET (APP)
     </div>
 
-    <div id="life-header" style="margin-bottom: 30px;">
-        <h2 style="font-family: 'Cinzel Decorative'; color: #f5b942; letter-spacing: 2px;">CELESTIAL LIFE</h2>
-        <p style="font-size: 0.8rem; color: #888;">İki ruh, bir yeni həyat.</p>
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Cinzel Decorative'; color: #f5b942; margin-bottom: 5px;">CELESTIAL LIFE</h2>
+        <div id="family-display" style="font-size: 0.8rem; color: #888; letter-spacing: 2px;">BİRİNCİ ADDIM: AİLƏ QURUN</div>
     </div>
 
-    <div id="life-join" class="glass-card" style="background: rgba(255,255,255,0.02); padding: 30px; border-radius: 25px; border: 1px solid rgba(245, 185, 66, 0.1);">
-        <p style="margin-bottom: 15px; font-size: 0.9rem;">Ailə Kodunuzu daxil edin:</p>
-        <input type="text" id="family-id" placeholder="Məs: elvin_ayten_2026" style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; text-align: center; margin-bottom: 20px; outline: none;">
-        <button class="btn-gold" onclick="connectLife()" style="width: 100%; padding: 15px; background: #f5b942; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; letter-spacing: 1px;">BAĞLANTI QUR</button>
+    <div id="join-box" class="glass-ui" style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 25px; border: 1px solid rgba(245, 185, 66, 0.1); text-align: center;">
+        <input type="text" id="fam-input" placeholder="Ailə Kodunuz" style="width: 80%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; text-align: center; margin-bottom: 20px; outline: none;">
+        <button onclick="startLife()" style="width: 85%; padding: 15px; background: #f5b942; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;">HƏYATA BAŞLA</button>
     </div>
 
-    <div id="life-display" style="display:none; animation: fadeIn 1s ease;">
-        <div id="visual-container" style="height: 200px; display: flex; align-items: center; justify-content: center; position: relative;">
-            <div id="entity-visual" style="font-size: 7rem; filter: drop-shadow(0 0 20px rgba(245, 185, 66, 0.3)); transition: 0.5s transform;">👶</div>
+    <div id="game-area" style="display:none; animation: slideUp 0.8s ease;">
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.8rem; font-weight: 700;">
+            <div style="color:#f5b942;"><i class="fas fa-coins"></i> BALANS: <span id="user-pts-display">0</span></div>
+            <div style="color:#2ed573;"><i class="fas fa-house-chimney"></i> EV: <span id="home-name">Yoxdur</span></div>
         </div>
-        
-        <h3 id="entity-name" style="color: #f5b942; font-family: 'Cinzel Decorative';">Körpə</h3>
-        
-        <div class="stats-grid" style="margin: 30px 0; display: grid; gap: 20px;">
-            <div class="stat-item">
-                <div style="display:flex; justify-content:space-between; font-size: 0.7rem; margin-bottom: 5px;"><span>ACLIQ</span> <span id="val-hunger">50%</span></div>
-                <div class="bar-bg"><div id="bar-hunger" class="bar-fill" style="background: #f5b942;"></div></div>
-            </div>
-            <div class="stat-item">
-                <div style="display:flex; justify-content:space-between; font-size: 0.7rem; margin-bottom: 5px;"><span>SEVGİ</span> <span id="val-love">50%</span></div>
-                <div class="bar-bg"><div id="bar-love" class="bar-fill" style="background: #ff4757;"></div></div>
-            </div>
+
+        <div style="background: rgba(255,255,255,0.02); border-radius: 30px; padding: 40px; text-align: center; border: 1px solid rgba(245, 185, 66, 0.05); position: relative;">
+            <div id="char-avatar" style="font-size: 8rem; filter: drop-shadow(0 0 25px rgba(245,185,66,0.2)); transition: 0.5s;">👶</div>
+            <div id="char-clothing" style="position: absolute; top: 20px; right: 20px; font-size: 1.5rem;"></div>
+            <h3 id="char-stage" style="color: #f5b942; font-family: 'Cinzel Decorative'; margin-top: 20px;">KÖRPƏ</h3>
+        </div>
+
+        <div style="margin: 25px 0;">
+            <div class="bar-cont">ACLIQ <div class="bar-outer"><div id="bar-h" class="bar-inner" style="background: #f5b942;"></div></div></div>
+            <div class="bar-cont">XOŞBƏXTLİK <div class="bar-outer"><div id="bar-l" class="bar-inner" style="background: #ff4757;"></div></div></div>
         </div>
 
         <div style="display: flex; gap: 10px;">
-            <button class="act-btn" onclick="care('hunger')"><i class="fas fa-cookie-bite"></i> QİDALANDIR</button>
-            <button class="act-btn" onclick="care('love')"><i class="fas fa-heart"></i> SEVGİ VER</button>
+            <button class="nav-btn active" onclick="switchTab('care')"><i class="fas fa-hand-holding-heart"></i> Qayğı</button>
+            <button class="nav-btn" onclick="switchTab('shop')"><i class="fas fa-shopping-cart"></i> Mağaza</button>
+        </div>
+
+        <div id="tab-care" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="act-btn" onclick="interact('hunger')"><i class="fas fa-bottle-baby"></i> Yedirt</button>
+            <button class="act-btn" onclick="interact('love')"><i class="fas fa-revolving-hearts"></i> Oyna</button>
+        </div>
+
+        <div id="tab-shop" style="margin-top: 20px; display: none; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="shop-item" onclick="buy('paltar', 200, '👕')">Paltar (200 PTS)</div>
+            <div class="shop-item" onclick="buy('paltar', 500, '👑')">Tac (500 PTS)</div>
+            <div class="shop-item" onclick="buy('yemek', 50, '🍕')">Pizza (50 PTS)</div>
+            <div class="shop-item" onclick="buy('ev', 1500, 'Kotej')">Ev (1500 PTS)</div>
         </div>
     </div>
 </div>
 
 <style>
-    .glass-card { backdrop-filter: blur(10px); }
-    .bar-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; overflow: hidden; }
-    .bar-fill { height: 100%; width: 50%; transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .act-btn { flex: 1; padding: 15px; background: rgba(255,255,255,0.03); border: 1px solid #333; color: white; border-radius: 15px; cursor: pointer; font-size: 0.7rem; font-weight: 700; transition: 0.3s; }
-    .act-btn:hover { border-color: #f5b942; background: rgba(245, 185, 66, 0.05); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .bar-cont { font-size: 0.65rem; font-weight: 800; margin-bottom: 10px; }
+    .bar-outer { width: 100%; height: 6px; background: #111; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+    .bar-inner { height: 100%; width: 50%; transition: 0.5s cubic-bezier(0.1, 0.9, 0.2, 1); }
+    .nav-btn { flex:1; padding: 12px; background: #111; border: 1px solid #222; color: #666; cursor: pointer; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+    .nav-btn.active { border-color: #f5b942; color: #f5b942; background: rgba(245,185,66,0.05); }
+    .act-btn { flex:1; padding: 18px; background: #1a1c26; border: 1px solid #333; color: #fff; border-radius: 15px; cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+    .shop-item { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid #222; cursor: pointer; font-size: 0.75rem; font-weight: 600; text-align: center; }
+    .shop-item:hover { border-color: #f5b942; background: rgba(245,185,66,0.05); }
+    @keyframes slideUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
 </style>
 
 <script>
-    let famRef = null;
-    let installPrompt = null;
+    let lifeRef = null;
+    let installEvent = null;
 
-    // Detect PWA Installation capability
+    // PWA Check
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        installPrompt = e;
-        document.getElementById('pwa-install-btn').style.display = 'block';
+        installEvent = e;
+        document.getElementById('pwa-prompt').style.display = 'block';
     });
 
-    function triggerInstall() {
-        if (installPrompt) {
-            installPrompt.prompt();
-            installPrompt.userChoice.then((choice) => {
-                if (choice.outcome === 'accepted') document.getElementById('pwa-install-btn').style.display = 'none';
-            });
+    function installProcess() {
+        if (installEvent) {
+            installEvent.prompt();
         } else {
-            // iOS Logic
-            alert("iOS üçün: Safari menyusunda 'Add to Home Screen' (Ana ekrana əlavə et) düyməsini seçin.");
+            alert("iOS üçün: Safari menyusunda 'Add to Home Screen' seçin.");
         }
     }
 
-    function connectLife() {
-        const id = document.getElementById('family-id').value.trim();
-        if(!id) return alert("Kod daxil edin!");
+    function startLife() {
+        const id = document.getElementById('fam-input').value.trim();
+        if(!id) return;
         
-        document.getElementById('life-join').style.display = 'none';
-        document.getElementById('life-display').style.display = 'block';
+        document.getElementById('join-box').style.display = 'none';
+        document.getElementById('game-area').style.display = 'block';
+        document.getElementById('family-display').innerText = "AİLƏ: " + id.toUpperCase();
 
-        // window.db is the global Firebase ref from index.html
-        famRef = window.db.ref('games/celestial_life/' + id);
+        lifeRef = window.db.ref('games/celestial_life/' + id);
         
-        famRef.on('value', (snap) => {
-            const data = snap.val() || { hunger: 50, love: 50, age: 0 };
-            syncUI(data);
+        // Listen for data
+        lifeRef.on('value', (snap) => {
+            const data = snap.val() || { hunger: 50, love: 50, age: 0, items: [], home: "Yoxdur", clothing: "" };
+            sync(data);
+        });
+
+        // Sync User Points from Global Context
+        document.getElementById('user-pts-display').innerText = window.userPoints;
+    }
+
+    function sync(data) {
+        document.getElementById('bar-h').style.width = data.hunger + "%";
+        document.getElementById('bar-l').style.width = data.love + "%";
+        document.getElementById('home-name').innerText = data.home;
+        document.getElementById('char-clothing').innerText = data.clothing || "";
+        
+        const avatar = document.getElementById('char-avatar');
+        if(data.hunger < 30) avatar.innerText = "😢";
+        else if(data.age > 100) { avatar.innerText = "👦"; document.getElementById('char-stage').innerText = "UŞAQ"; }
+        else avatar.innerText = "👶";
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        document.getElementById('tab-care').style.display = (tab === 'care') ? 'flex' : 'none';
+        document.getElementById('tab-shop').style.display = (tab === 'shop') ? 'grid' : 'none';
+    }
+
+    function interact(type) {
+        lifeRef.transaction(d => {
+            if(!d) d = { hunger: 50, love: 50, age: 0 };
+            d[type] = Math.min(100, (d[type] || 0) + 10);
+            d.age = (d.age || 0) + 0.5;
+            return d;
         });
     }
 
-    function syncUI(data) {
-        document.getElementById('val-hunger').innerText = data.hunger + "%";
-        document.getElementById('bar-hunger').style.width = data.hunger + "%";
-        document.getElementById('val-love').innerText = data.love + "%";
-        document.getElementById('bar-love').style.width = data.love + "%";
-        
-        const visual = document.getElementById('entity-visual');
-        if(data.hunger < 20) visual.innerText = "😭";
-        else if(data.age > 100) { visual.innerText = "🧒"; document.getElementById('entity-name').innerText = "Böyümüş Uşaq"; }
-        else visual.innerText = "👶";
-    }
+    function buy(cat, price, val) {
+        if(window.userPoints < price) return alert("Kifayət qədər xalınız yoxdur!");
 
-    function care(type) {
-        if(!famRef) return;
-        famRef.transaction(current => {
-            if(!current) current = { hunger: 50, love: 50, age: 0 };
-            current[type] = Math.min(100, current[type] + 15);
-            current.age = (current.age || 0) + 1;
-            return current;
+        // 1. Update User Points in Firebase
+        window.db.ref('users/' + window.loginName + '/points').transaction(p => p - price);
+
+        // 2. Update Shared Family Data
+        lifeRef.transaction(d => {
+            if(!d) d = { items: [] };
+            if(cat === 'ev') d.home = val;
+            if(cat === 'paltar') d.clothing = val;
+            if(cat === 'yemek') d.hunger = Math.min(100, (d.hunger || 0) + 30);
+            return d;
         });
-        // Feedback animation
-        const v = document.getElementById('entity-visual');
-        v.style.transform = "scale(1.2)";
-        setTimeout(() => v.style.transform = "scale(1)", 200);
+        
+        alert("Satın alındı: " + val);
     }
 </script>
