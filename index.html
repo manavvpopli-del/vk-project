@@ -3,165 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToolBox Elite | Advanced Cyber Center</title>
+    <title>Elite Hub | Premium Experience</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap');
 
         :root {
-            --accent: #00f2ff;
-            --secondary: #a855f7;
-            --danger: #ff3e3e;
-            --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(0, 242, 255, 0.2);
+            --primary: #6366f1;
+            --accent: #a855f7;
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text: #1e293b;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Rajdhani', sans-serif;
-            background: var(--bg); color: white;
-            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+            color: var(--text); overflow-x: hidden;
         }
 
-        /* BACKGROUND ELEMENTS */
-        #video-bg { position: fixed; inset: 0; z-index: -2; filter: brightness(0.4); }
-        #bg-video { width: 100%; height: 100%; object-fit: cover; }
-        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 242, 255, 0.1); z-index: 10; pointer-events: none; animation: scan 4s linear infinite; }
+        /* SOFT ANIMATED BACKGROUND */
+        .bg-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+        .blob {
+            position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+            filter: blur(60px); animation: move 25s infinite alternate;
+        }
 
-        @keyframes scan { from { top: 0; } to { top: 100%; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes move { from { transform: translate(-15%, -15%); } to { transform: translate(25%, 25%); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         /* AUTH SCREEN */
         #auth-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
         .auth-box {
-            width: 350px; padding: 40px; text-align: center;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 30px;
+            width: 380px; padding: 50px 40px; text-align: center;
+            background: var(--card-bg); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.6); border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.1);
             animation: fadeIn 0.8s ease-out;
-            box-shadow: 0 0 30px rgba(0,242,255,0.1);
         }
-        .auth-box h2 { font-family: 'Orbitron', sans-serif; letter-spacing: 3px; color: var(--accent); margin-bottom: 25px; }
 
         input {
-            width: 100%; padding: 15px; margin: 10px 0;
-            background: rgba(255,255,255,0.05); border: 1px solid #333;
-            border-radius: 12px; color: white; font-family: 'Rajdhani';
-            transition: 0.3s; box-sizing: border-box; text-align: center; font-size: 1.1rem;
+            width: 100%; padding: 16px; margin: 15px 0;
+            background: white; border: 1px solid #e2e8f0;
+            border-radius: 20px; color: var(--text); font-size: 1rem;
+            transition: 0.3s; box-sizing: border-box; outline: none; text-align: center;
         }
-        input:focus { border-color: var(--accent); background: rgba(0, 242, 255, 0.05); outline: none; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
         .btn {
-            width: 100%; padding: 15px; margin-top: 15px;
-            background: linear-gradient(45deg, var(--accent), #00a8ff);
-            border: none; border-radius: 12px; color: black;
-            font-weight: 700; text-transform: uppercase; cursor: pointer;
-            transition: 0.3s; font-family: 'Orbitron';
+            width: 100%; padding: 16px; background: var(--primary);
+            border: none; border-radius: 20px; color: white;
+            font-weight: 700; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
         }
-        .btn:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent); }
+        .btn:hover { transform: translateY(-2px); background: #4f46e5; box-shadow: 0 15px 20px -5px rgba(99, 102, 241, 0.3); }
 
-        /* MAIN APP UI */
-        #app-content { display: none; height: 100vh; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        /* MAIN DASHBOARD */
+        #app-content { display: none; padding: 40px 20px; max-width: 1250px; margin: 0 auto; }
+        
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; background: var(--glass); backdrop-filter: blur(15px);
-            border-radius: 20px; border: 1px solid var(--border);
-            margin-bottom: 30px; position: sticky; top: 0; z-index: 100;
+            padding: 20px 40px; background: var(--card-bg);
+            backdrop-filter: blur(20px); border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.7);
+            margin-bottom: 50px; animation: fadeIn 0.5s ease;
         }
-        .user-info b { color: var(--accent); font-size: 1.2rem; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1200px; margin: auto; }
-        .category-title { font-family: 'Orbitron'; font-size: 1.4rem; margin: 30px 0 15px 0; border-left: 4px solid var(--accent); padding-left: 15px; }
+        .category-group { margin-bottom: 60px; }
+        .category-title {
+            font-size: 1.5rem; font-weight: 800; color: #334155;
+            margin-bottom: 25px; padding-left: 10px; border-left: 5px solid var(--primary);
+        }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
 
         .card {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px 20px; border-radius: 24px; text-align: center;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+            background: white; border: 1px solid #f1f5f9;
+            padding: 40px 25px; border-radius: 35px; text-align: center;
+            transition: 0.4s cubic-bezier(0.1, 0.8, 0.2, 1); cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
-        .card:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--accent); transform: translateY(-10px); }
-        .card i { font-size: 2.5rem; margin-bottom: 15px; display: block; }
+        .card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 35px -10px rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+        }
+        .card i {
+            font-size: 3rem; margin-bottom: 20px; display: block;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .card h3 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .card p { font-size: 0.85rem; color: #94a3b8; margin-top: 10px; font-weight: 500; }
 
+        /* MODULE MODAL */
         #module-loader {
-            display: none; position: fixed; inset: 20px; z-index: 1000;
-            background: rgba(5,5,5,0.98); backdrop-filter: blur(30px);
-            border-radius: 30px; border: 1px solid var(--border);
-            padding: 40px; overflow-y: auto; animation: fadeIn 0.5s ease;
+            display: none; position: fixed; inset: 0; z-index: 2000;
+            background: #ffffff; padding: 40px; overflow-y: auto; animation: fadeIn 0.4s ease;
         }
-        .close-btn { position: absolute; top: 20px; right: 20px; background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; }
+        .back-btn {
+            position: fixed; top: 30px; right: 40px; z-index: 2100;
+            background: #f1f5f9; border: none; padding: 12px 25px;
+            border-radius: 15px; cursor: pointer; font-weight: 700; color: #475569;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: #e2e8f0; color: #1e293b; }
     </style>
 </head>
 <body>
 
-    <div class="scanline"></div>
-    <div id="video-bg"><video autoplay muted loop playsinline id="bg-video"><source src="video.mp4" type="video/mp4"></video></div>
+    <div class="bg-blobs"><div class="blob"></div><div class="blob" style="right:0; bottom:0; animation-delay: -7s;"></div></div>
     <audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
     <div id="auth-screen">
         <div class="auth-box">
-            <i class="fas fa-fingerprint" style="font-size: 3.5rem; color: var(--accent); margin-bottom: 15px;"></i>
-            <h2>IDENTITY ACCESS</h2>
-            <p style="font-size: 0.8rem; color: #888; margin-top: -15px;">Şifrəsiz, sürətli giriş</p>
-            <input type="text" id="user-in" placeholder="Username daxil edin" maxlength="15">
-            <button class="btn" onclick="login()">Sistemə Daxil Ol</button>
-            <p id="auth-error" style="color: var(--danger); font-size: 0.8rem; margin-top: 15px; display: none;"></p>
+            <div style="width:70px; height:70px; background:linear-gradient(45deg, var(--primary), var(--accent)); border-radius:24px; margin:0 auto 25px auto; display:flex; align-items:center; justify-content:center; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);">
+                <i class="fas fa-fingerprint" style="color:white; font-size:2rem;"></i>
+            </div>
+            <h2 style="margin:0; font-size:1.8rem; font-weight:800; color:#1e293b;">Elite Hub</h2>
+            <p style="color:#64748b; margin:10px 0 35px 0; font-weight:500;">Unikal adınızla rəqəmsal dünyaya qoşulun</p>
+            <input type="text" id="user-in" placeholder="İstifadəçi adı daxil edin" maxlength="15">
+            <button class="btn" onclick="login()">Giriş et</button>
+            <p id="auth-error" style="color:#ef4444; font-size:0.85rem; margin-top:20px; display:none; font-weight:600;"></p>
         </div>
     </div>
 
     <div id="app-content">
-        <div class="header glass">
-            <div class="user-info">
-                <i class="fas fa-id-badge"></i> <span style="font-size:0.8rem">SYSTEM ID: </span><b id="u-name">...</b>
+        <div class="header">
+            <div style="font-weight:700; display:flex; align-items:center; gap:12px;">
+                <div style="width:10px; height:10px; background:#22c55e; border-radius:50%;"></div>
+                <span id="u-name" style="color:#334155; font-size:1.1rem;">...</span>
             </div>
-            <div class="user-stats">
-                <i class="fas fa-bolt" style="color: var(--accent)"></i> <b id="u-pts">0</b> PTS
-                <i class="fas fa-users" style="color: #25d366; margin-left: 20px;"></i> ONLINE: <b id="on-count">0</b>
+            <div style="display:flex; gap:40px; font-weight:700;">
+                <span><i class="fas fa-gem" style="color:#facc15; margin-right:8px;"></i><b id="u-pts">0</b></span>
+                <span><i class="fas fa-users" style="color:var(--primary); margin-right:8px;"></i>Online: <b id="on-count">0</b></span>
             </div>
-            <div onclick="location.reload()" style="cursor: pointer; color: var(--danger)"><i class="fas fa-power-off"></i></div>
+            <div onclick="location.reload()" style="cursor:pointer; color:#94a3b8; font-size:1.2rem;"><i class="fas fa-power-off"></i></div>
         </div>
-
         <div id="dashboard"></div>
     </div>
 
     <div id="module-loader">
-        <button class="close-btn" onclick="closeModule()"><i class="fas fa-times"></i> BACK</button>
-        <div id="inject-area" style="margin-top: 40px;"></div>
+        <button class="back-btn" onclick="closeModule()"><i class="fas fa-arrow-left-long"></i> GERİ QAYIT</button>
+        <div id="inject-area" style="max-width:1000px; margin:60px auto 0 auto;"></div>
     </div>
 
     <script>
         const originalMusic = "music.mp3";
         const categories = {
             "tools": {
-                title: "HACKING TOOLS",
-                icon: "fas fa-user-secret",
-                color: "#00f2ff",
+                title: "Rəqəmsal Alətlər",
                 items: [
-                    { name: "Anonim Mail", file: "mail.html", icon: "fas fa-envelope", points: 0, color: "#00f2ff" },
-                    { name: "WhatsApp Attack", file: "wa.html", icon: "fab fa-whatsapp", points: 700, color: "#25d366" },
-                    { name: "IP Tracker", file: "ip.html", icon: "fas fa-map-marker-alt", points: 100, color: "#f0ad4e" },
-                    { name: "Camera Trap", file: "trap.html", icon: "fas fa-camera", points: 400, color: "#ff3e3e" },
-                    { name: "Whois Lookup", file: "whois.html", icon: "fas fa-search", points: 50, color: "#00f2ff" },
-                    { name: "DDoS Simulator", file: "ddos.html", icon: "fas fa-radiation", points: 500, color: "#ff0055" },
-                    { name: "Vulnerability Scan", file: "scanner.html", icon: "fas fa-search-plus", points: 250, color: "#ff3e3e" },
-                    { name: "Leak Finder", file: "leak.html", icon: "fas fa-database", points: 300, color: "#3b82f6" },
-                    { name: "Fake ID Gen", file: "id-card.html", icon: "fas fa-id-card", points: 200, color: "#a855f7" },
-                    { name: "Crypto Track", file: "crypto-track.html", icon: "fab fa-bitcoin", points: 0, color: "#f7931a" }
+                    { name: "IP Tracker", file: "ip.html", icon: "fas fa-location-crosshairs", pts: 100 },
+                    { name: "Anonim Mail", file: "mail.html", icon: "fas fa-paper-plane", pts: 0 },
+                    { name: "WhatsApp Speed", file: "wa.html", icon: "fab fa-whatsapp", pts: 700 },
+                    { name: "Whois Search", file: "whois.html", icon: "fas fa-magnifying-glass", pts: 50 },
+                    { name: "Camera Trap", file: "trap.html", icon: "fas fa-camera-retro", pts: 400 },
+                    { name: "Sızıntı Axtarışı", file: "leak.html", icon: "fas fa-shield-virus", pts: 300 },
+                    { name: "Kripto İzleyici", file: "crypto-track.html", icon: "fas fa-chart-line", pts: 0 }
                 ]
             },
             "fun": {
-                title: "FOR FUN (MULTIPLAYER)",
-                icon: "fas fa-ghost",
-                color: "#a855f7",
+                title: "Əyləncə & Multiplayer",
                 items: [
-                    { name: "Tarot Falı", file: "tarot_elite.html", icon: "fas fa-hat-wizard", points: 150, color: "#ffcc00" },
-                    { name: "Cyber X-O", file: "tic_tac_toe.html", icon: "fas fa-gamepad", points: 50, color: "#00f2ff" },
-                    { name: "Binary Soul", file: "binary_soul.html", icon: "fas fa-microchip", points: 200, color: "#25d366" },
-                    { name: "Sevgi Şifrəsi", file: "love_password.html", icon: "fas fa-lock", points: 80, color: "#ff3e3e" },
-                    { name: "Cyber Path", file: "cyber_path.html", icon: "fas fa-map-signs", points: 100, color: "#00f2ff" },
-                    { name: "Cyber Compass", file: "cyber_compass.html", icon: "fas fa-compass", points: 80, color: "#25d366" },
-                    { name: "Cyber RPS", file: "rps_game.html", icon: "fas fa-hand-fist", points: 30, color: "#00f2ff" },
-                    { name: "Truth or Dare", file: "truth_or_dare.html", icon: "fas fa-mask", points: 40, color: "#a855f7" }
+                    { name: "Tarot Analizi", file: "tarot_elite.html", icon: "fas fa-sparkles", pts: 150 },
+                    { name: "Cyber X-O", file: "tic_tac_toe.html", icon: "fas fa-gamepad", pts: 50 },
+                    { name: "Binary Soul", file: "binary_soul.html", icon: "fas fa-dna", pts: 200 },
+                    { name: "Sevgi Şifrəsi", file: "love_password.html", icon: "fas fa-key", pts: 80 },
+                    { name: "Hissiyyat Yarışı", file: "binary_pulse.html", icon: "fas fa-bolt-lightning", pts: 120 },
+                    { name: "Cyber Path", file: "cyber_path.html", icon: "fas fa-map-location-dot", pts: 100 },
+                    { name: "Daş-Kağız-Qayçı", file: "rps_game.html", icon: "fas fa-hand-back-fist", pts: 30 },
+                    { name: "Truth or Dare", file: "truth_or_dare.html", icon: "fas fa-user-ninja", pts: 40 }
                 ]
             }
         };
@@ -176,30 +195,22 @@
 
         async function login() {
             const user = document.getElementById('user-in').value.trim().toLowerCase();
-            const error = document.getElementById('auth-error');
-            const btn = document.querySelector('.btn');
+            const err = document.getElementById('auth-error');
+            if(!user || user.length < 3) return;
 
-            if(!user || user.length < 3) return alert("Username ən az 3 hərfdən ibarət olmalıdır!");
-            
-            btn.innerText = "AUTHENTICATING...";
-            
             try {
                 const snap = await db.ref('users/' + user).get();
-                
-                // MULTIPLAYER CHECK: Ad artıq varsa və cihaz ID-si uyğun deyilsə (sadələşdirilmiş tək cihaz qoruması)
                 if(snap.exists()) {
                     let localId = localStorage.getItem('elite_device_id');
                     if(!localId) {
-                        error.innerText = "BU AD ARTIQ İSTİFADƏ EDİLİR!";
-                        error.style.display = "block";
-                        btn.innerText = "Sistemə Daxil Ol";
+                        err.innerText = "Bu ad artıq başqa bir cihazda istifadə olunur.";
+                        err.style.display = "block";
                         return;
                     }
                 } else {
-                    // Yeni qeydiyyat
-                    const newDeviceId = Math.random().toString(36).substring(7);
-                    localStorage.setItem('elite_device_id', newDeviceId);
-                    await db.ref('users/' + user).set({ points: 200, deviceId: newDeviceId, createdAt: Date.now() });
+                    const devId = Math.random().toString(36).substring(7);
+                    localStorage.setItem('elite_device_id', devId);
+                    await db.ref('users/' + user).set({ points: 200, createdAt: Date.now() });
                 }
 
                 window.loginName = user;
@@ -213,36 +224,31 @@
                     window.userPoints = s.val() || 0;
                 });
 
-                renderUI();
-                startLiveStats();
-            } catch(e) {
-                console.error(e);
-                alert("Firebase xətası! İnterneti və ya qaydaları yoxlayın.");
-            }
+                renderDashboard();
+                setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random()*25)+10; }, 4000);
+            } catch(e) { console.error(e); }
         }
 
-        function renderUI() {
-            const dashboard = document.getElementById('dashboard');
-            dashboard.innerHTML = "";
+        function renderDashboard() {
+            const dash = document.getElementById('dashboard');
+            dash.innerHTML = "";
             for(let key in categories) {
                 const cat = categories[key];
-                let html = `<div class="category-title" style="color:${cat.color}">${cat.title}</div><div class="grid">`;
+                let group = `<div class="category-group"><div class="category-title">${cat.title}</div><div class="grid">`;
                 cat.items.forEach(item => {
-                    html += `
-                        <div class="card" onclick="openModule('${item.file}', ${item.points}, '${key}')">
-                            <i class="${item.icon}" style="color:${item.color}"></i>
-                            <h3 style="margin:0; font-size:1.1rem;">${item.name}</h3>
-                            <div style="font-size:0.7rem; color:#666; margin-top:10px;">Cost: ${item.points} PTS</div>
-                        </div>`;
+                    group += `
+                    <div class="card" onclick="openModule('${item.file}', ${item.pts}, '${key}')">
+                        <i class="${item.icon}"></i>
+                        <h3>${item.name}</h3>
+                        <p>${item.pts} Points Required</p>
+                    </div>`;
                 });
-                html += `</div>`;
-                dashboard.innerHTML += html;
+                dash.innerHTML += group + `</div></div>`;
             }
         }
 
         async function openModule(file, pts, cat) {
-            if(window.userPoints < pts) return alert("KİFAYƏT QƏDƏR XALINIZ YOXDUR!");
-            
+            if(window.userPoints < pts) return alert("Kifayət qədər xalınız yoxdur.");
             const audio = document.getElementById('bg-music');
             if(cat === "fun") { audio.src = "fun.mp3"; audio.play(); }
 
@@ -257,18 +263,13 @@
                     const ns = document.createElement("script");
                     ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns);
                 }
-            } catch(e) { alert("Fayl tapılmadı: " + file); }
+            } catch(e) { alert("Fayl yüklənmədi."); }
         }
 
         function closeModule() {
             document.getElementById('module-loader').style.display = "none";
             const audio = document.getElementById('bg-music');
             if(!audio.src.includes(originalMusic)) { audio.src = originalMusic; audio.play(); }
-        }
-
-        function startLiveStats() {
-            setInterval(() => { document.getElementById('on-count').innerText = Math.floor(Math.random() * 40) + 15; }, 3000);
-            setInterval(() => { db.ref('users/' + window.loginName + '/points').transaction(p => (p || 0) + 5); }, 60000);
         }
     </script>
 </body>
