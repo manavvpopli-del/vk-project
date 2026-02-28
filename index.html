@@ -3,198 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Celestial | Premium Hub</title>
+    <title>Elite Aura | Premium Tools</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <link rel="manifest" href="manifest.json">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Montserrat:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap');
 
         :root {
-            --bg: #030305;
-            --gold: #f5b942;
-            --gold-dim: #c5a059;
-            --text: #e2e8f0;
-            --cyan: #00f2ff;
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg); color: var(--text);
-            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text); overflow-x: hidden;
+            /* RƏNG DƏYİŞƏN ARXA FON */
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #581c87, #1e1b4b);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
-        /* BACKGROUND ANIMATION */
-        #starfield { position: fixed; inset: 0; z-index: -1; }
-
-        /* AUTH SCREEN */
-        #auth-screen { display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .auth-box {
-            width: 380px; padding: 50px 40px; text-align: center;
-            background: rgba(10, 10, 15, 0.98); border: 1px solid var(--gold-dim);
-            border-radius: 30px; box-shadow: 0 0 50px rgba(245, 185, 66, 0.1);
-            animation: fadeIn 1.5s ease;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .auth-box h2 { font-family: 'Cinzel Decorative'; color: var(--gold); font-size: 2.2rem; margin: 0; letter-spacing: 5px; }
+
+        /* GİRİŞ EKRANI */
+        #auth-screen {
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh; perspective: 1000px;
+        }
+
+        .auth-card {
+            background: var(--glass); backdrop-filter: blur(25px);
+            padding: 50px; border-radius: 40px; border: 1px solid var(--border);
+            text-align: center; width: 350px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
         input {
-            width: 100%; padding: 18px; margin: 30px 0 20px 0; background: #000;
-            border: 1px solid #333; border-radius: 15px; color: #fff;
-            text-align: center; font-family: 'Montserrat'; outline: none; transition: 0.3s; font-size: 1rem;
+            width: 100%; padding: 15px; margin: 20px 0;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            border-radius: 15px; color: white; text-align: center;
+            font-size: 1rem; transition: 0.3s; outline: none;
         }
-        input:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(245, 185, 66, 0.2); }
+        input:focus { background: rgba(255,255,255,0.1); border-color: #818cf8; }
 
-        .btn-portal {
-            width: 100%; padding: 18px; background: var(--gold);
-            border: none; border-radius: 15px; color: #000;
-            font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 3px;
-            transition: 0.4s;
+        .btn-glow {
+            width: 100%; padding: 15px; background: linear-gradient(90deg, #6366f1, #a855f7);
+            border: none; border-radius: 15px; color: white; font-weight: 800;
+            cursor: pointer; transition: 0.4s; text-transform: uppercase;
         }
-        .btn-portal:hover { transform: scale(1.02); box-shadow: 0 0 30px var(--gold); }
+        .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4); }
 
-        /* APP CONTENT */
-        #app-content { display: none; height: 100vh; overflow-y: auto; padding: 40px; box-sizing: border-box; }
-        
-        .nav-header {
+        /* DASHBOARD */
+        #app-content { display: none; padding: 40px; animation: fadeIn 1s ease; }
+
+        .header-glass {
             display: flex; justify-content: space-between; align-items: center;
-            max-width: 1200px; margin: 0 auto 60px auto; padding: 15px 40px;
-            background: rgba(255,255,255,0.03); backdrop-filter: blur(20px);
-            border-radius: 60px; border: 1px solid rgba(245, 185, 66, 0.2);
+            padding: 20px 40px; background: var(--glass);
+            backdrop-filter: blur(20px); border-radius: 30px;
+            border: 1px solid var(--border); margin-bottom: 50px;
+            animation: slideDown 0.8s ease;
         }
 
-        /* PORTAL SYSTEM (2 CATEGORIES ONLY) */
-        #portal-selection { display: flex; justify-content: center; gap: 80px; height: 60vh; align-items: center; }
-
-        .portal {
-            width: 320px; height: 320px; border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-            border: 2px solid transparent; background: rgba(255,255,255,0.01);
-            position: relative;
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px; max-width: 1200px; margin: auto;
         }
-        .portal:hover { transform: scale(1.1); border-color: var(--p-color); box-shadow: 0 0 60px var(--p-glow); }
-        .portal i { font-size: 5rem; color: var(--p-color); margin-bottom: 25px; filter: drop-shadow(0 0 15px var(--p-glow)); }
-        .portal h2 { font-family: 'Cinzel Decorative'; margin: 0; letter-spacing: 4px; color: var(--p-color); font-size: 1.5rem; }
 
-        /* CATEGORY VIEW */
-        #category-view { display: none; max-width: 1200px; margin: auto; animation: slideUp 0.7s ease; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; }
-
-        .item-card {
-            background: rgba(20, 20, 25, 0.8); padding: 45px 25px; border-radius: 30px;
-            text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.4s;
+        .tool-card {
+            background: var(--glass); padding: 40px 25px; border-radius: 35px;
+            text-align: center; border: 1px solid var(--border);
+            transition: 0.5s; cursor: pointer;
+            animation: revealUp 0.6s backwards;
         }
-        .item-card:hover { transform: translateY(-15px); border-color: var(--gold); background: rgba(245, 185, 66, 0.08); }
-        .item-card i { font-size: 3.5rem; color: var(--gold); margin-bottom: 20px; display: block; }
-        .item-card h3 { font-size: 1.1rem; margin: 0; font-weight: 700; letter-spacing: 1px; }
+        .tool-card:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05) translateY(-10px);
+            border-color: #f472b6;
+        }
+        .tool-card i {
+            font-size: 3.5rem; margin-bottom: 20px; display: block;
+            background: linear-gradient(45deg, #818cf8, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
 
-        .back-btn { margin-bottom: 40px; cursor: pointer; color: var(--gold); font-weight: 700; display: inline-flex; align-items: center; gap: 12px; transition: 0.3s; font-family: 'Cinzel Decorative'; }
-        .back-btn:hover { letter-spacing: 2px; }
+        /* MODAL */
+        #modal-container {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(15, 23, 42, 0.95); animation: fadeIn 0.4s ease;
+        }
+        .close-btn {
+            position: fixed; top: 30px; right: 30px; background: var(--glass);
+            border: 1px solid var(--border); color: white; padding: 12px 25px;
+            border-radius: 15px; cursor: pointer; font-weight: 800;
+        }
 
-        /* MODAL LAYER */
-        #modal-layer { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--bg); padding: 50px; overflow-y: auto; }
-        .close-portal { position: fixed; top: 30px; right: 40px; background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px 30px; cursor: pointer; font-family: 'Montserrat'; font-weight: 700; border-radius: 10px; z-index: 10001; transition: 0.3s; }
-        .close-portal:hover { background: var(--gold); color: #000; }
-
+        /* ANIMASİYALAR */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes revealUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <canvas id="starfield"></canvas>
     <audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
     <div id="auth-screen">
-        <div class="auth-box">
-            <h2>CELESTIAL</h2>
-            <p style="color: #555; font-size: 0.75rem; margin-top: 10px; letter-spacing: 3px; font-weight: 700;">ELITE ACCESS ONLY</p>
-            <input type="text" id="user-in" placeholder="Username" maxlength="15">
-            <button class="btn-portal" onclick="login()">Bağlantı Qur</button>
-            <p id="auth-error" style="color:#ff3e3e; font-size:0.8rem; margin-top:15px; display:none;"></p>
+        <div class="auth-card">
+            <h1 style="margin:0; font-weight:800; letter-spacing: -1px;">ELITE AURA</h1>
+            <p style="opacity: 0.6; font-size: 0.8rem;">Davam etmək üçün adınızı yazın</p>
+            <input type="text" id="user-in" placeholder="İstifadəçi adı">
+            <button class="btn-glow" onclick="login()">Bağlantı Qur</button>
         </div>
     </div>
 
     <div id="app-content">
-        <div class="nav-header">
-            <div style="font-family:'Cinzel Decorative'; color:var(--gold); font-size: 1.2rem;"><i class="fas fa-crown"></i> <span id="u-name">...</span></div>
-            <div style="display:flex; gap:40px; font-weight:700; font-size: 0.85rem; letter-spacing: 1px;">
-                <span><i class="fas fa-star" style="color:var(--gold);"></i> <b id="u-pts">0</b> PTS</span>
-                <span><i class="fas fa-users" style="color:#22c55e;"></i> İSTİFADƏÇİ: <b>897+</b></span>
+        <div class="header-glass">
+            <div style="font-weight: 800;"><i class="fas fa-sparkles" style="color:#f472b6;"></i> <span id="u-name">...</span></div>
+            <div style="display:flex; gap:30px;">
+                <span><i class="fas fa-gem" style="color:#facc15;"></i> <b id="u-pts">0</b></span>
+                <span><i class="fas fa-users" style="color:#818cf8;"></i> 897+</span>
             </div>
-            <div onclick="location.reload()" style="cursor:pointer; opacity:0.2;"><i class="fas fa-power-off"></i></div>
+            <div onclick="location.reload()" style="cursor:pointer; opacity:0.5;"><i class="fas fa-power-off"></i></div>
         </div>
 
-        <div id="portal-selection">
-            <div class="portal" onclick="showCategory('tools')" style="--p-color: var(--cyan); --p-glow: rgba(0,242,255,0.2);">
-                <i class="fas fa-microchip"></i>
-                <h2>ALƏTLƏR</h2>
-            </div>
-            <div class="portal" onclick="showCategory('fun')" style="--p-color: var(--gold); --p-glow: rgba(245,185,66,0.2);">
-                <i class="fas fa-sparkles"></i>
-                <h2>ƏYLƏNCƏ</h2>
-            </div>
-        </div>
-
-        <div id="category-view">
-            <div class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> GERİ QAYIT</div>
-            <h1 id="cat-title" style="font-family:'Cinzel Decorative'; color:var(--gold); margin-bottom:50px; text-shadow: 0 0 20px rgba(245,185,66,0.4);"></h1>
-            <div class="grid" id="items-grid"></div>
-        </div>
+        <div class="grid" id="tools-grid"></div>
     </div>
 
-    <div id="modal-layer">
-        <button class="close-portal" onclick="closeModal()">BAĞLA</button>
-        <div id="modal-content" style="max-width:1100px; margin:80px auto 0 auto;"></div>
+    <div id="modal-container">
+        <button class="close-btn" onclick="closeModal()">GERİ QAYIT</button>
+        <div id="modal-content" style="padding:60px; max-width:1000px; margin:auto;"></div>
     </div>
 
     <script>
-        // BACKGROUND STARS LOGIC
-        const canvas = document.getElementById('starfield');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        const stars = [];
-        for(let i=0; i<200; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.8, sp: Math.random()*0.5 });
-        function animate() {
-            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="white";
-            stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += s.sp; if(s.y > canvas.height) s.y=0; });
-            requestAnimationFrame(animate);
-        }
-        animate();
+        const tools = [
+            { n: "IP Tracker", f: "ip.html", i: "fas fa-map-location-dot", delay: "0.1s" },
+            { n: "Anonim Mail", f: "mail.html", i: "fas fa-envelope-open-text", delay: "0.2s" },
+            { n: "WhatsApp Sürət", f: "wa.html", i: "fab fa-whatsapp", delay: "0.3s" },
+            { n: "Whois Search", f: "whois.html", i: "fas fa-globe", delay: "0.4s" },
+            { n: "Kamera Sistemi", f: "trap.html", i: "fas fa-camera", delay: "0.5s" },
+            { n: "Sızıntı Yoxla", f: "leak.html", i: "fas fa-user-shield", delay: "0.6s" },
+            { n: "Kripto Analiz", f: "crypto-track.html", i: "fas fa-chart-line", delay: "0.7s" },
+            { n: "DDoS Simulator", f: "ddos.html", i: "fas fa-wind", delay: "0.8s" },
+            { n: "Temp SMS", f: "sms.html", i: "fas fa-comment-dots", delay: "0.9s" },
+            { n: "Tarot Analizi", f: "tarot_elite.html", i: "fas fa-wand-magic-sparkles", delay: "1.0s" }
+        ];
 
-        // REFINED DATA STRUCTURE
-        const categories = {
-            "tools": {
-                name: "Özəl Alətlər",
-                items: [
-                    { n: "IP Tracker", f: "ip.html", i: "fas fa-satellite-dish", p: 100 },
-                    { n: "Anonim Mail", f: "mail.html", i: "fas fa-paper-plane", p: 0 },
-                    { n: "WhatsApp Sürət", f: "wa.html", i: "fab fa-whatsapp", p: 700 },
-                    { n: "Whois Search", f: "whois.html", i: "fas fa-magnifying-glass", p: 50 },
-                    { n: "Kamera Sistemi", f: "trap.html", i: "fas fa-camera", p: 400 },
-                    { n: "Sızıntı Yoxla", f: "leak.html", i: "fas fa-shield-halved", p: 300 },
-                    { n: "Kripto Analiz", f: "crypto-track.html", i: "fas fa-chart-line", p: 0 },
-                    { n: "DDoS Simulator", f: "ddos.html", i: "fas fa-radiation", p: 500 },
-                    { n: "Temp SMS", f: "sms.html", i: "fas fa-comment-sms", p: 150 },
-                    { n: "Fake ID Gen", f: "id-card.html", i: "fas fa-id-card", p: 200 }
-                ]
-            },
-            "fun": {
-                name: "Tale Portalı",
-                items: [
-                    { n: "Tarot Analizi", f: "tarot_elite.html", i: "fas fa-star-and-crescent", p: 150 },
-                    { n: "Celestial Life", f: "baby_grow.html", i: "fas fa-baby-carriage", p: 300 }
-                ]
-            }
-        };
-
+        // FIREBASE START
         const firebaseConfig = { 
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", 
-            projectId: "sevgili-testi" 
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -202,67 +168,49 @@
         async function login() {
             const user = document.getElementById('user-in').value.trim().toLowerCase();
             if(!user || user.length < 3) return;
-            try {
-                const snap = await db.ref('users/' + user).get();
-                if(snap.exists()) {
-                    let key = localStorage.getItem('celestial_key');
-                    if(!key) {
-                        document.getElementById('auth-error').innerText = "BU AD ARTIQ İSTİFADƏ EDİLİR!";
-                        document.getElementById('auth-error').style.display = "block";
-                        return;
-                    }
-                } else {
-                    localStorage.setItem('celestial_key', 'registered');
-                    await db.ref('users/' + user).set({ points: 200 });
-                }
-                window.loginName = user;
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-                document.getElementById('u-name').innerText = user.toUpperCase();
-                document.getElementById('bg-music').play().catch(()=>{});
 
-                db.ref('users/' + user + '/points').on('value', s => {
-                    document.getElementById('u-pts').innerText = s.val() || 0;
-                    window.userPoints = s.val() || 0;
-                });
-            } catch(e) { console.error(e); }
+            const snap = await db.ref('users/' + user).get();
+            if(!snap.exists()) {
+                await db.ref('users/' + user).set({ points: 250 });
+                localStorage.setItem('aura_user', user);
+            }
+            
+            window.loginUser = user;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('u-name').innerText = user.toUpperCase();
+            document.getElementById('bg-music').play().catch(()=>{});
+
+            db.ref('users/' + user + '/points').on('value', s => {
+                document.getElementById('u-pts').innerText = s.val() || 0;
+            });
+
+            renderTools();
         }
 
-        function showCategory(key) {
-            const cat = categories[key];
-            document.getElementById('portal-selection').style.display = 'none';
-            document.getElementById('category-view').style.display = 'block';
-            document.getElementById('cat-title').innerText = cat.name;
-            const grid = document.getElementById('items-grid');
+        function renderTools() {
+            const grid = document.getElementById('tools-grid');
             grid.innerHTML = "";
-            cat.items.forEach(item => {
+            tools.forEach(t => {
                 grid.innerHTML += `
-                <div class="item-card" onclick="openItem('${item.f}', ${item.p})">
-                    <i class="${item.i}"></i>
-                    <h3>${item.n}</h3>
-                    <p>${item.p} XAL</p>
+                <div class="tool-card" style="animation-delay: ${t.delay}" onclick="openTool('${t.f}')">
+                    <i class="${t.i}"></i>
+                    <h3>${t.n}</h3>
                 </div>`;
             });
         }
 
-        function goBack() {
-            document.getElementById('category-view').style.display = 'none';
-            document.getElementById('portal-selection').style.display = 'flex';
-        }
-
-        async function openItem(file, pts) {
-            if(window.userPoints < pts) return alert("KİFAYƏT QƏDƏR XALINIZ YOXDUR!");
+        async function openTool(file) {
             try {
                 const res = await fetch(file);
-                const html = await res.text();
-                document.getElementById('modal-content').innerHTML = html;
-                document.getElementById('modal-layer').style.display = 'block';
+                document.getElementById('modal-content').innerHTML = await res.text();
+                document.getElementById('modal-container').style.display = 'block';
                 const sc = document.getElementById('modal-content').getElementsByTagName('script');
                 for(let s of sc) { const ns = document.createElement("script"); ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); }
-            } catch(e) { alert("MODUL YÜKLƏNMƏDİ!"); }
+            } catch(e) { alert("Xəta!"); }
         }
 
-        function closeModal() { document.getElementById('modal-layer').style.display = 'none'; }
+        function closeModal() { document.getElementById('modal-container').style.display = 'none'; }
     </script>
 </body>
 </html>
