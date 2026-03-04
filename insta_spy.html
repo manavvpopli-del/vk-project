@@ -1,152 +1,127 @@
-<div id="spy-container" style="color: white; font-family: 'Outfit', sans-serif; max-width: 600px; margin: auto; padding: 10px;">
+<div id="spy-container" style="color: white; font-family: 'Outfit', sans-serif; max-width: 500px; margin: auto; padding: 15px;">
     
-    <div id="view-search" style="text-align: center; padding-top: 30px;">
+    <div id="search-view" style="text-align: center;">
         <div style="background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            <i class="fab fa-instagram" style="font-size: 5.5rem;"></i>
+            <i class="fab fa-instagram" style="font-size: 5rem;"></i>
         </div>
-        <h2 style="font-family: 'Syncopate'; margin-top: 20px; font-size: 1rem;">IG PRIVATE DECRYPTOR</h2>
+        <h2 style="font-family: 'Syncopate'; margin-top: 20px; font-size: 1.1rem;">REAL-TIME IG DECRYPTOR</h2>
         
         <input type="text" id="target-id" placeholder="İstifadəçi adı (məs: ismail_v1)" 
-            style="width: 100%; padding: 18px; border-radius: 20px; border: 1px solid #333; background: #000; color: white; text-align: center; margin-top: 30px; outline: none;">
+            style="width: 100%; padding: 18px; border-radius: 20px; border: 1px solid #333; background: #000; color: white; text-align: center; margin-top: 30px; outline: none; font-size: 1.1rem;">
         
-        <button onclick="startHack()" 
+        <button onclick="getRealProfile()" 
             style="width: 100%; margin-top: 15px; padding: 18px; border-radius: 20px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">
-            SİSTEMƏ SIZ
+            MƏLUMATLARI ÇƏK
         </button>
     </div>
 
-    <div id="view-loading" style="display: none; text-align: center; margin-top: 60px;">
-        <div class="glitch-loader"></div>
-        <p id="hack-status" style="margin-top: 20px; color: #00f2fe; font-family: monospace;"></p>
-        <div style="width: 100%; height: 2px; background: #222; margin-top: 20px;">
-            <div id="hack-bar" style="width: 0%; height: 100%; background: #00f2fe; transition: 0.3s;"></div>
-        </div>
-    </div>
-
-    <div id="view-pay" style="display: none; animation: fadeIn 0.5s;">
-        <div style="background: rgba(255,255,255,0.03); padding: 35px; border-radius: 30px; border: 1px solid #333; text-align: center;">
+    <div id="pay-view" style="display: none; animation: fadeIn 0.4s; text-align: center;">
+        <div style="background: rgba(255,255,255,0.05); padding: 35px; border-radius: 30px; border: 1px solid #444;">
             <div style="position: relative; display: inline-block;">
-                <img id="target-img" src="" style="width: 130px; height: 130px; border-radius: 50%; border: 4px solid #ff007a; object-fit: cover;">
-                <div style="position: absolute; bottom: 5px; right: 5px; background: #ff007a; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-lock" style="font-size: 0.8rem;"></i>
+                <img id="real-avatar" src="" style="width: 140px; height: 140px; border-radius: 50%; border: 4px solid #ff007a; object-fit: cover; background: #222;">
+                <div style="position: absolute; bottom: 8px; right: 8px; background: #ff007a; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-check" style="font-size: 0.8rem;"></i>
                 </div>
             </div>
-            <h2 id="target-name" style="margin: 20px 0 5px 0; letter-spacing: 1px;"></h2>
-            <p style="opacity: 0.5; font-size: 0.8rem;">Bu profil şifrələnmiş serverdə tapıldı.</p>
+            <h2 id="real-name" style="margin: 20px 0 5px 0; letter-spacing: 1px;"></h2>
+            <p style="color: #ff007a; font-weight: 800; font-size: 0.8rem;">● GİZLİ PROFİL TAPILDI</p>
 
-            <div style="background: rgba(0,242,254,0.1); padding: 20px; border-radius: 20px; border: 1px dotted #00f2fe; margin: 25px 0;">
-                <span style="display: block; font-size: 0.7rem; opacity: 0.7;">TƏLƏB OLUNAN XAL</span>
+            <div style="background: rgba(0,242,254,0.1); padding: 20px; border-radius: 20px; border: 1px solid #00f2fe; margin: 25px 0;">
+                <span style="display: block; font-size: 0.7rem; opacity: 0.7; color: #00f2fe;">TƏLƏB OLUNAN XAL</span>
                 <span style="font-size: 1.8rem; font-weight: 900; color: #00f2fe;">900 PTS</span>
             </div>
 
-            <button onclick="processDeduction()" id="unlock-btn"
+            <button onclick="confirmAndDeduct()" id="pay-btn"
                 style="width: 100%; padding: 20px; border-radius: 20px; border: none; background: #ff007a; color: white; font-weight: 900; cursor: pointer;">
                 PROFİLİ AÇ (900 PTS)
             </button>
         </div>
     </div>
 
-    <div id="view-final" style="display: none;">
+    <div id="final-view" style="display: none;">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
-            <img id="final-img" src="" style="width: 60px; height: 60px; border-radius: 50%;">
-            <div>
-                <b id="final-user" style="display: block;"></b>
-                <span style="font-size: 0.8rem; color: #00ff00;">● Access Granted</span>
-            </div>
+            <img id="final-avatar" src="" style="width: 55px; height: 55px; border-radius: 50%;">
+            <b id="final-username"></b>
         </div>
-        
         <div id="post-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px;">
             </div>
-        <div style="text-align: center; padding: 40px; opacity: 0.3; font-size: 0.8rem;">
-            Daha çox post yükləmək üçün pro versiyaya keçin.
-        </div>
     </div>
 
 </div>
 
 <style>
-    .glitch-loader { width: 50px; height: 50px; border: 5px solid #00f2fe; border-top-color: transparent; border-radius: 50%; margin: auto; animation: spin 0.8s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 <script>
-    async function startHack() {
-        const user = document.getElementById('target-id').value.trim();
-        if(!user) return alert("Hədəf adı daxil edilməyib!");
+    function getRealProfile() {
+        const username = document.getElementById('target-id').value.trim();
+        if(!username) return alert("İstifadəçi adı daxil edin!");
 
-        document.getElementById('view-search').style.display = 'none';
-        document.getElementById('view-loading').style.display = 'block';
+        // Real profil şəklini tapmaq üçün ən güclü və günclə proxy (unavatar alternativi)
+        // Bu xidmət birbaşa Instagram-ın CDN-indən şəkli çəkir
+        const imgUrl = `https://unavatar.io/instagram/${username}?fallback=https://ui-avatars.com/api/?name=${username}&background=random`;
 
-        const logs = ["Baza ilə əlaqə qurulur...", "Şifrələr qırılır...", "Profil şəkli çəkilir...", "Məlumatlar sinxronizasiya edilir..."];
-        let p = 0;
-        let logIdx = 0;
-
-        const interval = setInterval(() => {
-            p += 2;
-            document.getElementById('hack-bar').style.width = p + "%";
-            if(p % 25 === 0) {
-                document.getElementById('hack-status').innerText = logs[logIdx];
-                logIdx++;
-            }
-            if(p >= 100) {
-                clearInterval(interval);
-                showPay(user);
-            }
-        }, 60);
+        document.getElementById('search-view').style.display = 'none';
+        document.getElementById('pay-view').style.display = 'block';
+        
+        document.getElementById('real-name').innerText = "@" + username;
+        const avatar = document.getElementById('real-avatar');
+        
+        avatar.src = imgUrl;
+        
+        // Şəkil yüklənə bilməsə belə profil adını göstəririk
+        avatar.onerror = function() {
+            this.src = `https://ui-avatars.com/api/?name=${username}&size=128&background=833ab4&color=fff`;
+        };
     }
 
-    function showPay(user) {
-        document.getElementById('view-loading').style.display = 'none';
-        document.getElementById('view-pay').style.display = 'block';
-        document.getElementById('target-name').innerText = "@" + user;
-        // Ən dəqiq profil şəkli gətirmə metodu
-        document.getElementById('target-img').src = `https://unavatar.io/instagram/${user}`;
-    }
-
-    async function processDeduction() {
-        const btn = document.getElementById('unlock-btn');
+    async function confirmAndDeduct() {
+        const btn = document.getElementById('pay-btn');
         btn.disabled = true;
         btn.innerText = "YOXLANILIR...";
 
-        // Real istifadəçini götürürük
-        const activeUser = localStorage.getItem('active_user') || document.getElementById('u-tag').innerText.toLowerCase();
-        const userRef = db.ref('users/' + activeUser);
+        // İstifadəçi ID-sini həm ana səhifədən, həm local-dan yoxlayırıq
+        const user = localStorage.getItem('active_user') || document.getElementById('u-tag').innerText.toLowerCase();
+        const userRef = db.ref('users/' + user);
         
-        const snap = await userRef.get();
-        const currentPoints = snap.val().points || 0;
+        try {
+            const snap = await userRef.get();
+            const points = snap.val().points || 0;
 
-        if(currentPoints < 900) {
-            alert("Xalınız kifayət deyil! Balans: " + currentPoints + " PTS");
+            if(points < 900) {
+                alert(`Xalınız çatmır! Sizin balans: ${points} PTS`);
+                btn.disabled = false;
+                btn.innerText = "PROFİLİ AÇ (900 PTS)";
+                return;
+            }
+
+            // BALANSIN AZALDILMASI
+            const finalPoints = points - 900;
+            await userRef.update({ points: finalPoints });
+
+            // Ana səhifədəki PTS göstəricisini (navbar) dərhal dəyiş
+            const topNavPts = document.getElementById('pts-tag');
+            if(topNavPts) topNavPts.innerText = finalPoints;
+
+            showFinalContent();
+        } catch(e) {
+            alert("Sistem xətası! Yenidən daxil olun.");
             btn.disabled = false;
-            btn.innerText = "PROFİLİ AÇ (900 PTS)";
-            return;
         }
-
-        // XALIN ÇIXILMASI
-        const newPoints = currentPoints - 900;
-        await userRef.update({ points: newPoints });
-        
-        // Ana səhifədəki PTS göstəricisini də dərhal yeniləyirik
-        if(document.getElementById('pts-tag')) {
-            document.getElementById('pts-tag').innerText = newPoints;
-        }
-
-        showFinal();
     }
 
-    function showFinal() {
-        document.getElementById('view-pay').style.display = 'none';
-        document.getElementById('view-final').style.display = 'block';
+    function showFinalContent() {
+        document.getElementById('pay-view').style.display = 'none';
+        document.getElementById('final-view').style.display = 'block';
         
-        document.getElementById('final-img').src = document.getElementById('target-img').src;
-        document.getElementById('final-user').innerText = document.getElementById('target-name').innerText;
+        document.getElementById('final-avatar').src = document.getElementById('real-avatar').src;
+        document.getElementById('final-username').innerText = document.getElementById('real-name').innerText;
 
         const grid = document.getElementById('post-grid');
         grid.innerHTML = "";
-        // 24 ədəd random post
-        for(let i=1; i<=24; i++) {
-            grid.innerHTML += `<div style="aspect-ratio: 1/1; background: url(https://picsum.photos/400/400?random=${i+50}); background-size: cover; border: 0.5px solid #000;"></div>`;
+        for(let i=0; i<30; i++) {
+            grid.innerHTML += `<div style="aspect-ratio: 1/1; background: url(https://picsum.photos/400/400?random=${i+100}); background-size: cover; border: 0.2px solid #000;"></div>`;
         }
     }
 </script>
