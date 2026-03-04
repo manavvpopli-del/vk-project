@@ -1,118 +1,147 @@
 <div id="spy-container" style="color: white; font-family: 'Outfit', sans-serif; max-width: 500px; margin: auto; padding: 15px;">
     
-    <div id="search-view" style="text-align: center;">
+    <div id="search-view" style="text-align: center; padding-top: 20px;">
         <div style="background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             <i class="fab fa-instagram" style="font-size: 5rem;"></i>
         </div>
-        <h2 style="font-family: 'Syncopate'; margin-top: 20px; font-size: 1.1rem;">REAL-TIME IG DECRYPTOR</h2>
+        <h2 style="font-family: 'Syncopate'; margin-top: 20px; font-size: 1rem; letter-spacing: 2px;">IG PRIVATE DECRYPTOR</h2>
         
         <input type="text" id="target-id" placeholder="İstifadəçi adı (məs: ismail_v1)" 
             style="width: 100%; padding: 18px; border-radius: 20px; border: 1px solid #333; background: #000; color: white; text-align: center; margin-top: 30px; outline: none; font-size: 1.1rem;">
         
-        <button onclick="getRealProfile()" 
-            style="width: 100%; margin-top: 15px; padding: 18px; border-radius: 20px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">
-            MƏLUMATLARI ÇƏK
+        <button id="search-btn" onclick="startSearchProcess()" 
+            style="width: 100%; margin-top: 15px; padding: 18px; border-radius: 20px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; transition: 0.3s;">
+            PROFİLİ AXTAR
         </button>
     </div>
 
-    <div id="pay-view" style="display: none; animation: fadeIn 0.4s; text-align: center;">
-        <div style="background: rgba(255,255,255,0.05); padding: 35px; border-radius: 30px; border: 1px solid #444;">
-            <div style="position: relative; display: inline-block;">
-                <img id="real-avatar" src="" style="width: 140px; height: 140px; border-radius: 50%; border: 4px solid #ff007a; object-fit: cover; background: #222;">
-                <div style="position: absolute; bottom: 8px; right: 8px; background: #ff007a; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-check" style="font-size: 0.8rem;"></i>
-                </div>
-            </div>
-            <h2 id="real-name" style="margin: 20px 0 5px 0; letter-spacing: 1px;"></h2>
-            <p style="color: #ff007a; font-weight: 800; font-size: 0.8rem;">● GİZLİ PROFİL TAPILDI</p>
+    <div id="loading-view" style="display: none; text-align: center; margin-top: 50px;">
+        <div class="scanner-line"></div>
+        <h3 id="status-text" style="color: #00f2fe; font-family: monospace; font-size: 0.9rem; margin-top: 25px;">Sistemə qoşulur...</h3>
+        <p style="opacity: 0.4; font-size: 0.7rem;">Bu proses 10 saniyə çəkə bilər.</p>
+    </div>
 
-            <div style="background: rgba(0,242,254,0.1); padding: 20px; border-radius: 20px; border: 1px solid #00f2fe; margin: 25px 0;">
-                <span style="display: block; font-size: 0.7rem; opacity: 0.7; color: #00f2fe;">TƏLƏB OLUNAN XAL</span>
+    <div id="pay-view" style="display: none; animation: fadeIn 0.4s; text-align: center;">
+        <div style="background: rgba(255,255,255,0.03); padding: 35px; border-radius: 30px; border: 1px solid #333;">
+            <img id="real-avatar" src="" style="width: 130px; height: 130px; border-radius: 50%; border: 3px solid #ff007a; object-fit: cover;">
+            <h2 id="real-name" style="margin: 15px 0; font-size: 1.2rem;"></h2>
+            
+            <div style="background: rgba(0,242,254,0.1); padding: 20px; border-radius: 20px; border: 1px solid #00f2fe; margin-bottom: 20px;">
+                <span style="display: block; font-size: 0.7rem; opacity: 0.7; color: #00f2fe;">GİRİŞ ÜÇÜN TƏLƏB OLUNUR</span>
                 <span style="font-size: 1.8rem; font-weight: 900; color: #00f2fe;">900 PTS</span>
             </div>
 
             <button onclick="confirmAndDeduct()" id="pay-btn"
-                style="width: 100%; padding: 20px; border-radius: 20px; border: none; background: #ff007a; color: white; font-weight: 900; cursor: pointer;">
-                PROFİLİ AÇ (900 PTS)
+                style="width: 100%; padding: 18px; border-radius: 18px; border: none; background: #ff007a; color: white; font-weight: 900; cursor: pointer;">
+                PROFİLİ GÖSTƏR (900 PTS)
             </button>
         </div>
     </div>
 
+    <div id="data-extraction-view" style="display: none; text-align: center; margin-top: 50px;">
+        <i class="fas fa-unlock-alt" style="font-size: 3rem; color: #00ff00; animation: pulse 1s infinite;"></i>
+        <h3 id="extract-text" style="color: #00ff00; font-family: monospace; margin-top: 20px;">Şifrələr qırılır...</h3>
+        <div style="width: 100%; height: 2px; background: #111; margin-top: 20px;">
+            <div id="extract-bar" style="width: 0%; height: 100%; background: #00ff00; transition: 0.1s;"></div>
+        </div>
+    </div>
+
     <div id="final-view" style="display: none;">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
-            <img id="final-avatar" src="" style="width: 55px; height: 55px; border-radius: 50%;">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+            <img id="final-avatar" src="" style="width: 50px; height: 50px; border-radius: 50%;">
             <b id="final-username"></b>
         </div>
-        <div id="post-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px;">
-            </div>
+        <div id="post-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px;"></div>
     </div>
 
 </div>
 
 <style>
+    .scanner-line { width: 60px; height: 60px; border: 3px solid #00f2fe; border-top-color: transparent; border-radius: 50%; margin: auto; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 <script>
-    function getRealProfile() {
+    function startSearchProcess() {
         const username = document.getElementById('target-id').value.trim();
         if(!username) return alert("İstifadəçi adı daxil edin!");
 
-        // Real profil şəklini tapmaq üçün ən güclü və günclə proxy (unavatar alternativi)
-        // Bu xidmət birbaşa Instagram-ın CDN-indən şəkli çəkir
-        const imgUrl = `https://unavatar.io/instagram/${username}?fallback=https://ui-avatars.com/api/?name=${username}&background=random`;
-
         document.getElementById('search-view').style.display = 'none';
+        document.getElementById('loading-view').style.display = 'block';
+
+        const logs = ["Serverlər taranır...", "Proxy zənciri qurulur...", "İstifadəçi tapıldı!", "Məlumatlar yüklənir..."];
+        let i = 0;
+        
+        // Axtarış simulyasiyası (6 saniyə gözləmə)
+        const logInterval = setInterval(() => {
+            if(i < logs.length) {
+                document.getElementById('status-text').innerText = logs[i];
+                i++;
+            }
+        }, 1500);
+
+        setTimeout(() => {
+            clearInterval(logInterval);
+            showPayView(username);
+        }, 6000);
+    }
+
+    function showPayView(username) {
+        document.getElementById('loading-view').style.display = 'none';
         document.getElementById('pay-view').style.display = 'block';
-        
         document.getElementById('real-name').innerText = "@" + username;
-        const avatar = document.getElementById('real-avatar');
-        
-        avatar.src = imgUrl;
-        
-        // Şəkil yüklənə bilməsə belə profil adını göstəririk
-        avatar.onerror = function() {
-            this.src = `https://ui-avatars.com/api/?name=${username}&size=128&background=833ab4&color=fff`;
-        };
+        document.getElementById('real-avatar').src = `https://unavatar.io/instagram/${username}?fallback=https://ui-avatars.com/api/?name=${username}&background=random`;
     }
 
     async function confirmAndDeduct() {
-        const btn = document.getElementById('pay-btn');
-        btn.disabled = true;
-        btn.innerText = "YOXLANILIR...";
-
-        // İstifadəçi ID-sini həm ana səhifədən, həm local-dan yoxlayırıq
         const user = localStorage.getItem('active_user') || document.getElementById('u-tag').innerText.toLowerCase();
         const userRef = db.ref('users/' + user);
         
-        try {
-            const snap = await userRef.get();
-            const points = snap.val().points || 0;
+        const snap = await userRef.get();
+        const points = snap.val().points || 0;
 
-            if(points < 900) {
-                alert(`Xalınız çatmır! Sizin balans: ${points} PTS`);
-                btn.disabled = false;
-                btn.innerText = "PROFİLİ AÇ (900 PTS)";
-                return;
-            }
-
-            // BALANSIN AZALDILMASI
-            const finalPoints = points - 900;
-            await userRef.update({ points: finalPoints });
-
-            // Ana səhifədəki PTS göstəricisini (navbar) dərhal dəyiş
-            const topNavPts = document.getElementById('pts-tag');
-            if(topNavPts) topNavPts.innerText = finalPoints;
-
-            showFinalContent();
-        } catch(e) {
-            alert("Sistem xətası! Yenidən daxil olun.");
-            btn.disabled = false;
+        if(points < 900) {
+            alert(`Xalınız kifayət deyil! Balans: ${points} PTS`);
+            return;
         }
+
+        // Balansı azalt
+        const newPoints = points - 900;
+        await userRef.update({ points: newPoints });
+        if(document.getElementById('pts-tag')) document.getElementById('pts-tag').innerText = newPoints;
+
+        // "Məlumatları alır" hissiyatını vermək üçün 2-ci gözləmə ( extraction )
+        startExtractionProcess();
     }
 
-    function showFinalContent() {
+    function startExtractionProcess() {
         document.getElementById('pay-view').style.display = 'none';
+        document.getElementById('data-extraction-view').style.display = 'block';
+
+        const extractLogs = ["Şifrələr qırılır...", "Media faylları çəkilir...", "Giriş icazəsi təsdiqləndi!", "Profil hazırlanır..."];
+        let p = 0;
+        let logIdx = 0;
+
+        const extInterval = setInterval(() => {
+            p += 1;
+            document.getElementById('extract-bar').style.width = p + "%";
+            
+            if(p % 25 === 0) {
+                document.getElementById('extract-text').innerText = extractLogs[logIdx];
+                logIdx++;
+            }
+
+            if(p >= 100) {
+                clearInterval(extInterval);
+                showFinalResults();
+            }
+        }, 50); // Toplam 5 saniyəlik yükləmə
+    }
+
+    function showFinalResults() {
+        document.getElementById('data-extraction-view').style.display = 'none';
         document.getElementById('final-view').style.display = 'block';
         
         document.getElementById('final-avatar').src = document.getElementById('real-avatar').src;
@@ -120,8 +149,8 @@
 
         const grid = document.getElementById('post-grid');
         grid.innerHTML = "";
-        for(let i=0; i<30; i++) {
-            grid.innerHTML += `<div style="aspect-ratio: 1/1; background: url(https://picsum.photos/400/400?random=${i+100}); background-size: cover; border: 0.2px solid #000;"></div>`;
+        for(let i=0; i<24; i++) {
+            grid.innerHTML += `<div style="aspect-ratio: 1/1; background: url(https://picsum.photos/400/400?random=${i+200}); background-size: cover; border: 0.2px solid #000;"></div>`;
         }
     }
 </script>
