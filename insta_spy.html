@@ -1,0 +1,83 @@
+<div id="insta-module" style="color: white; font-family: 'Outfit', sans-serif; max-width: 500px; margin: auto; padding: 20px;">
+    <div id="spy-input-area" style="text-align: center;">
+        <i class="fab fa-instagram" style="font-size: 4rem; color: #ff007a; margin-bottom: 20px;"></i>
+        <h2 style="font-family: 'Syncopate'; font-size: 1.2rem;">INSTAGRAM PRIVATE VIEWER</h2>
+        <p style="opacity: 0.6; font-size: 0.8rem;">İzləmək istədiyiniz gizli profilin istifadəçi adını yazın.</p>
+        
+        <input type="text" id="target-user" placeholder="@username" style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #111; color: white; text-align: center;">
+        <button onclick="searchProfile()" style="width: 100%; margin-top: 20px; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(90deg, #ff007a, #833ab4); color: white; font-weight: 900; cursor: pointer;">PROFİLİ TAPAQLA</button>
+    </div>
+
+    <div id="spy-loading" style="display: none; text-align: center; margin-top: 30px;">
+        <div class="loader" style="border: 4px solid #f3f3f3; border-top: 4px solid #ff007a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;"></div>
+        <p id="status-text" style="margin-top: 15px; font-size: 0.9rem; letter-spacing: 1px;">Sistemə sızılır...</p>
+        <div style="width: 100%; height: 5px; background: #222; border-radius: 10px; margin-top: 10px; overflow: hidden;">
+            <div id="spy-progress" style="width: 0%; height: 100%; background: #ff007a; transition: 0.3s;"></div>
+        </div>
+    </div>
+
+    <div id="spy-result" style="display: none; text-align: center; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px solid #ff007a;">
+        <div id="target-avatar" style="width: 80px; height: 80px; border-radius: 50%; background: #333; margin: auto; display: flex; align-items: center; justify-content: center; border: 2px solid #ff007a;">
+            <i class="fas fa-user-lock" style="font-size: 2rem;"></i>
+        </div>
+        <h3 id="found-user" style="margin-top: 15px;"></h3>
+        <p style="color: #ff007a; font-weight: 800;"><i class="fas fa-lock"></i> BU PROFİL GİZLİDİR</p>
+        <p style="font-size: 0.8rem; opacity: 0.7;">Profil məlumatlarını, fotoları və hekayələri görmək üçün giriş icazəsi tələb olunur.</p>
+        
+        <div style="margin: 20px 0; padding: 15px; background: rgba(255,215,0,0.1); border-radius: 10px; border: 1px solid gold;">
+            <span style="color: gold; font-weight: 900;">TƏLƏB OLUNAN: 900 PTS</span>
+        </div>
+        
+        <button onclick="unlockProfile()" style="width: 100%; padding: 15px; border-radius: 12px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">XALLA AÇ</button>
+    </div>
+</div>
+
+<style>
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+
+<script>
+    function searchProfile() {
+        let user = document.getElementById('target-user').value;
+        if(user.length < 3) return alert("Düzgün istifadəçi adı yazın!");
+
+        document.getElementById('spy-input-area').style.display = 'none';
+        document.getElementById('spy-loading').style.display = 'block';
+
+        let steps = ["İnstagram bazasına qoşulur...", "Proxy serverlər aktivləşdirilir...", "Şifrəli datalar oxunur...", "Profil tapıldı! Yüklənir..."];
+        let p = 0;
+        let interval = setInterval(() => {
+            p += 5;
+            document.getElementById('spy-progress').style.width = p + "%";
+            if(p < 30) document.getElementById('status-text').innerText = steps[0];
+            else if(p < 60) document.getElementById('status-text').innerText = steps[1];
+            else if(p < 90) document.getElementById('status-text').innerText = steps[2];
+            else document.getElementById('status-text').innerText = steps[3];
+
+            if(p >= 100) {
+                clearInterval(interval);
+                document.getElementById('spy-loading').style.display = 'none';
+                document.getElementById('spy-result').style.display = 'block';
+                document.getElementById('found-user').innerText = user.startsWith('@') ? user : '@' + user;
+            }
+        }, 150);
+    }
+
+    async function unlockProfile() {
+        // Saytdakı real istifadəçini götürürük (index.html-dəki loginUser dəyişəni)
+        const currentUser = window.loginUser; 
+        if(!currentUser) return alert("Sistem xətası: Yenidən daxil olun.");
+
+        const userRef = db.ref('users/' + currentUser);
+        const snap = await userRef.get();
+        const currentPoints = snap.val().points || 0;
+
+        if(currentPoints < 900) {
+            alert("Kifayət qədər xalınız yoxdur! Tələb olunan: 900 PTS. Sizin balans: " + currentPoints + " PTS");
+        } else {
+            // Xal kifayətdirsə, xalı çıxırıq (Simulyasiya davam edir)
+            await userRef.update({ points: currentPoints - 900 });
+            alert("Xal çıxıldı. Server sıxlığı səbəbindən məlumatlar 24 saat ərzində təqdim olunacaq.");
+        }
+    }
+</script>
