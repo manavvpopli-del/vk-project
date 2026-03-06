@@ -1,110 +1,202 @@
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Aura | Professional Menu</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
 
-        :root { --bg: #020205; --fun: #ff007a; --tools: #00dfff; --gold: #ffd700; --glass: rgba(255,255,255,0.02); }
+    #menu-container {
+        padding: 40px;
+        max-width: 1300px;
+        margin: auto;
+        animation: menuEntrance 1s cubic-bezier(0.19, 1, 0.22, 1);
+    }
 
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; padding: 40px; overflow-x: hidden; }
+    @keyframes menuEntrance {
+        from { opacity: 0; transform: translateY(100px) scale(0.9); filter: blur(20px); }
+        to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
 
-        /* CANLI STATİSTİKA */
-        .live-stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 2px; opacity: 0.5; }
-        .stat-val { color: var(--gold); }
-        .dot { width: 7px; height: 7px; background: #0f0; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px #0f0; }
+    /* CANLI STATİSTİKA */
+    .live-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 30px;
+        font-family: 'Syncopate';
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        opacity: 0.6;
+    }
+    .stat-val { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    .online-dot { 
+        width: 8px; height: 8px; background: #00ff00; 
+        border-radius: 50%; display: inline-block; 
+        margin-right: 5px; box-shadow: 0 0 10px #00ff00; 
+    }
 
-        /* NAVBAR */
-        .nav { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 25px 40px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(15px); }
-        .pts-badge { background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent); padding: 10px 20px; border-radius: 15px; border: 1px solid rgba(255,215,0,0.2); color: var(--gold); font-weight: 900; }
+    /* NAVBAR */
+    .top-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 25px 40px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
 
-        /* KATEGORİYA */
-        .section-header { font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 5px; margin: 60px 0 30px; display: flex; align-items: center; gap: 20px; }
-        .line { flex: 1; height: 1px; background: linear-gradient(90deg, currentColor, transparent); }
+    /* KATEQORİYA BAŞLIQLARI */
+    .section-header {
+        font-family: 'Syncopate';
+        font-size: 0.75rem;
+        letter-spacing: 5px;
+        margin: 60px 0 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    .line-fun { flex: 1; height: 1px; background: linear-gradient(90deg, #ff007a, transparent); }
+    .line-tools { flex: 1; height: 1px; background: linear-gradient(90deg, #00dfff, transparent); }
 
-        /* GRID & CARDS */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .card { 
-            background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.05); text-align: center; cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
-        }
-        .card:hover { transform: translateY(-15px) scale(1.03); background: rgba(255,255,255,0.05); }
-        .card i { font-size: 3.5rem; margin-bottom: 25px; filter: drop-shadow(0 0 15px currentColor); }
-        .card h3 { margin: 0; letter-spacing: 1px; }
-        .card p { font-size: 0.7rem; opacity: 0.4; margin-top: 10px; font-weight: 900; }
+    /* KARTLARIN DİZAYNI */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+    
+    .card {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 45px;
+        border-radius: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: 0.4s all ease;
+    }
 
-        /* MODAL */
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 50px; }
-    </style>
-</head>
-<body>
+    .card:hover {
+        transform: translateY(-15px) rotateX(10deg);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
 
-<audio id="bg-music" loop autoplay><source src="music.mp3" type="audio/mpeg"></audio>
+    .card i { font-size: 3.5rem; margin-bottom: 25px; transition: 0.5s; }
+    .card h3 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; font-weight: 600; }
+    .card p { font-size: 0.7rem; opacity: 0.4; margin-top: 12px; font-weight: 900; letter-spacing: 1px; }
 
-<div class="live-stats">
-    <div>TOTAL USERS: <span class="stat-val">3562+</span></div>
-    <div><span class="dot"></span> ONLINE: <span id="online-count" class="stat-val">42</span></div>
+    /* MODAL (TOOLS ÜÇÜN) */
+    #tool-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.98);
+        z-index: 99999;
+        padding: 50px;
+        overflow-y: auto;
+    }
+</style>
+
+<div id="menu-container">
+    <div class="live-stats">
+        <div>TOTAL USERS: <span class="stat-val">3562+</span></div>
+        <div><span class="online-dot"></span> ONLINE: <span id="online-count" class="stat-val">0</span></div>
+    </div>
+
+    <div class="top-nav">
+        <div style="font-weight:900; letter-spacing:1px;">ID: <span id="m-user-tag" style="color:#00dfff;">...</span></div>
+        <div style="color:#ffd700; font-weight:900; background:rgba(255,215,0,0.1); padding:8px 20px; border-radius:15px; border:1px solid rgba(255,215,0,0.2);">
+            <i class="fas fa-gem"></i> <span id="m-pts-tag">0</span> <small style="font-size:0.6rem;">PTS</small>
+        </div>
+    </div>
+
+    <div class="section-header" style="color:#ff007a;">FOR FUN <div class="line-fun"></div></div>
+    <div class="grid">
+        <div class="card" onclick="openInternalTool('secret_test.html', 0)" style="border-bottom: 4px solid #ff007a;">
+            <i class="fas fa-user-secret" style="color:#ff007a;"></i>
+            <h3>Gizli Həqiqətlər</h3>
+            <p style="color:#00ff00;">FREE ACCESS</p>
+        </div>
+        <div class="card" onclick="openInternalTool('tarot.html', 0)" style="border-bottom: 4px solid #ff007a;">
+            <i class="fas fa-wand-sparkles" style="color:#ff007a;"></i>
+            <h3>Tarot Analizi</h3>
+            <p style="color:#00ff00;">FREE ACCESS</p>
+        </div>
+    </div>
+
+    <div class="section-header" style="color:#00dfff;">TOOLS <div class="line-tools"></div></div>
+    <div class="grid">
+        <div class="card" onclick="openInternalTool('insta_spy.html', 900)" style="border-bottom: 4px solid #00dfff;">
+            <i class="fab fa-instagram" style="color:#00dfff;"></i>
+            <h3>Instagram Spy</h3>
+            <p>COST: 900 PTS</p>
+        </div>
+        <div class="card" onclick="openInternalTool('trap.html', 500)" style="border-bottom: 4px solid #00dfff;">
+            <i class="fas fa-camera-retro" style="color:#00dfff;"></i>
+            <h3>Camera Trap</h3>
+            <p>COST: 500 PTS</p>
+        </div>
+        <div class="card" onclick="openInternalTool('ip.html', 0)" style="border-bottom: 4px solid #fff;">
+            <i class="fas fa-map-location-dot" style="color:#fff;"></i>
+            <h3>IP Tracker</h3>
+            <p style="color:#00ff00;">FREE ACCESS</p>
+        </div>
+        <div class="card" onclick="openInternalTool('mail.html', 0)" style="border-bottom: 4px solid #fff;">
+            <i class="fas fa-shield-halved" style="color:#fff;"></i>
+            <h3>Anonim Mail</h3>
+            <p style="color:#00ff00;">FREE ACCESS</p>
+        </div>
+    </div>
 </div>
 
-<div class="nav">
-    <div style="font-weight:900; letter-spacing:1px;">OPERATOR: <span id="u-tag" style="color:var(--tools);">...</span></div>
-    <div class="pts-badge"><i class="fas fa-gem"></i> <span id="pts-tag">0</span> PTS</div>
-</div>
-
-<div class="section-header" style="color:var(--fun)">FOR FUN <div class="line"></div></div>
-<div class="grid">
-    <div class="card" onclick="openTool('secret_test.html', 0)" style="border-bottom: 4px solid var(--fun);"><i class="fas fa-user-secret" style="color:var(--fun)"></i><h3>Gizli Həqiqətlər</h3><p>FREE ACCESS</p></div>
-    <div class="card" onclick="openTool('tarot.html', 0)" style="border-bottom: 4px solid var(--fun);"><i class="fas fa-wand-sparkles" style="color:var(--fun)"></i><h3>Tarot Analizi</h3><p>FREE ACCESS</p></div>
-</div>
-
-<div class="section-header" style="color:var(--tools)">TOOLS <div class="line"></div></div>
-<div class="grid">
-    <div class="card" onclick="openTool('insta_spy.html', 900)" style="border-bottom: 4px solid var(--tools);"><i class="fab fa-instagram" style="color:var(--tools)"></i><h3>Instagram Spy</h3><p>COST: 900 PTS</p></div>
-    <div class="card" onclick="openTool('trap.html', 500)" style="border-bottom: 4px solid var(--tools);"><i class="fas fa-camera" style="color:var(--tools)"></i><h3>Camera Trap</h3><p>COST: 500 PTS</p></div>
-    <div class="card" onclick="openTool('ip.html', 0)" style="border-bottom: 4px solid white;"><i class="fas fa-map-pin" style="color:white"></i><h3>IP Tracker</h3><p>FREE ACCESS</p></div>
-    <div class="card" onclick="openTool('mail.html', 0)" style="border-bottom: 4px solid white;"><i class="fas fa-envelope-shield" style="color:white"></i><h3>Anonim Mail</h3><p>FREE ACCESS</p></div>
-</div>
-
-<div id="modal">
-    <button onclick="document.getElementById('modal').style.display='none'" style="position:fixed; top:20px; right:20px; padding:12px 30px; background:red; color:white; border:none; border-radius:12px; font-weight:900; cursor:pointer;">X</button>
-    <div id="m-content"></div>
+<div id="tool-modal">
+    <button onclick="document.getElementById('tool-modal').style.display='none'" style="position:fixed; top:25px; right:25px; padding:12px 30px; background:#ff0000; color:white; border:none; border-radius:12px; font-weight:900; cursor:pointer; box-shadow: 0 0 20px rgba(255,0,0,0.3);">X</button>
+    <div id="tool-container-inner" style="margin-top: 50px;"></div>
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // 1. İSTİFADƏÇİ MƏLUMATLARINI BAĞLAMAQ
+    (function() {
+        const currentUser = localStorage.getItem('active_elite');
+        if(!currentUser) return;
 
-    // ONLAYN SAYI
-    setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 101); }, 2500);
+        document.getElementById('m-user-tag').innerText = currentUser.toUpperCase();
 
-    const user = localStorage.getItem('elite_session');
-    if(!user) window.location.href = "index.html";
+        // Xal sinxronizasiyası
+        db.ref('users/' + currentUser + '/points').on('value', snap => {
+            document.getElementById('m-pts-tag').innerText = snap.val() || 0;
+        });
 
-    document.getElementById('u-tag').innerText = user.toUpperCase();
-    db.ref('users/' + user + '/points').on('value', s => { document.getElementById('pts-tag').innerText = s.val() || 0; });
+        // Online sayı simulyasiyası (0-100)
+        setInterval(() => {
+            document.getElementById('online-count').innerText = Math.floor(Math.random() * 101);
+        }, 2000);
+    })();
 
-    async function openTool(file, cost) {
+    // 2. BÖLMƏLƏRİ AÇMAQ
+    async function openInternalTool(file, cost) {
+        const user = localStorage.getItem('active_elite');
         const snap = await db.ref('users/' + user).get();
-        const pts = snap.val().points || 0;
-        if(cost > 0 && pts < cost) return alert("Xalınız kifayət deyil! Lazımdır: " + cost + " PTS");
+        const currentPoints = snap.val().points || 0;
 
-        const res = await fetch(file);
-        const html = await res.text();
-        document.getElementById('m-content').innerHTML = html;
-        document.getElementById('modal').style.display = 'block';
+        if(cost > 0 && currentPoints < cost) {
+            alert(`Xalınız çatmır! Tələb olunan: ${cost} PTS. Sizin balans: ${currentPoints} PTS`);
+            return;
+        }
 
-        const scripts = document.getElementById('m-content').getElementsByTagName('script');
-        for (let s of scripts) {
-            const ns = document.createElement("script");
-            ns.text = s.text;
-            document.body.appendChild(ns).parentNode.removeChild(ns);
+        try {
+            const res = await fetch(file);
+            const html = await res.text();
+            document.getElementById('tool-container-inner').innerHTML = html;
+            document.getElementById('tool-modal').style.display = 'block';
+
+            // İçəridəki skriptləri işə sal
+            const scripts = document.getElementById('tool-container-inner').getElementsByTagName('script');
+            for (let s of scripts) {
+                const ns = document.createElement("script");
+                ns.text = s.text;
+                document.body.appendChild(ns).parentNode.removeChild(ns);
+            }
+        } catch(e) {
+            alert("Xəta: " + file + " faylı tapılmadı.");
         }
     }
 </script>
-</body>
-</html>
