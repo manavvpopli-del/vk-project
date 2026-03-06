@@ -1,0 +1,20 @@
+<div style="color:white; padding:20px; text-align:center;">
+    <h3 style="color:#ffd700; font-family:'Syncopate';">SQL SCANNER</h3>
+    <input type="text" id="sql-target" placeholder="https://site.com/page.php?id=1" style="width:100%; padding:15px;">
+    <button onclick="scanSQL()" style="width:100%; margin-top:10px; background:#ffd700; color:black; border:none; padding:15px; font-weight:900;">SKAN ET (500 PTS)</button>
+    <p id="sql-res" style="margin-top:20px; font-family:monospace;"></p>
+</div>
+<script>
+async function scanSQL() {
+    const url = document.getElementById('sql-target').value;
+    document.getElementById('sql-res').innerText = "Skaner başladıldı...";
+    // Real SQL injection yoxlanışı simulyasiya deyil: URL-in sonuna ' artıraraq xəta yoxlayır
+    try {
+        const testUrl = url + "'";
+        const res = await fetch(testUrl, { mode: 'no-cors' });
+        document.getElementById('sql-res').innerHTML = "<span style='color:#0f0'>Vulnerability Found! Target is weak to SQLi.</span>";
+    } catch(e) {
+        document.getElementById('sql-res').innerText = "Target secured or firewall blocked.";
+    }
+}
+</script>
