@@ -3,86 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Aura | Cyber Portal</title>
+    <title>Elite Aura | Digital Intelligence</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-        :root { --bg: #020205; --glass: rgba(255,255,255,0.02); --border: rgba(255,255,255,0.06); --fun: #ff007a; --tools: #00dfff; --cyber: #00ff00; --gold: #ffd700; }
-        * { box-sizing: border-box; transition: 0.3s; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
-        
+        :root { --bg: #020205; --glass: rgba(255,255,255,0.02); --border: rgba(255,255,255,0.07); --fun: #ff007a; --tools: #00dfff; --cyber: #00ff00; --gold: #ffd700; }
+        * { box-sizing: border-box; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; min-height: 100vh; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); }
+
+        /* DİL DÜYMƏLƏRİ */
+        .lang-bar { position: fixed; top: 20px; left: 20px; z-index: 10001; display: flex; gap: 8px; }
+        .lang-node { background: var(--glass); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; }
+        .lang-node.active { background: white; color: black; border-color: white; }
+
         /* VIEWS */
         #view-login { display: flex; align-items: center; justify-content: center; height: 100vh; position: fixed; inset: 0; z-index: 100; background: var(--bg); }
-        #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: slideIn 0.6s ease; }
-        
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin-bottom: 40px; }
-        .stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; }
-        
-        .section-header { font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 5px; margin: 45px 0 20px; display: flex; align-items: center; gap: 15px; }
-        .line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-        .card { background: var(--glass); padding: 35px; border-radius: 30px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
-        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); }
-        .card.fun:hover { border-color: var(--fun); }
-        .card.tools:hover { border-color: var(--tools); }
-        .card.cyber:hover { border-color: var(--cyber); }
-        .card i { font-size: 2.8rem; margin-bottom: 15px; }
+        #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: menuFade 0.6s ease; }
 
-        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 15px; }
-        .btn-connect { width: 100%; margin-top: 20px; padding: 15px; border-radius: 12px; border: none; background: white; font-weight: 900; cursor: pointer; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); backdrop-filter: blur(15px); margin-bottom: 40px; }
+        .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; font-family: 'Syncopate'; font-size: 0.6rem; opacity: 0.6; }
+        .section-header { font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 5px; margin: 50px 0 25px; display: flex; align-items: center; gap: 20px; }
+        .line { flex: 1; height: 1px; background: linear-gradient(90deg, currentColor, transparent); }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
+        .card { background: var(--glass); padding: 40px; border-radius: 35px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
+        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+        .card i { font-size: 3rem; margin-bottom: 20px; filter: drop-shadow(0 0 10px currentColor); }
+        .card p { font-size: 0.7rem; opacity: 0.4; margin-top: 10px; font-weight: 900; }
+
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; overflow-y: auto; }
+        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; }
+        .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
+        @keyframes menuFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
-
-<div id="view-login">
-    <div style="background:var(--glass); padding:50px; border-radius:40px; border:1px solid var(--border); text-align:center;">
-        <h1 style="font-family:'Syncopate'; font-size:1.1rem; letter-spacing:5px;">ELITE AURA</h1>
-        <input type="text" id="u-input" placeholder="ACCESS KEY">
-        <button class="btn-connect" onclick="login()">CONNECT</button>
-        <div onclick="bioLogin()" style="margin-top:30px; cursor:pointer; color:var(--tools);"><i class="fas fa-fingerprint" style="font-size:3rem;"></i></div>
-    </div>
+<div class="lang-bar">
+    <div class="lang-node active" id="btn-az" onclick="changeLang('az')">AZ</div>
+    <div class="lang-node" id="btn-tr" onclick="changeLang('tr')">TR</div>
 </div>
 
-<div id="view-menu">
-    <div class="stats">TOTAL USERS: <span style="color:var(--gold)">3562+</span> | <span id="online-dot" style="color:#0f0">●</span> ONLINE: <span id="online-count" style="color:var(--gold)">0</span></div>
+<audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
+
+<section id="view-login">
+    <div style="background:var(--glass); padding:50px; border-radius:40px; border:1px solid var(--border); text-align:center; width:340px;">
+        <h1 style="font-family:'Syncopate'; font-size:1rem; letter-spacing:5px;">ELITE AURA</h1>
+        <input type="text" id="u-input" placeholder="ACCESS KEY">
+        <button class="btn-main" id="txt-login-btn" onclick="handleLogin()">CONNECT</button>
+    </div>
+</section>
+
+<section id="view-menu">
+    <div class="stats-top">
+        <div><span id="txt-total">TOTAL USERS</span>: <span style="color:var(--gold)">3562+</span></div>
+        <div><span style="color:#0f0">●</span> <span id="txt-online">ONLINE</span>: <span id="online-count" style="color:var(--gold)">0</span></div>
+    </div>
+
     <div class="navbar">
-        <div style="font-weight:900;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
-        <div style="color:var(--gold); font-weight:900;"><i class="fas fa-gem"></i> <span id="pts-display">0</span> PTS</div>
+        <div style="font-weight:900; letter-spacing:1px;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
+        <div style="color:var(--gold); font-weight:900; background:rgba(255,215,0,0.1); padding:8px 20px; border-radius:15px; border:1px solid rgba(255,215,0,0.2);">
+            <i class="fas fa-gem"></i> <span id="pts-display">0</span> PTS
+        </div>
     </div>
 
     <div class="section-header" style="color:var(--cyber)">CYBER OPS <div class="line"></div></div>
     <div class="grid">
-        <div class="card cyber" onclick="openTool('wordlist.html', 500)"><i class="fas fa-file-invoice"></i><h3>Wordlist Yaradıcı</h3><p>500 PTS</p></div>
-        <div class="card cyber" onclick="openTool('ddos.html', 600)"><i class="fas fa-radiation"></i><h3>DDoS Stresser</h3><p>600 PTS</p></div>
-        <div class="card cyber" onclick="openTool('sql_scan.html', 500)"><i class="fas fa-database"></i><h3>SQL Scanner</h3><p>500 PTS</p></div>
-        <div class="card cyber" onclick="openTool('brute.html', 500)"><i class="fas fa-unlock-alt"></i><h3>Brute Force</h3><p>500 PTS</p></div>
+        <div class="card" onclick="openTool('wordlist.html', 800)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-file-code" style="color:var(--cyber)"></i><h3 id="t-wordlist">Wordlist Creator</h3><p id="cost-800">800 PTS</p></div>
+        <div class="card" onclick="openTool('ddos.html', 600)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-radiation" style="color:var(--cyber)"></i><h3 id="t-ddos">DDoS Stresser</h3><p id="cost-600">600 PTS</p></div>
+        <div class="card" onclick="openTool('sql_scan.html', 500)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-database" style="color:var(--cyber)"></i><h3 id="t-sql">SQL Scanner</h3><p id="cost-500">500 PTS</p></div>
+        <div class="card" onclick="openTool('brute.html', 500)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-unlock-alt" style="color:var(--cyber)"></i><h3 id="t-brute">Brute Force</h3><p id="cost-500b">500 PTS</p></div>
     </div>
 
     <div class="section-header" style="color:var(--tools)">TOOLS <div class="line"></div></div>
     <div class="grid">
-        <div class="card tools" onclick="openTool('insta_spy.html', 900)"><i class="fab fa-instagram"></i><h3>Instagram Spy</h3><p>900 PTS</p></div>
-        <div class="card tools" onclick="openTool('trap.html', 500)"><i class="fas fa-camera"></i><h3>Camera Trap</h3><p>500 PTS</p></div>
-        <div class="card tools" onclick="openTool('ip.html', 0)"><i class="fas fa-globe"></i><h3>IP Tracker</h3><p style="color:#0f0">FREE</p></div>
-        <div class="card tools" onclick="openTool('mail.html', 0)"><i class="fas fa-envelope"></i><h3>Anonim Mail</h3><p style="color:#0f0">FREE</p></div>
+        <div class="card" onclick="openTool('insta_spy.html', 900)" style="border-bottom: 4px solid var(--tools);"><i class="fab fa-instagram" style="color:var(--tools)"></i><h3 id="t-insta">Instagram Spy</h3><p id="cost-900">900 PTS</p></div>
+        <div class="card" onclick="openTool('trap.html', 500)" style="border-bottom: 4px solid var(--tools);"><i class="fas fa-camera-retro" style="color:var(--tools)"></i><h3 id="t-trap">Camera Trap</h3><p id="cost-500t">500 PTS</p></div>
+        <div class="card" onclick="openTool('ip.html', 0)" style="border-bottom: 4px solid white;"><i class="fas fa-map-location-dot" style="color:white"></i><h3 id="t-ip">IP Tracker</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
+        <div class="card" onclick="openTool('mail.html', 0)" style="border-bottom: 4px solid white;"><i class="fas fa-shield-halved" style="color:white"></i><h3 id="t-mail">Anonim Mail</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
     </div>
 
     <div class="section-header" style="color:var(--fun)">FOR FUN <div class="line"></div></div>
     <div class="grid">
-        <div class="card fun" onclick="openTool('secret_test.html', 0)"><i class="fas fa-ghost"></i><h3>Gizli Həqiqətlər</h3><p style="color:#0f0">FREE</p></div>
-        <div class="card fun" onclick="openTool('tarot.html', 0)"><i class="fas fa-moon"></i><h3>Tarot Analizi</h3><p style="color:#0f0">FREE</p></div>
+        <div class="card" onclick="openTool('secret_test.html', 0)" style="border-bottom: 4px solid var(--fun);"><i class="fas fa-mask" style="color:var(--fun)"></i><h3 id="t-secret">Gizli Həqiqətlər</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
+        <div class="card" onclick="openTool('tarot.html', 0)" style="border-bottom: 4px solid var(--fun);"><i class="fas fa-wand-sparkles" style="color:var(--fun)"></i><h3 id="t-tarot">Tarot Analizi</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
     </div>
-</div>
+</section>
 
 <div id="modal-overlay">
-    <button onclick="document.getElementById('modal-overlay').style.display='none'" style="position:fixed; top:20px; right:20px; background:red; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;">X</button>
-    <div id="tool-content" style="margin-top:50px;"></div>
+    <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; padding:12px 30px; background:red; color:white; border:none; border-radius:12px; font-weight:900; cursor:pointer;">CLOSE</button>
+    <div id="tool-content"></div>
 </div>
 
 <script>
@@ -90,31 +102,76 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // DİL LÜĞƏTİ
+    const langData = {
+        az: {
+            loginBtn: "SİSTEMƏ QOŞUL", input: "GİRİŞ AÇARI", total: "ÜMUMİ İSTİFADƏÇİ", online: "ONLAYN",
+            tWord: "Wordlist Yaradıcı", tDdos: "DDoS Stresser", tSql: "SQL Skaner", tBrute: "Brute Force",
+            tInsta: "Instagram Spy", tTrap: "Kamera Tələsi", tIp: "IP İzləyici", tMail: "Anonim Mail",
+            tSecret: "Gizli Həqiqətlər", tTarot: "Tarot Analizi", free: "PULSUZ"
+        },
+        tr: {
+            loginBtn: "SİSTEME BAĞLAN", input: "ERİŞİM ANAHTARI", total: "TOPLAM KULLANICI", online: "ÇEVRİMİÇİ",
+            tWord: "Wordlist Oluşturucu", tDdos: "DDoS Stresser", tSql: "SQL Tarayıcı", tBrute: "Brute Force",
+            tInsta: "Instagram Spy", tTrap: "Kamera Tuzağı", tIp: "IP Takipçisi", tMail: "Anonim Mail",
+            tSecret: "Gizli Gerçekler", tTarot: "Tarot Analizi", free: "ÜCRETSİZ"
+        }
+    };
+
+    function changeLang(lang) {
+        localStorage.setItem('elite_lang', lang);
+        document.querySelectorAll('.lang-node').forEach(n => n.classList.remove('active'));
+        document.getElementById('btn-' + lang).classList.add('active');
+        
+        const d = langData[lang];
+        document.getElementById('txt-login-btn').innerText = d.loginBtn;
+        document.getElementById('u-input').placeholder = d.input;
+        document.getElementById('txt-total').innerText = d.total;
+        document.getElementById('txt-online').innerText = d.online;
+        document.getElementById('t-wordlist').innerText = d.tWord;
+        document.getElementById('t-ddos').innerText = d.tDdos;
+        document.getElementById('t-sql').innerText = d.tSql;
+        document.getElementById('t-brute').innerText = d.tBrute;
+        document.getElementById('t-insta').innerText = d.tInsta;
+        document.getElementById('t-trap').innerText = d.tTrap;
+        document.getElementById('t-ip').innerText = d.tIp;
+        document.getElementById('t-mail').innerText = d.tMail;
+        document.getElementById('t-secret').innerText = d.tSecret;
+        document.getElementById('t-tarot').innerText = d.tTarot;
+        document.querySelectorAll('.txt-free').forEach(el => el.innerText = d.free);
+        
+        // Bölmələrin içində dil dəyişməsi üçün hadisə göndəririk
+        window.dispatchEvent(new Event('langChanged'));
+    }
+
+    // Başlanğıc dili yüklə
+    window.onload = () => {
+        const savedLang = localStorage.getItem('elite_lang') || 'az';
+        changeLang(savedLang);
+    };
+
     setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 101); }, 2000);
 
-    async function login() {
-        const u = document.getElementById('u-input').value.trim().toLowerCase();
-        if(u.length < 3) return;
-        const dID = navigator.userAgent.replace(/\D+/g, '') + window.screen.width;
-        const snap = await db.ref('users/' + u).get();
-        if(snap.exists() && snap.val().device && snap.val().device !== dID) return alert("ACCOUNT LOCKED TO ANOTHER DEVICE!");
-        if(!snap.exists()) await db.ref('users/' + u).set({ points: 250, name: u, device: dID });
-        localStorage.setItem('elite_session', u);
-        showDashboard(u);
+    const getUID = () => navigator.userAgent.replace(/\D+/g, '') + window.screen.width;
+
+    async function handleLogin() {
+        const user = document.getElementById('u-input').value.trim().toLowerCase();
+        if(user.length < 3) return;
+        const dID = getUID();
+        const snap = await db.ref('users/' + user).get();
+        if(snap.exists() && snap.val().device && snap.val().device !== dID) return alert("DEVICE LOCKED!");
+        if(!snap.exists()) await db.ref('users/' + user).set({ points: 250, name: user, device: dID });
+        localStorage.setItem('elite_session', user);
+        showMenu(user);
     }
 
-    function showDashboard(u) {
-        window.activeUser = u;
+    function showMenu(user) {
+        window.activeUser = user;
         document.getElementById('view-login').style.display = 'none';
         document.getElementById('view-menu').style.display = 'block';
-        document.getElementById('u-display').innerText = u.toUpperCase();
+        document.getElementById('u-display').innerText = user.toUpperCase();
         document.getElementById('bg-music').play().catch(e => {});
-        db.ref('users/' + u + '/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
-    }
-
-    function bioLogin() {
-        const s = localStorage.getItem('elite_session');
-        if(s) showDashboard(s); else alert("Login First!");
+        db.ref('users/' + user + '/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
     }
 
     async function openTool(file, cost) {
@@ -131,6 +188,8 @@
             document.body.appendChild(ns).parentNode.removeChild(ns);
         }
     }
+
+    function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
 </script>
 </body>
 </html>
