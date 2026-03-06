@@ -1,188 +1,143 @@
-<div id="gift-module" style="color: #fff; font-family: 'Outfit', sans-serif; text-align: center; width: 100%; min-height: 100vh; background: #050505; position: relative; overflow-x: hidden; padding-top: 20px;">
+<div id="gift-module" style="color: #2c3e50; font-family: 'Outfit', sans-serif; text-align: center; width: 100%; min-height: 100vh; background: #fafafa; padding: 20px 0;">
     
-    <div style="position: absolute; width: 300px; height: 300px; background: #ff477e; filter: blur(150px); top: -50px; left: -50px; opacity: 0.2; z-index: 0;"></div>
-    <div style="position: absolute; width: 300px; height: 300px; background: #7000ff; filter: blur(150px); bottom: -50px; right: -50px; opacity: 0.2; z-index: 0;"></div>
-
-    <div style="position: relative; z-index: 1; padding: 0 15px;">
+    <div style="max-width: 500px; margin: auto; padding: 0 20px;">
         <audio id="tick-sound"><source src="https://www.soundjay.com/misc/sounds/mechanical-clonk-1.mp3" type="audio/mpeg"></audio>
         <audio id="win-sound"><source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg"></audio>
 
-        <h2 style="font-family: 'Syncopate'; font-size: 1.1rem; letter-spacing: 4px; color: #fff; margin-bottom: 10px;">LUCKY AURA</h2>
-        <p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 30px;">Həyatının sürprizini kəşf et ✨</p>
+        <h2 style="font-weight: 300; letter-spacing: 6px; color: #b8860b; margin-bottom: 5px; text-transform: uppercase;">The Wishlist</h2>
+        <div style="width: 40px; height: 1px; background: #b8860b; margin: 10px auto 20px;"></div>
+        <p style="color: #888; font-size: 0.8rem; letter-spacing: 1px;">İstədiyin qədər çevir, şansını tap!</p>
 
-        <div id="setup-area" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 30px; border-radius: 30px; max-width: 400px; margin: auto;">
-            <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 20px;">Xanım üçün 17 özəl hədiyyə seçimi yüklənir...</p>
-            <button onclick="prepareWheel()" style="width:100%; padding:20px; border-radius:15px; border:none; background: linear-gradient(45deg, #7000ff, #ff477e); color:white; font-weight:900; cursor:pointer; font-size: 0.9rem; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(112,0,255,0.3);">ACTIVATE WHEEL</button>
+        <div id="setup-area" style="background: #fff; border: 1px solid #eee; padding: 40px 20px; border-radius: 2px; margin-top: 30px;">
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 25px;">Hədiyyə çarxı hazırdır.</p>
+            <button onclick="prepareWheel()" style="padding: 15px 40px; border: 1px solid #b8860b; background: transparent; color: #b8860b; font-weight: 600; cursor: pointer; letter-spacing: 2px;">GİRİŞ ET</button>
         </div>
 
-        <div id="wheel-display" style="display: none; position: relative; width: 100%; max-width: 450px; margin: 20px auto; aspect-ratio: 1/1;">
-            <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fff; z-index: 100; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"></div>
+        <div id="wheel-display" style="display: none; position: relative; width: 100%; max-width: 380px; margin: 40px auto; aspect-ratio: 1/1;">
+            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 25px solid #b8860b; z-index: 100;"></div>
             
-            <canvas id="wheel-canvas" style="width: 100%; height: 100%; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);"></canvas>
+            <canvas id="wheel-canvas" width="500" height="500" style="width: 100%; height: 100%; border-radius: 50%; border: 1px solid #f1f1f1;"></canvas>
             
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; border-radius: 50%; background: #fff; z-index: 101; box-shadow: 0 0 30px rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
-                <button id="spin-btn" onclick="spinNow()" style="width: 65px; height: 65px; border-radius: 50%; border: none; background: #000; color: #fff; font-weight: 900; font-size: 0.8rem; cursor: pointer; letter-spacing: 1px;">SPIN</button>
-                <div id="spun-msg" style="display: none; color: #000; font-weight: 900; font-size: 0.7rem; line-height: 1;">BƏXTİN<br>BU İDİ</div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; border-radius: 50%; background: #fff; z-index: 101; border: 1px solid #eee; display: flex; align-items: center; justify-content: center;">
+                <button id="spin-btn" onclick="spinNow()" style="width: 65px; height: 65px; border-radius: 50%; border: 1px solid #b8860b; background: #fff; color: #b8860b; font-weight: 900; font-size: 0.8rem; cursor: pointer; outline: none;">SPIN</button>
             </div>
         </div>
 
-        <div id="result-card" style="display: none; max-width: 400px; margin: 30px auto; padding: 30px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,255,0,0.3); border-radius: 30px; backdrop-filter: blur(15px); animation: bounceIn 0.8s;">
-            <p style="color: #0f0; font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 10px;">GENERATED RESULT</p>
-            <h3 id="win-text" style="color: #fff; font-size: 1.5rem; margin-bottom: 25px; font-weight: 900;"></h3>
+        <div id="result-card" style="display: none; margin-top: 40px; padding: 30px; background: #fff; border: 1px solid #eee; animation: fadeIn 0.5s;">
+            <p style="color: #b8860b; font-size: 0.7rem; font-weight: 600; letter-spacing: 3px; margin-bottom: 10px;">BƏXTİNƏ ÇIXDI</p>
+            <h3 id="win-text" style="color: #2c3e50; font-size: 1.4rem; font-weight: 400; margin-bottom: 20px;"></h3>
             
-            <div style="margin-bottom: 20px;">
-                <input type="text" id="custom-gift" placeholder="Arzunu bura yaz..." style="width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 12px; text-align: center; outline: none; font-size: 0.9rem;">
-            </div>
+            <input type="text" id="custom-gift" placeholder="Fərqli bir arzu yaz..." style="width: 100%; padding: 12px; background: #fafafa; border: 1px solid #eee; color: #333; margin-bottom: 20px; text-align: center; outline: none;">
             
-            <button onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> WHATSAPP SHARE
+            <button onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; padding: 18px; width: 100%; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fab fa-whatsapp"></i> SEVGİLİNƏ GÖNDƏR
             </button>
+            <p style="font-size: 0.7rem; color: #aaa; margin-top: 15px; cursor: pointer;" onclick="resetForNewSpin()">Yenidən yoxla</p>
         </div>
     </div>
 </div>
 
-<style>
-    @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
-</style>
-
 <script>
-    const femaleGifts = [
-        "Gümüş ⛓️", "Qızıl 💍", "Gül Buketi 💐", "Stitch 🧸", "Ayıcıq 🐻", "İkimiz Üçün 👩‍❤️‍👨", 
-        "Romantik ✨", "Aksesuar 🎀", "Saat ⌚", "Hədiyyə 🎁", "Makiyaj 💄", "Şirniyyat 🍫", 
-        "Market 🛒", "Kitab 📚", "Sən 😀", "Paltar 👗", "Parfüm 🧴"
-    ];
+    const femaleGifts = ["GÜMÜŞ", "QIZIL", "GÜL BUKETİ", "STITCH", "AYICIQ", "İKİMİZ ÜÇÜN", "ROMANTİK", "AKSESUAR", "SAAT", "HƏDİYYƏ", "MAKIYAJ", "ŞİRNİYYAT", "MARKET", "KİTAB", "SƏN 😀", "PALTAR", "PARFÜM"];
 
     const canvas = document.getElementById('wheel-canvas');
     const ctx = canvas.getContext('2d');
     let startAngle = 0;
     const segments = femaleGifts.length;
     const arc = Math.PI / (segments / 2);
-    let spinTimeout = null;
-    let spinAngleStart = 0;
-    let spinTime = 0;
-    let spinTimeTotal = 0;
+    let isSpinning = false;
     let wheelResult = "";
-
-    function setupCanvas() {
-        // Çarxın ölçüsünü konteynerə görə tənzimləyir (Tam ekran məntiqi)
-        const size = canvas.parentElement.offsetWidth;
-        canvas.width = size;
-        canvas.height = size;
-        drawWheel();
-    }
-
-    function checkAlreadySpun() {
-        const spun = localStorage.getItem('elite_wheel_spun');
-        const result = localStorage.getItem('elite_wheel_result');
-        if (spun === 'true') {
-            document.getElementById('setup-area').style.display = 'none';
-            document.getElementById('wheel-display').style.display = 'block';
-            document.getElementById('spin-btn').style.display = 'none';
-            document.getElementById('spun-msg').style.display = 'block';
-            if (result) {
-                document.getElementById('win-text').innerText = result;
-                document.getElementById('result-card').style.display = 'block';
-                wheelResult = result;
-            }
-            setupCanvas();
-            return true;
-        }
-        return false;
-    }
-
-    function prepareWheel() {
-        document.getElementById('setup-area').style.display = 'none';
-        document.getElementById('wheel-display').style.display = 'block';
-        setupCanvas();
-    }
 
     function drawWheel() {
         const size = canvas.width;
         const center = size / 2;
         ctx.clearRect(0,0,size,size);
-        
-        // Fərqli "Vibrant" Palitra
-        const colors = ["#7000ff", "#050505", "#ff477e", "#050505", "#ffc107", "#050505"];
+        const colors = ["#ffffff", "#f9f9f9", "#f5f5f5"];
         
         for(let i = 0; i < segments; i++) {
             const angle = startAngle + i * arc;
             ctx.fillStyle = colors[i % colors.length];
             ctx.beginPath();
             ctx.moveTo(center, center);
-            ctx.arc(center, center, center - 10, angle, angle + arc, false);
+            ctx.arc(center, center, center - 5, angle, angle + arc, false);
             ctx.lineTo(center, center);
             ctx.fill();
-            
-            // Zərif sərhəd
-            ctx.strokeStyle = "rgba(255,255,255,0.05)";
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = "#eee";
             ctx.stroke();
 
             ctx.save();
-            ctx.fillStyle = (colors[i % colors.length] === "#050505") ? "rgba(255,255,255,0.8)" : "#fff";
-            ctx.translate(center + Math.cos(angle + arc/2) * (center * 0.7), center + Math.sin(angle + arc/2) * (center * 0.7));
-            ctx.rotate(angle + arc/2 + Math.PI/2);
-            ctx.font = "bold 10px Outfit";
-            const text = femaleGifts[i];
-            ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+            ctx.fillStyle = "#555";
+            ctx.translate(center + Math.cos(angle + arc/2) * (center * 0.65), center + Math.sin(angle + arc/2) * (center * 0.65));
+            ctx.rotate(angle + arc/2 + Math.PI / 2);
+            ctx.font = "bold 14px Outfit";
+            ctx.fillText(femaleGifts[i], -ctx.measureText(femaleGifts[i]).width / 2, 0);
             ctx.restore();
         }
     }
 
-    function spinNow() {
-        document.getElementById('spin-btn').style.display = 'none';
-        document.getElementById('spun-msg').style.display = 'block';
-        localStorage.setItem('elite_wheel_spun', 'true');
-
-        spinAngleStart = Math.random() * 10 + 25;
-        spinTime = 0;
-        spinTimeTotal = 10000 + Math.random() * 3000; // 10-13 saniyə (Çox uzun)
-        rotateWheel();
-    }
-
-    function rotateWheel() {
-        spinTime += 30;
-        if(spinTime >= spinTimeTotal) {
-            stopRotateWheel();
-            return;
-        }
-        const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
-        startAngle += (spinAngle * Math.PI / 180);
+    function prepareWheel() {
+        document.getElementById('setup-area').style.display = 'none';
+        document.getElementById('wheel-display').style.display = 'block';
         drawWheel();
+    }
+
+    function spinNow() {
+        if (isSpinning) return;
         
-        if(Math.floor(startAngle * 15) % 2 === 0) {
-            const tick = document.getElementById('tick-sound');
-            tick.currentTime = 0;
-            tick.play().catch(()=>{});
+        isSpinning = true;
+        document.getElementById('result-card').style.display = 'none';
+        document.getElementById('spin-btn').disabled = true;
+        document.getElementById('spin-btn').style.opacity = "0.5";
+        
+        let spinAngleStart = Math.random() * 10 + 15;
+        let spinTime = 0;
+        let spinTimeTotal = 7000 + Math.random() * 3000;
+
+        function rotate() {
+            spinTime += 30;
+            if (spinTime >= spinTimeTotal) {
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+                document.getElementById('spin-btn').style.opacity = "1";
+                
+                const degrees = startAngle * 180 / Math.PI + 90;
+                const arcd = arc * 180 / Math.PI;
+                const index = Math.floor((360 - degrees % 360) / arcd);
+                wheelResult = femaleGifts[(index + segments) % segments];
+                
+                document.getElementById('win-text').innerText = wheelResult;
+                document.getElementById('result-card').style.display = 'block';
+                document.getElementById('win-sound').play();
+                return;
+            }
+            
+            // Sadə yavaşlama (Ease out)
+            let progress = spinTime / spinTimeTotal;
+            let currentAngle = spinAngleStart * (1 - progress * progress); // Daha maraqlı yavaşlama
+            startAngle += (currentAngle * Math.PI / 180);
+            
+            drawWheel();
+            if(Math.floor(startAngle * 10) % 2 === 0) document.getElementById('tick-sound').play();
+            
+            requestAnimationFrame(rotate);
         }
-        spinTimeout = setTimeout(rotateWheel, 30);
-    }
-
-    function stopRotateWheel() {
-        const degrees = startAngle * 180 / Math.PI + 90;
-        const arcd = arc * 180 / Math.PI;
-        const index = Math.floor((360 - degrees % 360) / arcd);
-        wheelResult = femaleGifts[(index + segments) % segments];
         
-        localStorage.setItem('elite_wheel_result', wheelResult);
-        document.getElementById('win-sound').play().catch(()=>{});
-        document.getElementById('win-text').innerText = wheelResult;
-        document.getElementById('result-card').style.display = 'block';
+        rotate();
     }
 
-    function easeOut(t, b, c, d) {
-        const ts = (t /= d) * t;
-        const tc = ts * t;
-        return b + c * (tc + -3 * ts + 3 * t);
+    function resetForNewSpin() {
+        document.getElementById('result-card').style.display = 'none';
+        document.getElementById('custom-gift').value = "";
     }
 
     function shareWhatsApp() {
         const custom = document.getElementById('custom-gift').value.trim();
         const gift = custom !== "" ? custom : wheelResult;
-        const msg = `Elite Aura Hədiyyə Çarxında bəxtimə bu çıxdı: ${gift}! 🎁🥺`;
+        const msg = `Canım, Hədiyyə Çarxında bəxtimə bu çıxdı: ${gift}! Mənə bunu alarsan? 🎁🥺👉👈`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
     }
-
-    window.addEventListener('resize', setupCanvas);
-    checkAlreadySpun();
 </script>
+
+<style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
