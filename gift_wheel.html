@@ -1,0 +1,81 @@
+<div style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 20px;">
+    <audio id="wheel-sound"><source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg"></audio>
+    <audio id="spin-sound" loop><source src="https://www.soundjay.com/misc/sounds/mechanical-clonk-1.mp3" type="audio/mpeg"></audio>
+
+    <h2 style="font-family: 'Syncopate'; color: #ff007a;">GIFT WHEEL</h2>
+
+    <div id="wheel-setup" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; margin-bottom: 20px;">
+        <select id="gender" style="width:100%; padding:12px; margin-bottom:10px; background:#000; color:white; border:1px solid #ff007a; border-radius:10px;">
+            <option value="female">Qadın (Kadın)</option>
+            <option value="male">Kişi (Erkek)</option>
+        </select>
+        <select id="occasion" style="width:100%; padding:12px; background:#000; color:white; border:1px solid #ff007a; border-radius:10px;">
+            <option value="14feb">14 Fevral</option>
+            <option value="8march">8 Mart</option>
+            <option value="birthday">Ad Günü (Doğum Günü)</option>
+            <option value="anniversary">İl Dönümü (Yıl Dönümü)</option>
+        </select>
+        <button onclick="initWheel()" style="width:100%; margin-top:15px; padding:15px; border-radius:10px; border:none; background:#ff007a; color:white; font-weight:900; cursor:pointer;">ÇARXI HAZIRLA</button>
+    </div>
+
+    <div id="wheel-area" style="display: none; position: relative; margin: 30px auto; width: 280px; height: 280px;">
+        <div id="main-wheel" style="width: 100%; height: 100%; border-radius: 50%; border: 5px solid white; background: conic-gradient(#ff007a 0% 10%, #333 10% 20%, #ff007a 20% 30%, #333 30% 40%, #ff007a 40% 50%, #333 50% 60%, #ff007a 60% 70%, #333 70% 80%, #ff007a 80% 90%, #333 90% 100%); transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);"></div>
+        <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid white; z-index: 10;"></div>
+        <button id="spin-btn" onclick="spinWheel()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; border: none; background: white; color: black; font-weight: 900; cursor: pointer; z-index: 11;">SPIN</button>
+    </div>
+
+    <div id="wheel-result" style="display: none; padding: 20px; background: rgba(0,255,0,0.1); border-radius: 20px; border: 1px dashed #0f0; animation: fadeIn 0.5s;">
+        <h3 id="gift-name" style="color: #0f0;"></h3>
+        <button onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 10px;">
+            <i class="fab fa-whatsapp"></i> Paylaş / Paylaş
+        </button>
+    </div>
+</div>
+
+<script>
+    const gifts = {
+        female: {
+            "14feb": ["Gümüş Boyunbağı", "101 Qızılgül", "Parfüm Seti", "Şam yeməyi", "Yumşaq Oyuncaq", "Foto Albom", "SPA Sertifikatı", "Qolbaq", "Qutu Şokolad", "Üzük"],
+            "birthday": ["Smart Saat", "Dəri Çanta", "Makiyaj Seti", "Fen", "Kitab Kolleksiyası", "Portret", "Qulaqlıq", "Kosmetika Çantası", "E-Oxuyucu", "Geyim Kuponu"]
+            // Digər günlər bura əlavə edilir...
+        },
+        male: {
+            "birthday": ["Dəri Pulqabı", "Qol Saatı", "Oyun Konsolu", "Parfüm", "İdman Çantası", "Qulaqlıq", "Kəmər", "Alət Dəsti", "Powerbank", "Köynək"]
+        }
+    };
+
+    let selectedGift = "";
+
+    function initWheel() {
+        document.getElementById('wheel-setup').style.display = 'none';
+        document.getElementById('wheel-area').style.display = 'block';
+    }
+
+    function spinWheel() {
+        const spinSound = document.getElementById('spin-sound');
+        spinSound.play();
+        
+        const deg = 1800 + Math.random() * 1800; // 5-10 dövr
+        document.getElementById('main-wheel').style.transform = `rotate(${deg}deg)`;
+        document.getElementById('spin-btn').disabled = true;
+
+        setTimeout(() => {
+            spinSound.pause();
+            document.getElementById('wheel-sound').play();
+            
+            const g = document.getElementById('gender').value;
+            const o = document.getElementById('occasion').value;
+            const list = gifts[g][o] || gifts[g]["birthday"] || ["Sürpriz Hədiyyə"];
+            selectedGift = list[Math.floor(Math.random() * list.length)];
+
+            document.getElementById('wheel-area').style.display = 'none';
+            document.getElementById('wheel-result').style.display = 'block';
+            document.getElementById('gift-name').innerText = "Qazandınız: " + selectedGift;
+        }, 4000);
+    }
+
+    function shareWhatsApp() {
+        const text = encodeURIComponent(`Elite Aura Hədiyyə Çarxında sənin üçün bu hədiyyəni seçdim: ${selectedGift}! 🎁`);
+        window.open(`https://api.whatsapp.com/send?text=${text}`);
+    }
+</script>
