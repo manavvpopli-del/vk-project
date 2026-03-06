@@ -1,0 +1,103 @@
+<div style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 20px;">
+    <i class="fas fa-file-code" style="font-size: 3.5rem; color: #00ff00; margin-bottom: 20px;"></i>
+    <h3 style="font-family: 'Syncopate'; color: #00ff00;">WORDLIST GENERATOR</h3>
+    <p style="opacity: 0.6; font-size: 0.8rem;">Təhlükəsizlik testləri üçün 10,000,000 sətirlik unikal wordlist yaradın.</p>
+    
+    <div id="gen-status" style="margin: 20px 0; font-family: monospace; font-size: 0.8rem; color: #ffd700;">
+        Status: Hazır
+    </div>
+
+    <div style="background: rgba(0, 255, 0, 0.05); padding: 15px; border-radius: 15px; border: 1px dashed #00ff00; margin-bottom: 20px;">
+        <span style="font-weight: 900;">XƏRC: 800 PTS</span>
+    </div>
+
+    <button id="word-btn" onclick="generateHugeWordlist()" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">
+        WORDLIST YARAT VƏ YÜKLƏ
+    </button>
+
+    <div id="progress-container" style="display: none; margin-top: 20px;">
+        <div style="width: 100%; height: 5px; background: #111; border-radius: 5px;">
+            <div id="word-bar" style="width: 0%; height: 100%; background: #00ff00; transition: 0.1s;"></div>
+        </div>
+        <p id="percent" style="font-size: 0.7rem; margin-top: 10px;">0%</p>
+    </div>
+</div>
+
+<script>
+    async function generateHugeWordlist() {
+        const user = localStorage.getItem('elite_session');
+        const userRef = db.ref('users/' + user);
+        const snap = await userRef.get();
+        const pts = snap.val().points || 0;
+
+        if (pts < 800) {
+            alert("Kifayət qədər PTS yoxdur (800 lazımdır).");
+            return;
+        }
+
+        document.getElementById('word-btn').disabled = true;
+        document.getElementById('progress-container').style.display = 'block';
+        
+        const btn = document.getElementById('word-btn');
+        const status = document.getElementById('gen-status');
+        const bar = document.getElementById('word-bar');
+        const percentTxt = document.getElementById('percent');
+
+        let content = "";
+        const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        const totalLines = 10000000; // 10 Milyon sətir
+        const chunkSize = 100000; // Hər dəfə 100 min sətir yaradırıq ki dondurmasın
+
+        status.innerText = "Siyahı generatsiya edilir...";
+        
+        // Xalın çıxılması
+        await userRef.update({ points: pts - 800 });
+
+        let currentLine = 0;
+        
+        // Faylı hissə-hissə yaratmaq (Stream məntiqi)
+        const parts = [];
+
+        async function processChunk() {
+            let chunkContent = "";
+            for (let i = 0; i < chunkSize; i++) {
+                // Random 8 simvoldan ibarət sözlər
+                let word = "";
+                for (let j = 0; j < 8; j++) {
+                    word += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                chunkContent += word + "\n";
+            }
+            parts.push(new Blob([chunkContent], { type: 'text/plain' }));
+            
+            currentLine += chunkSize;
+            let p = Math.floor((currentLine / totalLines) * 100);
+            bar.style.width = p + "%";
+            percentTxt.innerText = p + "%";
+
+            if (currentLine < totalLines) {
+                setTimeout(processChunk, 1); // Brauzerin nəfəs alması üçün kiçik fasilə
+            } else {
+                finalizeDownload(parts);
+            }
+        }
+
+        function finalizeDownload(blobParts) {
+            const finalBlob = new Blob(blobParts, { type: 'text/plain' });
+            const url = URL.createObjectURL(finalBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wordlist_elite_${Math.floor(Math.random()*9000)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            status.innerText = "Status: Fayl uğurla yükləndi!";
+            btn.disabled = false;
+            btn.innerText = "YENİSİNİ YARAT (800 PTS)";
+        }
+
+        processChunk();
+    }
+</script>
