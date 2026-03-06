@@ -3,40 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Aura | Digital Intelligence</title>
+    <title>Elite Aura | Digital Intelligence Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-        :root { --bg: #020205; --glass: rgba(255,255,255,0.02); --border: rgba(255,255,255,0.07); --fun: #ff007a; --tools: #00dfff; --cyber: #00ff00; --gold: #ffd700; }
-        * { box-sizing: border-box; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; min-height: 100vh; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); }
+        
+        :root {
+            --bg: #020205;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.07);
+            --fun: #ff007a;
+            --tools: #00dfff;
+            --cyber: #00ff00;
+            --gold: #ffd700;
+        }
 
-        /* DİL DÜYMƏLƏRİ */
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body {
+            margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif;
+            overflow-x: hidden; min-height: 100vh;
+            background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%);
+        }
+
+        /* DİL PANELİ */
         .lang-bar { position: fixed; top: 20px; left: 20px; z-index: 10001; display: flex; gap: 8px; }
-        .lang-node { background: var(--glass); border: 1px solid var(--border); color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; }
+        .lang-node { background: var(--glass); border: 1px solid var(--border); color: white; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; backdrop-filter: blur(10px); }
         .lang-node.active { background: white; color: black; border-color: white; }
 
-        /* VIEWS */
+        /* GİRİŞ EKRANI */
         #view-login { display: flex; align-items: center; justify-content: center; height: 100vh; position: fixed; inset: 0; z-index: 100; background: var(--bg); }
-        #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: menuFade 0.6s ease; }
+        .login-card { background: var(--glass); padding: 50px; border-radius: 40px; border: 1px solid var(--border); text-align: center; width: 340px; backdrop-filter: blur(20px); }
 
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); backdrop-filter: blur(15px); margin-bottom: 40px; }
-        .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; font-family: 'Syncopate'; font-size: 0.6rem; opacity: 0.6; }
-        .section-header { font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 5px; margin: 50px 0 25px; display: flex; align-items: center; gap: 20px; }
-        .line { flex: 1; height: 1px; background: linear-gradient(90deg, currentColor, transparent); }
+        /* ANA MENYU */
+        #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
-        .card { background: var(--glass); padding: 40px; border-radius: 35px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
-        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
-        .card i { font-size: 3rem; margin-bottom: 20px; filter: drop-shadow(0 0 10px currentColor); }
-        .card p { font-size: 0.7rem; opacity: 0.4; margin-top: 10px; font-weight: 900; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin-bottom: 40px; backdrop-filter: blur(15px); }
+        .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
 
+        /* KATEGORİYA KARTLARI */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+        .card i { font-size: 3.5rem; margin-bottom: 25px; }
+        .card h2, .card h3 { font-family: 'Syncopate'; font-size: 1rem; margin: 0; }
+        .card p { font-size: 0.75rem; opacity: 0.5; margin-top: 15px; font-weight: 600; }
+
+        /* ALƏTLƏR GÖRÜNÜŞÜ (TOOL VIEWER) */
+        #tool-viewer { display: none; animation: slideUp 0.5s ease; }
+        .back-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 12px; cursor: pointer; margin-bottom: 30px; font-weight: 900; }
+        .back-btn:hover { background: white; color: black; }
+
+        /* MODAL */
         #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; overflow-y: auto; }
-        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; }
+
+        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; font-family: 'Outfit'; }
         .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
-        @keyframes menuFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -49,8 +76,8 @@
 <audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
 <section id="view-login">
-    <div style="background:var(--glass); padding:50px; border-radius:40px; border:1px solid var(--border); text-align:center; width:340px;">
-        <h1 style="font-family:'Syncopate'; font-size:1rem; letter-spacing:5px;">ELITE AURA</h1>
+    <div class="login-card">
+        <h1 style="font-family:'Syncopate'; font-size:1.1rem; letter-spacing:5px; margin-bottom:30px;">ELITE AURA</h1>
         <input type="text" id="u-input" placeholder="ACCESS KEY">
         <button class="btn-main" id="txt-login-btn" onclick="handleLogin()">CONNECT</button>
     </div>
@@ -69,32 +96,33 @@
         </div>
     </div>
 
-    <div class="section-header" style="color:var(--cyber)">CYBER OPS <div class="line"></div></div>
-    <div class="grid">
-        <div class="card" onclick="openTool('wordlist.html', 800)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-file-code" style="color:var(--cyber)"></i><h3 id="t-wordlist">Wordlist Creator</h3><p id="cost-800">800 PTS</p></div>
-        <div class="card" onclick="openTool('ddos.html', 600)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-radiation" style="color:var(--cyber)"></i><h3 id="t-ddos">DDoS Stresser</h3><p id="cost-600">600 PTS</p></div>
-        <div class="card" onclick="openTool('sql_scan.html', 500)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-database" style="color:var(--cyber)"></i><h3 id="t-sql">SQL Scanner</h3><p id="cost-500">500 PTS</p></div>
-        <div class="card" onclick="openTool('brute.html', 500)" style="border-bottom: 4px solid var(--cyber);"><i class="fas fa-unlock-alt" style="color:var(--cyber)"></i><h3 id="t-brute">Brute Force</h3><p id="cost-500b">500 PTS</p></div>
+    <div id="category-selector" class="grid">
+        <div class="card" onclick="toggleCategory('cyber-grid')" style="border-left: 6px solid var(--cyber);">
+            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i>
+            <h2 id="head-cyber">CYBER OPS</h2>
+            <p id="desc-cyber">Advanced Offensive Tools</p>
+        </div>
+        <div class="card" onclick="toggleCategory('tools-grid')" style="border-left: 6px solid var(--tools);">
+            <i class="fas fa-shield-alt" style="color:var(--tools)"></i>
+            <h2 id="head-tools">TOOLS</h2>
+            <p id="desc-tools">Recon & Intelligence</p>
+        </div>
+        <div class="card" onclick="toggleCategory('fun-grid')" style="border-left: 6px solid var(--fun);">
+            <i class="fas fa-heart" style="color:var(--fun)"></i>
+            <h2 id="head-fun">FOR FUN</h2>
+            <p id="desc-fun">Social & Entertainment</p>
+        </div>
     </div>
 
-    <div class="section-header" style="color:var(--tools)">TOOLS <div class="line"></div></div>
-    <div class="grid">
-        <div class="card" onclick="openTool('insta_spy.html', 900)" style="border-bottom: 4px solid var(--tools);"><i class="fab fa-instagram" style="color:var(--tools)"></i><h3 id="t-insta">Instagram Spy</h3><p id="cost-900">900 PTS</p></div>
-        <div class="card" onclick="openTool('trap.html', 500)" style="border-bottom: 4px solid var(--tools);"><i class="fas fa-camera-retro" style="color:var(--tools)"></i><h3 id="t-trap">Camera Trap</h3><p id="cost-500t">500 PTS</p></div>
-        <div class="card" onclick="openTool('ip.html', 0)" style="border-bottom: 4px solid white;"><i class="fas fa-map-location-dot" style="color:white"></i><h3 id="t-ip">IP Tracker</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
-        <div class="card" onclick="openTool('mail.html', 0)" style="border-bottom: 4px solid white;"><i class="fas fa-shield-halved" style="color:white"></i><h3 id="t-mail">Anonim Mail</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
-    </div>
-
-    <div class="section-header" style="color:var(--fun)">FOR FUN <div class="line"></div></div>
-    <div class="grid">
-        <div class="card" onclick="openTool('secret_test.html', 0)" style="border-bottom: 4px solid var(--fun);"><i class="fas fa-mask" style="color:var(--fun)"></i><h3 id="t-secret">Gizli Həqiqətlər</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
-        <div class="card" onclick="openTool('tarot.html', 0)" style="border-bottom: 4px solid var(--fun);"><i class="fas fa-wand-sparkles" style="color:var(--fun)"></i><h3 id="t-tarot">Tarot Analizi</h3><p class="txt-free" style="color:#0f0">FREE</p></div>
+    <div id="tool-viewer">
+        <button class="back-btn" onclick="backToCategories()"><i class="fas fa-chevron-left"></i> <span id="txt-back">BACK</span></button>
+        <div id="active-grid" class="grid"></div>
     </div>
 </section>
 
 <div id="modal-overlay">
-    <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; padding:12px 30px; background:red; color:white; border:none; border-radius:12px; font-weight:900; cursor:pointer;">CLOSE</button>
-    <div id="tool-content"></div>
+    <button onclick="closeTool()" id="txt-close" style="position:fixed; top:25px; right:25px; padding:12px 30px; background:red; color:white; border:none; border-radius:12px; font-weight:900; cursor:pointer; z-index:10001;">X</button>
+    <div id="tool-content" style="margin-top:40px;"></div>
 </div>
 
 <script>
@@ -102,20 +130,44 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // DİL LÜĞƏTİ
+    // DİL SİSTEMİ
     const langData = {
         az: {
             loginBtn: "SİSTEMƏ QOŞUL", input: "GİRİŞ AÇARI", total: "ÜMUMİ İSTİFADƏÇİ", online: "ONLAYN",
+            back: "GERİ", close: "BAĞLA", cyber: "KİBER ƏMƏLİYYAT", tools: "ALƏTLƏR", fun: "ƏYLƏNCƏ",
+            descCyber: "Hücum və Sızma Alətləri", descTools: "Kəşfiyyat və Analiz", descFun: "Sosial və Maraqlı Testlər",
             tWord: "Wordlist Yaradıcı", tDdos: "DDoS Stresser", tSql: "SQL Skaner", tBrute: "Brute Force",
             tInsta: "Instagram Spy", tTrap: "Kamera Tələsi", tIp: "IP İzləyici", tMail: "Anonim Mail",
-            tSecret: "Gizli Həqiqətlər", tTarot: "Tarot Analizi", free: "PULSUZ"
+            tGift: "Hədiyyə Çarxı", tSecret: "Gizli Həqiqətlər", tTarot: "Tarot Analizi"
         },
         tr: {
             loginBtn: "SİSTEME BAĞLAN", input: "ERİŞİM ANAHTARI", total: "TOPLAM KULLANICI", online: "ÇEVRİMİÇİ",
+            back: "GERİ", close: "KAPAT", cyber: "SİBER OPERASYON", tools: "ARAÇLAR", fun: "EĞLENCE",
+            descCyber: "Saldırı ve Sızma Araçları", descTools: "İstihbarat ve Analiz", descFun: "Sosyal ve İlginç Testler",
             tWord: "Wordlist Oluşturucu", tDdos: "DDoS Stresser", tSql: "SQL Tarayıcı", tBrute: "Brute Force",
             tInsta: "Instagram Spy", tTrap: "Kamera Tuzağı", tIp: "IP Takipçisi", tMail: "Anonim Mail",
-            tSecret: "Gizli Gerçekler", tTarot: "Tarot Analizi", free: "ÜCRETSİZ"
+            tGift: "Hediye Çarkı", tSecret: "Gizli Gerçekler", tTarot: "Tarot Analizi"
         }
+    };
+
+    const toolGrids = {
+        'cyber-grid': [
+            {id: 'tWord', icon: 'fa-file-code', color: 'var(--cyber)', file: 'wordlist.html', cost: 800},
+            {id: 'tDdos', icon: 'fa-radiation', color: 'var(--cyber)', file: 'ddos.html', cost: 600},
+            {id: 'tSql', icon: 'fa-database', color: 'var(--cyber)', file: 'sql_scan.html', cost: 500},
+            {id: 'tBrute', icon: 'fa-unlock-alt', color: 'var(--cyber)', file: 'brute.html', cost: 500}
+        ],
+        'tools-grid': [
+            {id: 'tInsta', icon: 'fa-instagram', color: 'var(--tools)', file: 'insta_spy.html', cost: 900},
+            {id: 'tTrap', icon: 'fa-camera-retro', color: 'var(--tools)', file: 'trap.html', cost: 500},
+            {id: 'tIp', icon: 'fa-map-location-dot', color: 'white', file: 'ip.html', cost: 0},
+            {id: 'tMail', icon: 'fa-envelope-shield', color: 'white', file: 'mail.html', cost: 0}
+        ],
+        'fun-grid': [
+            {id: 'tGift', icon: 'fa-gift', color: 'var(--fun)', file: 'gift_wheel.html', cost: 0},
+            {id: 'tSecret', icon: 'fa-mask', color: 'var(--fun)', file: 'secret_test.html', cost: 0},
+            {id: 'tTarot', icon: 'fa-wand-sparkles', color: 'var(--fun)', file: 'tarot.html', cost: 0}
+        ]
     };
 
     function changeLang(lang) {
@@ -128,38 +180,52 @@
         document.getElementById('u-input').placeholder = d.input;
         document.getElementById('txt-total').innerText = d.total;
         document.getElementById('txt-online').innerText = d.online;
-        document.getElementById('t-wordlist').innerText = d.tWord;
-        document.getElementById('t-ddos').innerText = d.tDdos;
-        document.getElementById('t-sql').innerText = d.tSql;
-        document.getElementById('t-brute').innerText = d.tBrute;
-        document.getElementById('t-insta').innerText = d.tInsta;
-        document.getElementById('t-trap').innerText = d.tTrap;
-        document.getElementById('t-ip').innerText = d.tIp;
-        document.getElementById('t-mail').innerText = d.tMail;
-        document.getElementById('t-secret').innerText = d.tSecret;
-        document.getElementById('t-tarot').innerText = d.tTarot;
-        document.querySelectorAll('.txt-free').forEach(el => el.innerText = d.free);
+        document.getElementById('txt-back').innerText = d.back;
+        document.getElementById('txt-close').innerText = d.close;
+        document.getElementById('head-cyber').innerText = d.cyber;
+        document.getElementById('head-tools').innerText = d.tools;
+        document.getElementById('head-fun').innerText = d.fun;
+        document.getElementById('desc-cyber').innerText = d.descCyber;
+        document.getElementById('desc-tools').innerText = d.descTools;
+        document.getElementById('desc-fun').innerText = d.descFun;
         
-        // Bölmələrin içində dil dəyişməsi üçün hadisə göndəririk
         window.dispatchEvent(new Event('langChanged'));
     }
 
-    // Başlanğıc dili yüklə
-    window.onload = () => {
-        const savedLang = localStorage.getItem('elite_lang') || 'az';
-        changeLang(savedLang);
-    };
+    function toggleCategory(gridKey) {
+        const lang = localStorage.getItem('elite_lang') || 'az';
+        const d = langData[lang];
+        const activeGrid = document.getElementById('active-grid');
+        
+        activeGrid.innerHTML = "";
+        toolGrids[gridKey].forEach(tool => {
+            activeGrid.innerHTML += `
+                <div class="card" onclick="openTool('${tool.file}', ${tool.cost})" style="border-bottom: 4px solid ${tool.color};">
+                    <i class="fas ${tool.icon}" style="color:${tool.color}"></i>
+                    <h3>${d[tool.id]}</h3>
+                    <p>${tool.cost > 0 ? tool.cost + ' PTS' : d.free || 'FREE'}</p>
+                </div>
+            `;
+        });
 
+        document.getElementById('category-selector').style.display = 'none';
+        document.getElementById('tool-viewer').style.display = 'block';
+    }
+
+    function backToCategories() {
+        document.getElementById('category-selector').style.display = 'grid';
+        document.getElementById('tool-viewer').style.display = 'none';
+    }
+
+    window.onload = () => { changeLang(localStorage.getItem('elite_lang') || 'az'); };
     setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 101); }, 2000);
-
-    const getUID = () => navigator.userAgent.replace(/\D+/g, '') + window.screen.width;
 
     async function handleLogin() {
         const user = document.getElementById('u-input').value.trim().toLowerCase();
         if(user.length < 3) return;
-        const dID = getUID();
+        const dID = navigator.userAgent.replace(/\D+/g, '') + window.screen.width;
         const snap = await db.ref('users/' + user).get();
-        if(snap.exists() && snap.val().device && snap.val().device !== dID) return alert("DEVICE LOCKED!");
+        if(snap.exists() && snap.val().device && snap.val().device !== dID) return alert("SECURE LOCK: ANOTHER DEVICE DETECTED!");
         if(!snap.exists()) await db.ref('users/' + user).set({ points: 250, name: user, device: dID });
         localStorage.setItem('elite_session', user);
         showMenu(user);
@@ -176,7 +242,7 @@
 
     async function openTool(file, cost) {
         const snap = await db.ref('users/' + window.activeUser).get();
-        if(cost > 0 && (snap.val().points || 0) < cost) return alert("NOT ENOUGH PTS!");
+        if(cost > 0 && (snap.val().points || 0) < cost) return alert("INSUFFICIENT PTS!");
         const res = await fetch(file);
         const html = await res.text();
         document.getElementById('tool-content').innerHTML = html;
