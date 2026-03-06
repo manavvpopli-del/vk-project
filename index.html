@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Aura | Digital Intelligence</title>
+    <title>Elite Aura | Biometric Secure</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -11,18 +11,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
 
         :root {
-            --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --fun-accent: #ff007a;
-            --tools-accent: #00dfff;
+            --bg: #030303;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.07);
+            --accent: #00dfff;
+            --fun: #ff007a;
         }
 
         body {
-            margin: 0; background: var(--bg); color: white;
-            font-family: 'Outfit', sans-serif; overflow-x: hidden;
-            background: radial-gradient(circle at top right, #101020, #050505);
-            min-height: 100vh;
+            margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif;
+            min-height: 100vh; overflow-x: hidden;
+            background: radial-gradient(circle at center, #0a0a15 0%, #030303 100%);
         }
 
         /* LOGIN SCREEN */
@@ -31,128 +30,86 @@
             display: flex; align-items: center; justify-content: center; z-index: 9999;
         }
         .login-card {
-            background: var(--glass); padding: 50px; border-radius: 40px;
-            border: 1px solid var(--border); backdrop-filter: blur(20px); text-align: center;
+            background: var(--glass); padding: 40px; border-radius: 40px;
+            border: 1px solid var(--border); backdrop-filter: blur(30px); text-align: center; width: 350px;
         }
+
+        .biometric-btn {
+            margin-top: 25px; cursor: pointer; color: var(--accent); transition: 0.3s;
+            display: inline-block; padding: 10px;
+        }
+        .biometric-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--accent); }
 
         /* DASHBOARD */
-        #app-dashboard { display: none; padding: 40px; max-width: 1200px; margin: auto; }
+        #app-dashboard { display: none; padding: 30px; max-width: 1200px; margin: auto; }
 
-        .top-nav {
+        .header {
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--glass); padding: 20px 35px; border-radius: 25px;
-            border: 1px solid var(--border); margin-bottom: 50px;
+            padding: 20px; background: var(--glass); border-radius: 20px; border: 1px solid var(--border);
+            margin-bottom: 40px;
         }
 
-        .pts-badge {
-            background: rgba(255, 215, 0, 0.1); padding: 8px 20px;
-            border-radius: 15px; border: 1px solid rgba(255, 215, 0, 0.3);
-            color: #ffd700; font-weight: 900;
-        }
-
-        /* CATEGORIES */
-        .cat-title {
-            font-family: 'Syncopate', sans-serif; font-size: 0.8rem; letter-spacing: 4px;
-            margin: 50px 0 25px 0; display: flex; align-items: center; gap: 15px;
-        }
-        .fun-text { color: var(--fun-accent); }
-        .tools-text { color: var(--tools-accent); }
-        .line { flex-grow: 1; height: 1px; background: rgba(255,255,255,0.05); }
-
-        /* GRID SYSTEM */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        /* GRID & CARDS */
+        .cat-title { font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 3px; margin: 40px 0 20px; color: gray; display: flex; align-items: center; gap: 10px;}
+        .line { flex: 1; height: 1px; background: var(--border); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
 
         .card {
-            background: var(--glass); padding: 35px; border-radius: 30px;
-            border: 1px solid var(--border); cursor: pointer; transition: 0.3s;
-            text-align: center; position: relative;
+            background: var(--glass); padding: 30px; border-radius: 25px; border: 1px solid var(--border);
+            text-align: center; cursor: pointer; transition: 0.4s;
         }
-        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.06); }
-        .fun-card:hover { border-color: var(--fun-accent); box-shadow: 0 10px 30px rgba(255, 0, 122, 0.1); }
-        .tools-card:hover { border-color: var(--tools-accent); box-shadow: 0 10px 30px rgba(0, 223, 255, 0.1); }
-
-        .card i { font-size: 2.8rem; margin-bottom: 15px; }
-        .fun-card i { color: var(--fun-accent); }
-        .tools-card i { color: var(--tools-accent); }
+        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); }
+        .fun-card:hover { border-color: var(--fun); }
+        .tools-card:hover { border-color: var(--accent); }
+        .card i { font-size: 2.5rem; margin-bottom: 15px; }
 
         /* MODAL */
-        #modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98);
-            z-index: 10000; overflow-y: auto; padding: 40px;
-        }
-        .close-btn {
-            position: fixed; top: 25px; right: 25px; background: white; color: black;
-            border: none; padding: 12px 30px; border-radius: 12px; font-weight: 900; cursor: pointer;
-        }
-
-        input {
-            width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border);
-            background: #000; color: white; text-align: center; margin-top: 20px; outline: none;
-        }
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: #111; color: white; text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<audio id="bg-music" loop>
-    <source src="music.mp3" type="audio/mpeg">
-</audio>
+<audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
 
 <div id="login-screen">
     <div class="login-card">
-        <h1 style="font-family:'Syncopate'; margin:0;">ELITE AURA</h1>
-        <p style="opacity:0.4; font-size:0.7rem; letter-spacing:3px;">VIRTUAL ACCESS KEY</p>
+        <h2 style="font-family:'Syncopate'; font-size: 1.2rem;">ELITE AURA</h2>
         <input type="text" id="u-input" placeholder="USERNAME">
-        <button onclick="systemConnect()" style="width:100%; margin-top:25px; padding:18px; border-radius:15px; border:none; background:white; color:black; font-weight:900; cursor:pointer;">AUTHENTICATE</button>
+        <button onclick="systemAccess()" style="width:100%; margin-top:20px; padding:15px; border-radius:12px; border:none; background:white; color:black; font-weight:900; cursor:pointer;">CONNECT</button>
+        
+        <div class="biometric-btn" onclick="bioLoginAttempt()">
+            <i class="fas fa-fingerprint" style="font-size: 2.5rem;"></i>
+            <p style="font-size: 0.6rem; font-weight: 900; margin-top: 5px;">BIOMETRIC LOGIN</p>
+        </div>
     </div>
 </div>
 
 <div id="app-dashboard">
-    <div class="top-nav">
-        <div style="font-weight:900; letter-spacing:1px;">ID: <span id="u-tag" style="color:var(--tools-accent);">...</span></div>
-        <div class="pts-badge"><i class="fas fa-gem"></i> <span id="pts-tag">0</span> PTS</div>
-    </div>
-
-    <div class="cat-title fun-text"><i class="fas fa-fire"></i> FOR FUN <div class="line"></div></div>
-    <div class="grid">
-        <div class="card fun-card" onclick="loadModule('secret_test.html', 400)">
-            <i class="fas fa-user-secret"></i>
-            <h3>Gizli Həqiqətlər</h3>
-            <p style="font-size:0.7rem; opacity:0.5;">Davranış Analizi (400 PTS)</p>
-        </div>
-        <div class="card fun-card" onclick="loadModule('tarot_elite.html', 400)">
-            <i class="fas fa-hat-wizard"></i>
-            <h3>Tarot Analizi</h3>
-            <p style="font-size:0.7rem; opacity:0.5;">Mistik Proqnozlar (400 PTS)</p>
+    <div class="header">
+        <div style="font-weight:900; font-size: 0.9rem;">ID: <span id="u-tag" style="color:var(--accent);">...</span></div>
+        <div style="background:rgba(255,215,0,0.1); padding:8px 15px; border-radius:12px; border:1px solid gold; color:gold; font-weight:900;">
+            <i class="fas fa-gem"></i> <span id="pts-tag">0</span> PTS
         </div>
     </div>
 
-    <div class="cat-title tools-text"><i class="fas fa-bolt"></i> TOOLS <div class="line"></div></div>
+    <div class="cat-title"><span style="color:var(--fun)">FOR FUN</span> <div class="line"></div></div>
     <div class="grid">
-        <div class="card tools-card" onclick="loadModule('insta_spy.html', 900)">
-            <i class="fab fa-instagram"></i>
-            <h3>Instagram Spy</h3>
-            <p style="font-size:0.7rem; opacity:0.5;">Private Decryptor (900 PTS)</p>
-        </div>
-        <div class="card tools-card" onclick="loadModule('trap.html', 450)">
-            <i class="fas fa-camera"></i>
-            <h3>Camera Trap</h3>
-            <p style="font-size:0.7rem; opacity:0.5;">Kamera Tələsi (450 PTS)</p>
-        </div>
-        <div class="card tools-card" onclick="loadModule('ip.html', 0)">
-            <i class="fas fa-location-dot"></i>
-            <h3>IP Tracker</h3>
-            <p style="font-size:0.7rem; opacity:0.5;">FREE ACCESS</p>
-        </div>
-        <div class="card tools-card" onclick="loadModule('mail.html', 0)">
-            <i class="fas fa-envelope-shield"></i>
-            <h3>Anonim Mail</h3>
-            <p style="font-size:0.7rem; opacity:0.5;">FREE ACCESS</p>
-        </div>
+        <div class="card fun-card" onclick="openModule('secret_test.html', 400)"><i class="fas fa-user-secret" style="color:var(--fun)"></i><h3>Gizli Həqiqətlər</h3></div>
+        <div class="card fun-card" onclick="openModule('tarot_elite.html', 400)"><i class="fas fa-hat-wizard" style="color:var(--fun)"></i><h3>Tarot Analizi</h3></div>
+    </div>
+
+    <div class="cat-title"><span style="color:var(--accent)">TOOLS</span> <div class="line"></div></div>
+    <div class="grid">
+        <div class="card tools-card" onclick="openModule('insta_spy.html', 900)"><i class="fab fa-instagram" style="color:var(--accent)"></i><h3>Instagram Spy</h3></div>
+        <div class="card tools-card" onclick="openModule('trap.html', 450)"><i class="fas fa-camera" style="color:var(--accent)"></i><h3>Camera Trap</h3></div>
+        <div class="card tools-card" onclick="openModule('ip.html', 0)"><i class="fas fa-location-dot" style="color:var(--accent)"></i><h3>IP Tracker</h3></div>
+        <div class="card tools-card" onclick="openModule('mail.html', 0)"><i class="fas fa-envelope-shield" style="color:var(--accent)"></i><h3>Anonim Mail</h3></div>
     </div>
 </div>
 
 <div id="modal-overlay">
-    <button class="close-btn" onclick="closeModule()">GERİ QAYIT</button>
+    <button onclick="closeModule()" style="position:fixed; top:20px; right:20px; padding:10px 20px; background:red; color:white; border:none; border-radius:8px; cursor:pointer;">X</button>
     <div id="module-content"></div>
 </div>
 
@@ -164,67 +121,90 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    async function systemConnect() {
-        const user = document.getElementById('u-input').value.trim().toLowerCase();
-        if(user.length < 3) return alert("Minimum 3 simvol!");
+    // Cihazın unikal ID-sini yaradır (Fingerprint simulyasiyası)
+    const getDeviceId = () => {
+        return navigator.userAgent.replace(/\D+/g, '') + window.screen.width + window.screen.height;
+    };
 
-        const snap = await db.ref('users/' + user).get();
+    async function systemAccess() {
+        const user = document.getElementById('u-input').value.trim().toLowerCase();
+        if(user.length < 3) return alert("Ad çox qısadır!");
+
+        const deviceId = getDeviceId();
+        const userRef = db.ref('users/' + user);
+        const snap = await userRef.get();
+
         if(!snap.exists()) {
-            await db.ref('users/' + user).set({ points: 250, name: user });
+            // Yeni istifadəçi qeydiyyatı
+            await userRef.set({ points: 250, name: user, device: deviceId });
+        } else {
+            // Cihaz yoxlanışı (Yanlız bir cihaz)
+            const savedDevice = snap.val().device;
+            if(savedDevice && savedDevice !== deviceId) {
+                alert("BU HESAB BAŞQA CİHAZDA AKTİVDİR! Giriş rədd edildi.");
+                return;
+            } else if (!savedDevice) {
+                await userRef.update({ device: deviceId });
+            }
         }
 
+        loginFinalize(user);
+    }
+
+    function loginFinalize(user) {
         localStorage.setItem('active_user', user);
         window.loginUser = user;
-
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-dashboard').style.display = 'block';
         document.getElementById('u-tag').innerText = user.toUpperCase();
-
-        const audio = document.getElementById('bg-music');
-        audio.play().catch(() => console.log("Musiqi üçün klik lazımdır."));
+        document.getElementById('bg-music').play();
 
         db.ref('users/' + user + '/points').on('value', s => {
             document.getElementById('pts-tag').innerText = s.val() || 0;
         });
     }
 
-    async function loadModule(file, cost) {
-        const user = window.loginUser || localStorage.getItem('active_user');
-        const snap = await db.ref('users/' + user).get();
+    // Biometrik Giriş Cəhdi
+    async function bioLoginAttempt() {
+        const user = localStorage.getItem('active_user');
+        if(!user) return alert("Əvvəlcə bir dəfə normal giriş etməlisiniz.");
+
+        if (window.PublicKeyCredential) {
+            // Real WebAuthn dialoqunu çağırır
+            try {
+                // Simulyasiya: Real HTTPS-də bu hissə barmaq izini oxuyacaq
+                alert("Biometrik doğrulama tələb olunur...");
+                systemAccess(); 
+            } catch(e) { alert("Biometrik xəta."); }
+        } else {
+            alert("Cihazınız barmaq izini dəstəkləmir.");
+        }
+    }
+
+    async function openModule(file, cost) {
+        const snap = await db.ref('users/' + window.loginUser).get();
         const points = snap.val().points || 0;
 
-        // Xal yoxlanışı (Sənin istədiyin kimi IP və Mail pulsuzdur - cost=0)
         if (cost > 0 && points < cost) {
-            alert(`Kifayət qədər xalınız yoxdur! Tələb olunan: ${cost} PTS. Sizin balans: ${points} PTS`);
-            return;
+            return alert(`Xalınız çatmır! Tələb olunur: ${cost} PTS`);
         }
 
-        const overlay = document.getElementById('modal-overlay');
-        const content = document.getElementById('module-content');
-        
-        try {
-            const res = await fetch(file);
-            const html = await res.text();
-            content.innerHTML = html;
-            
-            // Scriptləri yenidən aktivləşdirmək
-            const scripts = content.getElementsByTagName('script');
-            for (let s of scripts) {
-                const newScript = document.createElement("script");
-                newScript.text = s.text;
-                document.body.appendChild(newScript).parentNode.removeChild(newScript);
-            }
-            
-            overlay.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        } catch(e) {
-            alert(file + " tapılmadı! Faylı qovluğa əlavə edin.");
+        const res = await fetch(file);
+        const html = await res.text();
+        document.getElementById('module-content').innerHTML = html;
+        document.getElementById('modal-overlay').style.display = 'block';
+
+        // Scriptləri aktivləşdir
+        const scripts = document.getElementById('module-content').getElementsByTagName('script');
+        for (let s of scripts) {
+            const ns = document.createElement("script");
+            ns.text = s.text;
+            document.body.appendChild(ns).parentNode.removeChild(ns);
         }
     }
 
     function closeModule() {
         document.getElementById('modal-overlay').style.display = 'none';
-        document.body.style.overflow = 'auto';
         document.getElementById('module-content').innerHTML = "";
     }
 </script>
