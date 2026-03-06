@@ -1,81 +1,146 @@
-<div style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 20px;">
-    <audio id="wheel-sound"><source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg"></audio>
-    <audio id="spin-sound" loop><source src="https://www.soundjay.com/misc/sounds/mechanical-clonk-1.mp3" type="audio/mpeg"></audio>
+<div id="wheel-module" style="color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 10px;">
+    <audio id="tick-sound"><source src="https://www.soundjay.com/misc/sounds/mechanical-clonk-1.mp3" type="audio/mpeg"></audio>
+    <audio id="win-sound"><source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg"></audio>
 
-    <h2 style="font-family: 'Syncopate'; color: #ff007a;">GIFT WHEEL</h2>
+    <h2 style="font-family: 'Syncopate'; color: #ff007a; margin-bottom: 20px;">GIFT WHEEL PRO</h2>
 
-    <div id="wheel-setup" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; margin-bottom: 20px;">
-        <select id="gender" style="width:100%; padding:12px; margin-bottom:10px; background:#000; color:white; border:1px solid #ff007a; border-radius:10px;">
-            <option value="female">Qadın (Kadın)</option>
-            <option value="male">Kişi (Erkek)</option>
-        </select>
-        <select id="occasion" style="width:100%; padding:12px; background:#000; color:white; border:1px solid #ff007a; border-radius:10px;">
-            <option value="14feb">14 Fevral</option>
-            <option value="8march">8 Mart</option>
-            <option value="birthday">Ad Günü (Doğum Günü)</option>
-            <option value="anniversary">İl Dönümü (Yıl Dönümü)</option>
-        </select>
-        <button onclick="initWheel()" style="width:100%; margin-top:15px; padding:15px; border-radius:10px; border:none; background:#ff007a; color:white; font-weight:900; cursor:pointer;">ÇARXI HAZIRLA</button>
+    <div id="setup-area" style="background: rgba(255,255,255,0.03); padding: 25px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <select id="gender-select" style="flex:1; padding:15px; background:#000; color:white; border:1px solid #ff007a; border-radius:12px; outline:none;">
+                <option value="female">Qadın (Kadın)</option>
+                <option value="male">Kişi (Erkek)</option>
+            </select>
+            <select id="event-select" style="flex:1; padding:15px; background:#000; color:white; border:1px solid #ff007a; border-radius:12px; outline:none;">
+                <option value="14feb">14 Fevral</option>
+                <option value="8march">8 Mart</option>
+                <option value="birthday">Ad Günü</option>
+                <option value="anniversary">İl Dönümü</option>
+            </select>
+        </div>
+        <button onclick="prepareWheel()" style="width:100%; padding:18px; border-radius:12px; border:none; background:#ff007a; color:white; font-weight:900; cursor:pointer;">ÇARXI QUR / KUR</button>
     </div>
 
-    <div id="wheel-area" style="display: none; position: relative; margin: 30px auto; width: 280px; height: 280px;">
-        <div id="main-wheel" style="width: 100%; height: 100%; border-radius: 50%; border: 5px solid white; background: conic-gradient(#ff007a 0% 10%, #333 10% 20%, #ff007a 20% 30%, #333 30% 40%, #ff007a 40% 50%, #333 50% 60%, #ff007a 60% 70%, #333 70% 80%, #ff007a 80% 90%, #333 90% 100%); transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);"></div>
-        <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid white; z-index: 10;"></div>
-        <button id="spin-btn" onclick="spinWheel()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; border: none; background: white; color: black; font-weight: 900; cursor: pointer; z-index: 11;">SPIN</button>
+    <div id="wheel-display" style="display: none; position: relative; margin: 40px auto; width: 320px; height: 320px;">
+        <div id="pointer" style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fff; z-index: 100;"></div>
+        <canvas id="wheel-canvas" width="320" height="320" style="border-radius: 50%; border: 8px solid #fff;"></canvas>
+        <button id="spin-btn" onclick="spinNow()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; border-radius: 50%; border: 5px solid #000; background: #fff; color: #000; font-weight: 900; cursor: pointer; z-index: 101;">SPIN</button>
     </div>
 
-    <div id="wheel-result" style="display: none; padding: 20px; background: rgba(0,255,0,0.1); border-radius: 20px; border: 1px dashed #0f0; animation: fadeIn 0.5s;">
-        <h3 id="gift-name" style="color: #0f0;"></h3>
-        <button onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 10px;">
-            <i class="fab fa-whatsapp"></i> Paylaş / Paylaş
+    <div id="result-card" style="display: none; margin-top: 20px; padding: 25px; background: rgba(0,255,0,0.05); border: 2px dashed #0f0; border-radius: 25px; animation: bounceIn 0.6s;">
+        <p style="font-size: 0.7rem; opacity: 0.6;">SİSTEMİN SEÇİMİ:</p>
+        <h3 id="win-text" style="color: #0f0; font-size: 1.4rem; margin: 10px 0;"></h3>
+        
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+        
+        <p style="font-size: 0.7rem; opacity: 0.6;">BƏYƏNMƏDİNSƏ, ÖZÜN YAZ:</p>
+        <input type="text" id="custom-gift" placeholder="Hədiyyə adını daxil et..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #ff007a; color: white; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+        
+        <button onclick="shareWhatsApp()" style="background: #25D366; color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 10px; margin: 0 auto;">
+            <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> WhatsApp Paylaş
         </button>
     </div>
 </div>
 
 <script>
-    const gifts = {
+    const giftPool = {
         female: {
-            "14feb": ["Gümüş Boyunbağı", "101 Qızılgül", "Parfüm Seti", "Şam yeməyi", "Yumşaq Oyuncaq", "Foto Albom", "SPA Sertifikatı", "Qolbaq", "Qutu Şokolad", "Üzük"],
-            "birthday": ["Smart Saat", "Dəri Çanta", "Makiyaj Seti", "Fen", "Kitab Kolleksiyası", "Portret", "Qulaqlıq", "Kosmetika Çantası", "E-Oxuyucu", "Geyim Kuponu"]
-            // Digər günlər bura əlavə edilir...
+            "14feb": ["Gümüş Üzük", "101 Qızılgül", "Şam Yeməyi", "Parfüm", "Yumşaq Ayı", "Qolbaq", "Şokolad Qutusu", "Foto Albom", "SPA Paketi", "Sürpriz Qutu"],
+            "8march": ["Güllər", "Kosmetika", "Dəri Çanta", "Fen", "Zərgərlik", "İpək Şarf", "Kitab", "Portret", "Qulaqlıq", "Saat"],
+            "birthday": ["Smart Saat", "Telefon", "Makiyaj Seti", "E-Oxuyucu", "Geyim", "Ayaqqabı", "Səyahət", "Pendant", "Çanta", "Dizayn Obyekti"],
+            "anniversary": ["Qızıl Üzük", "Restoran", "Cütlük Saatı", "Otel İstirahəti", "Video Çarx", "Canvas Tablo", "Ətir", "Qolbaq", "Özəl Şam", "Musiqi Qutusu"]
         },
         male: {
-            "birthday": ["Dəri Pulqabı", "Qol Saatı", "Oyun Konsolu", "Parfüm", "İdman Çantası", "Qulaqlıq", "Kəmər", "Alət Dəsti", "Powerbank", "Köynək"]
+            "birthday": ["Dəri Cüzdan", "Saat", "Oyun Konsolu", "Qulaqlıq", "Kəmər", "Powerbank", "Köynək", "İdman Aləti", "Parfüm", "E-Alət Dəsti"]
         }
     };
 
-    let selectedGift = "";
+    const canvas = document.getElementById('wheel-canvas');
+    const ctx = canvas.getContext('2d');
+    let currentGifts = [];
+    let startAngle = 0;
+    const arc = Math.PI / 5;
+    let spinTimeout = null;
+    let spinAngleStart = 10;
+    let spinTime = 0;
+    let spinTimeTotal = 0;
+    let wheelResult = "";
 
-    function initWheel() {
-        document.getElementById('wheel-setup').style.display = 'none';
-        document.getElementById('wheel-area').style.display = 'block';
+    function prepareWheel() {
+        const gen = document.getElementById('gender-select').value;
+        const ev = document.getElementById('event-select').value;
+        currentGifts = giftPool[gen][ev] || giftPool[gen]["birthday"];
+        document.getElementById('setup-area').style.display = 'none';
+        document.getElementById('wheel-display').style.display = 'block';
+        drawWheel();
     }
 
-    function spinWheel() {
-        const spinSound = document.getElementById('spin-sound');
-        spinSound.play();
+    function drawWheel() {
+        ctx.clearRect(0,0,320,320);
+        for(let i = 0; i < 10; i++) {
+            const angle = startAngle + i * arc;
+            ctx.fillStyle = (i % 2 === 0) ? "#ff007a" : "#1a1a1a";
+            ctx.beginPath();
+            ctx.moveTo(160, 160);
+            ctx.arc(160, 160, 150, angle, angle + arc, false);
+            ctx.lineTo(160, 160);
+            ctx.fill();
+            ctx.save();
+            ctx.fillStyle = "white";
+            ctx.translate(160 + Math.cos(angle + arc/2) * 100, 160 + Math.sin(angle + arc/2) * 100);
+            ctx.rotate(angle + arc/2 + Math.PI/2);
+            ctx.font = "bold 9px Outfit";
+            ctx.fillText(currentGifts[i], -ctx.measureText(currentGifts[i]).width / 2, 0);
+            ctx.restore();
+        }
+    }
+
+    function spinNow() {
+        spinAngleStart = Math.random() * 10 + 10;
+        spinTime = 0;
+        spinTimeTotal = Math.random() * 3 + 4000;
+        rotateWheel();
+    }
+
+    function rotateWheel() {
+        spinTime += 30;
+        if(spinTime >= spinTimeTotal) {
+            stopRotateWheel();
+            return;
+        }
+        const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+        startAngle += (spinAngle * Math.PI / 180);
+        drawWheel();
+        document.getElementById('tick-sound').play();
+        spinTimeout = setTimeout(rotateWheel, 30);
+    }
+
+    function stopRotateWheel() {
+        clearTimeout(spinTimeout);
+        const degrees = startAngle * 180 / Math.PI + 90;
+        const arcd = arc * 180 / Math.PI;
+        const index = Math.floor((360 - degrees % 360) / arcd);
+        wheelResult = currentGifts[(index + 10) % 10];
         
-        const deg = 1800 + Math.random() * 1800; // 5-10 dövr
-        document.getElementById('main-wheel').style.transform = `rotate(${deg}deg)`;
-        document.getElementById('spin-btn').disabled = true;
+        document.getElementById('win-sound').play();
+        document.getElementById('win-text').innerText = wheelResult;
+        document.getElementById('result-card').style.display = 'block';
+    }
 
-        setTimeout(() => {
-            spinSound.pause();
-            document.getElementById('wheel-sound').play();
-            
-            const g = document.getElementById('gender').value;
-            const o = document.getElementById('occasion').value;
-            const list = gifts[g][o] || gifts[g]["birthday"] || ["Sürpriz Hədiyyə"];
-            selectedGift = list[Math.floor(Math.random() * list.length)];
-
-            document.getElementById('wheel-area').style.display = 'none';
-            document.getElementById('wheel-result').style.display = 'block';
-            document.getElementById('gift-name').innerText = "Qazandınız: " + selectedGift;
-        }, 4000);
+    function easeOut(t, b, c, d) {
+        const ts = (t /= d) * t;
+        const tc = ts * t;
+        return b + c * (tc + -3 * ts + 3 * t);
     }
 
     function shareWhatsApp() {
-        const text = encodeURIComponent(`Elite Aura Hədiyyə Çarxında sənin üçün bu hədiyyəni seçdim: ${selectedGift}! 🎁`);
-        window.open(`https://api.whatsapp.com/send?text=${text}`);
+        const custom = document.getElementById('custom-gift').value.trim();
+        const finalGift = custom !== "" ? custom : wheelResult;
+        const lang = localStorage.getItem('elite_lang') || 'az';
+        
+        const msg = lang === 'az' ? 
+            `Elite Aura Hədiyyə Çarxında sənin üçün bu seçildi: ${finalGift}! 🎁` :
+            `Elite Aura Hediye Çarkında senin için bu seçildi: ${finalGift}! 🎁`;
+            
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
     }
 </script>
