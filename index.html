@@ -3,211 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Aura | Biometric Secure</title>
+    <title>Elite Aura | Secure Access</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-
-        :root {
-            --bg: #030303;
-            --glass: rgba(255, 255, 255, 0.02);
-            --border: rgba(255, 255, 255, 0.07);
-            --accent: #00dfff;
-            --fun: #ff007a;
-        }
-
-        body {
-            margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif;
-            min-height: 100vh; overflow-x: hidden;
-            background: radial-gradient(circle at center, #0a0a15 0%, #030303 100%);
-        }
-
-        /* LOGIN SCREEN */
-        #login-screen {
-            position: fixed; inset: 0; background: var(--bg);
-            display: flex; align-items: center; justify-content: center; z-index: 9999;
-        }
-        .login-card {
-            background: var(--glass); padding: 40px; border-radius: 40px;
-            border: 1px solid var(--border); backdrop-filter: blur(30px); text-align: center; width: 350px;
-        }
-
-        .biometric-btn {
-            margin-top: 25px; cursor: pointer; color: var(--accent); transition: 0.3s;
-            display: inline-block; padding: 10px;
-        }
-        .biometric-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--accent); }
-
-        /* DASHBOARD */
-        #app-dashboard { display: none; padding: 30px; max-width: 1200px; margin: auto; }
-
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; background: var(--glass); border-radius: 20px; border: 1px solid var(--border);
-            margin-bottom: 40px;
-        }
-
-        /* GRID & CARDS */
-        .cat-title { font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 3px; margin: 40px 0 20px; color: gray; display: flex; align-items: center; gap: 10px;}
-        .line { flex: 1; height: 1px; background: var(--border); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-
-        .card {
-            background: var(--glass); padding: 30px; border-radius: 25px; border: 1px solid var(--border);
-            text-align: center; cursor: pointer; transition: 0.4s;
-        }
-        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); }
-        .fun-card:hover { border-color: var(--fun); }
-        .tools-card:hover { border-color: var(--accent); }
-        .card i { font-size: 2.5rem; margin-bottom: 15px; }
-
-        /* MODAL */
-        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: #111; color: white; text-align: center; margin-top: 15px; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;900&family=Syncopate:wght@700&display=swap');
+        body { margin: 0; background: #030303; color: white; font-family: 'Outfit', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .login-box { background: rgba(255,255,255,0.02); padding: 50px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px); text-align: center; width: 320px; box-shadow: 0 0 50px rgba(0,223,255,0.1); }
+        h1 { font-family: 'Syncopate'; font-size: 1.2rem; letter-spacing: 5px; margin-bottom: 30px; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: white; text-align: center; margin-bottom: 20px; outline: none; }
+        .btn-connect { width: 100%; padding: 15px; border-radius: 12px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .btn-connect:hover { background: #00dfff; transform: scale(1.02); }
+        .fingerprint { margin-top: 30px; color: #00dfff; cursor: pointer; opacity: 0.7; transition: 0.3s; }
+        .fingerprint:hover { opacity: 1; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
-<audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
-
-<div id="login-screen">
-    <div class="login-card">
-        <h2 style="font-family:'Syncopate'; font-size: 1.2rem;">ELITE AURA</h2>
-        <input type="text" id="u-input" placeholder="USERNAME">
-        <button onclick="systemAccess()" style="width:100%; margin-top:20px; padding:15px; border-radius:12px; border:none; background:white; color:black; font-weight:900; cursor:pointer;">CONNECT</button>
-        
-        <div class="biometric-btn" onclick="bioLoginAttempt()">
-            <i class="fas fa-fingerprint" style="font-size: 2.5rem;"></i>
-            <p style="font-size: 0.6rem; font-weight: 900; margin-top: 5px;">BIOMETRIC LOGIN</p>
-        </div>
+<div class="login-box">
+    <h1>ELITE AURA</h1>
+    <input type="text" id="username" placeholder="ACCESS ID">
+    <button class="btn-connect" onclick="validateAccess()">CONNECT</button>
+    
+    <div class="fingerprint" onclick="bioAuth()">
+        <i class="fas fa-fingerprint" style="font-size: 3rem;"></i>
+        <p style="font-size: 0.6rem; margin-top: 10px; font-weight: 900;">BIOMETRIC LOGIN</p>
     </div>
-</div>
-
-<div id="app-dashboard">
-    <div class="header">
-        <div style="font-weight:900; font-size: 0.9rem;">ID: <span id="u-tag" style="color:var(--accent);">...</span></div>
-        <div style="background:rgba(255,215,0,0.1); padding:8px 15px; border-radius:12px; border:1px solid gold; color:gold; font-weight:900;">
-            <i class="fas fa-gem"></i> <span id="pts-tag">0</span> PTS
-        </div>
-    </div>
-
-    <div class="cat-title"><span style="color:var(--fun)">FOR FUN</span> <div class="line"></div></div>
-    <div class="grid">
-        <div class="card fun-card" onclick="openModule('secret_test.html', 400)"><i class="fas fa-user-secret" style="color:var(--fun)"></i><h3>Gizli Həqiqətlər</h3></div>
-        <div class="card fun-card" onclick="openModule('tarot_elite.html', 400)"><i class="fas fa-hat-wizard" style="color:var(--fun)"></i><h3>Tarot Analizi</h3></div>
-    </div>
-
-    <div class="cat-title"><span style="color:var(--accent)">TOOLS</span> <div class="line"></div></div>
-    <div class="grid">
-        <div class="card tools-card" onclick="openModule('insta_spy.html', 900)"><i class="fab fa-instagram" style="color:var(--accent)"></i><h3>Instagram Spy</h3></div>
-        <div class="card tools-card" onclick="openModule('trap.html', 450)"><i class="fas fa-camera" style="color:var(--accent)"></i><h3>Camera Trap</h3></div>
-        <div class="card tools-card" onclick="openModule('ip.html', 0)"><i class="fas fa-location-dot" style="color:var(--accent)"></i><h3>IP Tracker</h3></div>
-        <div class="card tools-card" onclick="openModule('mail.html', 0)"><i class="fas fa-envelope-shield" style="color:var(--accent)"></i><h3>Anonim Mail</h3></div>
-    </div>
-</div>
-
-<div id="modal-overlay">
-    <button onclick="closeModule()" style="position:fixed; top:20px; right:20px; padding:10px 20px; background:red; color:white; border:none; border-radius:8px; cursor:pointer;">X</button>
-    <div id="module-content"></div>
 </div>
 
 <script>
-    const firebaseConfig = { 
-        apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
-        databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com" 
-    };
+    const firebaseConfig = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Cihazın unikal ID-sini yaradır (Fingerprint simulyasiyası)
-    const getDeviceId = () => {
-        return navigator.userAgent.replace(/\D+/g, '') + window.screen.width + window.screen.height;
-    };
+    const getUID = () => navigator.userAgent.replace(/\D+/g, '') + window.screen.width;
 
-    async function systemAccess() {
-        const user = document.getElementById('u-input').value.trim().toLowerCase();
-        if(user.length < 3) return alert("Ad çox qısadır!");
+    async function validateAccess() {
+        const user = document.getElementById('username').value.trim().toLowerCase();
+        if(user.length < 3) return alert("ID çox qısadır!");
 
-        const deviceId = getDeviceId();
-        const userRef = db.ref('users/' + user);
-        const snap = await userRef.get();
+        const deviceID = getUID();
+        const snap = await db.ref('users/' + user).get();
 
         if(!snap.exists()) {
-            // Yeni istifadəçi qeydiyyatı
-            await userRef.set({ points: 250, name: user, device: deviceId });
+            await db.ref('users/' + user).set({ points: 250, name: user, device: deviceID });
         } else {
-            // Cihaz yoxlanışı (Yanlız bir cihaz)
-            const savedDevice = snap.val().device;
-            if(savedDevice && savedDevice !== deviceId) {
-                alert("BU HESAB BAŞQA CİHAZDA AKTİVDİR! Giriş rədd edildi.");
-                return;
-            } else if (!savedDevice) {
-                await userRef.update({ device: deviceId });
+            if(snap.val().device && snap.val().device !== deviceID) {
+                return alert("XƏTA: BU HESAB BAŞQA CİHAZA BAĞLIDIR!");
             }
         }
 
-        loginFinalize(user);
+        localStorage.setItem('elite_user', user);
+        window.location.href = "menu.html"; // Giriş uğurludursa menyuya atır
     }
 
-    function loginFinalize(user) {
-        localStorage.setItem('active_user', user);
-        window.loginUser = user;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-dashboard').style.display = 'block';
-        document.getElementById('u-tag').innerText = user.toUpperCase();
-        document.getElementById('bg-music').play();
-
-        db.ref('users/' + user + '/points').on('value', s => {
-            document.getElementById('pts-tag').innerText = s.val() || 0;
-        });
-    }
-
-    // Biometrik Giriş Cəhdi
-    async function bioLoginAttempt() {
-        const user = localStorage.getItem('active_user');
-        if(!user) return alert("Əvvəlcə bir dəfə normal giriş etməlisiniz.");
-
-        if (window.PublicKeyCredential) {
-            // Real WebAuthn dialoqunu çağırır
-            try {
-                // Simulyasiya: Real HTTPS-də bu hissə barmaq izini oxuyacaq
-                alert("Biometrik doğrulama tələb olunur...");
-                systemAccess(); 
-            } catch(e) { alert("Biometrik xəta."); }
-        } else {
-            alert("Cihazınız barmaq izini dəstəkləmir.");
-        }
-    }
-
-    async function openModule(file, cost) {
-        const snap = await db.ref('users/' + window.loginUser).get();
-        const points = snap.val().points || 0;
-
-        if (cost > 0 && points < cost) {
-            return alert(`Xalınız çatmır! Tələb olunur: ${cost} PTS`);
-        }
-
-        const res = await fetch(file);
-        const html = await res.text();
-        document.getElementById('module-content').innerHTML = html;
-        document.getElementById('modal-overlay').style.display = 'block';
-
-        // Scriptləri aktivləşdir
-        const scripts = document.getElementById('module-content').getElementsByTagName('script');
-        for (let s of scripts) {
-            const ns = document.createElement("script");
-            ns.text = s.text;
-            document.body.appendChild(ns).parentNode.removeChild(ns);
-        }
-    }
-
-    function closeModule() {
-        document.getElementById('modal-overlay').style.display = 'none';
-        document.getElementById('module-content').innerHTML = "";
+    function bioAuth() {
+        const saved = localStorage.getItem('elite_user');
+        if(!saved) return alert("Əvvəlcə bir dəfə manual giriş edin.");
+        alert("Biometrik skan edilir...");
+        window.location.href = "menu.html";
     }
 </script>
-
 </body>
 </html>
