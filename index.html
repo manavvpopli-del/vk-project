@@ -100,21 +100,23 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const tools = {
-        cyber: [
-            { id: "wordlist", name: "Wordlist Creator", icon: "fa-terminal", cost: 500 },
-            { id: "miner", name: "Neural Miner", icon: "fa-microchip", cost: 0 },
-            { id: "ddos", name: "DDoS Stresser", icon: "fa-bolt", cost: 1000 }
+    const toolGrids = {
+        'cyber-grid': [
+            {id: 'tWord', icon: 'fa-file-code', color: 'var(--cyber)', file: 'wordlist.html', cost: 800},
+            {id: 'tDdos', icon: 'fa-radiation', color: 'var(--cyber)', file: 'ddos.html', cost: 600},
+            {id: 'tSql', icon: 'fa-database', color: 'var(--cyber)', file: 'sql_scan.html', cost: 500},
+            {id: 'tBrute', icon: 'fa-unlock-alt', color: 'var(--cyber)', file: 'brute.html', cost: 500}
         ],
-        tools: [
-            { id: "buy_300", name: "300 PTS ($9)", icon: "fa-gem", cost: 0 },
-            { id: "buy_600", name: "600 PTS ($17)", icon: "fa-gem", cost: 0, best: true },
-            { id: "buy_900", name: "900 PTS ($30)", icon: "fa-gem", cost: 0 },
-            { id: "ip", name: "IP Tracker", icon: "fa-location-dot", cost: 0 }
+        'tools-grid': [
+            {id: 'tInsta', icon: 'fa-instagram', color: 'var(--tools)', file: 'insta_spy.html', cost: 900},
+            {id: 'tTrap', icon: 'fa-camera-retro', color: 'var(--tools)', file: 'trap.html', cost: 500},
+            {id: 'tIp', icon: 'fa-map-location-dot', color: 'white', file: 'ip.html', cost: 0},
+            {id: 'tMail', icon: 'fa-envelope-shield', color: 'white', file: 'mail.html', cost: 0}
         ],
-        fun: [
-            { id: "wheel", name: "Gift Wheel", icon: "fa-gift", cost: 0 },
-            { id: "secret", name: "Secret Truths", icon: "fa-mask", cost: 0 }
+        'fun-grid': [
+            {id: 'tGift', icon: 'fa-gift', color: 'var(--fun)', file: 'gift_wheel.html', cost: 0},
+            {id: 'tSecret', icon: 'fa-mask', color: 'var(--fun)', file: 'secret_test.html', cost: 0},
+            {id: 'tTarot', icon: 'fa-wand-sparkles', color: 'var(--fun)', file: 'tarot.html', cost: 0}
         ]
     };
 
