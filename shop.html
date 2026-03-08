@@ -1,76 +1,86 @@
-// SAYTINDAKI ÖDƏNİŞ (SHOP) HİSSƏSİNİ BU KODLA YENİLƏ
-
-function openShop() {
-    document.getElementById('tool-content').innerHTML = `
-        <div style="text-align:center; font-family:'Outfit';">
-            <h2 style="color:var(--gold); font-family:'Syncopate'; font-size:1rem; margin-bottom:25px;">PTS BALANS ARTIR</h2>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
-                <div class="shop-item" onclick="preparePulpal(300, 10)" style="margin:0; border-color:var(--tools);">
-                    <h3>300 PTS</h3><p>10.00 AZN</p>
-                </div>
-                <div class="shop-item" onclick="preparePulpal(600, 18)" style="margin:0; border-color:var(--tools);">
-                    <h3>600 PTS</h3><p>18.00 AZN</p>
-                </div>
-                <div class="shop-item" onclick="preparePulpal(900, 25)" style="margin:0; border-color:var(--gold);">
-                    <h3>900 PTS</h3><p>25.00 AZN</p>
-                </div>
-                <div class="shop-item" onclick="preparePulpal(1500, 40)" style="margin:0; border-color:var(--cyber);">
-                    <h3>1500 PTS</h3><p>40.00 AZN</p>
-                </div>
-            </div>
-
-            <div id="pulpal-pay-zone" style="display:none; border-top:1px solid #222; padding-top:20px; animation:fadeIn 0.5s ease;">
-                <p id="pay-info-text" style="font-size:0.8rem; color:var(--tools); margin-bottom:15px;"></p>
-                
-                <a id="dynamic-pulpal-link" href="#" target="_blank" 
-                   style="display:inline-block; background:white; color:black; padding:15px 40px; border-radius:12px; font-weight:900; text-decoration:none; margin-bottom:25px; box-shadow:0 0 20px rgba(255,255,255,0.2);">
-                   KARTLA ÖDƏNİŞ ET (PULPAL)
-                </a>
-
-                <div style="background:rgba(255,0,0,0.05); padding:15px; border-radius:10px; border:1px solid rgba(255,0,0,0.2);">
-                    <p style="font-size:0.7rem; color:#ff4444; margin-bottom:10px; font-weight:bold;">VACİB: Ödəniş bitdikdən sonra qəbzin (çekin) şəklini bura yükləyin:</p>
-                    <input type="file" id="pulpal-ss" accept="image/*" style="width:100%; font-size:0.7rem; color:white;">
-                    <button class="btn-main" id="confirm-btn" style="margin-top:15px;">ADMİNƏ GÖNDƏR</button>
-                </div>
-            </div>
-        </div>`;
-    document.getElementById('modal-overlay').style.display = 'block';
-}
-
-function preparePulpal(pts, amount) {
-    const baseUrl = "https://pay.pulpal.az/payment?uniqueCode=W-7qRM6ZmR&amount=";
-    const finalUrl = baseUrl + amount;
+<div id="shop-container" style="text-align:center; font-family:'Outfit'; padding:20px;">
+    <h2 style="color:var(--gold); font-family:'Syncopate'; font-size:1rem; margin-bottom:20px;">PTS BALANSINI ARTIR</h2>
     
-    document.getElementById('pulpal-pay-zone').style.display = 'block';
-    document.getElementById('pay-info-text').innerText = `${pts} PTS üçün ${amount} AZN ödəniş linki hazırlandı.`;
-    document.getElementById('dynamic-pulpal-link').href = finalUrl;
-    
-    // Düymənin funksiyasını təyin et
-    document.getElementById('confirm-btn').onclick = function() {
-        submitPulpalProof(pts);
-    };
-}
+    <div style="background:rgba(255,255,255,0.02); padding:30px; border-radius:30px; border:1px solid var(--border);">
+        <p style="font-size:0.8rem; opacity:0.6; margin-bottom:15px;">Almaq istədiyiniz PTS miqdarını daxil edin:</p>
+        
+        <input type="number" id="pts-input" placeholder="Məsələn: 500" 
+               oninput="calculatePrice(this.value)"
+               style="width:100%; font-size:1.5rem; font-weight:900; padding:15px; background:#000; border:1px solid #333; color:var(--tools); border-radius:15px; text-align:center; outline:none;">
+        
+        <div style="margin-top:25px; padding:15px; border-top:1px dashed #222;">
+            <p style="font-size:0.9rem;">ÖDƏNİLƏCƏK MƏBLƏĞ:</p>
+            <h1 id="price-display" style="color:var(--cyber); margin:10px 0;">0.00 AZN</h1>
+        </div>
 
-async function submitPulpalProof(ptsAmount) {
-    const fileInput = document.getElementById('pulpal-ss');
-    const file = fileInput.files[0];
-    
-    if(!file) return alert("Zəhmət olmasa ödəniş çekini (screenshot) yükləyin!");
+        <button id="pay-btn" class="btn-main" onclick="redirectToPulpal()" 
+                style="background:var(--cyber); color:#000; display:none; animation: fadeIn 0.5s ease;">
+            ÖDƏNİŞƏ KEÇİD ET
+        </button>
+    </div>
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const payRef = db.ref('pending_payments').push();
-        await payRef.set({
-            user: localStorage.getItem('elite_session'),
-            pts: ptsAmount,
-            screenshot: e.target.result,
-            status: "pending",
-            method: "Pulpal",
-            timestamp: Date.now()
-        });
-        alert("Məlumatlar Adminə göndərildi! Ödəniş yoxlanıldıqdan sonra PTS balansınıza oturacaq.");
-        closeTool();
-    };
-    reader.readAsDataURL(file);
-}
+    <div id="post-pay-zone" style="display:none; margin-top:30px; border-top:1px solid #222; padding-top:20px;">
+        <p style="font-size:0.75rem; color:var(--gold); margin-bottom:15px;">ÖDƏNİŞ ÇEKİNİ (SCREENSHOT) YÜKLƏYİN:</p>
+        <input type="file" id="pay-ss" accept="image/*" style="width:100%; background:#050505; padding:10px; border:1px solid #222; border-radius:10px;">
+        <button class="btn-main" onclick="submitProofToAdmin()">ADMİNƏ GÖNDƏR</button>
+    </div>
+</div>
+
+<script>
+    // QİYMƏT NİSBƏTİ: 1 PTS neçə AZN-dir? (Məsələn 0.02 AZN)
+    const ptsRate = 0.02; 
+    let finalAmount = 0;
+    let finalPts = 0;
+
+    function calculatePrice(val) {
+        const pts = parseInt(val);
+        const payBtn = document.getElementById('pay-btn');
+        const priceDisplay = document.getElementById('price-display');
+
+        if (pts > 0) {
+            finalAmount = (pts * ptsRate).toFixed(2);
+            finalPts = pts;
+            priceDisplay.innerText = finalAmount + " AZN";
+            payBtn.style.display = "block";
+        } else {
+            priceDisplay.innerText = "0.00 AZN";
+            payBtn.style.display = "none";
+        }
+    }
+
+    function redirectToPulpal() {
+        if (finalAmount <= 0) return;
+        
+        // SƏNİN LİNKİN + DİNAMİK MƏBLƏĞ
+        const pulpalLink = `https://pay.pulpal.az/payment?uniqueCode=W-7qRM6ZmR&amount=${finalAmount}`;
+        
+        // Müştərini yeni tabda ödənişə göndəririk
+        window.open(pulpalLink, '_blank');
+
+        // Saytda çek yükləmə hissəsini açırıq
+        document.getElementById('post-pay-zone').style.display = "block";
+        document.getElementById('pay-btn').innerText = "YENİDƏN ÖDƏNİŞ ET";
+    }
+
+    async function submitProofToAdmin() {
+        const fileInput = document.getElementById('pay-ss');
+        const file = fileInput.files[0];
+        if (!file) return alert("Zəhmət olmasa ödəniş çekini yükləyin!");
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const payRef = db.ref('pending_payments').push();
+            await payRef.set({
+                user: localStorage.getItem('elite_session'),
+                pts: finalPts,
+                amount: finalAmount,
+                screenshot: e.target.result,
+                status: "pending",
+                timestamp: Date.now()
+            });
+            alert("Məlumatlar adminə göndərildi! Təsdiq gözləyin.");
+            closeTool(); // Modalı bağlayır
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
