@@ -3,61 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Aura | Global Intelligence</title>
+    <title>Elite Aura | Digital Intelligence</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-        :root { --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); --cyber: #00ff00; --tools: #00dfff; --gold: #ffd700; }
-        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-y: auto; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); }
-
-        /* TRANSLATE FLOATING BUTTON */
-        .auto-translate-btn {
-            position: fixed; top: 20px; right: 20px; z-index: 20000;
-            background: var(--cyber); color: black; border: none; padding: 12px 25px;
-            border-radius: 50px; font-weight: 900; cursor: pointer;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); display: flex; align-items: center; gap: 10px;
-        }
-
-        /* MATRIX LOADING OVERLAY */
-        #loading-overlay {
-            position: fixed; inset: 0; z-index: 30000; background: #000;
-            display: none; align-items: center; justify-content: center; flex-direction: column;
+        :root { --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); --cyber: #00ff00; --tools: #00dfff; --gold: #ffd700; --fun: #ff007a; }
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        body { 
+            margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; 
+            overflow-x: hidden; overflow-y: auto; min-height: 100vh;
+            background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); 
         }
 
         /* DISCLAIMER */
         #view-disclaimer { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; text-align: center; max-width: 650px; text-shadow: 0 0 5px var(--cyber); }
+        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.7; text-align: center; max-width: 650px; min-height: 120px; text-shadow: 0 0 5px var(--cyber); }
 
-        /* UI */
-        #view-login, #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin-bottom: 20px; }
+        /* UI SECTIONS */
+        #view-login, #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin: 20px 0; }
+        .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
-        .card:hover { transform: translateY(-10px); border-color: var(--cyber); }
-        
+        .card:hover { transform: translateY(-10px); border-color: var(--tools); }
+        .card i { font-size: 3.5rem; margin-bottom: 25px; }
+
+        /* TOOL LIST - Yenilənməyən Geri Düyməsi Üçün */
+        #tool-list { display: none; animation: slideUp 0.5s ease; }
+        .back-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 12px 25px; border-radius: 12px; cursor: pointer; margin-bottom: 30px; font-weight: 900; display: inline-block; }
+
         .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
-        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 20001; padding: 40px; overflow-y: auto; }
+        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; }
+        
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 20000; padding: 40px; overflow-y: auto; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="loading-overlay">
-    <i class="fas fa-spinner fa-spin" style="color:var(--cyber); font-size:3rem;"></i>
-    <p style="color:var(--cyber); margin-top:20px; font-family:monospace; letter-spacing:3px;">DETECTING REGION...</p>
-</div>
-
-<button class="auto-translate-btn" onclick="autoDetectLanguage()">
-    <i class="fas fa-language"></i> <span id="btn-detect-text">AUTO TRANSLATE</span>
-</button>
-
-<audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
+<audio id="bg-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
 
 <section id="view-disclaimer">
-    <div id="typewriter" class="matrix-text"></div>
-    <button id="btn-agree" class="btn-main" style="display:none; width:220px; background:transparent; border:1px solid var(--cyber); color:var(--cyber);" onclick="acceptDisclaimer()">ACCEPT</button>
+    <div style="text-align:center;">
+        <i class="fas fa-shield-halved" style="color:var(--cyber); font-size:2.5rem; margin-bottom:20px;"></i>
+        <div id="typewriter" class="matrix-text"></div>
+        <button id="btn-agree" class="btn-main" style="display:none; width:220px; background:transparent; border:1px solid var(--cyber); color:var(--cyber);" onclick="acceptDisclaimer()">DAVAM ET</button>
+    </div>
 </section>
 
 <section id="view-login">
@@ -65,41 +62,45 @@
         <div class="login-card" style="background:var(--glass); padding:50px; border-radius:40px; border:1px solid var(--border); display:inline-block; width:340px;">
             <h1 style="font-family:'Syncopate'; font-size:1.1rem; color:var(--tools);">ELITE AURA</h1>
             <input type="text" id="u-input" placeholder="ACCESS KEY">
-            <button class="btn-main" onclick="handleLogin()">CONNECT</button>
+            <button class="btn-main" onclick="handleLogin()">QOŞUL</button>
         </div>
     </div>
 </section>
 
 <section id="view-menu">
-    <div style="display:flex; justify-content:center; gap:30px; margin-bottom:20px; opacity:0.6; font-size:0.7rem;">
-        <div><span id="txt-total">TOTAL</span>: <span style="color:var(--gold)">4120</span></div>
-        <div><span id="txt-online">ONLINE</span>: <span id="online-count" style="color:var(--cyber)">0</span></div>
+    <div class="stats-top">
+        <div>ÜMUMİ: <span style="color:var(--gold)">3562+</span></div>
+        <div><span style="color:var(--cyber)">●</span> ONLAYN: <span id="online-count">0</span></div>
     </div>
+
     <div class="navbar">
         <div style="font-weight:900;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
-        <div style="color:var(--gold); font-weight:900;"><span id="pts-display">0</span> PTS</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button onclick="openShop()" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer; font-size:0.7rem;">PTS ARTIR</button>
+            <div style="color:var(--gold); font-weight:900;"><span id="pts-display">0</span> PTS</div>
+        </div>
     </div>
 
     <div id="category-selector" class="grid">
         <div class="card" onclick="showTools('cyber-grid')" style="border-left: 6px solid var(--cyber);">
-            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3 class="t-node" data-key="cat_cyber">CYBER OPS</h3>
+            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3>KİBER ƏMƏLİYYAT</h3>
         </div>
         <div class="card" onclick="showTools('tools-grid')" style="border-left: 6px solid var(--tools);">
-            <i class="fas fa-shield-alt" style="color:var(--tools)"></i><h3 class="t-node" data-key="cat_tools">TOOLS</h3>
+            <i class="fas fa-shield-alt" style="color:var(--tools)"></i><h3>ALƏTLƏR</h3>
         </div>
         <div class="card" onclick="showTools('fun-grid')" style="border-left: 6px solid var(--fun);">
-            <i class="fas fa-heart" style="color:var(--fun)"></i><h3 class="t-node" data-key="cat_fun">FOR FUN</h3>
+            <i class="fas fa-heart" style="color:var(--fun)"></i><h3>ƏYLƏNCƏ</h3>
         </div>
     </div>
 
-    <div id="tool-list" style="display:none;">
-        <button class="btn-main" style="width:auto; padding:10px 25px; margin-bottom:20px;" onclick="location.reload()" id="btn-back">BACK</button>
+    <div id="tool-list">
+        <div class="back-btn" onclick="backToCategories()"><i class="fas fa-chevron-left"></i> KATEQORİYALARA QAYIT</div>
         <div id="active-grid" class="grid"></div>
     </div>
 </section>
 
 <div id="modal-overlay">
-    <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; background:red; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; z-index:40000;">X</button>
+    <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; background:red; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; z-index:20001;">X</button>
     <div id="tool-content" style="margin-top:40px;"></div>
 </div>
 
@@ -108,105 +109,51 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // DİLLƏR BAZASI
-    const translations = {
-        az: {
-            dis: "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.",
-            cat_cyber: "KİBER ƏMƏLİYYAT", cat_tools: "ALƏTLƏR", cat_fun: "ƏYLƏNCƏ",
-            tWord: "Wordlist Yaradıcı", tDdos: "DDoS Stresser", tSql: "SQL Skaner", tBrute: "Brute Force",
-            tInsta: "Instagram Spy", tTrap: "Kamera Tələsi", tIp: "IP İzləyici", tMail: "Anonim Mail",
-            tGift: "Hədiyyə Çarxı", tSecret: "Gizli Həqiqətlər", tTarot: "Tarot Analizi",
-            total: "ÜMUMİ", online: "ONLAYN", back: "GERİ", detect: "DİLİ ALGILA"
-        },
-        tr: {
-            dis: "Bu site aracılığıyla yapacağınız işlemlerden kurucu veya moderatör sorumlu değildir. Site yasa dışı işleri teşvik etmez. Sorumluluğu kabul ediyorsunuz.",
-            cat_cyber: "SİBER OPERASYON", cat_tools: "ARAÇLAR", cat_fun: "EĞLENCE",
-            tWord: "Wordlist Oluşturucu", tDdos: "DDoS Saldırısı", tSql: "SQL Tarayıcı", tBrute: "Brute Force",
-            tInsta: "Instagram Spy", tTrap: "Kamera Tuzağı", tIp: "IP Takipçisi", tMail: "Anonim Posta",
-            tGift: "Hediye Çarkı", tSecret: "Gizli Gerçekler", tTarot: "Tarot Analizi",
-            total: "TOPLAM", online: "ÇEVRİMİÇİ", back: "GERİ", detect: "DİLİ ALGILA"
-        },
-        ru: {
-            dis: "Основатель или модератор не несут ответственности за действия через этот сайт. Сайт не поощряет незаконную деятельность. Вы принимаете ответственность.",
-            cat_cyber: "КИБЕР ОПЕРАЦИИ", cat_tools: "ИНСТРУМЕНТЫ", cat_fun: "РАЗВЛЕЧЕНИЯ",
-            tWord: "Генератор Wordlist", tDdos: "DDoS Атака", tSql: "SQL Сканер", tBrute: "Brute Force",
-            tInsta: "Инста Шпион", tTrap: "Ловушка Камеры", tIp: "IP Трекер", tMail: "Анонимная Почта",
-            tGift: "Колесо Подарков", tSecret: "Тайные Истины", tTarot: "Таро Анализ",
-            total: "ВСЕГО", online: "ОНЛАЙН", back: "НАЗАД", detect: "ЯЗЫК"
-        },
-        en: {
-            dis: "Founder or moderator is not responsible for any activation through this site. Site does not encourage illegal activities. You accept responsibility.",
-            cat_cyber: "CYBER OPS", cat_tools: "TOOLS", cat_fun: "FOR FUN",
-            tWord: "Wordlist Creator", tDdos: "DDoS Stresser", tSql: "SQL Scanner", tBrute: "Brute Force",
-            tInsta: "Instagram Spy", tTrap: "Camera Trap", tIp: "IP Tracker", tMail: "Anon Mail",
-            tGift: "Gift Wheel", tSecret: "Secret Truths", tTarot: "Tarot Analysis",
-            total: "TOTAL", online: "ONLINE", back: "BACK", detect: "AUTO DETECT"
-        }
-    };
-
     const toolGrids = {
-        'cyber-grid': [{id:'tWord', f:'wordlist.html', c:800, i:'fa-file-code', cl:'var(--cyber)'},{id:'tDdos', f:'ddos.html', c:600, i:'fa-radiation', cl:'var(--cyber)'},{id:'tSql', f:'sql_scan.html', c:500, i:'fa-database', cl:'var(--cyber)'},{id:'tBrute', f:'brute.html', c:500, i:'fa-unlock-alt', cl:'var(--cyber)'}],
-        'tools-grid': [{id:'tInsta', f:'insta.html', c:900, i:'fa-instagram', cl:'var(--tools)'},{id:'tTrap', f:'trap.html', c:500, i:'fa-camera', cl:'var(--tools)'},{id:'tIp', f:'ip.html', c:0, i:'fa-location-dot', cl:'white'},{id:'tMail', f:'mail.html', c:0, i:'fa-envelope-shield', cl:'white'}],
-        'fun-grid': [{id:'tGift', f:'gift.html', c:0, i:'fa-gift', cl:'var(--fun)'},{id:'tSecret', f:'secret.html', c:0, i:'fa-mask', cl:'var(--fun)'},{id:'tTarot', f:'tarot.html', c:0, i:'fa-wand-sparkles', cl:'var(--fun)'}]
+        'cyber-grid': [
+            {n: 'Wordlist Yaradıcı', i: 'fa-file-code', c: 'var(--cyber)', f: 'wordlist.html', p: 800},
+            {n: 'DDoS Stresser', i: 'fa-radiation', c: 'var(--cyber)', f: 'ddos.html', p: 600},
+            {n: 'SQL Skaner', i: 'fa-database', c: 'var(--cyber)', f: 'sql_scan.html', p: 500},
+            {n: 'Brute Force', i: 'fa-unlock-alt', c: 'var(--cyber)', f: 'brute.html', p: 500}
+        ],
+        'tools-grid': [
+            {n: 'Instagram Spy', i: 'fa-instagram', c: 'var(--tools)', f: 'insta.html', p: 900},
+            {n: 'Kamera Tələsi', i: 'fa-camera', c: 'var(--tools)', f: 'trap.html', p: 500},
+            {n: 'IP İzləyici', i: 'fa-location-dot', c: 'white', f: 'ip.html', p: 0},
+            {n: 'Anonim Mail', i: 'fa-envelope-shield', c: 'white', f: 'mail.html', p: 0}
+        ],
+        'fun-grid': [
+            {n: 'Hədiyyə Çarxı', i: 'fa-gift', c: 'var(--fun)', f: 'gift.html', p: 0},
+            {n: 'Gizli Test', i: 'fa-mask', c: 'var(--fun)', f: 'secret.html', p: 0},
+            {n: 'Tarot Analizi', i: 'fa-wand-sparkles', c: 'var(--fun)', f: 'tarot.html', p: 0}
+        ]
     };
 
-    let curL = localStorage.getItem('elite_lang') || 'az';
-    let charI = 0;
+    const disText = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.";
+    let charIdx = 0;
 
-    // REGİON ALGILAYICI (AUTO DETECT)
-    async function autoDetectLanguage() {
-        document.getElementById('loading-overlay').style.display = 'flex';
-        try {
-            const res = await fetch('https://ipapi.co/json/');
-            const data = await res.json();
-            const country = data.country_code; // AZ, TR, RU, US və s.
-
-            if(country === 'AZ') curL = 'az';
-            else if(country === 'TR') curL = 'tr';
-            else if(['RU', 'BY', 'KZ', 'UA'].includes(country)) curL = 'ru';
-            else curL = 'en';
-
-            localStorage.setItem('elite_lang', curL);
-            setTimeout(() => {
-                document.getElementById('loading-overlay').style.display = 'none';
-                location.reload(); // Bütün strukturu yenidən yükləyir
-            }, 1500);
-        } catch (e) {
-            curL = 'en';
-            document.getElementById('loading-overlay').style.display = 'none';
-        }
-    }
-
-    function updateUI() {
-        const d = translations[curL];
-        document.getElementById('txt-total').innerText = d.total;
-        document.getElementById('txt-online').innerText = d.online;
-        document.getElementById('btn-detect-text').innerText = d.detect;
-        document.querySelectorAll('.t-node').forEach(e => e.innerText = d[e.getAttribute('data-key')]);
-    }
-
-    function typeW() {
-        const t = translations[curL].dis;
-        if (charI < t.length) {
-            document.getElementById('typewriter').innerHTML += t.charAt(charI);
-            charI++; setTimeout(typeW, 20);
+    function typeWriter() {
+        if (charIdx < disText.length) {
+            document.getElementById('typewriter').innerHTML += disText.charAt(charIdx);
+            charIdx++; setTimeout(typeWriter, 20);
         } else { document.getElementById('btn-agree').style.display = 'inline-block'; }
     }
 
     function acceptDisclaimer() {
         document.getElementById('bg-music').play();
         document.getElementById('view-disclaimer').style.display = 'none';
-        const s = localStorage.getItem('elite_session');
-        if(s) showMenu(s); else document.getElementById('view-login').style.display = 'flex';
+        const session = localStorage.getItem('elite_session');
+        if(session) showMenu(session);
+        else document.getElementById('view-login').style.display = 'flex';
     }
 
     async function handleLogin() {
         const u = document.getElementById('u-input').value.trim().toLowerCase();
         if(u.length < 3) return;
-        localStorage.setItem('elite_session', u);
         const snap = await db.ref('users/'+u).get();
-        if(!snap.exists()) await db.ref('users/'+u).set({ points: 250, name: u, isOnline: true });
-        else await db.ref('users/'+u).update({ isOnline: true });
+        if(snap.exists() && snap.val().isOnline) return alert("HESAB HAL-HAZIRDA AKTİVDİR!");
+        await db.ref('users/'+u).update({ isOnline: true });
+        localStorage.setItem('elite_session', u);
         showMenu(u);
     }
 
@@ -215,31 +162,46 @@
         document.getElementById('view-login').style.display = 'none';
         document.getElementById('view-menu').style.display = 'block';
         document.getElementById('u-display').innerText = u.toUpperCase();
-        db.ref('users/'+u+'/points').on('value', s => document.getElementById('pts-display').innerText = s.val() || 0);
+        db.ref('users/'+u+'/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
         window.onbeforeunload = () => db.ref('users/'+u).update({ isOnline: false });
-        updateUI();
     }
 
+    // YENİLƏNMƏYƏN GERİ DÜYMƏSİ MƏNTİQİ
     function showTools(key) {
         document.getElementById('category-selector').style.display = 'none';
         document.getElementById('tool-list').style.display = 'block';
-        const g = document.getElementById('active-grid'); g.innerHTML = "";
+        const grid = document.getElementById('active-grid'); grid.innerHTML = "";
         toolGrids[key].forEach(t => {
-            g.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.c})">
-                <i class="fas ${t.i}" style="color:${t.cl}"></i><h3>${translations[curL][t.id]}</h3><p>${t.c} PTS</p></div>`;
+            grid.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.p})">
+                <i class="fas ${t.i}" style="color:${t.c}"></i><h3>${t.n}</h3><p>${t.p} PTS</p></div>`;
         });
+    }
+
+    function backToCategories() {
+        // location.reload() istifadə etmirik!
+        document.getElementById('tool-list').style.display = 'none';
+        document.getElementById('category-selector').style.display = 'grid';
     }
 
     async function openTool(f, cost) {
         const snap = await db.ref('users/'+window.activeUser).get();
-        if(cost > 0 && (snap.val().points || 0) < cost) return alert("PTS LOW!");
+        if(cost > 0 && (snap.val().points || 0) < cost) return alert("PTS YETƏRSİZ!");
         const res = await fetch(f); const h = await res.text();
         document.getElementById('tool-content').innerHTML = h;
         document.getElementById('modal-overlay').style.display = 'block';
     }
 
+    function openShop() {
+        document.getElementById('tool-content').innerHTML = `<div style="text-align:center;"><h2>MAĞAZA</h2><p>Lemon Squeezy Ödəniş Sistemi Aktivdir.</p></div>`;
+        document.getElementById('modal-overlay').style.display = 'block';
+    }
+
     function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
-    window.onload = () => { typeW(); updateUI(); setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random()*40)+5; }, 2000); };
+    
+    window.onload = () => { 
+        typeWriter(); 
+        setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random()*25)+5; }, 2000); 
+    };
 </script>
 </body>
 </html>
