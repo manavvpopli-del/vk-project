@@ -23,22 +23,20 @@
             background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%);
         }
 
-        /* DİL PANELİ */
         .lang-bar { position: fixed; top: 20px; left: 20px; z-index: 10001; display: flex; gap: 8px; }
         .lang-node { background: var(--glass); border: 1px solid var(--border); color: white; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; backdrop-filter: blur(10px); }
         .lang-node.active { background: white; color: black; border-color: white; }
 
-        /* GİRİŞ EKRANI */
-        #view-login { display: flex; align-items: center; justify-content: center; height: 100vh; position: fixed; inset: 0; z-index: 100; background: var(--bg); }
+        /* GİRİŞ EKRANI - İLKİN GÖRÜNÜŞ */
+        #view-login { display: flex; align-items: center; justify-content: center; height: 100vh; position: fixed; inset: 0; z-index: 2000; background: var(--bg); }
         .login-card { background: var(--glass); padding: 50px; border-radius: 40px; border: 1px solid var(--border); text-align: center; width: 340px; backdrop-filter: blur(20px); }
 
-        /* ANA MENYU */
+        /* ANA MENYU - BAŞLANĞICDA GİZLİ */
         #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
         
         .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin-bottom: 40px; backdrop-filter: blur(15px); }
         .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
 
-        /* KATEGORİYA KARTLARI */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; position: relative; overflow: hidden; }
         .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
@@ -46,16 +44,13 @@
         .card h2, .card h3 { font-family: 'Syncopate'; font-size: 1rem; margin: 0; }
         .card p { font-size: 0.75rem; opacity: 0.5; margin-top: 15px; font-weight: 600; }
 
-        /* ALƏTLƏR GÖRÜNÜŞÜ */
         #tool-viewer { display: none; animation: slideUp 0.5s ease; }
         .back-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 12px; cursor: pointer; margin-bottom: 30px; font-weight: 900; }
 
-        /* MODAL */
         #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; overflow-y: auto; }
         input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; font-family: 'Outfit'; }
         .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
 
-        /* SHOP ÖZƏL */
         .shop-item { border: 1px solid #333; padding: 20px; border-radius: 20px; margin-bottom: 10px; cursor: pointer; text-align: center; }
         .shop-item:hover { border-color: var(--gold); background: rgba(255,215,0,0.05); }
 
@@ -88,7 +83,6 @@
 
     <div class="navbar">
         <div style="font-weight:900; letter-spacing:1px;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
-        
         <div style="display: flex; align-items: center; gap: 15px;">
             <button onclick="openPtsShop()" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer; font-size:0.7rem;">PTS SATIN AL</button>
             <div style="color:var(--gold); font-weight:900; background:rgba(255,215,0,0.1); padding:8px 20px; border-radius:15px; border:1px solid rgba(255,215,0,0.2);">
@@ -142,7 +136,7 @@
     function changeLang(lang) {
         localStorage.setItem('elite_lang', lang);
         document.querySelectorAll('.lang-node').forEach(n => n.classList.remove('active'));
-        document.getElementById('btn-' + lang).classList.add('active');
+        if(document.getElementById('btn-' + lang)) document.getElementById('btn-' + lang).classList.add('active');
         const d = langData[lang];
         document.getElementById('txt-login-btn').innerText = d.loginBtn;
         document.getElementById('u-input').placeholder = d.input;
@@ -160,15 +154,16 @@
 
     async function handleLogin() {
         const user = document.getElementById('u-input').value.trim().toLowerCase();
-        if(user.length < 3) return;
+        if(user.length < 3) return alert("Access Key çox qısadır!");
 
-        // MUSİQİNİ AKTİV ET
-        document.getElementById('bg-music').play().catch(e => console.log("Musiqi səhvi:", e));
+        // MUSİQİNİ BAŞLAT
+        document.getElementById('bg-music').play().catch(e => console.log("Musiqi aktivləşmədi."));
 
         const dID = navigator.userAgent.replace(/\D+/g, '') + window.screen.width;
         const snap = await db.ref('users/' + user).get();
-        if(snap.exists() && snap.val().device && snap.val().device !== dID) return alert("SECURE LOCK: ANOTHER DEVICE!");
+        if(snap.exists() && snap.val().device && snap.val().device !== dID) return alert("SECURE LOCK: Başqa cihaz aşkar edildi!");
         if(!snap.exists()) await db.ref('users/' + user).set({ points: 250, name: user, device: dID });
+        
         localStorage.setItem('elite_session', user);
         showMenu(user);
     }
@@ -178,10 +173,11 @@
         document.getElementById('view-login').style.display = 'none';
         document.getElementById('view-menu').style.display = 'block';
         document.getElementById('u-display').innerText = user.toUpperCase();
-        db.ref('users/' + user + '/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
+        db.ref('users/' + user + '/points').on('value', s => { 
+            document.getElementById('pts-display').innerText = s.val() || 0; 
+        });
     }
 
-    // SHOP SİSTEMİ
     function openPtsShop() {
         document.getElementById('tool-content').innerHTML = `
             <div style="text-align:center;">
@@ -198,7 +194,7 @@
             <div style="text-align:center;">
                 <h3 style="color:var(--tools); font-size:0.8rem;">buyer767.html</h3>
                 <p>Paket: ${pts} PTS | Qiymət: $${price}</p>
-                <input type="text" id="verify-user" placeholder="İstifadəçi adını yazın" style="width:100%;">
+                <input type="text" id="verify-user" placeholder="Sistemdəki adınızı yazın" style="width:100%;">
                 <button class="btn-main" onclick="buyer555('${pts}')">DAVAM ET</button>
             </div>`;
     }
@@ -219,7 +215,6 @@
         document.getElementById('tool-content').innerHTML = `
             <div style="text-align:center;">
                 <h3 style="color:var(--cyber); font-size:0.8rem;">buyer767.html (Təsdiq)</h3>
-                <p style="font-size:0.7rem; opacity:0.6;">Ödəniş çekini yükləyin:</p>
                 <input type="file" id="pay-screenshot" accept="image/*" style="border:1px dashed #333; padding:20px;">
                 <button class="btn-main" onclick="toAdmin('${pts}')">ADMİNƏ GÖNDƏR</button>
             </div>`;
@@ -243,7 +238,6 @@
         r.readAsDataURL(file);
     }
 
-    // KATEGORİYALAR
     function toggleCategory(gridKey) {
         const d = langData[localStorage.getItem('elite_lang') || 'az'];
         const activeGrid = document.getElementById('active-grid');
@@ -267,7 +261,12 @@
         for (let s of sc) { const ns = document.createElement("script"); ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); }
     }
     function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
-    window.onload = () => { changeLang(localStorage.getItem('elite_lang') || 'az'); if(localStorage.getItem('elite_session')) showMenu(localStorage.getItem('elite_session')); };
+    
+    // Yalnız dili tənzimlə, avtomatik girişi yox
+    window.onload = () => { 
+        changeLang(localStorage.getItem('elite_lang') || 'az'); 
+    };
+    
     setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 101); }, 2000);
 </script>
 </body>
