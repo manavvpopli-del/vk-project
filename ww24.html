@@ -2,107 +2,151 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>WW24 | God Mode</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Admin | Payment Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        :root { --red: #ff3e3e; --cyan: #00f2ff; --purple: #a855f7; --green: #25d366; }
-        body { background: #05070a; color: white; font-family: 'Consolas', monospace; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .user-card { background: rgba(255,255,255,0.05); border: 1px solid #222; border-radius: 12px; padding: 15px; border-top: 3px solid var(--cyan); }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
         
-        .action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
-        button { border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.7rem; opacity: 0.9; }
-        button:hover { opacity: 1; transform: scale(1.02); }
+        :root {
+            --bg: #05050a;
+            --card: #0c0c14;
+            --accent: #ffd700;
+            --success: #00ff00;
+            --error: #ff3333;
+            --border: rgba(255,255,255,0.05);
+        }
+
+        body {
+            margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif;
+            padding: 40px;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .header h1 { font-family: 'Syncopate'; font-size: 1rem; letter-spacing: 3px; color: var(--accent); }
+
+        .request-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
         
-        .btn-blue { background: var(--cyan); color: #000; }
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-purple { background: var(--purple); color: #fff; }
-        .btn-green { background: var(--green); color: #000; }
+        .req-card { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 20px; 
+            padding: 25px; position: relative; animation: fadeIn 0.5s ease;
+        }
+
+        .status-badge { 
+            position: absolute; top: 15px; right: 15px; font-size: 0.6rem; 
+            padding: 4px 10px; border-radius: 5px; background: #222; font-weight: 900;
+        }
+
+        .user-info { margin-bottom: 20px; }
+        .user-info b { color: var(--accent); font-size: 1.2rem; }
         
-        input, select { background: #000; border: 1px solid #333; color: #00f2ff; padding: 8px; border-radius: 5px; width: 100%; box-sizing: border-box; margin-bottom: 5px; }
-        .badge { background: #111; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--cyan); }
+        .pts-amount { font-size: 1.5rem; font-weight: 900; margin: 15px 0; color: #fff; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { 
+            flex: 1; padding: 12px; border: none; border-radius: 10px; 
+            font-weight: 900; cursor: pointer; transition: 0.3s;
+        }
+        .btn-approve { background: var(--success); color: black; }
+        .btn-reject { background: var(--error); color: white; }
+        .btn:hover { opacity: 0.8; transform: scale(1.02); }
+
+        .no-data { text-align: center; opacity: 0.3; margin-top: 100px; font-size: 1.2rem; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h1 style="color: var(--cyan); border-bottom: 1px solid #222; padding-bottom: 10px;">
-        <i class="fas fa-skull-crossbones"></i> WW24 EXPLOIT PANEL <span id="user-count" class="badge">0</span>
-    </h1>
+<div class="header">
+    <h1>ELITE ADMIN PORTAL</h1>
+    <div id="admin-status">Connected to Firebase <i class="fas fa-circle" style="color:var(--success); font-size:0.7rem;"></i></div>
+</div>
 
-    <div class="grid" id="admin-grid"></div>
+<div id="requests-container" class="request-grid">
+    <div class="no-data">Gözləyən ödəniş yoxdur...</div>
+</div>
 
-    <script>
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", 
-            projectId: "sevgili-testi" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<script>
+    // SƏNİN FİREBASE KONFİQURASİYAN
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", 
+        databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        function renderUsers() {
-            db.ref('users').on('value', (snap) => {
-                const grid = document.getElementById('admin-grid');
-                grid.innerHTML = "";
-                let count = 0;
-                snap.forEach((child) => {
-                    count++;
-                    const name = child.key;
-                    const user = child.val();
-                    const card = document.createElement('div');
-                    card.className = "user-card";
-                    card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between;">
-                            <b><i class="fas fa-terminal"></i> ${name.toUpperCase()}</b>
-                            <span class="badge">${user.points || 0} PTS</span>
+    // ÖDƏNİŞLƏRİ DİNLƏMƏK
+    db.ref('pending_payments').on('value', (snapshot) => {
+        const container = document.getElementById('requests-container');
+        container.innerHTML = "";
+        
+        if (!snapshot.exists()) {
+            container.innerHTML = '<div class="no-data">Gözləyən ödəniş yoxdur...</div>';
+            return;
+        }
+
+        snapshot.forEach((child) => {
+            const data = child.val();
+            const key = child.key;
+
+            if (data.status === "pending") {
+                container.innerHTML += `
+                    <div class="req-card" id="card-${key}">
+                        <div class="status-badge">PENDING APPROVAL</div>
+                        <div class="user-info">
+                            <small>İstifadəçi:</small><br>
+                            <b>${data.user.toUpperCase()}</b>
                         </div>
-                        
-                        <div style="margin-top:10px;">
-                            <input type="text" id="msg-${name}" placeholder="Ekran mesajı...">
-                            <button class="btn-blue" style="width:100%" onclick="sendCmd('${name}', 'alert')">BİLDİRİŞ GÖNDƏR</button>
+                        <div class="pts-amount">
+                            <i class="fas fa-gem" style="color:var(--accent)"></i> ${data.pts} PTS
                         </div>
+                        <div style="font-size:0.7rem; opacity:0.5;">
+                            Tarix: ${new Date(data.timestamp).toLocaleString()}
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-approve" onclick="approvePayment('${key}', '${data.user}', ${data.pts})">TƏSDİQLƏ</button>
+                            <button class="btn btn-reject" onclick="rejectPayment('${key}')">İMTİNA</button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    });
 
-                        <div class="action-group">
-                            <button class="btn-red" onclick="sendCmd('${name}', 'freeze')">DONDUR</button>
-                            <button class="btn-blue" onclick="sendCmd('${name}', 'unfreeze')">AÇ</button>
-                            <button class="btn-purple" onclick="sendCmd('${name}', 'glitch')">GLITCH EFFECT</button>
-                            <button class="btn-red" onclick="sendCmd('${name}', 'scare')">SCARE JUMP</button>
-                            <button class="btn-green" onclick="redirectUser('${name}')">YÖNLƏNDİR</button>
-                            <button class="btn-red" onclick="sendCmd('${name}', 'kick')">KICK OUT</button>
-                        </div>
-                        
-                        <input type="number" id="pts-${name}" placeholder="Xal təyin et" style="margin-top:10px;">
-                        <button class="btn-green" style="width:100%" onclick="setPts('${name}')">XALI YENİLƏ</button>
-                    `;
-                    grid.appendChild(card);
-                });
-                document.getElementById('user-count').innerText = count;
+    // TƏSDİQLƏMƏ FUNKSİYASI
+    async function approvePayment(key, userId, ptsToAdd) {
+        if (!confirm(`${userId} üçün ${ptsToAdd} PTS təsdiqlənsin?`)) return;
+
+        try {
+            // 1. İstifadəçinin cari xalını al
+            const userRef = db.ref('users/' + userId + '/points');
+            const snap = await userRef.get();
+            const currentPoints = snap.val() || 0;
+
+            // 2. Yeni xalı hesabla və yenilə
+            await userRef.set(currentPoints + parseInt(ptsToAdd));
+
+            // 3. Ödənişin statusunu dəyiş (və ya sil)
+            await db.ref('pending_payments/' + key).update({
+                status: "approved",
+                approvedAt: new Date().getTime()
             });
-        }
 
-        function sendCmd(name, type) {
-            const text = document.getElementById(`msg-${name}`).value;
-            db.ref(`commands/${name}`).set({
-                type: type,
-                text: text || "",
-                time: Date.now()
-            });
-            if(type === 'alert') document.getElementById(`msg-${name}`).value = "";
+            alert("UĞURLU: PTS balansına köçürüldü!");
+        } catch (e) {
+            alert("XƏTA: " + e.message);
         }
+    }
 
-        function redirectUser(name) {
-            const url = prompt("Yönləndiriləcək link (məs: https://google.com):");
-            if(url) db.ref(`commands/${name}`).set({ type: 'redirect', url: url, time: Date.now() });
-        }
+    // İMTİNA FUNKSİYASI
+    async function rejectPayment(key) {
+        if (!confirm("Bu ödəniş istəyi silinsin?")) return;
+        await db.ref('pending_payments/' + key).remove();
+    }
+</script>
 
-        function setPts(name) {
-            const p = document.getElementById(`pts-${name}`).value;
-            if(p) db.ref(`users/${name}/points`).set(parseInt(p));
-        }
-
-        renderUsers();
-    </script>
 </body>
 </html>
