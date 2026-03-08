@@ -12,11 +12,10 @@
         :root { --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); --fun: #ff007a; --tools: #00dfff; --cyber: #00ff00; --gold: #ffd700; }
         * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* SCROLL PROBLEMİNİN HƏLLİ */
         body { 
             margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; 
-            overflow-x: hidden; overflow-y: auto; /* Donmanı həll edən hissə */
-            min-height: 100vh; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); 
+            overflow-y: auto; overflow-x: hidden; min-height: 100vh;
+            background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); 
         }
 
         /* STICKY DİL PANELİ */
@@ -26,18 +25,19 @@
             border-bottom: 1px solid var(--border);
         }
         .dis-lang { background: #111; border: 1px solid #333; color: #555; padding: 6px 15px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 900; }
-        .dis-lang.active { color: var(--tools); border-color: var(--tools); box-shadow: 0 0 10px rgba(0, 223, 255, 0.2); }
+        .dis-lang.active { color: var(--tools); border-color: var(--tools); }
 
         /* DISCLAIMER */
         #view-disclaimer { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.7; text-align: center; max-width: 650px; min-height: 150px; text-shadow: 0 0 5px var(--cyber); margin-top: 20px; }
+        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.7; text-align: center; max-width: 650px; min-height: 150px; text-shadow: 0 0 5px var(--cyber); }
 
         /* UI ELEMENTS */
         #view-login, #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
-        #view-login { align-items: center; justify-content: center; height: 80vh; }
-        .login-card { background: var(--glass); padding: 50px; border-radius: 40px; border: 1px solid var(--border); text-align: center; width: 340px; backdrop-filter: blur(20px); }
+        .login-card { background: var(--glass); padding: 50px; border-radius: 40px; border: 1px solid var(--border); text-align: center; width: 340px; backdrop-filter: blur(20px); margin: 100px auto; }
 
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin: 20px 0 40px 0; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin: 20px 0; }
+        .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
         .card:hover { transform: translateY(-10px); border-color: var(--tools); }
@@ -63,22 +63,24 @@
 </div>
 
 <section id="view-disclaimer">
-    <div style="text-align:center;">
-        <i class="fas fa-shield-halved" style="color:var(--cyber); font-size:2.5rem; margin-bottom:20px;"></i>
-        <div id="typewriter" class="matrix-text"></div>
-        <button id="btn-agree" class="btn-main" style="display:none; width:220px; background:transparent; border:1px solid var(--cyber); color:var(--cyber);" onclick="acceptDisclaimer()">ACCEPT & CONTINUE</button>
-    </div>
+    <div id="typewriter" class="matrix-text"></div>
+    <button id="btn-agree" class="btn-main" style="display:none; width:220px; background:transparent; border:1px solid var(--cyber); color:var(--cyber);" onclick="acceptDisclaimer()">ACCEPT</button>
 </section>
 
 <section id="view-login">
     <div class="login-card">
-        <h1 id="txt-title" style="font-family:'Syncopate'; font-size:1.1rem; letter-spacing:5px; margin-bottom:30px; color:var(--tools);">ELITE AURA</h1>
+        <h1 style="font-family:'Syncopate'; font-size:1.1rem; letter-spacing:5px; margin-bottom:30px; color:var(--tools);">ELITE AURA</h1>
         <input type="text" id="u-input" placeholder="ACCESS KEY">
         <button class="btn-main" id="btn-connect" onclick="handleLogin()">CONNECT</button>
     </div>
 </section>
 
 <section id="view-menu">
+    <div class="stats-top">
+        <div><span id="txt-total">TOTAL USERS</span>: <span style="color:var(--gold)">3562+</span></div>
+        <div><span style="color:#0f0">●</span> <span id="txt-online">ONLINE</span>: <span id="online-count" style="color:var(--gold)">0</span></div>
+    </div>
+
     <div class="navbar">
         <div style="font-weight:900;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
         <div style="display: flex; align-items: center; gap: 15px;">
@@ -89,13 +91,13 @@
 
     <div id="category-selector" class="grid">
         <div class="card" onclick="showTools('cyber-grid')" style="border-left: 6px solid var(--cyber);">
-            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3 class="cat-title" data-key="cat_cyber">CYBER OPS</h3>
+            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3 class="trans" data-key="cat_cyber">CYBER OPS</h3>
         </div>
         <div class="card" onclick="showTools('tools-grid')" style="border-left: 6px solid var(--tools);">
-            <i class="fas fa-shield-alt" style="color:var(--tools)"></i><h3 class="cat-title" data-key="cat_tools">TOOLS</h3>
+            <i class="fas fa-shield-alt" style="color:var(--tools)"></i><h3 class="trans" data-key="cat_tools">TOOLS</h3>
         </div>
         <div class="card" onclick="showTools('fun-grid')" style="border-left: 6px solid var(--fun);">
-            <i class="fas fa-heart" style="color:var(--fun)"></i><h3 class="cat-title" data-key="cat_fun">FOR FUN</h3>
+            <i class="fas fa-heart" style="color:var(--fun)"></i><h3 class="trans" data-key="cat_fun">FOR FUN</h3>
         </div>
     </div>
 
@@ -115,78 +117,98 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // TƏRCÜMƏ MƏLUMATLARI
-    const translations = {
+    // TAM TƏRCÜMƏ BAZASI
+    const lang = {
         az: {
             dis: "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.",
-            btn_agree: "DAVAM ET", btn_connect: "QOŞUL", btn_back: "GERİ", cat_cyber: "KİBER ƏMƏLİYYAT", cat_tools: "ALƏTLƏR", cat_fun: "ƏYLƏNCƏ",
-            t_word: "Wordlist Yaradıcı", t_ddos: "DDoS Hücumu", t_insta: "İnsta Casus", t_trap: "Kamera Tələsi", t_ip: "IP İzləyici"
+            cat_cyber: "KİBER ƏMƏLİYYAT", cat_tools: "ALƏTLƏR", cat_fun: "ƏYLƏNCƏ",
+            tWord: "Wordlist Yaradıcı", tDdos: "DDoS Stresser", tSql: "SQL Skaner", tBrute: "Brute Force",
+            tInsta: "Instagram Spy", tTrap: "Kamera Tələsi", tIp: "IP İzləyici", tMail: "Anonim Mail",
+            tGift: "Hədiyyə Çarxı", tSecret: "Gizli Həqiqətlər", tTarot: "Tarot Analizi",
+            total: "ÜMUMİ İSTİFADƏÇİ", online: "ONLAYN", back: "GERİ", shop: "PTS AL"
         },
         tr: {
-            dis: "Bu site aracılığıyla yapacağınız işlemlerden kurucu veya moderatör sorumlu değildir. Site yasa dışı işleri teşvik etmez. Devam ederek sorumluluğu kabul edersiniz.",
-            btn_agree: "DEVAM ET", btn_connect: "BAĞLAN", btn_back: "GERİ", cat_cyber: "SİBER OPERASYON", cat_tools: "ARAÇLAR", cat_fun: "EĞLENCE",
-            t_word: "Wordlist Oluşturucu", t_ddos: "DDoS Saldırısı", t_insta: "İnsta Casus", t_trap: "Kamera Tuzağı", t_ip: "IP Takipçisi"
+            dis: "Bu site aracılığıyla yapacağınız işlemlerden kurucu veya moderatör sorumlu değildir. Site yasa dışı işleri teşvik etmez. Sorumluluğu kabul ediyorsunuz.",
+            cat_cyber: "SİBER OPERASYON", cat_tools: "ARAÇLAR", cat_fun: "EĞLENCE",
+            tWord: "Wordlist Oluşturucu", tDdos: "DDoS Stresser", tSql: "SQL Tarayıcı", tBrute: "Brute Force",
+            tInsta: "Instagram Spy", tTrap: "Kamera Tuzağı", tIp: "IP Takipçisi", tMail: "Anonim Mail",
+            tGift: "Hediye Çarkı", tSecret: "Gizli Gerçekler", tTarot: "Tarot Analizi",
+            total: "TOPLAM KULLANICI", online: "ÇEVRİMİÇİ", back: "GERİ", shop: "PTS AL"
         },
         ru: {
-            dis: "Основатель или модератор не несут ответственности за действия через этот сайт. Сайт не поощряет незаконную деятельность. Продолжая, вы берете на себя ответственность.",
-            btn_agree: "ПРОДОЛЖИТЬ", btn_connect: "ПОДКЛЮЧИТЬСЯ", btn_back: "НАЗАД", cat_cyber: "КИБЕР ОПЕРАЦИИ", cat_tools: "ИНСТРУМЕНТЫ", cat_fun: "РАЗВЛЕЧЕНИЯ",
-            t_word: "Генератор Wordlist", t_ddos: "DDoS Атака", t_insta: "Инста Шпион", t_trap: "Ловушка Камеры", t_ip: "IP Трекер"
+            dis: "Основатель или модератор не несут ответственности за действия через этот сайт. Сайт не поощряет незаконную деятельность. Вы принимаете ответственность.",
+            cat_cyber: "КИБЕР ОПЕРАЦИИ", cat_tools: "ИНСТРУМЕНТЫ", cat_fun: "РАЗВЛЕЧЕНИЯ",
+            tWord: "Генератор Wordlist", tDdos: "DDoS Stresser", tSql: "SQL Сканер", tBrute: "Brute Force",
+            tInsta: "Инста Шпион", tTrap: "Ловушка Камеры", tIp: "IP Трекер", tMail: "Анонимная Почта",
+            tGift: "Колесо Подарков", tSecret: "Тайные Истины", tTarot: "Таро Анализ",
+            total: "ВСЕГО ПОЛЬЗОВАТЕЛЕЙ", online: "ОНЛАЙН", back: "НАЗАД", shop: "КУПИТЬ PTS"
         },
         en: {
-            dis: "The founder or moderator is not responsible for any activation made through this site. The site does not encourage illegal activities. By proceeding, you accept responsibility.",
-            btn_agree: "PROCEED", btn_connect: "CONNECT", btn_back: "BACK", cat_cyber: "CYBER OPS", cat_tools: "TOOLS", cat_fun: "FOR FUN",
-            t_word: "Wordlist Creator", t_ddos: "DDoS Stresser", t_insta: "Insta Spy", t_trap: "Camera Trap", t_ip: "IP Tracker"
+            dis: "The founder or moderator is not responsible for any activation through this site. The site does not encourage illegal activities. You accept responsibility.",
+            cat_cyber: "CYBER OPS", cat_tools: "TOOLS", cat_fun: "FOR FUN",
+            tWord: "Wordlist Creator", tDdos: "DDoS Stresser", tSql: "SQL Scanner", tBrute: "Brute Force",
+            tInsta: "Instagram Spy", tTrap: "Camera Trap", tIp: "IP Tracker", tMail: "Anon Mail",
+            tGift: "Gift Wheel", tSecret: "Secret Truths", tTarot: "Tarot Analysis",
+            total: "TOTAL USERS", online: "ONLINE", back: "BACK", shop: "BUY PTS"
         }
     };
 
-    let curLang = 'az';
-    let charIdx = 0;
-    let isTyping = true;
+    // BÜTÜN 11 BÖLMƏ (SİLMƏDƏN)
+    const toolGrids = {
+        'cyber-grid': [
+            {id: 'tWord', i: 'fa-file-code', c: 'var(--cyber)', f: 'wordlist.html', p: 800},
+            {id: 'tDdos', i: 'fa-radiation', c: 'var(--cyber)', f: 'ddos.html', p: 600},
+            {id: 'tSql', i: 'fa-database', c: 'var(--cyber)', f: 'sql_scan.html', p: 500},
+            {id: 'tBrute', i: 'fa-unlock-alt', c: 'var(--cyber)', f: 'brute.html', p: 500}
+        ],
+        'tools-grid': [
+            {id: 'tInsta', i: 'fa-instagram', c: 'var(--tools)', f: 'insta_spy.html', p: 900},
+            {id: 'tTrap', i: 'fa-camera-retro', c: 'var(--tools)', f: 'trap.html', p: 500},
+            {id: 'tIp', i: 'fa-map-location-dot', c: 'white', f: 'ip.html', p: 0},
+            {id: 'tMail', i: 'fa-envelope-shield', c: 'white', f: 'mail.html', p: 0}
+        ],
+        'fun-grid': [
+            {id: 'tGift', i: 'fa-gift', c: 'var(--fun)', f: 'gift_wheel.html', p: 0},
+            {id: 'tSecret', i: 'fa-mask', c: 'var(--fun)', f: 'secret_test.html', p: 0},
+            {id: 'tTarot', i: 'fa-wand-sparkles', c: 'var(--fun)', f: 'tarot.html', p: 0}
+        ]
+    };
 
-    // DİLİ DƏYİŞMƏK
-    function setLanguage(lang) {
-        curLang = lang;
-        localStorage.setItem('elite_lang', lang);
-        document.querySelectorAll('.dis-lang').forEach(el => el.classList.remove('active'));
+    let curL = localStorage.getItem('elite_lang') || 'az';
+    let charI = 0;
+
+    function setLanguage(l) {
+        curL = l; localStorage.setItem('elite_lang', l);
+        document.querySelectorAll('.dis-lang').forEach(e => e.classList.remove('active'));
         event.target.classList.add('active');
-        
-        // Təlimat animasiyasını sıfırla
         if(document.getElementById('view-disclaimer').style.display !== 'none') {
-            document.getElementById('typewriter').innerHTML = "";
-            charIdx = 0; isTyping = true;
-            typeWriter();
+            document.getElementById('typewriter').innerHTML = ""; charI = 0; typeW();
         }
         updateUI();
     }
 
     function updateUI() {
-        const d = translations[curLang];
-        document.getElementById('btn-agree').innerText = d.btn_agree;
-        document.getElementById('btn-connect').innerText = d.btn_connect;
-        if(document.getElementById('btn-back')) document.getElementById('btn-back').innerText = d.btn_back;
-        
-        document.querySelectorAll('.cat-title').forEach(el => {
-            el.innerText = d[el.getAttribute('data-key')];
-        });
+        const d = lang[curL];
+        document.getElementById('txt-total').innerText = d.total;
+        document.getElementById('txt-online').innerText = d.online;
+        document.getElementById('btn-back').innerText = d.back;
+        document.getElementById('btn-shop').innerText = d.shop;
+        document.querySelectorAll('.trans').forEach(e => e.innerText = d[e.getAttribute('data-key')]);
     }
 
-    function typeWriter() {
-        const text = translations[curLang].dis;
-        if (charIdx < text.length && isTyping) {
-            document.getElementById('typewriter').innerHTML += text.charAt(charIdx);
-            charIdx++;
-            setTimeout(typeWriter, 20);
-        } else {
-            document.getElementById('btn-agree').style.display = 'inline-block';
-        }
+    function typeW() {
+        const t = lang[curL].dis;
+        if (charI < t.length) {
+            document.getElementById('typewriter').innerHTML += t.charAt(charI);
+            charI++; setTimeout(typeW, 20);
+        } else { document.getElementById('btn-agree').style.display = 'inline-block'; }
     }
 
     function acceptDisclaimer() {
         document.getElementById('bg-music').play();
         document.getElementById('view-disclaimer').style.display = 'none';
-        const session = localStorage.getItem('elite_session');
-        if(session) showMenu(session);
-        else document.getElementById('view-login').style.display = 'flex';
+        const s = localStorage.getItem('elite_session');
+        if(s) showMenu(s); else document.getElementById('view-login').style.display = 'flex';
     }
 
     async function handleLogin() {
@@ -195,8 +217,7 @@
         const snap = await db.ref('users/'+u).get();
         if(snap.exists() && snap.val().isOnline) return alert("ACCOUNT BUSY!");
         await db.ref('users/'+u).update({ isOnline: true });
-        localStorage.setItem('elite_session', u);
-        showMenu(u);
+        localStorage.setItem('elite_session', u); showMenu(u);
     }
 
     function showMenu(u) {
@@ -204,24 +225,18 @@
         document.getElementById('view-login').style.display = 'none';
         document.getElementById('view-menu').style.display = 'block';
         document.getElementById('u-display').innerText = u.toUpperCase();
-        db.ref('users/'+u+'/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
-        window.onbeforeunload = () => db.ref('users/'+u).update({ isOnline: false });
+        db.ref('users/'+u+'/points').on('value', s => document.getElementById('pts-display').innerText = s.val() || 0);
         updateUI();
+        window.onbeforeunload = () => db.ref('users/'+u).update({ isOnline: false });
     }
-
-    const toolGrids = {
-        'cyber-grid': [{n:'t_word', i:'fa-file-code', c:'var(--cyber)', f:'wordlist.html', p:800},{n:'t_ddos', i:'fa-radiation', c:'var(--cyber)', f:'ddos.html', p:600}],
-        'tools-grid': [{n:'t_insta', i:'fa-instagram', c:'var(--tools)', f:'insta.html', p:900},{n:'t_trap', i:'fa-camera', c:'var(--tools)', f:'trap.html', p:500},{n:'t_ip', i:'fa-location-dot', c:'white', f:'ip.html', p:0}],
-        'fun-grid': [{n:'Gift Wheel', i:'fa-gift', c:'var(--fun)', f:'gift.html', p:0}]
-    };
 
     function showTools(key) {
         document.getElementById('category-selector').style.display = 'none';
         document.getElementById('tool-list').style.display = 'block';
-        const grid = document.getElementById('active-grid'); grid.innerHTML = "";
+        const g = document.getElementById('active-grid'); g.innerHTML = "";
         toolGrids[key].forEach(t => {
-            const name = translations[curLang][t.n] || t.n;
-            grid.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.p})">
+            const name = lang[curL][t.id];
+            g.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.p})">
                 <i class="fas ${t.i}" style="color:${t.c}"></i><h3>${name}</h3><p>${t.p} PTS</p></div>`;
         });
     }
@@ -240,7 +255,7 @@
     }
 
     function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
-    window.onload = typeWriter;
+    window.onload = () => { typeW(); updateUI(); setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 50) + 10; }, 2000); };
 </script>
 </body>
 </html>
