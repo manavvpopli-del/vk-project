@@ -1,44 +1,76 @@
-<div class="shop-container" style="padding: 20px; color: white; text-align: center;">
-    <h2 style="font-family: 'Syncopate'; color: var(--tools);">PTS STORE</h2>
-    <p style="font-size: 0.8rem; opacity: 0.6;">Xaricdən ödəniş: Google Pay / Apple Pay / Kart</p>
+// SAYTINDAKI ÖDƏNİŞ (SHOP) HİSSƏSİNİ BU KODLA YENİLƏ
 
-    <div class="grid" style="display: grid; gap: 20px; margin-top: 30px;">
-        
-        <div class="card" style="border: 1px solid #333; padding: 25px; border-radius: 25px;">
-            <h3>300 PTS</h3>
-            <h1 style="color: var(--gold);">$9.00</h1>
-            <button onclick="buyPTS('https://webbaze.lemonsqueezy.com/checkout/buy/a16608ca-422d-4516-998f-71c2907c2520')" class="btn-main">SATIN AL</button>
-        </div>
+function openShop() {
+    document.getElementById('tool-content').innerHTML = `
+        <div style="text-align:center; font-family:'Outfit';">
+            <h2 style="color:var(--gold); font-family:'Syncopate'; font-size:1rem; margin-bottom:25px;">PTS BALANS ARTIR</h2>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+                <div class="shop-item" onclick="preparePulpal(300, 10)" style="margin:0; border-color:var(--tools);">
+                    <h3>300 PTS</h3><p>10.00 AZN</p>
+                </div>
+                <div class="shop-item" onclick="preparePulpal(600, 18)" style="margin:0; border-color:var(--tools);">
+                    <h3>600 PTS</h3><p>18.00 AZN</p>
+                </div>
+                <div class="shop-item" onclick="preparePulpal(900, 25)" style="margin:0; border-color:var(--gold);">
+                    <h3>900 PTS</h3><p>25.00 AZN</p>
+                </div>
+                <div class="shop-item" onclick="preparePulpal(1500, 40)" style="margin:0; border-color:var(--cyber);">
+                    <h3>1500 PTS</h3><p>40.00 AZN</p>
+                </div>
+            </div>
 
-        <div class="card" style="border: 1px solid var(--tools); padding: 25px; border-radius: 25px; position: relative;">
-            <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--tools); color: black; padding: 2px 15px; border-radius: 10px; font-size: 0.6rem; font-weight: 900;">BEST SELLER</div>
-            <h3>600 PTS</h3>
-            <h1 style="color: var(--gold);">$17.00</h1>
-            <button onclick="buyPTS('17_DOLLAR_LINK_ID')" class="btn-main" style="background: var(--tools); color: black;">SATIN AL</button>
-        </div>
+            <div id="pulpal-pay-zone" style="display:none; border-top:1px solid #222; padding-top:20px; animation:fadeIn 0.5s ease;">
+                <p id="pay-info-text" style="font-size:0.8rem; color:var(--tools); margin-bottom:15px;"></p>
+                
+                <a id="dynamic-pulpal-link" href="#" target="_blank" 
+                   style="display:inline-block; background:white; color:black; padding:15px 40px; border-radius:12px; font-weight:900; text-decoration:none; margin-bottom:25px; box-shadow:0 0 20px rgba(255,255,255,0.2);">
+                   KARTLA ÖDƏNİŞ ET (PULPAL)
+                </a>
 
-        <div class="card" style="border: 1px solid #333; padding: 25px; border-radius: 25px;">
-            <h3>900 PTS</h3>
-            <h1 style="color: var(--gold);">$30.00</h1>
-            <button onclick="buyPTS('30_DOLLAR_LINK_ID')" class="btn-main">SATIN AL</button>
-        </div>
+                <div style="background:rgba(255,0,0,0.05); padding:15px; border-radius:10px; border:1px solid rgba(255,0,0,0.2);">
+                    <p style="font-size:0.7rem; color:#ff4444; margin-bottom:10px; font-weight:bold;">VACİB: Ödəniş bitdikdən sonra qəbzin (çekin) şəklini bura yükləyin:</p>
+                    <input type="file" id="pulpal-ss" accept="image/*" style="width:100%; font-size:0.7rem; color:white;">
+                    <button class="btn-main" id="confirm-btn" style="margin-top:15px;">ADMİNƏ GÖNDƏR</button>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('modal-overlay').style.display = 'block';
+}
 
-    </div>
-</div>
+function preparePulpal(pts, amount) {
+    const baseUrl = "https://pay.pulpal.az/payment?uniqueCode=W-7qRM6ZmR&amount=";
+    const finalUrl = baseUrl + amount;
+    
+    document.getElementById('pulpal-pay-zone').style.display = 'block';
+    document.getElementById('pay-info-text').innerText = `${pts} PTS üçün ${amount} AZN ödəniş linki hazırlandı.`;
+    document.getElementById('dynamic-pulpal-link').href = finalUrl;
+    
+    // Düymənin funksiyasını təyin et
+    document.getElementById('confirm-btn').onclick = function() {
+        submitPulpalProof(pts);
+    };
+}
 
-<script>
-    function buyPTS(productId) {
-        const user = localStorage.getItem('elite_session');
-        if(!user) return alert("Sistemə giriş edin!");
+async function submitPulpalProof(ptsAmount) {
+    const fileInput = document.getElementById('pulpal-ss');
+    const file = fileInput.files[0];
+    
+    if(!file) return alert("Zəhmət olmasa ödəniş çekini (screenshot) yükləyin!");
 
-        // Lemon Squeezy mağaza linkin (Checkout linkin)
-        // DİQQƏT: productId yerinə Lemon Squeezy-dən aldığın linkin ID-sini qoymalısan
-        let baseLink = `https://elitaura.lemonsqueezy.com/checkout/buy/${productId}`;
-        
-        // Ödəniş səhifəsinə istifadəçi ID-sini gizli ötürürük
-        let finalLink = `${baseLink}?checkout[custom][user_id]=${user}`;
-        
-        // İstifadəçini ödənişə yönləndiririk
-        window.location.href = finalLink;
-    }
-</script>
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const payRef = db.ref('pending_payments').push();
+        await payRef.set({
+            user: localStorage.getItem('elite_session'),
+            pts: ptsAmount,
+            screenshot: e.target.result,
+            status: "pending",
+            method: "Pulpal",
+            timestamp: Date.now()
+        });
+        alert("Məlumatlar Adminə göndərildi! Ödəniş yoxlanıldıqdan sonra PTS balansınıza oturacaq.");
+        closeTool();
+    };
+    reader.readAsDataURL(file);
+}
