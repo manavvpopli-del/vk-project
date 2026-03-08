@@ -9,103 +9,91 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-        
-        :root {
-            --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07);
-            --fun: #ff007a; --tools: #00dfff; --cyber: #00ff00; --gold: #ffd700;
-        }
-
+        :root { --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); --fun: #ff007a; --tools: #00dfff; --cyber: #00ff00; --gold: #ffd700; }
         * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; min-height: 100vh; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); }
 
-        /* TƏLİMAT EKRANI */
+        /* DISCLAIMER */
         #view-disclaimer { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .dis-card { max-width: 650px; text-align: center; border: 1px solid var(--border); padding: 45px; border-radius: 35px; background: rgba(255,255,255,0.01); backdrop-filter: blur(15px); }
-        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.7; margin-bottom: 30px; text-shadow: 0 0 5px var(--cyber); min-height: 100px; }
+        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.7; text-align: center; max-width: 650px; text-shadow: 0 0 5px var(--cyber); }
 
-        /* GİRİŞ EKRANI */
+        /* LOGIN */
         #view-login { display: none; align-items: center; justify-content: center; height: 100vh; position: fixed; inset: 0; z-index: 2000; background: var(--bg); }
         .login-card { background: var(--glass); padding: 50px; border-radius: 40px; border: 1px solid var(--border); text-align: center; width: 340px; backdrop-filter: blur(20px); }
 
-        /* DİL PANELİ */
-        .lang-bar { position: fixed; top: 20px; left: 20px; z-index: 10001; display: flex; gap: 8px; }
-        .lang-node { background: var(--glass); border: 1px solid var(--border); color: white; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 900; }
-        .lang-node.active { background: white; color: black; }
-
-        /* ANA MENYU */
+        /* MENU */
         #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
         .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin-bottom: 40px; backdrop-filter: blur(15px); }
-        .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
-        .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.05); }
+        .card:hover { transform: translateY(-10px); border-color: var(--tools); background: rgba(255,255,255,0.04); }
         .card i { font-size: 3.5rem; margin-bottom: 25px; }
-        .card h3 { font-family: 'Syncopate'; font-size: 1rem; margin: 0; }
 
-        /* MODAL VƏ DİGƏRLƏRİ */
-        #tool-viewer { display: none; animation: slideUp 0.5s ease; }
-        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; overflow-y: auto; }
+        #tool-viewer { display: none; animation: slideUp 0.5s ease; margin-top: 30px; }
+        .back-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; font-weight: 900; }
+
         input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; }
         .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
-        .shop-item { border: 1px solid #333; padding: 20px; border-radius: 20px; margin-bottom: 10px; cursor: pointer; text-align: center; }
-
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; padding: 40px; overflow-y: auto; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
+<audio id="bg-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
+
 <section id="view-disclaimer">
-    <div class="dis-card">
-        <i class="fas fa-triangle-exclamation" style="color:red; font-size:2rem; margin-bottom:20px;"></i>
+    <div style="text-align:center;">
         <div id="typewriter" class="matrix-text"></div>
-        <button id="btn-agree" class="btn-main" style="display:none; background:transparent; border:1px solid var(--cyber); color:var(--cyber);" onclick="acceptTerms()">DAVAM ET</button>
+        <button id="btn-agree" class="btn-main" style="display:none; width:200px; background:transparent; border:1px solid var(--cyber); color:var(--cyber);" onclick="acceptDisclaimer()">DAVAM ET</button>
     </div>
 </section>
 
-<div class="lang-bar" style="display:none;" id="l-bar">
-    <div class="lang-node active" id="btn-az" onclick="changeLang('az')">AZ</div>
-    <div class="lang-node" id="btn-tr" onclick="changeLang('tr')">TR</div>
-</div>
-
-<audio id="bg-music" loop><source src="music.mp3" type="audio/mpeg"></audio>
-
 <section id="view-login">
     <div class="login-card">
-        <h1 style="font-family:'Syncopate'; font-size:1.1rem; letter-spacing:5px; margin-bottom:30px;">ELITE AURA</h1>
+        <h1 style="font-family:'Syncopate'; font-size:1.1rem; letter-spacing:5px; margin-bottom:30px; color:var(--tools);">ELITE AURA</h1>
         <input type="text" id="u-input" placeholder="ACCESS KEY">
         <button class="btn-main" onclick="handleLogin()">CONNECT</button>
     </div>
 </section>
 
 <section id="view-menu">
-    <div class="stats-top">
-        <div>TOTAL: <span style="color:var(--gold)">3562+</span></div>
-        <div>ONLINE: <span id="online-count" style="color:var(--gold)">0</span></div>
-    </div>
     <div class="navbar">
-        <div style="font-weight:900;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
+        <div style="font-weight:900; letter-spacing:1px;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <button onclick="openShop()" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer; font-size:0.7rem;">PTS SATIN AL</button>
+            <button onclick="openShop()" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer; font-size:0.7rem;">PTS ARTIR</button>
             <div style="color:var(--gold); font-weight:900;"><span id="pts-display">0</span> PTS</div>
         </div>
     </div>
 
     <div id="category-selector" class="grid">
-        <div class="card" onclick="toggleCategory('cyber-grid')" style="border-left: 6px solid var(--cyber);"><i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3 id="h-cyber">CYBER OPS</h3></div>
-        <div class="card" onclick="toggleCategory('tools-grid')" style="border-left: 6px solid var(--tools);"><i class="fas fa-shield-alt" style="color:var(--tools)"></i><h3 id="h-tools">TOOLS</h3></div>
-        <div class="card" onclick="toggleCategory('fun-grid')" style="border-left: 6px solid var(--fun);"><i class="fas fa-heart" style="color:var(--fun)"></i><h3 id="h-fun">FOR FUN</h3></div>
+        <div class="card" onclick="openCategory('cyber-grid')" style="border-left: 6px solid var(--cyber);">
+            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i>
+            <h3>CYBER OPS</h3>
+            <p style="font-size:0.7rem; opacity:0.5;">Hücum və Sızma Alətləri</p>
+        </div>
+        <div class="card" onclick="openCategory('tools-grid')" style="border-left: 6px solid var(--tools);">
+            <i class="fas fa-shield-alt" style="color:var(--tools)"></i>
+            <h3>TOOLS</h3>
+            <p style="font-size:0.7rem; opacity:0.5;">Kəşfiyyat və Analiz</p>
+        </div>
+        <div class="card" onclick="openCategory('fun-grid')" style="border-left: 6px solid var(--fun);">
+            <i class="fas fa-heart" style="color:var(--fun)"></i>
+            <h3>FOR FUN</h3>
+            <p style="font-size:0.7rem; opacity:0.5;">Sosial və Əyləncə</p>
+        </div>
     </div>
 
     <div id="tool-viewer">
-        <button class="btn-main" style="width:auto; padding:10px 25px;" onclick="location.reload()">GERİ</button>
-        <div id="active-grid" class="grid" style="margin-top:20px;"></div>
+        <button class="back-btn" onclick="location.reload()"><i class="fas fa-arrow-left"></i> GERİ QAYIT</button>
+        <div id="active-grid" class="grid"></div>
     </div>
 </section>
 
 <div id="modal-overlay">
-    <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; background:red; color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; z-index:10001;">X</button>
+    <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; background:red; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; z-index:10001;">X</button>
     <div id="tool-content" style="margin-top:40px;"></div>
 </div>
 
@@ -114,105 +102,118 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 1. TƏLİMAT (Matrix Animasiyası)
-    const text = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal/legal işlər görməyə və buna bənzər işlərə təşviq etmir. Aşağıdaki 'Davam Et' düyməsinə basaraq saytdan istifadə etdiyiniz halda etdiklərinizə özünüzün cavabdeh olacağınızı qəbul etmiş olursunuz.";
-    let idx = 0;
-    function type() {
-        if(idx < text.length) {
-            document.getElementById('typewriter').innerHTML += text.charAt(idx);
-            idx++; setTimeout(type, 30);
+    // SƏNİN BÜTÜN BÖLMƏLƏRİN
+    const toolGrids = {
+        'cyber-grid': [
+            {n: 'Wordlist Creator', i: 'fa-file-code', c: 'var(--cyber)', f: 'wordlist.html', p: 800},
+            {n: 'DDoS Stresser', i: 'fa-radiation', c: 'var(--cyber)', f: 'ddos.html', p: 600},
+            {n: 'SQL Scanner', i: 'fa-database', c: 'var(--cyber)', f: 'sql_scan.html', p: 500},
+            {n: 'Brute Force', i: 'fa-unlock-alt', c: 'var(--cyber)', f: 'brute.html', p: 500}
+        ],
+        'tools-grid': [
+            {n: 'Instagram Spy', i: 'fa-instagram', c: 'var(--tools)', f: 'insta_spy.html', p: 900},
+            {n: 'Camera Trap', i: 'fa-camera-retro', c: 'var(--tools)', f: 'trap.html', p: 500},
+            {n: 'IP Tracker', i: 'fa-map-location-dot', c: 'white', f: 'ip.html', p: 0},
+            {n: 'Anon Mail', i: 'fa-envelope-shield', c: 'white', f: 'mail.html', p: 0}
+        ],
+        'fun-grid': [
+            {n: 'Gift Wheel', i: 'fa-gift', c: 'var(--fun)', f: 'gift_wheel.html', p: 0},
+            {n: 'Secret Test', i: 'fa-mask', c: 'var(--fun)', f: 'secret_test.html', p: 0},
+            {n: 'Tarot Analysis', i: 'fa-wand-sparkles', c: 'var(--fun)', f: 'tarot.html', p: 0}
+        ]
+    };
+
+    // TƏLİMAT ANIMASİYASI
+    const msg = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu , istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal/legal işlər görməyə və buna bənzər işlərə təşviq etmir. Aşağıdaki ' Davam Et ' düyməsinə basaraq saytdan istifadə etdiyiniz halda etdiklərinizə özünüzün cavabdeh olacağınızı qəbul etmiş olursunuz.";
+    let charIdx = 0;
+    function typeWriter() {
+        if(charIdx < msg.length) {
+            document.getElementById('typewriter').innerHTML += msg.charAt(charIdx);
+            charIdx++; setTimeout(typeWriter, 25);
         } else { document.getElementById('btn-agree').style.display = 'inline-block'; }
     }
 
-    function acceptTerms() {
+    function acceptDisclaimer() {
+        document.getElementById('bg-music').play();
         document.getElementById('view-disclaimer').style.display = 'none';
-        document.getElementById('view-login').style.display = 'flex';
-        document.getElementById('l-bar').style.display = 'flex';
-        document.getElementById('bg-music').play().catch(e => {});
-    }
-
-    // 2. BÖLMƏLƏR VƏ DİL
-    const langData = {
-        az: { cyber: "KİBER ƏMƏLİYYAT", tools: "ALƏTLƏR", fun: "ƏYLƏNCƏ", tWord: "Wordlist Yaradıcı", tDdos: "DDoS Stresser", tInsta: "Instagram Spy", tTrap: "Kamera Tələsi", tGift: "Hədiyyə Çarxı" },
-        tr: { cyber: "SİBER OPERASYON", tools: "ARAÇLAR", fun: "EĞLENCE", tWord: "Wordlist Oluşturucu", tDdos: "DDoS Stresser", tInsta: "Instagram Spy", tTrap: "Kamera Tuzağı", tGift: "Hediye Çarkı" }
-    };
-
-    const toolGrids = {
-        'cyber-grid': [{id:'tWord', f:'wordlist.html', c:800, i:'fa-file-code'}, {id:'tDdos', f:'ddos.html', c:600, i:'fa-radiation'}],
-        'tools-grid': [{id:'tInsta', f:'insta.html', c:900, i:'fa-instagram'}, {id:'tTrap', f:'trap.html', c:500, i:'fa-camera'}],
-        'fun-grid': [{id:'tGift', f:'gift.html', c:0, i:'fa-gift'}]
-    };
-
-    function changeLang(l) {
-        localStorage.setItem('elite_lang', l);
-        document.querySelectorAll('.lang-node').forEach(n => n.classList.remove('active'));
-        document.getElementById('btn-'+l).classList.add('active');
-        const d = langData[l];
-        document.getElementById('h-cyber').innerText = d.cyber;
-        document.getElementById('h-tools').innerText = d.tools;
-        document.getElementById('h-fun').innerText = d.fun;
+        const savedUser = localStorage.getItem('elite_session');
+        if(savedUser) { showMenu(savedUser); } 
+        else { document.getElementById('view-login').style.display = 'flex'; }
     }
 
     async function handleLogin() {
-        const u = document.getElementById('u-input').value.trim().toLowerCase();
-        if(u.length < 3) return;
-        localStorage.setItem('elite_session', u);
-        const snap = await db.ref('users/'+u).get();
-        if(!snap.exists()) await db.ref('users/'+u).set({ points: 250, name: u });
-        showMenu(u);
+        const user = document.getElementById('u-input').value.trim().toLowerCase();
+        if(user.length < 3) return;
+        const snap = await db.ref('users/' + user).get();
+        if(snap.exists() && snap.val().isOnline) return alert("BU HESAB HAL-HAZIRDA BAŞQA CİHAZDA AKTİVDİR!");
+        await db.ref('users/' + user).update({ isOnline: true });
+        localStorage.setItem('elite_session', user);
+        showMenu(user);
     }
 
-    function showMenu(u) {
+    function showMenu(user) {
+        window.activeUser = user;
         document.getElementById('view-login').style.display = 'none';
         document.getElementById('view-menu').style.display = 'block';
-        document.getElementById('u-display').innerText = u.toUpperCase();
-        db.ref('users/'+u+'/points').on('value', s => document.getElementById('pts-display').innerText = s.val() || 0);
+        document.getElementById('u-display').innerText = user.toUpperCase();
+        db.ref('users/' + user + '/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
+        window.onbeforeunload = () => { db.ref('users/' + user).update({ isOnline: false }); };
     }
 
-    function toggleCategory(k) {
-        const l = localStorage.getItem('elite_lang') || 'az';
+    // KATEGORİYA AÇMAQ
+    function openCategory(key) {
         document.getElementById('category-selector').style.display = 'none';
         document.getElementById('tool-viewer').style.display = 'block';
-        const g = document.getElementById('active-grid'); g.innerHTML = "";
-        toolGrids[k].forEach(t => {
-            g.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.c})"><i class="fas ${t.i}" style="color:var(--tools)"></i><h3>${langData[l][t.id]}</h3><p>${t.c} PTS</p></div>`;
+        const grid = document.getElementById('active-grid'); grid.innerHTML = "";
+        toolGrids[key].forEach(t => {
+            grid.innerHTML += `
+                <div class="card" onclick="openTool('${t.f}', ${t.p})" style="border-bottom: 4px solid ${t.c};">
+                    <i class="fas ${t.i}" style="color:${t.c}"></i>
+                    <h3>${t.n}</h3>
+                    <p>${t.p > 0 ? t.p + ' PTS' : 'PULSUZ'}</p>
+                </div>`;
         });
     }
 
-    // 3. SHOP (buyer767 -> buyer555)
+    async function openTool(file, cost) {
+        const snap = await db.ref('users/' + window.activeUser).get();
+        if(cost > 0 && (snap.val().points || 0) < cost) return alert("BALANS YETƏRSİZ!");
+        const res = await fetch(file); const h = await res.text();
+        document.getElementById('tool-content').innerHTML = h;
+        document.getElementById('modal-overlay').style.display = 'block';
+    }
+
+    // SHOP (buyer767 -> buyer555)
     function openShop() {
         document.getElementById('tool-content').innerHTML = `
             <div style="text-align:center;">
-                <h2 style="color:var(--gold);">PTS MAĞAZA</h2>
-                <div class="shop-item" onclick="b767(300, 9)"><h3>300 PTS</h3><p>$9.00</p></div>
-                <div class="shop-item" onclick="b767(600, 17)"><h3>600 PTS</h3><p>$17.00</p></div>
-                <div class="shop-item" onclick="b767(900, 30)"><h3>900 PTS</h3><p>$30.00</p></div>
+                <h2 style="color:var(--gold);">MAĞAZA</h2>
+                <button class="btn-main" onclick="buyer767(300)">300 PTS - $9</button>
+                <button class="btn-main" onclick="buyer767(600)">600 PTS - $17</button>
+                <button class="btn-main" onclick="buyer767(900)">900 PTS - $30</button>
             </div>`;
         document.getElementById('modal-overlay').style.display = 'block';
     }
 
-    function b767(pts, pr) {
+    function buyer767(pts) {
         document.getElementById('tool-content').innerHTML = `
             <div style="text-align:center;">
                 <h3>buyer767.html</h3>
-                <input type="text" id="v-u" placeholder="İstifadəçi adınızı təsdiqləyin">
-                <button class="btn-main" onclick="b555('${pts}')">DAVAM ET</button>
+                <input type="text" id="v-user" placeholder="SESSİYA ID TƏSDİQLƏ">
+                <button class="btn-main" onclick="buyer555('${pts}')">DAVAM ET</button>
             </div>`;
     }
 
-    function b555(pts) {
-        if(document.getElementById('v-u').value.toLowerCase() !== localStorage.getItem('elite_session')) return alert("Ad səhvdir!");
+    function buyer555(pts) {
+        if(document.getElementById('v-user').value.toLowerCase() !== localStorage.getItem('elite_session')) return alert("ID SƏHVDİR!");
         document.getElementById('tool-content').innerHTML = `
-            <div style="text-align:center;">
-                <h3>buyer555.html</h3>
-                <iframe src="https://webbaze.lemonsqueezy.com/checkout/buy/a16608ca-422d-4516-998f-71c2907c2520?embed=1" style="width:100%; height:450px; border:none; background:white;"></iframe>
-                <button class="btn-main" onclick="bFinal('${pts}')">ÖDƏNİŞ ETDİM / SCREENSHOT</button>
-            </div>`;
+            <iframe src="https://webbaze.lemonsqueezy.com/checkout/buy/a16608ca-422d-4516-998f-71c2907c2520?embed=1" style="width:100%; height:450px; border:none; background:white;"></iframe>
+            <button class="btn-main" onclick="finalS('${pts}')">ÖDƏNİŞ BİTDİ / ÇEK YÜKLƏ</button>`;
     }
 
-    function bFinal(pts) {
+    function finalS(pts) {
         document.getElementById('tool-content').innerHTML = `
-            <h3>SCREENSHOT YÜKLƏ</h3>
+            <h3>SCREENSHOT YÜKLƏ (buyer767)</h3>
             <input type="file" id="p-img" accept="image/*">
             <button class="btn-main" onclick="toA('${pts}')">ADMİNƏ GÖNDƏR</button>`;
     }
@@ -222,23 +223,13 @@
         const r = new FileReader();
         r.onload = async (e) => {
             await db.ref('pending_payments').push({ user: localStorage.getItem('elite_session'), pts: pts, screenshot: e.target.result, status: "pending", timestamp: Date.now() });
-            alert("Göndərildi!"); closeTool();
+            alert("ADMİNƏ GÖNDƏRİLDİ!"); document.getElementById('modal-overlay').style.display = 'none';
         };
         r.readAsDataURL(f);
     }
 
-    async function openTool(f, c) {
-        const snap = await db.ref('users/'+window.activeUser).get();
-        if(c > 0 && (snap.val().points || 0) < c) return alert("PTS yetərsiz!");
-        const res = await fetch(f); const h = await res.text();
-        document.getElementById('tool-content').innerHTML = h;
-        document.getElementById('modal-overlay').style.display = 'block';
-        const sc = document.getElementById('tool-content').getElementsByTagName('script');
-        for (let s of sc) { const ns = document.createElement("script"); ns.text = s.text; document.body.appendChild(ns).parentNode.removeChild(ns); }
-    }
     function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
-    window.onload = () => { type(); changeLang('az'); };
-    setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random() * 101); }, 2000);
+    window.onload = typeWriter;
 </script>
 </body>
 </html>
