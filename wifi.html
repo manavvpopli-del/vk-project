@@ -1,31 +1,98 @@
+<div id="terminal-wifi" style="background: #000; color: #00ff00; font-family: 'Courier New', monospace; padding: 15px; border: 1px solid #004400; border-radius: 10px; height: 90vh; display: flex; flex-direction: column;">
+    
+    <div style="border-bottom: 1px solid #004400; padding-bottom: 10px; margin-bottom: 10px; font-size: 0.7rem;">
+        <div>[MOD]: AIRMON-NG ENABLED</div>
+        <div>[INT]: wlan0mon (PROMISCUOUS MODE)</div>
+        <div id="live-timer" style="color: yellow;">SCAN TIME: 00:00:00</div>
+    </div>
+
+    <div id="monitor-screen" style="flex: 1; overflow-y: auto; font-size: 0.65rem; line-height: 1.4; text-shadow: 0 0 5px #00ff00;">
+        <div style="color: #fff; font-weight: bold;">> WAITING FOR COMMAND...</div>
+    </div>
+
+    <div id="packet-stream" style="height: 60px; border-top: 1px solid #004400; margin-top: 10px; padding-top: 5px; font-size: 0.55rem; color: #008800; overflow: hidden;">
+    </div>
+
+    <button onclick="igniteIntercept()" id="action-btn" style="width: 100%; padding: 15px; background: #00ff00; color: #000; border: none; font-weight: 900; margin-top: 15px; cursor: pointer; border-radius: 5px;">
+        START INTERCEPTION
+    </button>
+</div>
+
+<style>
+    #monitor-screen::-webkit-scrollbar { width: 3px; }
+    #monitor-screen::-webkit-scrollbar-thumb { background: #004400; }
+    .scan-row { display: flex; justify-content: space-between; border-bottom: 1px solid #001100; padding: 2px 0; }
+    .blink { animation: blinker 0.1s step-start infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+</style>
+
 <script>
-    async function startRealScan() {
-        const btn = document.getElementById('wifi-btn');
-        btn.innerText = "GPS SINXRONİZASİYA EDİLİR...";
+    let isScanning = false;
+    let timerInterval;
+    let seconds = 0;
 
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
+    function igniteIntercept() {
+        if(isScanning) return;
+        isScanning = true;
+        
+        const btn = document.getElementById('action-btn');
+        const screen = document.getElementById('monitor-screen');
+        const stream = document.getElementById('packet-stream');
+        
+        btn.disabled = true;
+        btn.innerText = "CAPTURING PACKETS...";
+        btn.style.background = "#333";
+        btn.style.color = "#888";
 
-            // BU HİSSƏDƏ REAL BAZADAN MƏLUMAT ÇƏKİLİR (Nümunə URL)
-            // Sən bura Wigle API-ni bağlaya bilərsən.
-            const api_url = `https://api.wigle.net/api/v2/network/search?latrange1=${lat}&latrange2=${lat}&longrange1=${lon}&longrange2=${lon}`;
-            
-            // Bizim tətbiqdə istifadəçi üçün bu proses belə görünəcək:
-            addLog("Məkan təsdiqləndi: " + lat.toFixed(4));
-            addLog("Yaxınlıqdakı şəbəkə qovşaqları (Nodes) çəkilir...");
+        // Timer başlat
+        timerInterval = setInterval(() => {
+            seconds++;
+            let h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            let m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            let s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('live-timer').innerText = `SCAN TIME: ${h}:${m}:${s}`;
+        }, 1000);
 
-            // Real bazadan gələn datanı emal edirik (Parsing)
-            // Əgər API yoxdursa, koordinatlara əsasən realistik lokallaşdırılmış data:
-            const regionPrefix = (lat > 40) ? "Aztelekom_" : "TP-Link_"; 
-            
-            const realNets = [
-                {n: regionPrefix + Math.floor(Math.random()*9000 + 1000), s: "-42dBm", t: "WPA2"},
-                {n: "Home_WiFi_" + (lat.toString().substring(5,8)), s: "-55dBm", t: "WPA2-PSK"},
-                {n: "Baku_City_Net", s: "-72dBm", t: "OPEN"}
-            ];
+        // Terminal effektləri
+        const networks = [
+            {bssid: "00:14:22:01:23:45", pwr: "-42", beac: "450", essid: "Aztelekom_GPON"},
+            {bssid: "C0:FF:EE:88:99:AA", pwr: "-68", beac: "120", essid: "TP-Link_Home"},
+            {bssid: "A1:B2:C3:D4:E5:F6", pwr: "-31", beac: "890", essid: "iPhone_Hacker"},
+            {bssid: "FF:FF:FF:FF:FF:FF", pwr: "-85", beac: "12",  essid: "Hidden_SSID"}
+        ];
 
-            // ... (Dizayn hissəsi əvvəlki kodla eynidir)
+        screen.innerHTML = `<div class="scan-row" style="color:yellow"><b>BSSID</b> <b>PWR</b> <b>BEAC</b> <b>ESSID</b></div>`;
+
+        // Canlı paket axını (Aşağıdakı yaşıl balaca yazılar)
+        setInterval(() => {
+            if(!isScanning) return;
+            const hex = Math.random().toString(16).substring(2, 10).toUpperCase();
+            const p = document.createElement('div');
+            p.innerText = `[PKT] RX_DATA: 0x${hex} | CH: ${Math.floor(Math.random()*13)+1} | CRC: OK`;
+            stream.prepend(p);
+            if(stream.childNodes.length > 5) stream.removeChild(stream.lastChild);
+        }, 150);
+
+        // Şəbəkələrin bir-bir tapılması
+        networks.forEach((net, i) => {
+            setTimeout(() => {
+                const row = document.createElement('div');
+                row.className = 'scan-row';
+                row.innerHTML = `<span>${net.bssid}</span> <span>${net.pwr}</span> <span>${net.beac}</span> <span style="color:#fff">${net.essid}</span>`;
+                screen.appendChild(row);
+                
+                // Hər şəbəkə tapılanda səs imitasiyası və ya titrəmə
+                if (navigator.vibrate) navigator.vibrate(50);
+            }, i * 2000);
         });
+
+        // 10 saniyə sonra "WPS PIN" sınağı başlat
+        setTimeout(() => {
+            const crackMsg = document.createElement('div');
+            crackMsg.style.marginTop = "15px";
+            crackMsg.style.color = "cyan";
+            crackMsg.innerHTML = `[!] ATTACKING: Aztelekom_GPON via Reaver v1.6.1<br>[!] TRYING PIN: 12345670 ... <span class="blink">SCANNING</span>`;
+            screen.appendChild(crackMsg);
+        }, 8000);
     }
 </script>
