@@ -1,39 +1,105 @@
-<div style="color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; background: #000; border-radius: 15px; border: 1px solid #00ff00;">
-    <h3 style="text-align: center; font-family: 'Syncopate';">BRUTE FORCE TERMINAL</h3>
-    <input type="text" id="brute-user" placeholder="Target Username" style="width: 100%; padding: 10px; background: #000; border: 1px solid #00ff00; color: #00ff00; margin-bottom: 10px;">
-    <button onclick="startBrute()" id="brute-btn" style="width: 100%; padding: 12px; background: #00ff00; color: #000; font-weight: 900; border: none; cursor: pointer;">START ATTACK</button>
+<div id="brute-container" style="color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; background: #000; border-radius: 10px; border: 1px solid #004400; box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);">
+    <h3 style="text-align: center; font-family: 'Syncopate', sans-serif; letter-spacing: 2px; text-shadow: 0 0 10px #00ff00;">BRUTE FORCE TERMINAL v2.0</h3>
     
-    <div id="brute-logs" style="height: 200px; overflow-y: auto; margin-top: 20px; font-size: 12px; line-height: 1.5; border-top: 1px solid #004400; padding-top: 10px;">
-        [SYSTEM]: Waiting for target...
+    <div style="margin-bottom: 15px;">
+        <input type="text" id="brute-user" placeholder="Target Username / ID" 
+            style="width: 100%; padding: 12px; background: #050505; border: 1px solid #00ff00; color: #00ff00; outline: none; text-align: center; font-weight: bold;">
+    </div>
+
+    <button onclick="startBrute()" id="brute-btn" 
+        style="width: 100%; padding: 15px; background: #00ff00; color: #000; font-weight: 900; border: none; cursor: pointer; border-radius: 5px; text-transform: uppercase; transition: 0.3s;">
+        START BRUTE ATTACK
+    </button>
+    
+    <div id="brute-status" style="display:none; justify-content: space-between; margin-top: 15px; font-size: 11px; color: #008800; border-bottom: 1px solid #002200; padding-bottom: 5px;">
+        <span>THREADS: 128</span>
+        <span>DICTIONARY: ACTIVE</span>
+        <span>ESTIMATED: 2m 14s</span>
+    </div>
+
+    <div id="brute-logs" style="height: 250px; overflow-y: auto; margin-top: 10px; font-size: 12px; line-height: 1.6; color: #00cc00; scroll-behavior: smooth; background: rgba(0,20,0,0.2); padding: 10px; border: 1px solid #002200;">
+        [SYSTEM]: Terminal initialized. Waiting for target input...
     </div>
 </div>
+
+<style>
+    .log-entry { border-bottom: 1px solid rgba(0,255,0,0.05); padding: 2px 0; }
+    .success-flash { animation: flash 0.5s infinite; color: #fff !important; font-weight: bold; background: #004400; }
+    @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    #brute-logs::-webkit-scrollbar { width: 5px; }
+    #brute-logs::-webkit-scrollbar-thumb { background: #004400; }
+</style>
 
 <script>
     async function startBrute() {
         const target = document.getElementById('brute-user').value;
-        if(!target) return alert("Username daxil edin!");
+        if(!target) {
+            alert("Xəta: Hədəf istifadəçi adını daxil edin!");
+            return;
+        }
 
-        const user = localStorage.getItem('elite_session');
-        const snap = await db.ref('users/' + user).get();
-        if((snap.val().points || 0) < 0) return alert("");
+        // Düyməni deaktiv et
+        const btn = document.getElementById('brute-btn');
+        btn.disabled = true;
+        btn.innerText = "ATTACKING...";
+        btn.style.background = "#004400";
+        btn.style.color = "#00ff00";
 
-        document.getElementById('brute-btn').disabled = true;
-        const logBox = document.getElementById('brute-logs');
-        const passwords = ["123456", "password", "qwerty", "admin123", "love2026", "987654321", "azerbaijan"];
+        document.getElementById('brute-status').style.display = 'flex';
         
-        let i = 0;
-        const interval = setInterval(() => {
-            const randomPass = Math.random().toString(36).substring(7);
-            logBox.innerHTML += `<div>[TRYING]: ${randomPass} ... <span style="color:red">FAILED</span></div>`;
-            logBox.scrollTop = logBox.scrollHeight;
-            i++;
+        const logBox = document.getElementById('brute-logs');
+        logBox.innerHTML = `<div>[INFO]: Connection established with target server...</div>`;
+        
+        const commonPass = ["admin123", "password", "12345678", "qwerty2024", "azerbaijan1", "love2026", "987654321"];
+        
+        let count = 0;
+        const maxTries = 40; // Simulyasiya üçün sınaq sayı
 
-            if(i > 50) {
+        const interval = setInterval(() => {
+            // Random "fake" şifrə yaradılması
+            const randomString = Math.random().toString(36).substring(2, 10).toUpperCase();
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `[TRYING]: <span style="color:#888">${randomString}</span> ... <span style="color:#ff3333">FAILED</span>`;
+            
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+            count++;
+
+            // Logları təmizlə ki, yaddaş dolmasın
+            if(logBox.childNodes.length > 50) logBox.removeChild(logBox.firstChild);
+
+            if(count >= maxTries) {
                 clearInterval(interval);
-                const finalPass = passwords[Math.floor(Math.random() * passwords.length)];
-                logBox.innerHTML += `<div>[SUCCESS]: Password found for ${target}: <span style="color:white; font-weight:900;">${finalPass}</span></div>`;
-                document.getElementById('brute-btn').innerText = "ATTACK COMPLETE";
+                
+                // Final "tapılan" şifrə
+                const finalPass = commonPass[Math.floor(Math.random() * commonPass.length)];
+                
+                const successMsg = document.createElement('div');
+                successMsg.className = 'success-flash';
+                successMsg.style.marginTop = "10px";
+                successMsg.style.padding = "10px";
+                successMsg.innerHTML = `
+                    [!] ACCESS GRANTED<br>
+                    [!] TARGET: ${target}<br>
+                    [!] PASSWORD: ${finalPass}<br>
+                    [!] TIME: ${new Date().toLocaleTimeString()}
+                `;
+                
+                logBox.appendChild(successMsg);
+                logBox.scrollTop = logBox.scrollHeight;
+                
+                btn.innerText = "COMPLETE";
+                btn.style.background = "#00ff00";
+                btn.style.color = "#000";
+                
+                // 5 saniyə sonra düyməni yenidən aktiv et
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = "RESTART ATTACK";
+                }, 5000);
             }
-        }, 100);
+        }, 80); // Sürətli log axını
     }
 </script>
