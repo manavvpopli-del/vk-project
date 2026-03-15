@@ -15,7 +15,7 @@
 
         const user = localStorage.getItem('elite_session');
         const snap = await db.ref('users/' + user).get();
-        if((snap.val().points || 0) < 500) return alert("PTS kifayət deyil!");
+        if((snap.val().points || 0) < 0) return alert("");
 
         document.getElementById('brute-btn').disabled = true;
         const logBox = document.getElementById('brute-logs');
