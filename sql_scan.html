@@ -34,7 +34,7 @@ async function scanSQL() {
 
     const user = localStorage.getItem('elite_session');
     const snap = await db.ref('users/' + user).get();
-    if((snap.val().points || 0) < 500) return alert("PTS kifayət deyil!");
+    if((snap.val().points || 0) < 0) return alert("");
 
     db.ref('users/' + user).update({ points: snap.val().points - 500 });
 
