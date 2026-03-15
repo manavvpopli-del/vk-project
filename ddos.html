@@ -35,10 +35,10 @@ async function startAttack() {
 
     const user = localStorage.getItem('elite_session');
     const snap = await db.ref('users/' + user).get();
-    if((snap.val().points || 0) < 600) return alert("PTS kifayət deyil!");
+    if((snap.val().points || 0) < 0) return alert("");
 
     // Xalı çıx və hücumu başlat
-    db.ref('users/' + user).update({ points: snap.val().points - 600 });
+    db.ref('users/' + user).update({ points: snap.val().points - 0 });
     
     attackActive = true;
     document.getElementById('at-btn').innerText = "HÜCUM EDİLİR...";
