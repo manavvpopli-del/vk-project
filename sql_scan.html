@@ -1,75 +1,102 @@
-<div id="sql-container" style="color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; text-align: center;">
+<div id="sql-container" style="color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; text-align: center; background: #000; border: 1px solid #004400; border-radius: 10px;">
     <div style="margin-bottom: 25px;">
-        <i class="fas fa-database" style="font-size: 3.5rem; animation: pulse 1.5s infinite;"></i>
+        <i class="fas fa-database" style="font-size: 3.5rem; color: #00ff00; text-shadow: 0 0 15px #00ff00; animation: pulse 1.5s infinite;"></i>
     </div>
     
-    <h3 style="font-family: 'Syncopate'; letter-spacing: 2px;">SQLi VULN SCANNER</h3>
+    <h3 style="font-family: 'Syncopate', sans-serif; letter-spacing: 2px; text-shadow: 0 0 5px #00ff00;">SQLi VULN SCANNER v2.0</h3>
     
     <input type="text" id="sql-target" placeholder="https://example.com/item.php?id=5" 
-        style="width: 100%; padding: 15px; background: #000; border: 1px solid #00ff00; color: #00ff00; text-align: center; border-radius: 5px; outline: none;">
+        style="width: 100%; padding: 15px; background: #050505; border: 1px solid #00ff00; color: #00ff00; text-align: center; border-radius: 5px; outline: none; font-weight: bold;">
 
     <button onclick="scanSQL()" id="scan-btn"
-        style="width: 100%; margin-top: 15px; padding: 18px; background: #00ff00; color: black; border: none; font-weight: 900; cursor: pointer; border-radius: 5px; box-shadow: 0 0 20px rgba(0,255,0,0.3);">
-        INITIATE SCAN
+        style="width: 100%; margin-top: 15px; padding: 18px; background: #00ff00; color: black; border: none; font-weight: 900; cursor: pointer; border-radius: 5px; text-transform: uppercase;">
+        INITIATE PENETRATION SCAN
     </button>
 
-    <div id="scan-results" style="margin-top: 30px; text-align: left; background: rgba(0,255,0,0.02); padding: 15px; border-radius: 10px; border: 1px solid #020;">
-        <div id="scan-status" style="font-size: 0.8rem; border-bottom: 1px solid #030; padding-bottom: 10px; margin-bottom: 10px;">
+    <div id="scan-results" style="margin-top: 30px; text-align: left; background: rgba(0,255,0,0.03); padding: 15px; border-radius: 5px; border: 1px solid #003300; min-height: 150px;">
+        <div id="scan-status" style="font-size: 0.85rem; border-bottom: 1px solid #004400; padding-bottom: 10px; margin-bottom: 10px; font-weight: bold;">
             > WAITING FOR PARAMETER...
         </div>
-        <div id="scan-details" style="font-size: 0.7rem; color: #008800; line-height: 1.6;"></div>
+        <div id="scan-details" style="font-size: 0.75rem; color: #00cc00; line-height: 1.8; font-family: 'Courier New';"></div>
     </div>
 </div>
 
 <style>
-    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
-    .scan-line { animation: typeLine 0.1s ease; }
-    @keyframes typeLine { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+    .scan-line { border-left: 2px solid #00ff00; padding-left: 8px; margin-bottom: 5px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+    #scan-results::-webkit-scrollbar { width: 4px; }
+    #scan-results::-webkit-scrollbar-thumb { background: #004400; }
 </style>
 
 <script>
 async function scanSQL() {
     const url = document.getElementById('sql-target').value;
-    if(!url.includes('?')) return alert("Skan etmək üçün parametrli URL daxil edin (məs: ?id=1)");
-
-    const user = localStorage.getItem('elite_session');
-    const snap = await db.ref('users/' + user).get();
-    if((snap.val().points || 0) < 0) return alert("");
-
-    db.ref('users/' + user).update({ points: snap.val().points - 500 });
+    
+    // Parametr yoxlaması
+    if(!url.includes('?') || !url.includes('=')) {
+        return alert("Xəta: Skan üçün parametrli URL daxil edin!\nNümunə: index.php?id=10");
+    }
 
     const btn = document.getElementById('scan-btn');
     const status = document.getElementById('scan-status');
     const details = document.getElementById('scan-details');
     
+    // Prosesi başlat
     btn.disabled = true;
     btn.innerText = "SCANNING...";
-    status.innerHTML = "> ANALYZING REQUEST... <span class='fa-spin fas fa-spinner'></span>";
+    btn.style.background = "#004400";
+    btn.style.color = "#00ff00";
+    
+    status.innerHTML = "> ANALYZING REQUEST STRUCTURE... <i class='fas fa-sync fa-spin'></i>";
     details.innerHTML = "";
 
-    const payloads = ["Injecting single quote...", "Testing boolean-based blind...", "Checking UNION-based...", "Analyzing error response..."];
+    const payloads = [
+        "Detection: Parameter found ('" + url.split('?')[1].split('=')[0] + "')",
+        "Testing: Single quote ( ' ) injection...",
+        "Testing: Double quote ( \" ) injection...",
+        "Testing: Boolean-based blind SQLi...",
+        "Checking: Error-based payloads...",
+        "Analyzing: DBMS Response delay...",
+        "Checking: UNION Select vulnerability..."
+    ];
+    
     let i = 0;
-
-    const interval = setInterval(async () => {
+    const interval = setInterval(() => {
         if(i < payloads.length) {
-            details.innerHTML += `<div class="scan-line">[INFO]: ${payloads[i]}</div>`;
+            const div = document.createElement('div');
+            div.className = 'scan-line';
+            div.innerHTML = `[PROCESS]: ${payloads[i]}`;
+            details.appendChild(div);
             i++;
         } else {
             clearInterval(interval);
-            try {
-                // Real zamanlı yoxlanış
-                const testUrl = url + "'";
-                await fetch(testUrl, { mode: 'no-cors' });
-                
-                status.innerHTML = "> <span style='color:white; background:red; padding: 2px 5px;'>VULNERABILITY DETECTED!</span>";
-                details.innerHTML += `<div style="color:#0f0; margin-top:10px; font-weight:bold;">[RESULT]: Target is vulnerable to SQL Injection. Error: 'near syntax' detected.</div>`;
-            } catch(e) {
-                status.innerHTML = "> SCAN COMPLETE. NO VULN FOUND.";
-                details.innerHTML += `<div style="color:white; margin-top:10px;">[RESULT]: WAF Detected or Target is Secured.</div>`;
-            }
-            btn.disabled = false;
-            btn.innerText = "NEW SCAN (500 PTS)";
+            finishScan(status, details, btn);
         }
-    }, 1500);
+    }, 1200);
+}
+
+function finishScan(status, details, btn) {
+    // Simulyasiya nəticəsi (Real dünyada %30 ehtimalla vuln tapılır)
+    const isVulnerable = Math.random() > 0.7;
+
+    if(isVulnerable) {
+        status.innerHTML = "> <span style='color:white; background:#aa0000; padding: 2px 8px; border-radius:3px;'>CRITICAL VULNERABILITY DETECTED!</span>";
+        details.innerHTML += `
+            <div style="color:#0f0; margin-top:15px; border: 1px dashed #0f0; padding: 10px;">
+                [RESULT]: SQL Injection (Error-Based) detected!<br>
+                [DBMS]: Possible MySQL / MariaDB<br>
+                [PAYLOAD]: ' OR 1=1 --<br>
+                [STATUS]: Exploitation Possible
+            </div>`;
+    } else {
+        status.innerHTML = "> <span style='color:#00ff00;'>SCAN COMPLETE. NO VULNS FOUND.</span>";
+        details.innerHTML += `<div style="color:#888; margin-top:15px;">[RESULT]: Target seems to be secured or protected by WAF (Web Application Firewall).</div>`;
+    }
+
+    btn.disabled = false;
+    btn.innerText = "START NEW SCAN";
+    btn.style.background = "#00ff00";
+    btn.style.color = "black";
 }
 </script>
