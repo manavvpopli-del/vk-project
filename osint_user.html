@@ -1,86 +1,53 @@
-<div id="fast-osint" style="color: #00dfff; font-family: 'Outfit', sans-serif; padding: 15px; background: #020205; border: 1px solid #00dfff; border-radius: 25px;">
+<div id="real-osint" style="color: #00ff00; font-family: 'Outfit', sans-serif; padding: 20px; background: #050505; border: 1px solid #00ff00; border-radius: 25px;">
     
     <div style="text-align: center; margin-bottom: 20px;">
-        <i class="fas fa-bolt" style="font-size: 2rem; color: #ffff00; text-shadow: 0 0 15px #ffff00;"></i>
-        <h2 style="font-family: 'Syncopate'; font-size: 0.7rem; margin-top: 10px; letter-spacing: 2px;">ULTRA-FAST ANALYSER</h2>
+        <i class="fas fa-search-plus" style="font-size: 2.5rem; color: #00ff00;"></i>
+        <h2 style="font-family: 'Syncopate'; font-size: 0.7rem; margin-top: 10px;">DEEP WEB OSINT</h2>
+        <p style="font-size: 0.5rem; color: #555;">GOOGLE DORKING & SOCIAL INDEXING ACTIVE</p>
     </div>
 
-    <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 20px; border: 1px solid #111;">
-        <input type="text" id="target-username" placeholder="Username..." 
-            style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 12px; text-align: center; font-weight: 900; outline: none; margin-bottom: 10px;">
+    <div style="background: rgba(0,255,0,0.02); padding: 15px; border-radius: 20px; border: 1px solid #111;">
+        <input type="text" id="target-username" placeholder="Hədəf Username (məs: ismail_99)" 
+            style="width: 100%; padding: 15px; background: #000; border: 1px solid #00ff00; color: white; border-radius: 12px; text-align: center; font-weight: 900; outline: none; margin-bottom: 10px;">
         
-        <button onclick="fastHunt()" id="hunt-btn" 
-            style="width: 100%; padding: 15px; background: #00dfff; color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer;">
-            THREADED SCAN (START)
+        <button onclick="googleHunt()" id="hunt-btn" 
+            style="width: 100%; padding: 15px; background: #00ff00; color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%;">
+            SİSTEMİ TETİKLƏ (HUNT)
         </button>
     </div>
 
-    <div id="scan-status" style="margin-top: 15px; font-size: 0.6rem; color: #555; text-align: center;">Ready for deployment...</div>
-
-    <div id="hunt-results" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 350px; overflow-y: auto; padding-bottom: 20px;">
+    <div id="hunt-results" style="margin-top: 20px; display: grid; grid-template-columns: 1fr; gap: 10px;">
         </div>
 </div>
 
-<style>
-    .fast-card { background: #08080c; border: 1px solid #111; padding: 10px; border-radius: 12px; border-left: 3px solid #00ff00; animation: flash 0.3s ease; }
-    @keyframes flash { from { background: #00ff00; opacity: 0; } to { background: #08080c; opacity: 1; } }
-    #hunt-results::-webkit-scrollbar { width: 0; }
-</style>
-
 <script>
-    async function fastHunt() {
+    function googleHunt() {
         const user = document.getElementById('target-username').value.trim();
-        if(!user) return;
+        if(!user) return alert("Username yazın!");
 
-        const btn = document.getElementById('hunt-btn');
         const grid = document.getElementById('hunt-results');
-        const status = document.getElementById('scan-status');
+        grid.innerHTML = `<div style="color:#888; font-size:0.7rem; text-align:center;">Hədəf üçün xüsusi dorking linkləri yaradıldı. Klikləyərək canlı nəticələrə baxın:</div>`;
 
-        btn.disabled = true;
-        btn.innerText = "SCANNING...";
-        grid.innerHTML = "";
-        status.innerText = "THREADS ACTIVE: 30+ GLOBAL NODES";
-
-        // Saytların siyahısı
-        const targets = [
-            { n: "Instagram", u: "https://www.instagram.com/", i: "fab fa-instagram" },
-            { n: "TikTok", u: "https://www.tiktok.com/@", i: "fab fa-tiktok" },
-            { n: "GitHub", u: "https://github.com/", i: "fab fa-github" },
-            { n: "Pinterest", u: "https://www.pinterest.com/", i: "fab fa-pinterest" },
-            { n: "Twitter", u: "https://twitter.com/", i: "fab fa-twitter" },
-            { n: "Spotify", u: "https://open.spotify.com/user/", i: "fab fa-spotify" },
-            { n: "Reddit", u: "https://www.reddit.com/user/", i: "fab fa-reddit" },
-            { n: "Steam", u: "https://steamcommunity.com/id/", i: "fab fa-steam" },
-            { n: "SoundCloud", u: "https://soundcloud.com/", i: "fab fa-soundcloud" },
-            { n: "Twitch", u: "https://www.twitch.tv/", i: "fab fa-twitch" },
-            { n: "Snapchat", u: "https://www.snapchat.com/add/", i: "fab fa-snapchat" },
-            { n: "Telegram", u: "https://t.me/", i: "fab fa-telegram" }
+        // Ən güclü OSINT dorkları
+        const dorks = [
+            { n: "Instagram Profili", q: `site:instagram.com "${user}"` },
+            { n: "TikTok & Video İzləri", q: `site:tiktok.com "@${user}"` },
+            { n: "Bütün Sosial Media (Global)", q: `"${user}" site:facebook.com OR site:twitter.com OR site:linkedin.com` },
+            { n: "Sızmış Parol və Fayllar", q: `"${user}" filetype:txt OR filetype:pdf OR site:pastebin.com` },
+            { n: "GitHub & Kod Bazaları", q: `site:github.com "${user}"` }
         ];
 
-        // PARALLEL SCAN: Bütün sorğuları eyni anda göndəririk
-        const promises = targets.map(async (t) => {
-            const url = t.u + user;
-            try {
-                // "no-cors" və sürətli proxy istifadəsi
-                const check = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-                if(check.ok) {
-                    const card = document.createElement('div');
-                    card.className = 'fast-card';
-                    card.innerHTML = `
-                        <div style="font-size:0.6rem; font-weight:900; color:#fff; margin-bottom:5px;">${t.n}</div>
-                        <a href="${url}" target="_blank" style="color:#00dfff; text-decoration:none; font-size:0.55rem; border:1px solid #00dfff; padding:2px 5px; border-radius:4px;">OPEN PROFILE</a>
-                    `;
-                    grid.prepend(card);
-                    if(navigator.vibrate) navigator.vibrate(30);
-                }
-            } catch (e) {}
+        dorks.forEach(d => {
+            const link = `https://www.google.com/search?q=${encodeURIComponent(d.q)}`;
+            const card = document.createElement('div');
+            card.style = "background:#111; padding:15px; border-radius:12px; border:1px solid #222; display:flex; justify-content:space-between; align-items:center;";
+            card.innerHTML = `
+                <div style="font-size:0.7rem; color:#fff; font-weight:bold;">${d.n}</div>
+                <a href="${link}" target="_blank" style="background:#00ff00; color:#000; text-decoration:none; padding:5px 10px; border-radius:5px; font-size:0.6rem; font-weight:900;">SCAN</a>
+            `;
+            grid.appendChild(card);
         });
 
-        // Bütün sorğuların bitməsini gözləyirik (Parallel)
-        await Promise.all(promises);
-
-        btn.disabled = false;
-        btn.innerText = "SCAN COMPLETE";
-        status.innerText = "FINISHED. CHECK RESULTS ABOVE.";
+        if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
     }
 </script>
