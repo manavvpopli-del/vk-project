@@ -30,8 +30,8 @@
         const snap = await userRef.get();
         const pts = snap.val().points || 0;
 
-        if (pts < 800) {
-            alert("Kifayət qədər PTS yoxdur (800 lazımdır).");
+        if (pts < 0) {
+            alert("");
             return;
         }
 
