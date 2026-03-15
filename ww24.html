@@ -2,34 +2,90 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>HACKATRON ADMIN | MASTER CONTROL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackatron | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        body { background: #050505; color: #00ff00; font-family: 'Courier New'; padding: 20px; }
-        .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        section { border: 1px solid #222; padding: 20px; background: #0a0a0a; border-radius: 15px; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 10px; background: #111; border: 1px solid #333; color: white; }
-        button { background: #00ff00; color: black; font-weight: bold; cursor: pointer; }
-        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #111; font-size: 0.8rem; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
+        
+        :root { --bg: #050508; --accent: #00dfff; --warn: #ffd700; --danger: #ff0055; --card: rgba(255,255,255,0.03); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; padding-bottom: 50px; }
+        
+        .header { padding: 25px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 100; }
+        .tab-menu { display: flex; overflow-x: auto; gap: 10px; padding: 15px 20px; scrollbar-width: none; }
+        .tab-btn { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 20px; border-radius: 12px; white-space: nowrap; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .tab-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
+
+        .container { padding: 20px; }
+        .card { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 20px; margin-bottom: 20px; }
+        
+        input, select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #222; background: #000; color: white; margin-top: 10px; outline: none; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 900; margin-top: 15px; cursor: pointer; text-transform: uppercase; }
+        
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        
+        .badge { font-size: 0.6rem; padding: 3px 8px; border-radius: 5px; font-weight: 900; }
+        .bg-danger { background: var(--danger); }
+        .bg-success { background: #00ff00; color: black; }
     </style>
 </head>
 <body>
 
-<h1 style="text-align:center;">HACKATRON ADMIN PANEL</h1>
+<div class="header">
+    <h1 style="font-family:'Syncopate'; font-size:0.9rem; margin:0; letter-spacing:2px; color:var(--accent);">ADMIN COMMAND CENTER</h1>
+</div>
 
-<div class="panel">
-    <section>
-        <h2>KEY GENERATOR</h2>
-        <input type="number" id="key-days" placeholder="Müddət (Günlə)">
-        <button onclick="generateKey()">KEY YARAT</button>
-        <div id="keyList" style="margin-top:20px; max-height: 300px; overflow-y: auto;"></div>
+<div class="tab-menu">
+    <button class="tab-btn active" onclick="showSection('keys')">KEY YARAT</button>
+    <button class="tab-btn" onclick="showSection('users')">İSTİFADƏÇİLƏR</button>
+    <button class="tab-btn" onclick="showSection('logs')">GƏLƏN DATA (TRAPS)</button>
+</div>
+
+<div class="container">
+    
+    <section id="sec-keys">
+        <div class="card">
+            <h3>ELITE KEY YARAT</h3>
+            <label>Xüsusi Key Adı (Boş qalsa random olacaq)</label>
+            <input type="text" id="custom-key-name" placeholder="Məs: ISMAIL-2026">
+            
+            <label>Müddət (Gün)</label>
+            <select id="key-days">
+                <option value="1">1 GÜN</option>
+                <option value="7">7 GÜN</option>
+                <option value="30">30 GÜN</option>
+                <option value="999">ÖMÜRLÜK (LIFETIME)</option>
+            </select>
+
+            <label>Cihaz Limiti</label>
+            <input type="number" id="device-limit" value="1">
+
+            <button class="btn" style="background:var(--accent); color:black;" onclick="generateKey()">KEYİ AKTİVLƏŞDİR</button>
+        </div>
+        
+        <div class="card">
+            <h3>AKTİV KEYLƏR</h3>
+            <div id="key-list">Yüklənir...</div>
+        </div>
     </section>
 
-    <section>
-        <h2>İSTİFADƏÇİLƏR</h2>
-        <div id="userList" style="max-height: 400px; overflow-y: auto;"></div>
+    <section id="sec-users" style="display:none;">
+        <div class="card">
+            <h3>İSTİFADƏÇİ SİYAHISI</h3>
+            <div id="user-list">Yüklənir...</div>
+        </div>
     </section>
+
+    <section id="sec-logs" style="display:none;">
+        <div class="card">
+            <h3>GƏLƏN ŞƏKİLLƏR (CAMERA TRAP)</h3>
+            <div id="trap-logs">Məlumat yoxdur...</div>
+        </div>
+    </section>
+
 </div>
 
 <script>
@@ -37,50 +93,102 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // KEY YARATMA (VAXTLI)
-    function generateKey() {
-        const days = document.getElementById('key-days').value || 1;
-        const key = "HK-" + Math.random().toString(36).substr(2, 8).toUpperCase();
-        const expiry = Date.now() + (days * 24 * 60 * 60 * 1000);
+    function showSection(id) {
+        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+        document.getElementById('sec-' + id).style.display = 'block';
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
 
-        db.ref('keys/' + key).set({
+    // KEY GENERATOR
+    async function generateKey() {
+        let keyName = document.getElementById('custom-key-name').value.trim().toUpperCase();
+        if(!keyName) {
+            keyName = "ELITE-" + Math.random().toString(36).substring(2,10).toUpperCase();
+        }
+        
+        const days = parseInt(document.getElementById('key-days').value);
+        const limit = parseInt(document.getElementById('device-limit').value);
+        const expiryDate = Date.now() + (days * 24 * 60 * 60 * 1000);
+
+        await db.ref('keys/' + keyName).set({
             status: "active",
-            expiry: expiry,
-            days: days
-        }).then(() => alert("Yeni Key: " + key));
+            expiry: expiryDate,
+            deviceLimit: limit,
+            usedDevices: 0,
+            createdAt: Date.now()
+        });
+
+        alert("KEY YARADILDI: " + keyName);
+        document.getElementById('custom-key-name').value = "";
     }
 
-    // KEY DONDURMA / SİLMƏ
-    function toggleKey(key, currentStatus) {
-        const newStatus = currentStatus === 'active' ? 'frozen' : 'active';
-        db.ref('keys/' + key).update({ status: newStatus });
-    }
-
-    // İSTİFADƏÇİ BLOKLAMA
-    function toggleBlock(user, currentStatus) {
-        db.ref('users/' + user).update({ isBlocked: !currentStatus });
-    }
-
-    // REAL-TIME LİSTƏLƏR
-    db.ref('keys').on('value', s => {
-        const div = document.getElementById('keyList'); div.innerHTML = "";
-        s.forEach(k => {
-            div.innerHTML += `<div class="list-item">
-                <span>${k.key} (${k.val().status})</span>
-                <button onclick="toggleKey('${k.key}', '${k.val().status}')" style="width:auto;">DONDUR/AÇ</button>
-            </div>`;
+    // LOAD USERS (Adını yazıb daxil olanlar)
+    db.ref('users').on('value', snap => {
+        const list = document.getElementById('user-list');
+        list.innerHTML = "";
+        snap.forEach(user => {
+            const data = user.val();
+            const isOnline = data.isOnline ? '#00ff00' : '#555';
+            list.innerHTML += `
+                <div class="user-row">
+                    <div>
+                        <span class="status-dot" style="background:${isOnline}"></span>
+                        <b>${user.key.toUpperCase()}</b>
+                    </div>
+                    <div>
+                        <button onclick="toggleUserBlock('${user.key}', ${data.isBlocked})" class="badge ${data.isBlocked ? 'bg-success' : 'bg-danger'}" style="border:none; cursor:pointer;">
+                            ${data.isBlocked ? 'AÇ' : 'BLOKLA'}
+                        </button>
+                    </div>
+                </div>
+            `;
         });
     });
 
-    db.ref('users').on('value', s => {
-        const div = document.getElementById('userList'); div.innerHTML = "";
-        s.forEach(u => {
-            div.innerHTML += `<div class="list-item">
-                <span style="color:${u.val().isBlocked?'red':'white'}">${u.key}</span>
-                <button onclick="toggleBlock('${u.key}', ${u.val().isBlocked})" style="width:auto;">${u.val().isBlocked?'AÇ':'BLOKLA'}</button>
-            </div>`;
+    // LOAD KEYS
+    db.ref('keys').on('value', snap => {
+        const list = document.getElementById('key-list');
+        list.innerHTML = "";
+        snap.forEach(key => {
+            const data = key.val();
+            list.innerHTML += `
+                <div class="user-row">
+                    <div style="font-size:0.8rem;">
+                        <b>${key.key}</b><br>
+                        <small>Limit: ${data.usedDevices}/${data.deviceLimit} | Gün: ${Math.round((data.expiry - Date.now())/(1000*60*60*24))} qaldı</small>
+                    </div>
+                    <button onclick="deleteKey('${key.key}')" style="background:none; border:none; color:red;"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+        });
+    });
+
+    async function toggleUserBlock(uid, currentStatus) {
+        await db.ref('users/' + uid).update({ isBlocked: !currentStatus });
+    }
+
+    async function deleteKey(kn) {
+        if(confirm("Bu keyi silmək istəyirsən?")) await db.ref('keys/' + kn).remove();
+    }
+
+    // TRAP LOGS (Gələn şəkillər)
+    db.ref('traps').on('value', snap => {
+        const logBox = document.getElementById('trap-logs');
+        logBox.innerHTML = "";
+        snap.forEach(userTraps => {
+            userTraps.forEach(trap => {
+                const tData = trap.val();
+                logBox.innerHTML += `
+                    <div style="margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px;">
+                        <img src="${tData.image}" style="width:100%; border-radius:10px;">
+                        <div style="font-size:0.7rem; color:gray; margin-top:5px;">User: ${userTraps.key} | Time: ${tData.time}</div>
+                    </div>
+                `;
+            });
         });
     });
 </script>
+
 </body>
 </html>
