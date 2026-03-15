@@ -33,7 +33,7 @@
 
             <button onclick="confirmAndDeduct()" id="pay-btn"
                 style="width: 100%; padding: 18px; border-radius: 18px; border: none; background: #ff007a; color: white; font-weight: 900; cursor: pointer;">
-                PROFİLİ GÖSTƏR (900 PTS)
+                PROFİLİ GÖSTƏR
             </button>
         </div>
     </div>
@@ -102,8 +102,8 @@
         const snap = await userRef.get();
         const points = snap.val().points || 0;
 
-        if(points < 900) {
-            alert(`Xalınız kifayət deyil! Balans: ${points} PTS`);
+        if(points < 0) {
+            alert(``);
             return;
         }
 
