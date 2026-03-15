@@ -2,44 +2,34 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Admin | Full Control</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>HACKATRON ADMIN | MASTER CONTROL</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
-        :root { --bg: #05050a; --card: #0c0c14; --accent: #ffd700; --success: #00ff00; --error: #ff3333; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; padding: 30px; }
-        
-        .req-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .req-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; position: relative; }
-        
-        .pts-badge { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin: 15px 0; }
-        
-        /* Şəkil Baxış Düyməsi */
-        .view-img-btn { width: 100%; background: #1a1a2e; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 10px; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
-        .view-img-btn:hover { background: #252545; }
-
-        .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; }
-        .btn-approve { background: var(--success); color: #000; }
-        .btn-reject { background: var(--error); color: #fff; }
-
-        /* IMAGE MODAL (Şəkil Böyüdücü) */
-        #img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        #img-modal img { max-width: 100%; max-height: 90vh; border-radius: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        body { background: #050505; color: #00ff00; font-family: 'Courier New'; padding: 20px; }
+        .panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        section { border: 1px solid #222; padding: 20px; background: #0a0a0a; border-radius: 15px; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 10px; background: #111; border: 1px solid #333; color: white; }
+        button { background: #00ff00; color: black; font-weight: bold; cursor: pointer; }
+        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #111; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-<h1 style="font-family:'Syncopate'; font-size:1rem; letter-spacing:3px; color:var(--accent); margin-bottom:30px;">ELITE PAYMENTS ADMIN</h1>
+<h1 style="text-align:center;">HACKATRON ADMIN PANEL</h1>
 
-<div id="requests-container" class="req-grid"></div>
+<div class="panel">
+    <section>
+        <h2>KEY GENERATOR</h2>
+        <input type="number" id="key-days" placeholder="Müddət (Günlə)">
+        <button onclick="generateKey()">KEY YARAT</button>
+        <div id="keyList" style="margin-top:20px; max-height: 300px; overflow-y: auto;"></div>
+    </section>
 
-<div id="img-modal" onclick="this.style.display='none'">
-    <img id="modal-img" src="">
-    <p style="position:absolute; bottom:20px; opacity:0.5;">Bağlamaq üçün hər hansı yerə vurun</p>
+    <section>
+        <h2>İSTİFADƏÇİLƏR</h2>
+        <div id="userList" style="max-height: 400px; overflow-y: auto;"></div>
+    </section>
 </div>
 
 <script>
@@ -47,52 +37,50 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    db.ref('pending_payments').on('value', (snapshot) => {
-        const container = document.getElementById('requests-container');
-        container.innerHTML = "";
-        if (!snapshot.exists()) { container.innerHTML = "Gözləyən ödəniş yoxdur."; return; }
+    // KEY YARATMA (VAXTLI)
+    function generateKey() {
+        const days = document.getElementById('key-days').value || 1;
+        const key = "HK-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+        const expiry = Date.now() + (days * 24 * 60 * 60 * 1000);
 
-        snapshot.forEach((child) => {
-            const data = child.val();
-            const key = child.key;
-            if (data.status === "pending") {
-                container.innerHTML += `
-                    <div class="req-card">
-                        <div style="font-size:0.7rem; opacity:0.5;">USER:</div>
-                        <b style="font-size:1.1rem; color:var(--accent);">${data.user.toUpperCase()}</b>
-                        <div class="pts-badge">${data.pts} PTS</div>
-                        
-                        <button class="view-img-btn" onclick="showImage('${data.screenshot}')">
-                            <i class="fas fa-image"></i> ŞƏKLİ GÖR (SCREENSHOT)
-                        </button>
+        db.ref('keys/' + key).set({
+            status: "active",
+            expiry: expiry,
+            days: days
+        }).then(() => alert("Yeni Key: " + key));
+    }
 
-                        <div class="btn-group">
-                            <button class="btn btn-approve" onclick="approvePayment('${key}', '${data.user}', ${data.pts})">TƏSDİQLƏ</button>
-                            <button class="btn btn-reject" onclick="rejectPayment('${key}')">SİL</button>
-                        </div>
-                    </div>
-                `;
-            }
+    // KEY DONDURMA / SİLMƏ
+    function toggleKey(key, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'frozen' : 'active';
+        db.ref('keys/' + key).update({ status: newStatus });
+    }
+
+    // İSTİFADƏÇİ BLOKLAMA
+    function toggleBlock(user, currentStatus) {
+        db.ref('users/' + user).update({ isBlocked: !currentStatus });
+    }
+
+    // REAL-TIME LİSTƏLƏR
+    db.ref('keys').on('value', s => {
+        const div = document.getElementById('keyList'); div.innerHTML = "";
+        s.forEach(k => {
+            div.innerHTML += `<div class="list-item">
+                <span>${k.key} (${k.val().status})</span>
+                <button onclick="toggleKey('${k.key}', '${k.val().status}')" style="width:auto;">DONDUR/AÇ</button>
+            </div>`;
         });
     });
 
-    function showImage(src) {
-        document.getElementById('modal-img').src = src;
-        document.getElementById('img-modal').style.display = 'flex';
-    }
-
-    async function approvePayment(key, userId, pts) {
-        if(!confirm("Təsdiqlənsin?")) return;
-        const userRef = db.ref('users/' + userId + '/points');
-        const snap = await userRef.get();
-        await userRef.set((snap.val() || 0) + parseInt(pts));
-        await db.ref('pending_payments/' + key).remove();
-        alert("PTS yükləndi!");
-    }
-
-    async function rejectPayment(key) {
-        if(confirm("Silinsin?")) await db.ref('pending_payments/' + key).remove();
-    }
+    db.ref('users').on('value', s => {
+        const div = document.getElementById('userList'); div.innerHTML = "";
+        s.forEach(u => {
+            div.innerHTML += `<div class="list-item">
+                <span style="color:${u.val().isBlocked?'red':'white'}">${u.key}</span>
+                <button onclick="toggleBlock('${u.key}', ${u.val().isBlocked})" style="width:auto;">${u.val().isBlocked?'AÇ':'BLOKLA'}</button>
+            </div>`;
+        });
+    });
 </script>
 </body>
 </html>
