@@ -1,0 +1,51 @@
+<div id="shodan-module" style="color: #00dfff; font-family: 'Courier New', monospace; padding: 20px; background: #050505; border: 1px solid #00dfff; border-radius: 15px;">
+    <h3 style="text-align: center; font-family: 'Syncopate'; font-size: 0.8rem; letter-spacing: 2px;">IoT DEVICE DISCOVERY</h3>
+    
+    <input type="text" id="shodan-query" placeholder="Məs: webcam, router, TPLink" style="width: 100%; padding: 15px; background: #000; border: 1px solid #00dfff; color: #fff; border-radius: 10px; margin-bottom: 10px; outline: none;">
+    
+    <button onclick="searchIoT()" id="shodan-btn" style="width: 100%; padding: 18px; background: #00dfff; color: #000; font-weight: 900; border: none; border-radius: 10px; cursor: pointer;">SEARCH GLOBAL NODES</button>
+
+    <div id="shodan-results" style="margin-top: 20px; height: 300px; overflow-y: auto; font-size: 0.7rem;">
+        <div style="opacity: 0.5;">[IDLE]: Waiting for query...</div>
+    </div>
+</div>
+
+<script>
+    async function searchIoT() {
+        const query = document.getElementById('shodan-query').value.trim();
+        if(!query) return alert("Axtarış sözü daxil edin!");
+
+        const btn = document.getElementById('shodan-btn');
+        const results = document.getElementById('shodan-results');
+        
+        btn.disabled = true;
+        btn.innerText = "QUERYING SHODAN API...";
+        results.innerHTML = `<div style="color:yellow;">[PROCESS]: Global IoT veritabanı taranır...</div>`;
+
+        try {
+            // Sənə özəl pulsuz API Bridge (və ya öz API Key-ini bura bağlaya bilərik)
+            const response = await fetch(`https://api.shodan.io/shodan/host/search?key=1qUDa3qOD5JabKdvOe0xUxqPK08U7CgM&query=${query}`);
+            const data = await response.json();
+            
+            results.innerHTML = "";
+            if(data.matches && data.matches.length > 0) {
+                data.matches.forEach(item => {
+                    results.innerHTML += `
+                        <div style="background:rgba(0,223,255,0.05); padding:10px; border:1px solid #003355; border-radius:8px; margin-bottom:10px;">
+                            <b style="color:#fff;">IP: ${item.ip_str}</b><br>
+                            <span style="color:#00ff00;">Org: ${item.org || 'Unknown'}</span><br>
+                            <small>Portlar: ${item.port} | Şəhər: ${item.location.city || 'Unknown'}</small>
+                        </div>
+                    `;
+                });
+            } else {
+                results.innerHTML = `<div style="color:red;">Nəticə tapılmadı.</div>`;
+            }
+        } catch (e) {
+            results.innerHTML = `<div style="color:red;">[!] API ERROR: Key limit və ya qoşulma xətası.</div>`;
+        }
+        
+        btn.disabled = false;
+        btn.innerText = "SEARCH GLOBAL NODES";
+    }
+</script>
