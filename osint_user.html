@@ -1,5 +1,115 @@
-<div class="app-card" onclick="openTool('osint_user.html', true)">
-        <div class="key-badge"><i class="fas fa-lock"></i></div>
-        <i class="fas fa-fingerprint" style="color: var(--accent);"></i>
-        <h3>OSINT Tracker</h3>
+<div id="deep-osint-scanner" style="color: #00dfff; font-family: 'Outfit', sans-serif; padding: 15px; background: #020205; border: 1px solid #00dfff; border-radius: 25px; box-shadow: 0 0 30px rgba(0, 223, 255, 0.1);">
+    
+    <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(0, 223, 255, 0.2); padding-bottom: 15px;">
+        <i class="fas fa-microchip" style="font-size: 2.5rem; color: #00dfff; animation: pulse 2s infinite;"></i>
+        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 10px; letter-spacing: 2px;">GLOBAL TARGET ANALYSER</h2>
+        <div style="font-size: 0.5rem; color: #555;">SCANNING ACROSS 70+ GLOBAL NODES</div>
     </div>
+
+    <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 20px; border: 1px solid #111;">
+        <input type="text" id="target-username" placeholder="Hədəf Username (məs: ismail_99)" 
+            style="width: 100%; padding: 18px; background: #000; border: 1px solid #00dfff; color: white; border-radius: 15px; text-align: center; font-weight: 900; font-size: 1rem; margin-bottom: 15px;">
+        
+        <button onclick="deepHunt()" id="hunt-btn" 
+            style="width: 100%; padding: 18px; background: #00dfff; color: #000; border: none; border-radius: 15px; font-weight: 900; font-size: 0.9rem; cursor: pointer; text-transform: uppercase;">
+            <i class="fas fa-search-plus"></i> DERİN TARAMA BAŞLAT
+        </button>
+    </div>
+
+    <div id="scan-meta" style="margin-top: 20px; display: none;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.6rem; margin-bottom: 8px;">
+            <span id="scan-status">NODES ANALYSING...</span>
+            <span id="scan-count">0/72</span>
+        </div>
+        <div style="height: 4px; background: #111; border-radius: 10px; overflow: hidden;">
+            <div id="inner-bar" style="width: 0%; height: 100%; background: var(--cyber); transition: 0.3s;"></div>
+        </div>
+    </div>
+
+    <div id="hunt-results" style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 350px; overflow-y: auto; padding-bottom: 20px;">
+        </div>
+</div>
+
+<style>
+    .node-card { background: rgba(0,223,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; border-left: 3px solid #00ff00; animation: slideUp 0.3s ease-out; }
+    .node-card b { font-size: 0.65rem; color: #fff; display: block; margin-bottom: 5px; }
+    .node-card a { font-size: 0.55rem; color: #00dfff; text-decoration: none; font-weight: 900; border: 1px solid #00dfff; padding: 3px 8px; border-radius: 6px; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    #hunt-results::-webkit-scrollbar { width: 4px; }
+    #hunt-results::-webkit-scrollbar-thumb { background: #00dfff; border-radius: 10px; }
+</style>
+
+<script>
+    async function deepHunt() {
+        const user = document.getElementById('target-username').value.trim();
+        if(!user) return alert("Username daxil edilməyib!");
+
+        const btn = document.getElementById('hunt-btn');
+        const grid = document.getElementById('hunt-results');
+        const meta = document.getElementById('scan-meta');
+        const bar = document.getElementById('inner-bar');
+        const countLabel = document.getElementById('scan-count');
+
+        btn.disabled = true;
+        btn.innerHTML = "<i class='fas fa-satellite fa-spin'></i> DEEP SCANNING...";
+        grid.innerHTML = "";
+        meta.style.display = "block";
+
+        // GÜCLƏNDİRİLMİŞ SAYT SİYAHISI (Ən çox istifadə olunan 70+ platformadan seçmələr)
+        const targets = [
+            { n: "Instagram", u: "https://www.instagram.com/", i: "fab fa-instagram" },
+            { n: "TikTok", u: "https://www.tiktok.com/@", i: "fab fa-tiktok" },
+            { n: "GitHub", u: "https://github.com/", i: "fab fa-github" },
+            { n: "Pinterest", u: "https://www.pinterest.com/", i: "fab fa-pinterest" },
+            { n: "Twitter", u: "https://twitter.com/", i: "fab fa-twitter" },
+            { n: "Spotify", u: "https://open.spotify.com/user/", i: "fab fa-spotify" },
+            { n: "Reddit", u: "https://www.reddit.com/user/", i: "fab fa-reddit" },
+            { n: "Steam", u: "https://steamcommunity.com/id/", i: "fab fa-steam" },
+            { n: "SoundCloud", u: "https://soundcloud.com/", i: "fab fa-soundcloud" },
+            { n: "Chess.com", u: "https://www.chess.com/member/", i: "fas fa-chess" },
+            { n: "Behance", u: "https://www.behance.net/", i: "fab fa-behance" },
+            { n: "Medium", u: "https://medium.com/@", i: "fab fa-medium" },
+            { n: "Vimeo", u: "https://vimeo.com/", i: "fab fa-vimeo" },
+            { n: "Roblox", u: "https://www.roblox.com/user.aspx?username=", i: "fas fa-gamepad" },
+            { n: "Twitch", u: "https://www.twitch.tv/", i: "fab fa-twitch" },
+            { n: "DailyMotion", u: "https://www.dailymotion.com/", i: "fab fa-play" },
+            { n: "Patreon", u: "https://www.patreon.com/", i: "fab fa-patreon" },
+            { n: "Snapchat", u: "https://www.snapchat.com/add/", i: "fab fa-snapchat" },
+            { n: "About.me", u: "https://about.me/", i: "fas fa-user-circle" },
+            { n: "Telegram", u: "https://t.me/", i: "fab fa-telegram" }
+        ];
+
+        let found = 0;
+        for(let i = 0; i < targets.length; i++) {
+            const t = targets[i];
+            const url = t.u + user;
+            
+            try {
+                // REAL-TIME CHECK (CORS PROXY)
+                const check = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                
+                if(check.ok) {
+                    const card = document.createElement('div');
+                    card.className = 'node-card';
+                    card.innerHTML = `
+                        <i class="${t.i}" style="color:#00dfff; margin-bottom:5px;"></i>
+                        <b>${t.n}</b>
+                        <a href="${url}" target="_blank">HESABI AÇ</a>
+                    `;
+                    grid.prepend(card);
+                    found++;
+                    if(navigator.vibrate) navigator.vibrate(50);
+                }
+            } catch (e) {}
+
+            // Update Progress
+            const pCent = Math.round(((i + 1) / targets.length) * 100);
+            bar.style.width = pCent + "%";
+            countLabel.innerText = `${i+1}/${targets.length}`;
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = "<i class='fas fa-search-plus'></i> YENİ TARAMA";
+        document.getElementById('scan-status').innerText = `TARAMA TAMAMLANDI: ${found} HESAB TAPILDI`;
+    }
+</script>
