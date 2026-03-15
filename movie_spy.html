@@ -1,81 +1,96 @@
-<div id="movie-module" style="color: white; font-family: 'Outfit', sans-serif; padding: 15px; background: #0a0a0f; border: 1px solid #ff00ff; border-radius: 25px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.1);">
+<div id="movie-module" style="color: white; font-family: 'Outfit', sans-serif; padding: 15px; background: #020205; border: 1px solid #ff00ff; border-radius: 25px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.1);">
     
     <div style="text-align: center; margin-bottom: 20px;">
-        <i class="fas fa-clapperboard" style="font-size: 2.5rem; color: #ff00ff;"></i>
-        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 10px;">CINESPY ANALYSER</h2>
+        <i class="fas fa-video" style="font-size: 2.5rem; color: #ff00ff; text-shadow: 0 0 10px #ff00ff;"></i>
+        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 10px; letter-spacing: 2px;">CINESPY ANALYSER</h2>
     </div>
 
     <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 20px; border: 1px solid #111;">
-        <input type="text" id="movie-name" placeholder="Film adını daxil edin (məs: Inception)" 
-            style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 12px; text-align: center; font-weight: 900; outline: none; margin-bottom: 10px;">
+        <input type="text" id="movie-name" placeholder="Film adını yazın (məs: Joker)..." 
+            style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: white; border-radius: 12px; text-align: center; font-weight: 900; outline: none; margin-bottom: 12px; font-size: 1rem;">
         
-        <button onclick="searchMovie()" id="movie-btn" 
-            style="width: 100%; padding: 15px; background: #ff00ff; color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase;">
-            MƏLUMATLARI GƏTİR
+        <button onclick="searchMovieTMDB()" id="movie-btn" 
+            style="width: 100%; padding: 15px; background: #ff00ff; color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s;">
+            MƏLUMATLARI SÜZ
         </button>
     </div>
 
-    <div id="movie-result" style="margin-top: 20px; display: none; animation: fadeIn 0.5s ease;">
+    <div id="movie-result" style="margin-top: 20px; display: none; animation: slideUp 0.5s ease-out;">
         </div>
 </div>
 
 <style>
-    .info-tag { background: rgba(255, 255, 255, 0.05); padding: 5px 10px; border-radius: 5px; font-size: 0.65rem; color: #ff00ff; border: 1px solid rgba(255, 0, 255, 0.2); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .genre-tag { background: #ff00ff; color: #000; padding: 3px 8px; border-radius: 5px; font-size: 0.6rem; font-weight: 900; margin-right: 5px; }
+    .imdb-tag { color: #ffd700; font-weight: 900; font-size: 0.8rem; }
+    #movie-result::-webkit-scrollbar { width: 0; }
 </style>
 
 <script>
-    async function searchMovie() {
+    async function searchMovieTMDB() {
         const title = document.getElementById('movie-name').value.trim();
-        if(!title) return alert("Film adını yazın!");
+        if(!title) return;
 
         const btn = document.getElementById('movie-btn');
         const res = document.getElementById('movie-result');
+        
+        // Sənin Real API Açarın
+        const apiKey = "dba1447852c9f1cd271f1d302a6a1645"; 
 
         btn.disabled = true;
-        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> ARAŞDIRILIR...";
-        
-        try {
-            // Real OMDb API istifadəsi (Pulsuz açar daxil edilib)
-            const apiKey = "6256f6f2"; 
-            const response = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}`);
-            const data = await response.json();
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> ANALİZ EDİLİR...";
 
-            if(data.Response === "True") {
+        try {
+            // 1. Filmi axtarırıq (Türk və ya Azərbaycan dilində nəticə üçün tr-TR istifadə edirik)
+            const searchRes = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&language=tr-TR`);
+            const searchData = await searchRes.json();
+
+            if(searchData.results.length > 0) {
+                const movie = searchData.results[0];
+                const movieID = movie.id;
+
+                // 2. Filmin detallarını və aktyorlarını çəkirik
+                const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movieID}?api_key=${apiKey}&append_to_response=credits&language=tr-TR`);
+                const data = await detailRes.json();
+
                 res.style.display = "block";
+                const actors = data.credits.cast.slice(0, 5).map(a => a.name).join(", ");
+                const genres = data.genres.map(g => `<span class="genre-tag">${g.name}</span>`).join("");
+
                 res.innerHTML = `
-                    <div style="display:flex; gap:15px; margin-bottom:20px;">
-                        <img src="${data.Poster !== "N/A" ? data.Poster : 'https://via.placeholder.com/100x150?text=No+Image'}" 
-                             style="width:100px; border-radius:10px; border:1px solid #333;">
-                        <div>
-                            <h3 style="margin:0; font-size:1rem; color:#ff00ff;">${data.Title}</h3>
-                            <p style="font-size:0.6rem; color:#888; margin:5px 0;">${data.Year} • ${data.Genre} • ${data.Runtime}</p>
-                            <div style="display:flex; gap:5px;">
-                                <span class="info-tag"><i class="fas fa-star" style="color:#ffd700;"></i> ${data.imdbRating}</span>
-                                <span class="info-tag"><i class="fas fa-award"></i> ${data.Language}</span>
+                    <div style="display:flex; flex-direction:column; gap:15px; background: rgba(255,255,255,0.03); padding:20px; border-radius:20px; border:1px solid #222;">
+                        <div style="display:flex; gap:15px;">
+                            <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" 
+                                 style="width:110px; border-radius:15px; border:1px solid #ff00ff; box-shadow: 0 0 15px rgba(255,0,255,0.2);">
+                            <div style="flex:1;">
+                                <h3 style="margin:0; font-size:1.1rem; color:#fff;">${data.title}</h3>
+                                <div style="margin:10px 0;">${genres}</div>
+                                <div class="imdb-tag"><i class="fas fa-star"></i> ${data.vote_average.toFixed(1)} / 10</div>
+                                <p style="font-size:0.65rem; color:#888; margin-top:5px;">${data.release_date.split('-')[0]} | ${data.runtime} dəq</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div style="background:#000; padding:15px; border-radius:15px; border:1px solid #111;">
-                        <b style="font-size:0.7rem; color:#ff00ff; display:block; margin-bottom:5px;">MÖVZU (PLOT):</b>
-                        <p style="font-size:0.65rem; color:#ccc; line-height:1.4; margin:0;">${data.Plot}</p>
                         
-                        <b style="font-size:0.7rem; color:#ff00ff; display:block; margin:15px 0 5px 0;">BAŞ ROLLAR:</b>
-                        <p style="font-size:0.65rem; color:#ccc; margin:0;">${data.Actors}</p>
-
-                        <b style="font-size:0.7rem; color:#ff00ff; display:block; margin:15px 0 5px 0;">REJİSSOR:</b>
-                        <p style="font-size:0.65rem; color:#ccc; margin:0;">${data.Director}</p>
+                        <div style="border-top:1px solid #111; padding-top:15px;">
+                            <b style="font-size:0.7rem; color:#ff00ff; display:block; margin-bottom:5px; text-transform:uppercase;">Mövzu:</b>
+                            <p style="font-size:0.75rem; color:#ccc; line-height:1.5; margin:0;">${data.overview || "Tərcümə tapılmadı."}</p>
+                            
+                            <b style="font-size:0.7rem; color:#ff00ff; display:block; margin-top:15px; text-transform:uppercase;">Baş Rollar:</b>
+                            <p style="font-size:0.75rem; color:#ccc; margin:0;">${actors}</p>
+                        </div>
                     </div>
                 `;
+                
+                // Nəticə gələndə səhifəni aşağı sürüşdür
+                res.scrollIntoView({ behavior: 'smooth' });
+                if(navigator.vibrate) navigator.vibrate(50);
             } else {
-                alert("Film tapılmadı!");
+                alert("Film tapılmadı! Lütfən adı düzgün yazdığınızdan əmin olun.");
             }
         } catch (e) {
-            alert("Xəta baş verdi. İnterneti yoxlayın.");
+            alert("Sistem xətası! API qoşulmasını yoxlayın.");
         }
         
         btn.disabled = false;
-        btn.innerText = "MƏLUMATLARI GƏTİR";
+        btn.innerText = "MƏLUMATLARI SÜZ";
     }
 </script>
