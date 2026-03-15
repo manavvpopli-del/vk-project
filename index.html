@@ -161,23 +161,12 @@
     }
 
     function openTelegram() {
-    const url = "https://t.me/+HQWNjQ9m6Xc0YjRi";
-    
-    // Metod 1: Android Sistem Brauzerinə göndərmək
-    window.location.assign(url);
-    
-    // Metod 2: Əgər yuxarıdakı işləməsə (200ms sonra)
-    setTimeout(() => {
-        const link = document.createElement('a');
-        link.href = url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.click();
-    }, 200);
-
-    // Metod 3: Məcburi Popup (Kodular bəzən bunu daha yaxşı tutur)
-    window.open(url, '_system');
+    // Artıq birbaşa Telegram-a yox, öz go.html səhifənə yönləndirirsən
+    window.location.href = "go.html";
 }
+
+// Key Modalı daxilindəki düyməni də buna uyğun et:
+// <button class="btn-main" onclick="openTelegram()" style="background:#24A1DE; color:white;">TELEGRAM-DAN AL</button>
 
     function closeKeyModal() { document.getElementById('key-modal').style.display = 'none'; document.getElementById('manual-key').value=""; }
     function loadTool(f) { fetch(f).then(r=>r.text()).then(h=>{ document.getElementById('tool-content').innerHTML=h; document.getElementById('modal-overlay').style.display='block'; }); }
