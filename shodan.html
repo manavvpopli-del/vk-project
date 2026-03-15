@@ -1,83 +1,69 @@
-<div id="shodan-module" style="color: #00dfff; font-family: 'Courier New', monospace; padding: 20px; background: #050505; border: 1px solid #00dfff; border-radius: 15px; box-shadow: 0 0 20px rgba(0, 223, 255, 0.1);">
+<div id="shodan-module" style="color: #00dfff; font-family: 'Courier New', monospace; padding: 20px; background: #050505; border: 1px solid #00dfff; border-radius: 15px;">
     <div style="text-align: center; margin-bottom: 20px;">
-        <i class="fas fa-globe-americas" style="font-size: 3rem; color: #00dfff; animation: glow 2s infinite alternate;"></i>
-        <h3 style="font-family: 'Syncopate'; margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">GLOBAL IoT SCANNER</h3>
+        <i class="fas fa-satellite-dish" style="font-size: 3rem; color: #00dfff;"></i>
+        <h3 style="font-family: 'Syncopate'; margin-top: 15px; font-size: 0.8rem;">GLOBAL IoT DISCOVERY</h3>
     </div>
     
-    <div style="background: rgba(0,223,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #003355;">
-        <input type="text" id="shodan-query" placeholder="Məs: webcam, TP-Link, country:AZ" 
-            style="width: 100%; padding: 15px; background: #000; border: 1px solid #00dfff; color: #fff; border-radius: 8px; outline: none; font-weight: bold;">
-    </div>
+    <input type="text" id="shodan-query" placeholder="Məs: country:AZ port:80" 
+        style="width: 100%; padding: 15px; background: #000; border: 1px solid #00dfff; color: #fff; border-radius: 8px; outline: none; margin-bottom: 15px;">
     
     <button onclick="searchIoT()" id="shodan-btn" 
-        style="width: 100%; padding: 18px; background: #00dfff; color: #000; font-weight: 900; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase;">
-        <i class="fas fa-search-location"></i> SCAN WORLDWIDE
+        style="width: 100%; padding: 18px; background: #00dfff; color: #000; font-weight: 900; border: none; border-radius: 10px; cursor: pointer;">
+        EXECUTE SEARCH
     </button>
 
     <div id="shodan-results" style="margin-top: 20px; height: 350px; overflow-y: auto; font-size: 0.7rem; border-top: 1px solid #003355; padding-top: 10px;">
-        <div style="opacity: 0.5; text-align: center; margin-top: 50px;">
-            <i class="fas fa-terminal" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-            [SYSTEM]: Awaiting global query...
-        </div>
+        <div id="inner-logs" style="color: #555; margin-bottom: 10px;">[SYSTEM]: Awaiting signal...</div>
+        <div id="data-container"></div>
     </div>
 </div>
-
-<style>
-    @keyframes glow { from { text-shadow: 0 0 5px #00dfff; } to { text-shadow: 0 0 20px #00dfff; } }
-    .device-card { background: #0a0a0f; padding: 15px; border: 1px solid #111; border-left: 4px solid #00dfff; border-radius: 10px; margin-bottom: 12px; animation: slideIn 0.4s ease-out; }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-    #shodan-results::-webkit-scrollbar { width: 4px; }
-    #shodan-results::-webkit-scrollbar-thumb { background: #00dfff; border-radius: 10px; }
-</style>
 
 <script>
     async function searchIoT() {
         const query = document.getElementById('shodan-query').value.trim();
-        if(!query) return alert("Axtarış üçün hədəf cihaz tipi və ya ölkə daxil edin!");
+        if(!query) return alert("Sorgu daxil edin!");
 
         const btn = document.getElementById('shodan-btn');
-        const results = document.getElementById('shodan-results');
+        const logs = document.getElementById('inner-logs');
+        const container = document.getElementById('data-container');
         
         btn.disabled = true;
-        btn.innerHTML = "<i class='fas fa-sync fa-spin'></i> CONNECTING TO SHODAN...";
-        results.innerHTML = `<div style="color:#00dfff;">[INFO]: Shodan rəsmi API bazasına qoşulur...</div>`;
+        btn.innerText = "BYPASSING CORS...";
+        logs.innerHTML = "[INFO]: Proxy zənciri qurulur...";
+        container.innerHTML = "";
+
+        // CORS xətasını aşmaq üçün Proxy servisi
+        const proxy = "https://api.allorigins.win/get?url=";
+        const target = encodeURIComponent(`https://api.shodan.io/shodan/host/search?key=LVwrK76ElskFhsqi3QQ5gCGZvOO6ohth&query=${query}`);
 
         try {
-            // SƏNİN REAL API AÇARIN İLƏ SORĞU
-            const response = await fetch(`https://api.shodan.io/shodan/host/search?key=LVwrK76ElskFhsqi3QQ5gCGZvOO6ohth&query=${query}`);
-            const data = await response.json();
-            
-            results.innerHTML = "";
-            
+            const response = await fetch(proxy + target);
+            const rawData = await response.json();
+            const data = JSON.parse(rawData.contents); // AllOrigins datanı "contents" daxilində qaytarır
+
             if(data.matches && data.matches.length > 0) {
+                logs.innerHTML = `[SUCCESS]: ${data.matches.length} cihaz tapıldı.`;
                 data.matches.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'device-card';
-                    card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <b style="color:#fff; font-size:0.85rem;">IP: ${item.ip_str}</b>
-                            <span style="color:#00dfff; font-size:0.6rem;">PORT: ${item.port}</span>
-                        </div>
-                        <div style="margin-top:8px; color:#aaa;">
-                            <i class="fas fa-server"></i> Org: ${item.org || 'Unknown'}<br>
-                            <i class="fas fa-map-marker-alt"></i> Location: ${item.location.city || 'N/A'}, ${item.location.country_name}<br>
-                            <i class="fas fa-code"></i> OS: ${item.os || 'N/A'}
-                        </div>
-                        <button onclick="window.open('http://${item.ip_str}:${item.port}')" 
-                            style="margin-top:10px; width:100%; padding:8px; background:transparent; border:1px solid #00dfff; color:#00dfff; border-radius:5px; font-size:0.6rem; font-weight:900; cursor:pointer;">
-                            OPEN DEVICE PANEL
-                        </button>
-                    `;
-                    results.appendChild(card);
+                    container.innerHTML += `
+                        <div style="background:#0a0a0f; padding:12px; border:1px solid #111; border-left:3px solid #00dfff; border-radius:8px; margin-bottom:10px;">
+                            <b style="color:#fff;">IP: ${item.ip_str}:${item.port}</b><br>
+                            <span style="color:#00ff00;">${item.location.country_name} / ${item.location.city || 'N/A'}</span><br>
+                            <small style="color:#666;">ISP: ${item.isp}</small>
+                            <button onclick="window.open('http://${item.ip_str}:${item.port}')" 
+                                style="margin-top:8px; width:100%; padding:5px; background:transparent; border:1px solid #444; color:#aaa; font-size:10px; cursor:pointer;">
+                                GO TO PANEL
+                            </button>
+                        </div>`;
                 });
             } else {
-                results.innerHTML = `<div style="color:#ff0055; text-align:center; margin-top:50px;">Nəticə tapılmadı.</div>`;
+                logs.innerHTML = "[X] Heç bir nəticə tapılmadı.";
             }
         } catch (e) {
-            results.innerHTML = `<div style="color:red; text-align:center; margin-top:50px;">[!] API LIMIT VƏ YA ŞƏBƏKƏ XƏTASI.</div>`;
+            logs.innerHTML = "[!] XƏTA: API limiti dolub və ya Shodan cavab vermir.";
+            console.error(e);
         }
         
         btn.disabled = false;
-        btn.innerHTML = "<i class='fas fa-search-location'></i> SCAN WORLDWIDE";
+        btn.innerText = "EXECUTE SEARCH";
     }
 </script>
