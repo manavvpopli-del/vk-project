@@ -1,9 +1,5 @@
 <div id="game-node" style="color: var(--accent); font-family: 'Outfit', sans-serif; padding: 10px;">
     
-    <audio id="game-bgm" loop>
-        <source src="" type="audio/mpeg">
-    </audio>
-
     <div id="game-lobby">
         <div style="text-align: center; margin-bottom: 30px;">
             <div style="display: inline-block; position: relative;">
@@ -11,11 +7,11 @@
                 <div style="position: absolute; top: -5px; right: -5px; background: var(--cyber); width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg); animation: pulse 1s infinite;"></div>
             </div>
             <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 20px; letter-spacing: 3px;">CYBER MULTIPLAYER</h2>
-            <p style="font-size: 0.6rem; opacity: 0.5;">MUSIC SYNC ENABLED</p>
+            <p style="font-size: 0.6rem; opacity: 0.5;">PLAYER ID RECOGNITION ACTIVE</p>
         </div>
 
         <div style="background: var(--card-bg); padding: 25px; border-radius: 25px; border: 1px solid var(--border);">
-            <input type="number" id="room-input" class="auth-input" placeholder="Otaq kodu təyin et/daxil et" style="margin-bottom:15px; width: 100%; border-color: var(--border); font-weight: 900; background: #000; text-align: center;">
+            <input type="number" id="room-input" class="auth-input" placeholder="Otaq kodu təyin et/daxil et" style="margin-bottom:15px; width: 100%; border: 1px solid var(--border); font-weight: 900; background: #000; text-align: center; color: white;">
             
             <div style="display: flex; gap: 10px;">
                 <button onclick="createCustomRoom()" class="auth-btn" style="flex: 1; background: var(--cyber); font-size: 0.7rem;">YARAT (+)</button>
@@ -25,9 +21,17 @@
     </div>
 
     <div id="game-play" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px solid var(--border);">
-            <div id="room-display" style="font-size: 0.6rem; font-weight: 900; color: var(--premium);"></div>
-            <div id="turn-indicator" style="font-size: 0.65rem; font-weight: 900;"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px solid var(--border);">
+                <div id="room-display" style="font-size: 0.6rem; font-weight: 900; color: var(--premium);">NODE: ?</div>
+                <div id="turn-indicator" style="font-size: 0.65rem; font-weight: 900;"></div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-around; font-size: 0.7rem; font-weight: 900; background: rgba(0,223,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid var(--border);">
+                <div id="p1-display" style="color: var(--accent);">GÖZLƏNİLİR (X)</div>
+                <div style="color: #444;">VS</div>
+                <div id="p2-display" style="color: var(--premium);">GÖZLƏNİLİR (O)</div>
+            </div>
         </div>
 
         <div id="ttt-board" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 300px; margin: 0 auto;">
@@ -44,7 +48,7 @@
 
         <div id="game-result" style="margin-top: 25px; text-align: center; font-family: 'Syncopate';"></div>
         
-        <button onclick="stopGame()" class="auth-btn" style="margin-top: 20px; background: var(--danger); font-size: 0.7rem; width: 100%;">ÇIXIŞ</button>
+        <button onclick="closeTool()" class="auth-btn" style="margin-top: 20px; background: var(--danger); font-size: 0.7rem; width: 100%;">ÇIXIŞ</button>
     </div>
 </div>
 
@@ -52,6 +56,7 @@
     .ttt-cell { height: 90px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; transition: 0.3s; }
     .ttt-cell[data-v="X"] { color: var(--accent); text-shadow: 0 0 15px var(--accent); }
     .ttt-cell[data-v="O"] { color: var(--premium); text-shadow: 0 0 15px var(--premium); }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
 </style>
 
 <script>
@@ -59,20 +64,16 @@
     var mySym = null;
     var isGameOver = false;
 
-    function playMusic() {
-        const audio = document.getElementById('game-bgm');
-        audio.play().catch(e => console.log("Audio play failed: ", e));
-    }
-
     function createCustomRoom() {
         const id = document.getElementById('room-input').value.trim();
         if(id.length < 1) return alert("Kod daxil et!");
         
-        playMusic(); // Musiqi burada başlayır
         rid = id; mySym = 'X';
         db.ref('games/' + id).set({
             board: ["","","","","","","","",""],
-            turn: "X", p: 1, win: "", u1: sessionUser
+            turn: "X", p: 1, win: "", 
+            u1: sessionUser, // Host-un adı
+            u2: "..." // İkinci oyunçu hələ yoxdur
         });
         startUI(id);
     }
@@ -81,21 +82,16 @@
         const id = document.getElementById('room-input').value.trim();
         if(!id) return alert("Kod daxil et!");
         
-        playMusic(); // Musiqi burada başlayır
         db.ref('games/' + id).once('value', s => {
             if(s.exists() && s.val().p < 2) {
                 rid = id; mySym = 'O';
-                db.ref('games/' + id).update({ p: 2, u2: sessionUser });
+                db.ref('games/' + id).update({ 
+                    p: 2, 
+                    u2: sessionUser // Qoşulanın adı
+                });
                 startUI(id);
             } else { alert("OTAQ TAPILMADI VƏ YA DOLUDUR!"); }
         });
-    }
-
-    function stopGame() {
-        const audio = document.getElementById('game-bgm');
-        audio.pause();
-        audio.currentTime = 0;
-        closeTool();
     }
 
     function startUI(id) {
@@ -110,20 +106,32 @@
             const d = s.val();
             if(!d) return;
             isGameOver = !!d.win;
+
+            // Oyunçu adlarını real vaxtda göstər
+            document.getElementById('p1-display').innerText = d.u1.toUpperCase() + " (X)";
+            document.getElementById('p2-display').innerText = d.u2.toUpperCase() + " (O)";
+
             d.board.forEach((v, i) => {
                 const el = document.getElementById('c' + i);
                 el.innerText = v;
                 el.setAttribute('data-v', v);
             });
+
             const ts = document.getElementById('turn-indicator');
             const res = document.getElementById('game-result');
+
             if(d.win) {
                 ts.innerText = "OVER";
-                res.innerHTML = `<span style="color:var(--premium);">${d.win === 'DRAW' ? 'DRAW' : 'WINNER: ' + d.win}</span>`;
+                let winnerName = "";
+                if(d.win === 'X') winnerName = d.u1;
+                else if(d.win === 'O') winnerName = d.u2;
+                
+                res.innerHTML = `<span style="color:var(--premium);">${d.win === 'DRAW' ? 'DRAW' : 'WİN: ' + winnerName.toUpperCase()}</span>`;
             } else if(d.p < 2) {
                 ts.innerText = "WAITING...";
             } else {
-                ts.innerText = (d.turn === mySym) ? "YOUR TURN" : "ENEMY TURN";
+                let currentTurnName = (d.turn === 'X') ? d.u1 : d.u2;
+                ts.innerText = (d.turn === mySym) ? "YOUR TURN" : currentTurnName.toUpperCase() + " IS PLAYING";
                 ts.style.color = (d.turn === mySym) ? "#00ff00" : "#555";
             }
         });
