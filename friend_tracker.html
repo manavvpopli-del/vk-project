@@ -1,0 +1,46 @@
+<div id="stalker-pro" style="color: #ff00ff; font-family: 'Outfit', sans-serif; padding: 20px; background: #050505; border: 1px solid #ff00ff; border-radius: 25px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.1);">
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <i class="fas fa-user-spy" style="font-size: 3rem; color: #ff00ff; text-shadow: 0 0 15px #ff00ff;"></i>
+        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 15px; letter-spacing: 2px;">FRIEND ACTIVITY TRACKER</h2>
+    </div>
+
+    <div id="stalker-login" style="background: rgba(255, 0, 255, 0.05); padding: 15px; border-radius: 15px; border: 1px solid #330033; margin-bottom: 15px;">
+        <p style="font-size: 0.6rem; color: #888; margin-bottom: 10px;">Skan etmək üçün öz Instagram SessionID (Cookie) daxil edin:</p>
+        <input type="password" id="session-id" placeholder="sessionid-niz..." 
+            style="width: 100%; padding: 12px; background: #000; border: 1px solid #ff00ff; color: white; border-radius: 10px; font-size: 0.7rem;">
+    </div>
+
+    <div style="background: #111; padding: 15px; border-radius: 15px; border: 1px solid #222;">
+        <input type="text" id="target-user" placeholder="Hədəf Username (məs: ismail_001)" 
+            style="width: 100%; padding: 12px; background: #000; border: 1px solid #ff00ff; color: white; border-radius: 10px; margin-bottom: 10px;">
+        
+        <button onclick="startDeepStalk()" id="stalk-btn" 
+            style="width: 100%; padding: 15px; background: #ff00ff; color: #000; font-weight: 900; border: none; border-radius: 10px; cursor: pointer;">
+            FƏALİYYƏTİ İZLƏMƏYƏ BAŞLA
+        </button>
+    </div>
+
+    <div id="stalk-logs" style="margin-top: 20px; height: 150px; overflow-y: auto; background: #000; padding: 10px; font-family: 'Courier New'; font-size: 0.6rem; border: 1px solid #222; color: #00ff00;">
+        [SYSTEM]: Hədəf gözlənilir...
+    </div>
+</div>
+
+<script>
+    function startDeepStalk() {
+        const session = document.getElementById('session-id').value;
+        const target = document.getElementById('target-user').value;
+        const logs = document.getElementById('stalk-logs');
+
+        if(!session || !target) return alert("Məlumatları tam doldurun!");
+
+        logs.innerHTML = `[${new Date().toLocaleTimeString()}]: Bağlantı qurulur...<br>`;
+        logs.innerHTML += `[${new Date().toLocaleTimeString()}]: @${target} üçün qarşılıqlı səhifələr skan edilir...<br>`;
+
+        // REAL MƏNTİQ: Bura sənin sessiyanla Instagram-dan veri çəkən kiçik bir proksi qoşulmalıdır.
+        // İndilik işləmə prinsipini göstərən canlı terminal:
+        setTimeout(() => { logs.innerHTML += `[SEARCH]: Ortaq izlənən 42 səhifə tapıldı.<br>`; }, 1500);
+        setTimeout(() => { logs.innerHTML += `[ANALYSIS]: 'troll.az' rəyləri yoxlanılır...<br>`; }, 3000);
+        setTimeout(() => { logs.innerHTML += `<span style="color:red;">[FOUND]: Hədəf 12 dəqiqə əvvəl rəy yazıb!</span><br>`; }, 5000);
+    }
+</script>
