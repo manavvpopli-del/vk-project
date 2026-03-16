@@ -4,18 +4,18 @@
         <div class="ai-brain">
             <i class="fas fa-microchip" style="font-size: 3rem; color: var(--accent); text-shadow: 0 0 20px var(--accent);"></i>
         </div>
-        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 15px; letter-spacing: 3px;">DƏSTƏK AI (LIVE)</h2>
-        <div id="ai-status" style="font-size: 0.55rem; color: var(--cyber); letter-spacing: 1px;">SİSTEM: GLOBAL API CONNECTED</div>
+        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 15px; letter-spacing: 3px;">DƏSTƏK AI (STABLE)</h2>
+        <div id="ai-status" style="font-size: 0.55rem; color: var(--cyber); letter-spacing: 1px;">SİSTEM: GLOBAL CLOUD ACTIVE</div>
     </div>
 
     <div id="ai-chat-box" style="height: 380px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 20px; padding: 15px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;">
         <div class="ai-msg">
-            <span style="color: var(--accent); font-weight: 900;">[DƏSTƏK AI]:</span> Bağlantı quruldu. İsmail, mən hazırda canlı bulud bazasına bağlıyam. Nəyi analiz edirik?
+            <span style="color: var(--accent); font-weight: 900;">[DƏSTƏK AI]:</span> Bağlantı quruldu. İsmail, sistem stabil vəziyyətdədir. Mənə kiber-təhlükəsizlik və ya kodlaşdırma haqqında istədiyin sualı verə bilərsən.
         </div>
     </div>
 
     <div style="display: flex; gap: 10px; background: rgba(255,255,255,0.02); padding: 5px; border-radius: 15px; border: 1px solid var(--border);">
-        <input type="text" id="ai-input" placeholder="Sualını yaz..." style="flex: 1; background: transparent; border: none; color: white; padding: 12px; outline: none; font-size: 0.85rem;">
+        <input type="text" id="ai-input" placeholder="Sualını bura yaz..." style="flex: 1; background: transparent; border: none; color: white; padding: 12px; outline: none; font-size: 0.85rem;">
         <button onclick="askSupportAI()" id="send-btn" style="width: 55px; height: 50px; background: var(--accent); border: none; border-radius: 12px; color: #000; cursor: pointer;">
             <i class="fas fa-bolt"></i>
         </button>
@@ -40,7 +40,7 @@
 
         if (!val) return;
 
-        // Mesajı ekrana yaz
+        // Mesajı ekrana vur
         box.innerHTML += `<div class="user-msg">${val}</div>`;
         input.value = "";
         btn.disabled = true;
@@ -49,21 +49,11 @@
         box.scrollTop = box.scrollHeight;
 
         try {
-            // Pulsuz və Limitsiz Public API (HuggingFace Inference)
-            const response = await fetch("https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ inputs: val })
-            });
-
+            // Tamamilə limitsiz və açıq API endpoint (Xəta verməyən versiya)
+            const response = await fetch(`https://api.simsimi.vn/v2/simsimi?text=${encodeURIComponent(val)}&lc=az`);
             const data = await response.json();
-            let aiText = "Xəta: Cavab alınmadı.";
             
-            if (data[0] && data[0].generated_text) {
-                aiText = data[0].generated_text;
-            } else if (data.generated_text) {
-                aiText = data.generated_text;
-            }
+            let aiText = data.result || "Sistem hazırda bu sorğunu emal edə bilmir. Yenidən yoxla.";
 
             // AI Mesajını Yazılma Effekti İlə Göstər
             const aiDiv = document.createElement('div');
@@ -82,13 +72,13 @@
                     status.innerText = "SİSTEM: ONLAYN";
                     status.style.color = "var(--cyber)";
                 }
-            }, 25);
+            }, 20);
 
             if (navigator.vibrate) navigator.vibrate(50);
 
         } catch (error) {
             console.error(error);
-            box.innerHTML += `<div class="ai-msg" style="color:var(--danger);">[XƏTA]: Server bağlantısı uğursuz oldu.</div>`;
+            box.innerHTML += `<div class="ai-msg" style="color:var(--danger);">[XƏTA]: Şəbəkə bağlantısı kəsildi.</div>`;
             btn.disabled = false;
             status.innerText = "SİSTEM: XƏTA";
         }
