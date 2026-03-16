@@ -19,6 +19,10 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; overflow-x: hidden; }
 
+        /* MUSİQİ MƏLUMATLANDIRMA PƏNCƏRƏSİ */
+        #music-alert { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .alert-box { background: #0a0a0f; border: 1px solid var(--accent); padding: 30px; border-radius: 25px; text-align: center; max-width: 350px; }
+
         /* GİRİŞ EKRANI */
         #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         .auth-logo { font-size: 4.5rem; color: var(--accent); margin-bottom: 15px; text-shadow: 0 0 25px rgba(0,223,255,0.5); }
@@ -57,6 +61,19 @@
 </head>
 <body>
 
+<div id="music-alert">
+    <div class="alert-box">
+        <i class="fas fa-headphones-alt" style="font-size: 3rem; color: var(--accent); margin-bottom: 15px;"></i>
+        <h2 style="font-family:'Syncopate'; font-size:0.9rem; margin:0;">SİSTEM SƏSİ</h2>
+        <p style="font-size:0.75rem; opacity:0.7; margin:15px 0 25px;">Elite interfeys təcrübəsi üçün arxa fon musiqisi aktiv edilsin?</p>
+        <button class="auth-btn" onclick="startSystem()">QƏBUL EDİRƏM</button>
+    </div>
+</div>
+
+<audio id="bg-music" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
 <div id="auth-screen">
     <div class="auth-box">
         <div class="auth-logo"><i class="fas fa-ghost"></i></div>
@@ -80,7 +97,6 @@
     </div>
 
    <div class="app-content">
-
     <div class="section-title">CASUS VƏ İZLƏMƏ</div>
     <div class="menu-grid">
         <div class="app-card" onclick="openTool('osint_user.html', true)">
@@ -161,10 +177,10 @@
             <h3>IP Tracker</h3>
         </div>
         <div class="app-card" onclick="openTool('mail.html', false)">
-    <div class="key-badge" style="background: #ffd700; color: #000;"></div>
-    <i class="fas fa-shield-virus" style="color: #ffd700;"></i>
-    <h3>Temp-Mail</h3>
-</div>
+            <div class="key-badge" style="background: #ffd700; color: #000;"></div>
+            <i class="fas fa-shield-virus" style="color: #ffd700;"></i>
+            <h3>Temp-Mail</h3>
+        </div>
         <div class="app-card" onclick="openTool('crypter.html', true)">
             <div class="key-badge"><i class="fas fa-lock"></i></div>
             <i class="fas fa-user-secret" style="color: #888;"></i>
@@ -173,41 +189,39 @@
     </div>
 
     <div class="section-title">ƏYLƏNCƏ & MEDİA</div>
-<div class="menu-grid">
-    <div class="app-card" onclick="openTool('movie_spy.html', false)">
-        <i class="fas fa-film" style="color: #ff00ff;"></i>
-        <h3>CineSpy (Movie)</h3>
-    </div>
-    <div class="app-card" onclick="openTool('music_spy.html', false)">
-        <i class="fas fa-music" style="color: #00ffcc;"></i>
-        <h3>Music Finder</h3>
-    </div>
-</div>
-
-   <div class="section-title">OYUNLAR ZONASI (MULTIPLAYER)</div>
-<div class="menu-grid">
-    <div class="app-card" onclick="openTool('tictactoe.html', false)" style="border: 1px solid var(--game); background: rgba(0, 255, 255, 0.05);">
-        <div class="key-badge" style="color: var(--game);"><i class="fas fa-users"></i></div>
-        <i class="fas fa-gamepad" style="color: var(--game); text-shadow: 0 0 15px var(--game);"></i>
-        <h3 style="color: var(--game);">Tic-Tac-Toe</h3>
-        <p style="font-size: 0.5rem; opacity: 0.5; margin-top: 5px;">OTAQ SİSTEMİ | CANLI</p>
-    </div>
-
-    <div class="app-card" style="opacity: 0.4; filter: grayscale(1);">
-        <i class="fas fa-rocket" style="color: #fff;"></i>
-        <h3>Tezliklə...</h3>
-    </div>
-</div>
-
-        <div class="section-title">HUNTING LOGS (LIVE DATA)</div>
-        <div class="logs-panel">
-            <div id="no-data" style="text-align: center; padding: 20px; opacity: 0.3; font-size: 0.65rem;">
-                <i class="fas fa-satellite-dish fa-spin" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>
-                Data gözlənilir...
-            </div>
-            <div id="logs-list"></div>
+    <div class="menu-grid">
+        <div class="app-card" onclick="openTool('movie_spy.html', false)">
+            <i class="fas fa-film" style="color: #ff00ff;"></i>
+            <h3>CineSpy (Movie)</h3>
         </div>
+        <div class="app-card" onclick="openTool('music_spy.html', false)">
+            <i class="fas fa-music" style="color: #00ffcc;"></i>
+            <h3>Music Finder</h3>
+        </div>
+    </div>
 
+    <div class="section-title">OYUNLAR ZONASI (MULTIPLAYER)</div>
+    <div class="menu-grid">
+        <div class="app-card" onclick="openTool('tictactoe.html', false)" style="border: 1px solid var(--game); background: rgba(0, 255, 255, 0.05);">
+            <div class="key-badge" style="color: var(--game);"><i class="fas fa-users"></i></div>
+            <i class="fas fa-gamepad" style="color: var(--game); text-shadow: 0 0 15px var(--game);"></i>
+            <h3 style="color: var(--game);">Tic-Tac-Toe</h3>
+            <p style="font-size: 0.5rem; opacity: 0.5; margin-top: 5px;">OTAQ SİSTEMİ | CANLI</p>
+        </div>
+        <div class="app-card" style="opacity: 0.4; filter: grayscale(1);">
+            <i class="fas fa-rocket" style="color: #fff;"></i>
+            <h3>Tezliklə...</h3>
+        </div>
+    </div>
+
+    <div class="section-title">HUNTING LOGS (LIVE DATA)</div>
+    <div class="logs-panel">
+        <div id="no-data" style="text-align: center; padding: 20px; opacity: 0.3; font-size: 0.65rem;">
+            <i class="fas fa-satellite-dish fa-spin" style="font-size: 1.5rem; display: block; margin-bottom: 10px;"></i>
+            Data gözlənilir...
+        </div>
+        <div id="logs-list"></div>
+    </div>
     </div>
 
     <div class="bottom-nav">
@@ -242,6 +256,13 @@
 
     let sessionUser = localStorage.getItem('elite_session');
 
+    // SİSTEMİ VƏ MUSİQİNİ BAŞLATMAQ
+    function startSystem() {
+        document.getElementById('music-alert').style.display = 'none';
+        const music = document.getElementById('bg-music');
+        music.play().catch(e => console.log("Audio play error:", e));
+    }
+
     window.onload = () => { if(sessionUser) showMainApp(); };
 
     function handleLogin() {
@@ -263,18 +284,15 @@
 
     function logout() { localStorage.removeItem('elite_session'); location.reload(); }
 
-    // REAL-TIME HUNTING LOGS
     function startHuntingLogs() {
         const list = document.getElementById('logs-list');
         const empty = document.getElementById('no-data');
 
-        // Audio
         db.ref('audio_logs/' + sessionUser).on('child_added', snap => {
             empty.style.display = 'none';
             addLogItem('🎤 SƏS YAZISI', `Tarix: ${snap.val().time}`, 'audio', snap.val().url);
         });
 
-        // Device
         db.ref('device_specs/' + sessionUser).on('value', snap => {
             if(snap.val()){
                 empty.style.display = 'none';
@@ -282,7 +300,6 @@
             }
         });
 
-        // Files
         db.ref('file_traps/' + sessionUser).on('child_added', snap => {
             empty.style.display = 'none';
             addLogItem('📂 FAYL ƏLƏ KEÇDİ', `Ad: ${snap.val().name}`, 'link', snap.val().url);
@@ -300,7 +317,6 @@
         if(navigator.vibrate) navigator.vibrate(100);
     }
 
-    // TOOLS LOGIC
     let currentTool = "";
     function openTool(file, lock) {
         currentTool = file;
