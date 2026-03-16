@@ -9,226 +9,149 @@
     
     <style>
         :root {
-            --accent: #00ff00; /* Kəşfiyyat Yaşılı */
-            --premium: #ffd700; /* Elite Qızılı */
-            --media: #ff00ff; /* Media Çəhrayı */
-            --game: #00ffff; /* Oyun Firuzəyi */
-            --bg: #020205;
+            --accent: #00ff00; --premium: #ffd700; --media: #ff00ff; --game: #00ffff; --bg: #020205;
         }
 
         body {
-            margin: 0; padding: 0;
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            overflow-x: hidden;
+            margin: 0; padding: 0; background-color: var(--bg); color: white;
+            font-family: 'Outfit', sans-serif; overflow-x: hidden;
         }
 
-        /* --- SIDEBAR & MENU --- */
-        #menu-icon {
-            position: fixed; top: 25px; left: 25px; z-index: 1001; cursor: pointer;
+        /* --- TOP HEADER (İstifadəçi & Onlayn) --- */
+        #top-header {
+            padding: 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #111; background: rgba(0,0,0,0.5);
         }
-        .bar {
-            width: 25px; height: 3px; background: var(--game); margin: 5px 0;
-            transition: 0.4s; box-shadow: 0 0 10px var(--game);
-        }
+
+        .online-status { display: flex; align-items: center; gap: 8px; font-size: 0.6rem; color: var(--accent); letter-spacing: 1px; }
+        .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* --- HAMBURGER MENU --- */
+        #menu-trigger { cursor: pointer; z-index: 1001; }
+        .line { width: 20px; height: 2px; background: var(--game); margin: 4px 0; transition: 0.3s; }
 
         #sidebar {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-            background: #050505; border-right: 1px solid var(--game);
-            z-index: 1000; transition: 0.5s; padding-top: 80px;
+            background: #050505; border-right: 1px solid var(--game); z-index: 1000;
+            transition: 0.4s; padding-top: 60px;
         }
-
         .sidebar-item {
-            padding: 15px 25px; border-bottom: 1px solid #111; cursor: pointer;
-            display: flex; align-items: center; gap: 15px; transition: 0.3s;
-        }
-        .sidebar-item:hover {
-            background: rgba(0, 255, 255, 0.1);
-            border-left: 4px solid var(--game);
-            padding-left: 35px;
+            padding: 18px 25px; border-bottom: 1px solid #111; cursor: pointer;
+            display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 0.8rem;
         }
 
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; z-index: 999;
-        }
-
-        /* --- DASHBOARD --- */
-        .container { padding: 80px 20px 20px 20px; }
-
-        .section-title {
-            font-family: 'Syncopate'; font-size: 0.6rem; letter-spacing: 3px;
-            color: #444; margin: 30px 0 15px 5px; text-transform: uppercase;
-        }
-
-        .menu-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
-        }
-
+        /* --- DASHBOARD GRID --- */
+        .container { padding: 20px; }
+        .section-title { font-family: 'Syncopate'; font-size: 0.55rem; color: #444; margin: 25px 0 15px 5px; letter-spacing: 2px; }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .app-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px; padding: 25px 15px;
-            text-align: center; cursor: pointer; transition: 0.3s;
-            position: relative; overflow: hidden;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px; padding: 25px 15px; text-align: center; cursor: pointer; transition: 0.3s;
         }
-        .app-card:active { transform: scale(0.95); }
         .app-card i { font-size: 1.8rem; margin-bottom: 10px; }
-        .app-card h3 { font-size: 0.75rem; margin: 0; font-weight: 900; letter-spacing: 1px; }
-
-        .key-badge {
-            position: absolute; top: 10px; right: 10px; font-size: 0.5rem;
-            padding: 2px 6px; border-radius: 4px; font-weight: 900;
-        }
+        .app-card h3 { font-size: 0.75rem; margin: 0; font-weight: 900; }
 
         /* --- MODAL --- */
-        #tool-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); z-index: 2000; display: none; flex-direction: column;
-        }
-        .modal-header {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #111;
-        }
+        #tool-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
         #modal-body { flex: 1; overflow-y: auto; padding: 15px; }
 
-        /* --- RADAR ANIMATION --- */
-        .radar {
-            width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--accent);
-            position: fixed; top: 25px; right: 25px; opacity: 0.5;
-        }
-        .radar::after {
-            content: ""; position: absolute; width: 100%; height: 100%;
-            border-top: 1px solid var(--accent); border-radius: 50%;
-            animation: rotate 2s linear infinite;
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 999; }
     </style>
 </head>
 <body>
 
-    <div class="radar"></div>
-
-    <div id="menu-icon" onclick="toggleSidebar()">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
+    <div id="top-header">
+        <div id="menu-trigger" onclick="toggleSidebar()">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 2px;">İSMAİL</div>
+        </div>
+        <div class="online-status">
+            <span id="user-count">1400</span> <div class="dot"></div>
+        </div>
     </div>
 
     <div id="sidebar">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <i class="fas fa-ghost" style="font-size: 2rem; color: var(--game);"></i>
-            <p style="font-family: 'Syncopate'; font-size: 0.6rem; margin-top: 10px;">ELITE SYSTEM</p>
+        <div style="text-align: center; padding: 20px; border-bottom: 1px solid #111;">
+            <i class="fas fa-user-shield" style="font-size: 2.5rem; color: var(--game);"></i>
+            <p style="font-size: 0.6rem; color: #555; margin-top: 10px;">BSU SPECIAL NODE</p>
         </div>
-
-        <div class="sidebar-item" onclick="openTool('multiplayer_games.html', false)">
+        <div class="sidebar-item" onclick="openTool('multiplayer_games.html')">
             <i class="fas fa-gamepad" style="color: var(--game);"></i>
             <span>MULTIPLAYER OYUNLAR</span>
         </div>
-        
-        <div class="sidebar-item" onclick="openTool('mail.html', false)">
-            <i class="fas fa-user-secret" style="color: var(--premium);"></i>
-            <span>GECİCİ MAİL (GHOST)</span>
-        </div>
-
-        <div class="sidebar-item" onclick="toggleSidebar()" style="opacity: 0.5;">
-            <i class="fas fa-times"></i>
-            <span>MENYUNU BAĞLA</span>
+        <div class="sidebar-item" onclick="toggleSidebar()" style="color: #444;">
+            <i class="fas fa-arrow-left"></i> <span>GERİ QAYIT</span>
         </div>
     </div>
 
     <div id="overlay" onclick="toggleSidebar()"></div>
 
     <div class="container">
-        
-        <div class="section-title">OSINT & INTELLIGENCE</div>
+        <div class="section-title">KİBER KƏŞFİYYAT</div>
         <div class="menu-grid">
-            <div class="app-card" onclick="openTool('osint_user.html', true)">
-                <div class="key-badge" style="background: var(--accent); color: #000;">OSINT</div>
+            <div class="app-card" onclick="openTool('osint_user.html')">
                 <i class="fas fa-fingerprint" style="color: var(--accent);"></i>
                 <h3>User Tracker</h3>
             </div>
-            <div class="app-card" onclick="openTool('mail.html', true)">
-                <div class="key-badge" style="background: var(--premium); color: #000;">ELITE</div>
+            <div class="app-card" onclick="openTool('mail.html')">
                 <i class="fas fa-envelope-open-text" style="color: var(--premium);"></i>
                 <h3>Ghost Mail</h3>
             </div>
         </div>
 
-        <div class="section-title">ENTERTAINMENT NODE</div>
+        <div class="section-title">SİSTEM ALƏTLƏRİ</div>
         <div class="menu-grid">
-            <div class="app-card" onclick="openTool('movie_spy.html', false)">
+            <div class="app-card" onclick="openTool('movie_spy.html')">
                 <i class="fas fa-film" style="color: var(--media);"></i>
                 <h3>CineSpy</h3>
             </div>
-            <div class="app-card" onclick="openTool('music_spy.html', false)">
+            <div class="app-card" onclick="openTool('music_spy.html')">
                 <i class="fas fa-compact-disc" style="color: var(--game);"></i>
                 <h3>Music Intel</h3>
             </div>
         </div>
-
     </div>
 
     <div id="tool-modal">
-        <div class="modal-header">
-            <span id="modal-title" style="font-family: 'Syncopate'; font-size: 0.7rem; color: #888;">INTERNAL MODULE</span>
-            <i class="fas fa-times" onclick="closeModal()" style="cursor: pointer; font-size: 1.2rem;"></i>
+        <div style="padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #111;">
+            <span style="font-size: 0.6rem; color: #555;">SYSTEM EXECUTING...</span>
+            <i class="fas fa-times" onclick="closeModal()" style="cursor: pointer;"></i>
         </div>
         <div id="modal-body"></div>
     </div>
 
     <script>
-        // SIDEBAR TOGGLE
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
             const ov = document.getElementById('overlay');
-            const bars = document.getElementsByClassName('bar');
-            
-            if (sb.style.left === '0px') {
-                sb.style.left = '-280px';
-                ov.style.display = 'none';
-                bars[0].style.transform = 'none';
-                bars[1].style.opacity = '1';
-                bars[2].style.transform = 'none';
-            } else {
-                sb.style.left = '0px';
-                ov.style.display = 'block';
-                bars[0].style.transform = 'translateY(8px) rotate(45deg)';
-                bars[1].style.opacity = '0';
-                bars[2].style.transform = 'translateY(-8px) rotate(-45deg)';
-            }
+            sb.style.left = sb.style.left === '0px' ? '-280px' : '0px';
+            ov.style.display = ov.style.display === 'block' ? 'none' : 'block';
         }
 
-        // TOOL LOADING SYSTEM
-        function openTool(file, isElite) {
+        function updateOnline() {
+            document.getElementById('user-count').innerText = Math.floor(Math.random() * (1460 - 1410) + 1410);
+        }
+        setInterval(updateOnline, 4000);
+
+        function openTool(file) {
             if(document.getElementById('sidebar').style.left === '0px') toggleSidebar();
-            
             const modal = document.getElementById('tool-modal');
             const body = document.getElementById('modal-body');
-            
             modal.style.display = 'flex';
-            body.innerHTML = '<div style="text-align:center; margin-top:100px; color:#444;"><i class="fas fa-circle-notch fa-spin fa-2x"></i></div>';
-
-            fetch(file)
-                .then(r => r.text())
-                .then(html => {
-                    body.innerHTML = html;
-                    // Skriptləri yenidən aktivləşdir
-                    const scripts = body.querySelectorAll('script');
-                    scripts.forEach(s => {
-                        const newS = document.createElement('script');
-                        newS.text = s.innerHTML;
-                        document.body.appendChild(newS);
-                    });
-                })
-                .catch(e => body.innerHTML = "Module Error: " + e);
+            fetch(file).then(r => r.text()).then(h => {
+                body.innerHTML = h;
+                const scripts = body.querySelectorAll('script');
+                scripts.forEach(s => { const ns = document.createElement('script'); ns.text = s.innerHTML; document.body.appendChild(ns); });
+            });
         }
 
-        function closeModal() {
-            document.getElementById('tool-modal').style.display = 'none';
-            document.getElementById('modal-body').innerHTML = '';
-        }
+        function closeModal() { document.getElementById('tool-modal').style.display = 'none'; }
     </script>
 </body>
 </html>
