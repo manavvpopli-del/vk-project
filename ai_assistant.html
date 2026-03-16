@@ -2,55 +2,56 @@
     
     <div style="text-align: center; margin-bottom: 20px;">
         <div class="ai-brain">
-            <i class="fas fa-brain" style="font-size: 3rem; color: var(--accent); text-shadow: 0 0 20px var(--accent);"></i>
+            <i class="fas fa-headset" style="font-size: 3rem; color: var(--accent); text-shadow: 0 0 20px var(--accent);"></i>
         </div>
         <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 15px; letter-spacing: 3px;">DƏSTƏK AI</h2>
-        <div id="ai-status" style="font-size: 0.55rem; color: var(--cyber); letter-spacing: 1px;">SYSTEM: ONLINE</div>
+        <div id="ai-status" style="font-size: 0.55rem; color: var(--cyber); letter-spacing: 1px;">SİSTEM: ONLAYN</div>
     </div>
 
     <div id="ai-chat-box" style="height: 350px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 20px; padding: 15px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;">
         <div class="ai-msg">
-            <span style="color: var(--accent); font-weight: 900;">[GEMINI]:</span> Bağlantı quruldu. Sualın nə ilə bağlıdır?
+            <span style="color: var(--accent); font-weight: 900;">[DƏSTƏK AI]:</span> Salam İsmail. Mən Hackatron sisteminin rəsmi köməkçisiyəm. Sənə necə dəstək ola bilərəm?
         </div>
     </div>
 
     <div style="display: flex; gap: 10px; background: rgba(255,255,255,0.02); padding: 5px; border-radius: 15px; border: 1px solid var(--border);">
-        <input type="text" id="ai-input" placeholder="Sualını soruş..." style="flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 0.85rem;">
-        <button onclick="askGemini()" id="send-btn" style="width: 50px; height: 45px; background: var(--accent); border: none; border-radius: 12px; color: #000; cursor: pointer;">
-            <i class="fas fa-bolt"></i>
+        <input type="text" id="ai-input" placeholder="Mesajını yaz..." style="flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 0.85rem;">
+        <button onclick="askSupportAI()" id="send-btn" style="width: 50px; height: 45px; background: var(--accent); border: none; border-radius: 12px; color: #000; cursor: pointer; transition: 0.3s;">
+            <i class="fas fa-paper-plane"></i>
         </button>
     </div>
 </div>
 
 <style>
-    .ai-brain { animation: glow 2s ease-in-out infinite alternate; }
-    @keyframes glow { from { opacity: 0.6; filter: drop-shadow(0 0 5px var(--accent)); } to { opacity: 1; filter: drop-shadow(0 0 20px var(--accent)); } }
-    .ai-msg { font-size: 0.8rem; line-height: 1.5; background: rgba(0, 223, 255, 0.05); padding: 12px; border-radius: 15px; border-left: 3px solid var(--accent); color: #e0e0e0; }
-    .user-msg { font-size: 0.8rem; line-height: 1.5; align-self: flex-end; background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 15px; border-right: 3px solid var(--premium); text-align: right; color: #fff; max-width: 85%; }
+    .ai-brain { animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .ai-msg { font-size: 0.8rem; line-height: 1.5; background: rgba(0, 223, 255, 0.05); padding: 12px; border-radius: 15px; border-left: 3px solid var(--accent); color: #e0e0e0; animation: fadeIn 0.3s ease; }
+    .user-msg { font-size: 0.8rem; line-height: 1.5; align-self: flex-end; background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 15px; border-right: 3px solid var(--premium); text-align: right; color: #fff; max-width: 85%; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    #send-btn:disabled { opacity: 0.3; cursor: not-allowed; background: #555; }
 </style>
 
 <script>
-    // 🔑 GEMINI API KEY - BURAYA ÖZ AÇARINI QOY
+    // 🔑 Sənin Təqdim Etdiyin API Açarın
     const API_KEY = "AIzaSyArXWyCj9zD7J8UZQRBY1TAdqvxOB3LI5g"; 
     const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
 
-    async function askGemini() {
+    async function askSupportAI() {
         const input = document.getElementById('ai-input');
         const box = document.getElementById('ai-chat-box');
         const btn = document.getElementById('send-btn');
         const status = document.getElementById('ai-status');
         const userText = input.value.trim();
 
-        if (!userText || API_KEY === "AIzaSyArXWyCj9zD7J8UZQRBY1TAdqvxOB3LI5g") {
-            if(API_KEY.includes("BURA")) alert("Xəta: API Key daxil edilməyib!");
-            return;
-        }
+        if (!userText) return;
 
-        // İstifadəçi mesajını ekrana vur
+        // Düyməni dərhal blokla (ikiqat klikin qarşısını almaq üçün)
+        btn.disabled = true;
+        
+        // İstifadəçi mesajını göstər
         box.innerHTML += `<div class="user-msg">${userText}</div>`;
         input.value = "";
-        btn.disabled = true;
-        status.innerText = "SYSTEM: THINKING...";
+        status.innerText = "SİSTEM: DÜŞÜNÜR...";
         status.style.color = "var(--premium)";
         box.scrollTop = box.scrollHeight;
 
@@ -59,17 +60,23 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: "Sən bir kiber təhlükəsizlik mütəxəssisisən. Adın Hackatron AI-dır. İsmail adlı hakerə kömək edirsən. Cavablarını qısa, texniki və haker stilində ver. Sual: " + userText }] }]
+                    contents: [{ 
+                        parts: [{ 
+                            text: "Sən Hackatron Ultimate v10.0 sisteminin Dəstək AI adlı asistanısan. İstifadəçin İsmail adlı hakerdir. Sən ancaq kiber təhlükəsizlik və texniki mövzularda dəstək verirsən. Gemini adından heç vaxt istifadə etmə. Cavablarını qısa, dəqiq və professional haker stilində ver. Sual: " + userText 
+                        }] 
+                    }]
                 })
             });
+
+            if (!response.ok) throw new Error("API Cavab Vermədi");
 
             const data = await response.json();
             const aiResponse = data.candidates[0].content.parts[0].text;
 
-            // AI mesajını yazılma effekti ilə göstər
+            // AI Mesajını Yazılma Effekti İlə Göstər
             const aiDiv = document.createElement('div');
             aiDiv.className = 'ai-msg';
-            aiDiv.innerHTML = `<span style="color: var(--accent); font-weight: 900;">[GEMINI]:</span> `;
+            aiDiv.innerHTML = `<span style="color: var(--accent); font-weight: 900;">[DƏSTƏK AI]:</span> `;
             box.appendChild(aiDiv);
             
             let i = 0;
@@ -79,23 +86,27 @@
                 box.scrollTop = box.scrollHeight;
                 if (i >= aiResponse.length) {
                     clearInterval(typeEffect);
-                    btn.disabled = false;
-                    status.innerText = "SYSTEM: ONLINE";
+                    btn.disabled = false; // Cavab bitəndə düyməni aç
+                    status.innerText = "SİSTEM: ONLAYN";
                     status.style.color = "var(--cyber)";
                 }
-            }, 20);
+            }, 15);
 
-            if (navigator.vibrate) navigator.vibrate(100);
+            if (navigator.vibrate) navigator.vibrate(50);
 
         } catch (error) {
             console.error(error);
-            box.innerHTML += `<div class="ai-msg" style="border-color:var(--danger);">[ERROR]: API bağlantısı kəsildi. Key-i yoxlayın.</div>`;
-            btn.disabled = false;
+            box.innerHTML += `<div class="ai-msg" style="border-color:var(--danger); color:var(--danger);">[XƏTA]: Bağlantı qurula bilmədi. İnterneti və ya API açarını yoxla.</div>`;
+            btn.disabled = false; // Xəta olsa belə düyməni aç ki, yenidən yoxlaya bilsin
+            status.innerText = "SİSTEM: XƏTA";
+            status.style.color = "var(--danger)";
         }
     }
 
-    // Enter düyməsi ilə göndərmə
+    // Enter ilə göndərmə dəstəyi
     document.getElementById('ai-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') askGemini();
+        if (e.key === 'Enter' && !document.getElementById('send-btn').disabled) {
+            askSupportAI();
+        }
     });
 </script>
