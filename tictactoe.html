@@ -1,0 +1,165 @@
+<div id="game-node" style="color: var(--accent); font-family: 'Outfit', sans-serif; padding: 10px;">
+    
+    <div id="game-lobby">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="display: inline-block; position: relative;">
+                <i class="fas fa-gamepad" style="font-size: 3.5rem; color: var(--accent); text-shadow: 0 0 20px var(--accent);"></i>
+                <div style="position: absolute; top: -5px; right: -5px; background: var(--cyber); width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg); animation: pulse 1s infinite;"></div>
+            </div>
+            <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 20px; letter-spacing: 3px;">CYBER XO NODE</h2>
+            <p style="font-size: 0.6rem; opacity: 0.5;">REAL-TIME MULTIPLAYER</p>
+        </div>
+
+        <div style="background: var(--card-bg); padding: 25px; border-radius: 25px; border: 1px solid var(--border);">
+            <button onclick="createRoom()" class="auth-btn" style="width: 100%; margin-bottom: 15px; background: var(--cyber); letter-spacing: 1px;">OTAQ YARAT (+)</button>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="room-input" class="auth-input" placeholder="Otaq Kodu" style="margin:0; flex: 1; border-color: var(--border); font-weight: 900;">
+                <button onclick="joinRoom()" class="auth-btn" style="width: 110px; font-size: 0.7rem;">QOŞUL</button>
+            </div>
+        </div>
+        
+        <div style="margin-top: 25px; font-size: 0.55rem; color: #444; text-align: center; line-height: 1.5;">
+            <i class="fas fa-info-circle" style="color: var(--premium);"></i><br>
+            Otaq kodunu rəqiblə bölüşərək<br>kiber-döyüşə başlaya bilərsiniz.
+        </div>
+    </div>
+
+    <div id="game-play" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px solid var(--border);">
+            <div id="room-display" style="font-size: 0.6rem; font-weight: 900; color: var(--premium); letter-spacing: 1px;"></div>
+            <div id="turn-indicator" style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;"></div>
+        </div>
+
+        <div id="ttt-board" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 300px; margin: 0 auto;">
+            <div class="ttt-cell" onclick="handleMove(0)" id="c0"></div>
+            <div class="ttt-cell" onclick="handleMove(1)" id="c1"></div>
+            <div class="ttt-cell" onclick="handleMove(2)" id="c2"></div>
+            <div class="ttt-cell" onclick="handleMove(3)" id="c3"></div>
+            <div class="ttt-cell" onclick="handleMove(4)" id="c4"></div>
+            <div class="ttt-cell" onclick="handleMove(5)" id="c5"></div>
+            <div class="ttt-cell" onclick="handleMove(6)" id="c6"></div>
+            <div class="ttt-cell" onclick="handleMove(7)" id="c7"></div>
+            <div class="ttt-cell" onclick="handleMove(8)" id="c8"></div>
+        </div>
+
+        <div id="game-result" style="margin-top: 25px; text-align: center; min-height: 40px; font-family: 'Syncopate'; letter-spacing: 2px;"></div>
+        
+        <button onclick="closeTool()" class="auth-btn" style="margin-top: 20px; background: var(--danger); font-size: 0.7rem; width: 100%; box-shadow: 0 0 15px rgba(255, 51, 0, 0.2);">OYUNDAN ÇIX</button>
+    </div>
+</div>
+
+<style>
+    .ttt-cell {
+        height: 95px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+        border-radius: 20px; display: flex; align-items: center; justify-content: center;
+        font-size: 2.5rem; font-weight: 900; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.5); cursor: pointer;
+    }
+    .ttt-cell:active { transform: scale(0.9); background: rgba(0, 223, 255, 0.08); }
+    .ttt-cell[data-v="X"] { color: var(--accent); text-shadow: 0 0 20px var(--accent); }
+    .ttt-cell[data-v="O"] { color: var(--premium); text-shadow: 0 0 20px var(--premium); }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.5); opacity: 0.5; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+
+<script>
+    var rid = null;
+    var mySym = null;
+    var isGameOver = false;
+
+    function createRoom() {
+        const id = Math.floor(1000 + Math.random() * 9000);
+        rid = id; mySym = 'X';
+        db.ref('games/' + id).set({
+            board: ["","","","","","","","",""],
+            turn: "X",
+            p: 1,
+            win: "",
+            u1: sessionUser
+        });
+        startUI(id);
+    }
+
+    function joinRoom() {
+        const id = document.getElementById('room-input').value;
+        if(!id) return;
+        db.ref('games/' + id).once('value', s => {
+            if(s.exists() && s.val().p < 2) {
+                rid = id; mySym = 'O';
+                db.ref('games/' + id).update({ p: 2, u2: sessionUser });
+                startUI(id);
+            } else { alert("SİSTEM XƏTASI: Otaq tapılmadı və ya doludur."); }
+        });
+    }
+
+    function startUI(id) {
+        document.getElementById('game-lobby').style.display = 'none';
+        document.getElementById('game-play').style.display = 'block';
+        document.getElementById('room-display').innerText = "NODE_" + id + " | ROLE_" + mySym;
+        listen(id);
+    }
+
+    function listen(id) {
+        db.ref('games/' + id).on('value', s => {
+            const d = s.val();
+            if(!d) return;
+            isGameOver = !!d.win;
+
+            d.board.forEach((v, i) => {
+                const el = document.getElementById('c' + i);
+                el.innerText = v;
+                el.setAttribute('data-v', v);
+            });
+
+            const ts = document.getElementById('turn-indicator');
+            const res = document.getElementById('game-result');
+
+            if(d.win) {
+                ts.innerText = "SESSİYA SONLANDI";
+                ts.style.color = "var(--danger)";
+                if(d.win === 'DRAW') {
+                    res.innerHTML = `<span style="color:#888;">HEÇ-HEÇƏ</span>`;
+                } else {
+                    res.innerHTML = `<span style="color:var(--premium); text-shadow: 0 0 10px var(--premium);">WINNER: ${d.win}</span>`;
+                }
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            } else if(d.p < 2) {
+                ts.innerText = "RƏQİB GÖZLƏNİLİR...";
+                ts.style.color = varColor('--premium');
+            } else {
+                ts.innerText = (d.turn === mySym) ? "SƏNİN NÖVBƏN" : "RƏQİBİN NÖVBƏSİ";
+                ts.style.color = (d.turn === mySym) ? varColor('--cyber') : "#444";
+            }
+        });
+    }
+
+    function handleMove(i) {
+        db.ref('games/' + rid).once('value', s => {
+            const d = s.val();
+            if(!isGameOver && d.p === 2 && d.turn === mySym && d.board[i] === "") {
+                let nb = [...d.board];
+                nb[i] = mySym;
+                let next = (mySym === 'X') ? 'O' : 'X';
+                db.ref('games/' + rid).update({ board: nb, turn: next });
+                check(nb);
+            }
+        });
+    }
+
+    function check(b) {
+        const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for(let l of w) {
+            if(b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) {
+                db.ref('games/' + rid).update({ win: b[l[0]] });
+                return;
+            }
+        }
+        if(!b.includes("")) db.ref('games/' + rid).update({ win: "DRAW" });
+    }
+
+    function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
+</script>
