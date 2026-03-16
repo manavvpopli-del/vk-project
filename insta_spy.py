@@ -1,38 +1,47 @@
 import instaloader
+from getpass import getpass
 
-# 1. Instagram Sessiyası yaradırıq
+# 1. Instagram Motorunu Hazırla
 L = instaloader.Instaloader()
 
-# DİQQƏT: GitHub-a qoyanda bura öz məlumatlarını yazma!
-# Onları istifadəçidən giriş olaraq alacağıq.
-USER = input("Username: ")
-SESSION_ID = input("Session ID: ")
+def start_tracking():
+    # Giriş məlumatlarını alırıq
+    user = input("[>] Instagram İstifadəçi Adınız: ")
+    # getpass şifrəni yazanda ekranda görünməməsi üçündür (təhlükəsizlik)
+    password = getpass("[>] Şifrəniz: ")
 
-try:
-    # Sessiya vasitəsilə giriş (Şifrə yazmadan, ban riskini azaldır)
-    L.context._session.cookies.set("sessionid", SESSION_ID)
-    print(f"[+] {USER} olaraq giriş edildi...")
+    try:
+        # Birbaşa giriş cəhdi
+        print(f"\n[*] @{user} hesabına bağlantı qurulur...")
+        L.login(user, password) 
+        print("[+] Giriş uğurludur!\n")
 
-    target_username = input("İzlənəcək dostun username-i: ")
-    profile = instaloader.Profile.from_username(L.context, target_username)
+        target = input("[?] İzlənəcək hədəf profil: ")
+        profile = instaloader.Profile.from_username(L.context, target)
 
-    print(f"[*] @{target_username} analiz edilir. Bu bir az vaxt ala bilər...")
-
-    # 2. Dostunun izlədiyi ortaq səhifələri skan edirik
-    for followed in profile.get_followees():
-        print(f"[SCANNING]: {followed.username} səhifəsi yoxlanılır...")
+        print(f"[*] @{target} analiz edilir... Səhifələrdəki rəylər axtarılır.")
         
-        # Həmin səhifənin son postlarını yoxlayırıq
-        count = 0
-        for post in followed.get_posts():
-            if count > 5: break # Hər səhifədə son 5 postu yoxla (sürət üçün)
+        # 2. Hədəfin izlədiyi adamları yoxlayırıq
+        for followee in profile.get_followees():
+            print(f"[SCANNING]: {followee.username} səhifəsi yoxlanılır...")
             
-            # Postun altındakı rəylərdə dostunu axtarırıq
-            for comment in post.get_comments():
-                if comment.owner.username == target_username:
-                    print(f"🔥 TAPILDI! @{target_username} bura rəy yazıb: {post.url}")
-                    print(f"Mesaj: {comment.text}")
-            count += 1
+            # Həmin səhifənin son postlarını skan edirik
+            for post in followee.get_posts():
+                # Hər səhifədə yalnız son 3 postu yoxla (Banlanmamaq üçün sürəti nizamlayırıq)
+                for comment in post.get_comments():
+                    if comment.owner.username == target:
+                        print(f"\n🎯 TAPILDI!")
+                        print(f"🔗 Post URL: https://www.instagram.com/p/{post.shortcode}/")
+                        print(f"💬 Rəy: {comment.text}")
+                        print("-" * 30)
 
-except Exception as e:
-    print(f"[!] Xəta baş verdi: {e}")
+    except instaloader.exceptions.BadCredentialsException:
+        print("[!] XƏTA: İstifadəçi adı və ya şifrə yanlışdır.")
+    except instaloader.exceptions.TwoFactorAuthRequiredException:
+        print("[!] DİQQƏT: Hesabda 2FA (İki mərhələli doğrulama) aktivdir. Kodu daxil etməlisiniz.")
+        # Bura 2FA üçün kod əlavə edilə bilər
+    except Exception as e:
+        print(f"[!] Gözlənilməz xəta: {e}")
+
+if __name__ == "__main__":
+    start_tracking()
