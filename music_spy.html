@@ -1,91 +1,99 @@
-<div id="music-module" style="color: white; font-family: 'Outfit', sans-serif; padding: 15px; background: #020205; border: 1px solid #00ffcc; border-radius: 25px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);">
+<div id="music-module" style="color: white; font-family: 'Outfit', sans-serif; padding: 15px; background: #020205; border: 1px solid #00ffcc; border-radius: 25px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.15);">
     
     <div style="text-align: center; margin-bottom: 20px;">
-        <i class="fas fa-music" style="font-size: 2.5rem; color: #00ffcc; text-shadow: 0 0 10px #00ffcc;"></i>
-        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 10px; letter-spacing: 2px;">MUSIC FINDER PRO</h2>
+        <i class="fas fa-compact-disc" style="font-size: 2.8rem; color: #00ffcc; text-shadow: 0 0 15px #00ffcc; animation: rotate 4s linear infinite;"></i>
+        <h2 style="font-family: 'Syncopate'; font-size: 0.8rem; margin-top: 15px; letter-spacing: 2px; color: #fff;">MUSIC INTELLIGENCE</h2>
     </div>
 
     <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 20px; border: 1px solid #111;">
-        <input type="text" id="music-name" placeholder="Mahnı və ya İfaçı adı..." 
-            style="width: 100%; padding: 15px; background: #000; border: 1px solid #00ffcc; color: white; border-radius: 12px; text-align: center; font-weight: 900; outline: none; margin-bottom: 12px;">
+        <input type="text" id="music-query" placeholder="Mahnı və ya İfaçı adı daxil edin..." 
+            style="width: 100%; padding: 15px; background: #000; border: 1px solid #00ffcc; color: white; border-radius: 12px; text-align: center; font-weight: 900; outline: none; margin-bottom: 12px; font-size: 0.9rem;">
         
-        <button onclick="searchMusic()" id="music-btn" 
-            style="width: 100%; padding: 15px; background: #00ffcc; color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; width: 100%;">
-            MAHNINI TAP
+        <button onclick="huntMusic()" id="music-btn" 
+            style="width: 100%; padding: 16px; background: #00ffcc; color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s;">
+            <i class="fas fa-satellite-dish"></i> DATA ÇƏKİLİŞİNİ BAŞLAT
         </button>
     </div>
 
-    <div id="music-result" style="margin-top: 20px; display: none; animation: slideIn 0.5s ease;">
+    <div id="music-result" style="margin-top: 20px; display: none; animation: slideUp 0.5s ease;">
         </div>
-
-    <div id="lyrics-result" style="margin-top: 15px; background: #000; padding: 15px; border-radius: 15px; border: 1px solid #111; font-size: 0.8rem; line-height: 1.6; max-height: 250px; overflow-y: auto; display: none; white-space: pre-line; color: #ccc;">
-    </div>
 </div>
 
 <style>
-    @keyframes slideIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-    #lyrics-result::-webkit-scrollbar { width: 4px; }
-    #lyrics-result::-webkit-scrollbar-thumb { background: #00ffcc; border-radius: 10px; }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .stat-badge { background: rgba(0, 255, 204, 0.1); color: #00ffcc; padding: 5px 10px; border-radius: 8px; font-size: 0.6rem; border: 1px solid rgba(0, 255, 204, 0.2); }
+    #music-result::-webkit-scrollbar { width: 0; }
 </style>
 
 <script>
-    async function searchMusic() {
-        const query = document.getElementById('music-name').value.trim();
+    async function huntMusic() {
+        const query = document.getElementById('music-query').value.trim();
         if(!query) return;
 
         const btn = document.getElementById('music-btn');
         const res = document.getElementById('music-result');
-        const lyr = document.getElementById('lyrics-result');
+
+        // Sənin Yeni Real API Açarın
+        const apiKey = "2b23364084946969bceac049c1e6d729"; 
 
         btn.disabled = true;
-        btn.innerHTML = "<i class='fas fa-compact-disc fa-spin'></i> ARAŞDIRILIR...";
+        btn.innerHTML = "<i class='fas fa-sync fa-spin'></i> VERİLƏNLƏR SÜZÜLÜR...";
         res.style.display = "none";
-        lyr.style.display = "none";
 
         try {
-            // 1. Mahnı və İfaçı Məlumatlarını tapırıq (Deezer API - Pulsuz və Açarsız)
-            const searchRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://api.deezer.com/search?q=' + query)}`);
-            const searchData = JSON.parse((await searchRes.json()).contents);
+            // 1. Mahnı Axtarışı
+            const response = await fetch(`https://ws.audioscrobbler.com/2.0/?method=track.search&track=${encodeURIComponent(query)}&api_key=${apiKey}&format=json&limit=1`);
+            const data = await response.json();
 
-            if(searchData.data.length > 0) {
-                const track = searchData.data[0];
-                const artist = track.artist.name;
-                const title = track.title;
+            if(data.results && data.results.trackmatches.track.length > 0) {
+                const track = data.results.trackmatches.track[0];
+                
+                // 2. İfaçı haqqında dərin məlumat
+                const artistRes = await fetch(`https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(track.artist)}&api_key=${apiKey}&format=json`);
+                const artistData = await artistRes.json();
 
                 res.style.display = "block";
+                const bio = artistData.artist ? artistData.artist.bio.summary.split('<a')[0] : "Bu ifaçı üçün bioqrafiya tapılmadı.";
+
                 res.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:15px; background:rgba(0,255,204,0.05); padding:15px; border-radius:15px; border:1px solid #00ffcc33;">
-                        <img src="${track.album.cover_medium}" style="width:80px; border-radius:10px; box-shadow: 0 0 10px #00ffcc55;">
-                        <div style="flex:1;">
-                            <h3 style="margin:0; font-size:1rem; color:#00ffcc;">${title}</h3>
-                            <p style="margin:5px 0; font-size:0.75rem; color:#fff;">${artist}</p>
-                            <p style="margin:0; font-size:0.6rem; color:#888;">Albom: ${track.album.title}</p>
-                            <a href="${track.link}" target="_blank" style="display:inline-block; margin-top:8px; color:#00ffcc; text-decoration:none; font-size:0.6rem; border:1px solid #00ffcc; padding:3px 8px; border-radius:5px;">LISTEN ON DEEZER</a>
+                    <div style="background:rgba(0,255,204,0.03); padding:20px; border-radius:20px; border:1px solid #1a1a1a;">
+                        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                            <div style="width:65px; height:65px; background:linear-gradient(45deg, #00ffcc, #008877); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#000; font-size:1.5rem; box-shadow:0 0 15px rgba(0,255,204,0.3);">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin:0; font-size:1.1rem; color:#00ffcc;">${track.name}</h3>
+                                <p style="margin:5px 0; font-size:0.85rem; color:#fff; font-weight:600;">${track.artist}</p>
+                                <div style="display:flex; gap:8px; margin-top:8px;">
+                                    <span class="stat-badge"><i class="fas fa-users"></i> ${parseInt(track.listeners).toLocaleString()} Dinləyici</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background:#000; padding:15px; border-radius:15px; border:1px solid #111;">
+                            <b style="font-size:0.7rem; color:#00ffcc; display:block; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">İfaçı Bioqrafiyası:</b>
+                            <p style="font-size:0.75rem; color:#ccc; line-height:1.5; margin:0;">${bio}</p>
+                            
+                            <div style="margin-top:20px; border-top:1px solid #111; padding-top:15px; text-align:center;">
+                                <a href="${track.url}" target="_blank" style="display:block; width:100%; color:#000; background:#00ffcc; text-decoration:none; font-size:0.7rem; font-weight:900; padding:12px; border-radius:10px; text-transform:uppercase;">
+                                    PROİFİLİ LAST.FM-DƏ AÇ
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;
-
-                // 2. Mahnı Sözlərini gətiririk (Lyrics.ovh API)
-                const lyricsRes = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
-                const lyricsData = await lyricsRes.json();
-
-                if(lyricsData.lyrics) {
-                    lyr.style.display = "block";
-                    lyr.innerText = lyricsData.lyrics;
-                } else {
-                    lyr.style.display = "block";
-                    lyr.innerText = "Mahnı sözləri bazada tapılmadı, lakin mahnı məlumatları yuxarıdadır.";
-                }
-
+                
+                res.scrollIntoView({ behavior: 'smooth' });
                 if(navigator.vibrate) navigator.vibrate(50);
             } else {
-                alert("Mahnı tapılmadı!");
+                alert("Təəssüf, mahnı tapılmadı!");
             }
         } catch (e) {
-            alert("Sistem xətası! Yenidən yoxlayın.");
+            alert("API Bağlantı Xətası! Açarınızı yoxlayın.");
         }
 
         btn.disabled = false;
-        btn.innerHTML = "MAHNINI TAP";
+        btn.innerHTML = "<i class='fas fa-satellite-dish'></i> DATA ÇƏKİLİŞİNİ BAŞLAT";
     }
 </script>
