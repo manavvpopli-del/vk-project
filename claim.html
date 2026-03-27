@@ -3,243 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Rewards - Websim</title>
+    <title>Earn & Rewards - Websim</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
         
         body {
             margin: 0;
-            padding: 20px;
-            background: #f4f7f6;
-            font-family: 'Poppins', sans-serif;
-            color: #2d3436;
+            padding: 15px;
+            background: #f0f2f5;
+            font-family: 'Montserrat', sans-serif;
+            color: #333;
             text-align: center;
         }
 
-        .balance-card {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            padding: 30px;
-            border-radius: 25px;
-            color: white;
-            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.2);
-            margin-bottom: 30px;
+        /* BALANS KARTI */
+        .wallet-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-bottom: 5px solid #00b894;
         }
 
-        .balance-amount { font-size: 2.5rem; font-weight: 900; margin: 10px 0; }
-        .withdraw-info { font-size: 0.8rem; opacity: 0.9; }
+        .balance-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-value { font-size: 2.2rem; font-weight: 900; color: #2d3436; margin: 5px 0; }
 
-        /* ÇARX VİZUALI */
-        .wheel-container {
+        /* ÇARX SAHƏSİ */
+        .wheel-box {
             position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 0 auto;
-            border: 8px solid #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1);
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
         }
 
-        .wheel-bg {
+        #wheel {
             width: 100%;
             height: 100%;
+            border-radius: 50%;
+            border: 10px solid #fff;
+            box-shadow: 0 0 25px rgba(0,0,0,0.1);
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
             background: conic-gradient(
-                #ff7675 0deg 72deg, 
-                #fdcb6e 72deg 144deg, 
-                #00b894 144deg 216deg, 
-                #0984e3 216deg 288deg, 
-                #6c5ce7 288deg 360deg
+                #ff7675 0% 20%, 
+                #fdcb6e 20% 40%, 
+                #00b894 40% 60%, 
+                #0984e3 60% 80%, 
+                #6c5ce7 80% 100%
             );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
+
+        /* ÇARXIN ÜSTÜNDƏKİ RƏQƏMLƏR */
+        .price-tag {
+            position: absolute;
+            font-weight: 900;
+            color: white;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .p1 { transform: rotate(36deg) translateY(-100px); }
+        .p2 { transform: rotate(108deg) translateY(-100px); }
+        .p3 { transform: rotate(180deg) translateY(-100px); }
+        .p4 { transform: rotate(252deg) translateY(-100px); }
+        .p5 { transform: rotate(324deg) translateY(-100px); }
 
         .pointer {
             position: absolute;
-            top: -10px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #2d3436;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            width: 40px;
             z-index: 10;
+            color: #2d3436;
+            font-size: 2.5rem;
         }
 
-        .spin-btn {
-            margin-top: 30px;
-            padding: 15px 40px;
-            border-radius: 50px;
+        /* DÜYMƏLƏR */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
             border: none;
-            background: #2d3436;
-            color: white;
-            font-weight: 700;
+            font-weight: 900;
             font-size: 1rem;
             cursor: pointer;
             transition: 0.3s;
-        }
-
-        .spin-btn:disabled { background: #b2bec3; cursor: not-allowed; }
-
-        .timer-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #dfe6e9;
-            border-radius: 15px;
-            font-size: 0.85rem;
-        }
-
-        .penalty-notice {
-            color: #d63031;
-            font-size: 0.7rem;
             margin-top: 10px;
-            font-weight: bold;
         }
 
+        .spin-btn { background: linear-gradient(45deg, #00b894, #00cec9); color: white; box-shadow: 0 5px 15px rgba(0,184,148,0.3); }
+        .spin-btn:disabled { background: #dfe6e9; color: #b2bec3; box-shadow: none; cursor: not-allowed; }
+
+        .withdraw-btn { background: #fff; color: #2d3436; border: 2px solid #2d3436; margin-top: 20px; font-size: 0.8rem; }
+
+        /* MODAL */
         .modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            z-index: 1000;
+            padding: 20px;
         }
 
         .modal-content {
             background: white;
             padding: 30px;
-            border-radius: 20px;
-            width: 80%;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 320px;
+            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .card-logos {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            font-size: 1.5rem;
         }
     </style>
 </head>
 <body>
 
-    <div class="balance-card">
-        <p>Cari Balans</p>
-        <div class="balance-amount"><span id="user-balance">0.00</span> AZN</div>
-        <p class="withdraw-info">Minimum çıxarış: 15.00 AZN</p>
+    <div class="wallet-card">
+        <div class="balance-label">Ümumi Qazanc</div>
+        <div class="balance-value"><span id="balance">0.00</span> AZN</div>
+        <div id="status-timer" style="font-size: 0.75rem; font-weight: 700; color: #d63031;">Yoxlanılır...</div>
     </div>
 
-    <div style="position: relative;">
-        <div class="pointer"></div>
-        <div class="wheel-container" id="wheel">
-            <div class="wheel-bg"></div>
+    <div class="wheel-box">
+        <div class="pointer"><i class="fas fa-caret-down"></i></div>
+        <div id="wheel">
+            <div class="price-tag p1">0.10</div>
+            <div class="price-tag p2">0.30</div>
+            <div class="price-tag p3">0.50</div>
+            <div class="price-tag p4">0.80</div>
+            <div class="price-tag p5">1.00</div>
         </div>
     </div>
 
-    <button id="spin-trigger" class="spin-btn" onclick="spinWheel()">ÇARXI ÇEVİR</button>
+    <button id="spinBtn" class="btn spin-btn" onclick="startSpin()">ÇARXI ÇEVİR</button>
+    <button class="btn withdraw-btn" onclick="openWithdraw()">PUL ÇIXARIŞI</button>
 
-    <div class="timer-info">
-        <span id="status-text">Çarx hazırdır!</span>
-        <div id="countdown" style="font-weight: 900; margin-top: 5px;"></div>
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <i class="fas fa-gift" style="font-size: 3rem; color: #fdcb6e;"></i>
+            <h2 style="margin: 15px 0 5px;">MÜKAFAT!</h2>
+            <p id="winAmountText" style="font-size: 1.2rem; font-weight: 900;"></p>
+            <button class="btn spin-btn" onclick="closeModal()">BALANSA ƏLAVƏ ET</button>
+        </div>
     </div>
 
-    <p class="penalty-notice">
-        Diqqət: 5 saatdan sonra 2 saat ərzində çevirmə edilməsə, balansdan 0.50 AZN cərimə çıxılacaq!
-    </p>
-
-    <div id="win-modal" class="modal">
+    <div id="withdrawModal" class="modal">
         <div class="modal-content">
-            <h2 style="color:#6c5ce7">TƏBRİKLƏR!</h2>
-            <p id="win-text"></p>
-            <button class="spin-btn" onclick="closeModal()">SİSTEMƏ ƏLAVƏ ET</button>
+            <h3 style="margin-top:0;">Vəsaitin Çıxarılması</h3>
+            <p style="font-size:0.7rem; color:#888;">Kart məlumatlarını daxil edin:</p>
+            
+            <div class="card-logos">
+                <i class="fab fa-cc-visa" style="color:#1a1f71"></i>
+                <i class="fab fa-cc-mastercard" style="color:#eb001b"></i>
+            </div>
+
+            <input type="text" placeholder="16 rəqəmli kart kodu" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1.5px solid #ddd;">
+            <input type="text" placeholder="Ad Soyad" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; border:1.5px solid #ddd;">
+            
+            <button class="btn spin-btn" onclick="processWithdraw()">TƏSDİQLƏ</button>
+            <button onclick="document.getElementById('withdrawModal').style.display='none'" style="background:none; border:none; margin-top:15px; color:#aaa; font-size:0.7rem;">LƏĞV ET</button>
         </div>
     </div>
 
     <script>
         let balance = parseFloat(localStorage.getItem('ws_balance')) || 0;
         let lastSpin = parseInt(localStorage.getItem('ws_last_spin')) || 0;
-        const prices = [0.10, 0.30, 0.50, 0.80, 1.00];
+        const prices = [0.10, 1.00, 0.80, 0.50, 0.30]; // Çarxdakı sıralama (saat əqrəbi əksi)
 
         function updateUI() {
-            document.getElementById('user-balance').innerText = balance.toFixed(2);
-            checkTiming();
+            document.getElementById('balance').innerText = balance.toFixed(2);
+            checkLock();
         }
 
-        function checkTiming() {
+        function checkLock() {
             const now = Date.now();
-            const spinBtn = document.getElementById('spin-trigger');
-            const statusText = document.getElementById('status-text');
-            const countdown = document.getElementById('countdown');
-
-            if (lastSpin === 0) return;
+            const btn = document.getElementById('spinBtn');
+            const timerText = document.getElementById('status-timer');
+            
+            if (lastSpin === 0) {
+                btn.disabled = false;
+                timerText.innerText = "HƏDİYYƏNİ GÖTÜRMƏYƏ HAZIRSAN!";
+                timerText.style.color = "#00b894";
+                return;
+            }
 
             const diff = now - lastSpin;
-            const waitTime = 5 * 60 * 60 * 1000; // 5 saat
-            const penaltyTime = 2 * 60 * 60 * 1000; // 2 saat cərimə pəncərəsi
+            const fiveHours = 5 * 60 * 60 * 1000;
+            const penaltyLimit = 7 * 60 * 60 * 1000; // 5 saat + 2 saat
 
-            if (diff < waitTime) {
-                spinBtn.disabled = true;
-                statusText.innerText = "Növbəti çevirmə üçün gözləyin:";
-                startTimer(waitTime - diff);
-            } else if (diff > (waitTime + penaltyTime)) {
-                // Cərimə tətbiqi
+            if (diff < fiveHours) {
+                btn.disabled = true;
+                const remaining = fiveHours - diff;
+                updateCountdown(remaining);
+            } else if (diff > penaltyLimit) {
+                // CƏRİMƏ SİSTEMİ
                 balance = Math.max(0, balance - 0.50);
-                lastSpin = now; // Cəriməni bir dəfə kəsmək üçün vaxtı yeniləyirik
-                saveData();
-                alert("Gecikdiyiniz üçün balansdan 0.50 AZN cərimə çıxıldı!");
-                updateUI();
+                lastSpin = now; // Cərimə kəsildi, vaxt sıfırlandı
+                save();
+                alert("Gecikdiyiniz üçün 0.50 AZN cərimə çıxıldı!");
+                location.reload();
             } else {
-                spinBtn.disabled = false;
-                statusText.innerText = "Sizin qazanmaq vaxtınızdır!";
-                countdown.innerText = "MƏBLƏĞİ GÖTÜRÜN!";
-                countdown.style.color = "#00b894";
+                btn.disabled = false;
+                timerText.innerText = "İNDİ ÇEVİRƏ BİLƏRSƏN!";
+                timerText.style.color = "#00b894";
             }
         }
 
-        function startTimer(duration) {
-            const timerDisplay = document.getElementById('countdown');
-            let timer = duration;
-            const interval = setInterval(() => {
-                let hours = Math.floor((timer / (1000 * 60 * 60)) % 24);
-                let minutes = Math.floor((timer / (1000 * 60)) % 60);
-                let seconds = Math.floor((timer / 1000) % 60);
-
-                timerDisplay.innerText = `${hours}s ${minutes}d ${seconds}sn`;
-                timer -= 1000;
-
-                if (timer < 0) {
-                    clearInterval(interval);
-                    checkTiming();
-                }
-            }, 1000);
+        function updateCountdown(ms) {
+            const timerText = document.getElementById('status-timer');
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            timerText.innerText = `NÖVBƏTİ ŞANS: ${h}s ${m}d ${s}sn`;
+            timerText.style.color = "#d63031";
+            setTimeout(checkLock, 1000);
         }
 
-        function spinWheel() {
+        function startSpin() {
             const wheel = document.getElementById('wheel');
-            const randomDeg = Math.floor(Math.random() * 360) + 3600; // Ən az 10 dövr
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
+
+            const randomDeg = Math.floor(Math.random() * 360) + 3600; 
             wheel.style.transform = `rotate(${randomDeg}deg)`;
-            
-            document.getElementById('spin-trigger').disabled = true;
 
             setTimeout(() => {
                 const actualDeg = randomDeg % 360;
                 const index = Math.floor(actualDeg / 72);
-                const winAmount = prices[index];
+                const win = prices[index];
                 
-                showWin(winAmount);
-            }, 4000);
+                document.getElementById('winAmountText').innerText = `+ ${win.toFixed(2)} AZN`;
+                document.getElementById('winModal').style.display = 'flex';
+                
+                balance += win;
+                lastSpin = Date.now();
+                save();
+            }, 5000);
         }
 
-        function showWin(amount) {
-            balance += amount;
-            lastSpin = Date.now();
-            saveData();
-            
-            document.getElementById('win-text').innerText = `Siz ${amount.toFixed(2)} AZN qazandınız!`;
-            document.getElementById('win-modal').style.display = 'flex';
+        function save() {
+            localStorage.setItem('ws_balance', balance);
+            localStorage.setItem('ws_last_spin', lastSpin);
         }
 
         function closeModal() {
-            document.getElementById('win-modal').style.display = 'none';
+            document.getElementById('winModal').style.display = 'none';
             location.reload();
         }
 
-        function saveData() {
-            localStorage.setItem('ws_balance', balance);
-            localStorage.setItem('ws_last_spin', lastSpin);
+        function openWithdraw() {
+            if (balance < 15) {
+                alert(`Balansınız kifayət deyil. Minimum çıxarış 15 AZN-dir. Sizə lazım olan: ${(15 - balance).toFixed(2)} AZN`);
+            } else {
+                document.getElementById('withdrawModal').style.display = 'flex';
+            }
+        }
+
+        function processWithdraw() {
+            alert("Sorğunuz qəbul edildi. 24 saat ərzində karta köçürüləcək.");
+            document.getElementById('withdrawModal').style.display = 'none';
         }
 
         updateUI();
