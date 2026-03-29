@@ -1,143 +1,160 @@
-<div id="main-app" style="display:none;">
+<div id="mining-interface" style="background: #050507; min-height: 100vh; color: white; font-family: 'Inter', sans-serif; padding: 20px;">
     
-    <div id="mining-section" class="section">
-        <style>
-            .mining-card {
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 25px;
-                padding: 30px 15px;
-                text-align: center;
-                backdrop-filter: blur(10px);
-            }
-            .crypto-icons {
-                display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
-            }
-            .crypto-icons img {
-                width: 45px; height: 45px; border-radius: 50%;
-                animation: float-coin 3s ease-in-out infinite;
-            }
-            @keyframes float-coin { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-            .balance-num { font-family: 'Orbitron', sans-serif; font-size: 3rem; margin: 10px 0; }
-            .btn-collect { background: #fff; color: #000; padding: 18px; border-radius: 15px; width: 100%; font-weight: 900; border: none; cursor: pointer; }
-            .btn-collect:disabled { background: #222; color: #555; }
-        </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700&display=swap');
+        
+        .crypto-header { 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            margin-bottom: 30px; 
+            padding-top: 20px; 
+        }
+        .crypto-header img { 
+            width: 55px; 
+            height: 55px; 
+            border-radius: 50%; 
+            box-shadow: 0 0 15px rgba(0,185,255,0.3); 
+            animation: bounce 3s infinite; 
+        }
+        @keyframes bounce { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-12px); } 
+        }
 
-        <div class="crypto-icons">
-            <img src="btc.png" alt="BTC">
-            <img src="eth.png" alt="ETH" style="animation-delay: 0.5s">
-            <img src="usdt.png" alt="USDT" style="animation-delay: 1s">
-        </div>
+        .balance-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.5) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .main-bal { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 3.2rem; 
+            color: #fff; 
+            margin: 15px 0; 
+            text-shadow: 0 0 20px rgba(0,185,255,0.4); 
+        }
+        .usd-symbol { color: #3f9c35; margin-right: 10px; }
+        
+        .claim-btn {
+            background: #fff; 
+            color: #000; 
+            width: 100%; 
+            padding: 20px; 
+            border-radius: 20px;
+            font-weight: 900; 
+            font-size: 1rem; 
+            border: none; 
+            cursor: pointer; 
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .claim-btn:disabled { 
+            background: #222; 
+            color: #555; 
+            cursor: not-allowed; 
+        }
+        
+        .withdraw-link {
+            display: block;
+            margin-top: 20px;
+            color: #777;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid #222;
+            padding: 15px;
+            border-radius: 15px;
+        }
+    </style>
 
-        <div class="mining-card">
-            <div style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 2px;">TOTAL REVENUE</div>
-            <div class="balance-num">$<span id="user-bal-display">0.00</span></div>
-            <div id="live-inc" style="color: #3f9c35; font-size: 0.8rem; margin-bottom: 20px;">+0.000000 USD/s</div>
-            
-            <button class="btn-collect" id="claim-btn" onclick="handleClaim()">COLLECT PROFITS</button>
-            <div id="claim-timer" style="font-size: 0.7rem; color: #888; margin-top: 10px;"></div>
-            
-            <button onclick="handleWithdraw()" style="margin-top: 15px; background: transparent; color: #fff; border: 1px solid #333; padding: 15px; width: 100%; border-radius: 15px; cursor: pointer;">
-                WITHDRAW (MIN: $15)
-            </button>
-        </div>
+    <div class="crypto-header">
+        <img src="btc.png" alt="BTC">
+        <img src="eth.png" alt="ETH" style="animation-delay: 0.5s">
+        <img src="usdt.png" alt="USDT" style="animation-delay: 1s">
     </div>
 
-    <div id="admin-section" style="display:none; padding: 20px; background: #000; border-radius: 20px; margin-top: 30px;">
-        <h2 style="color: #00b9ff; font-family: 'Orbitron'; font-size: 1rem;">WW24 CONTROL</h2>
-        <div id="user-list-admin" style="max-height: 300px; overflow-y: auto;">
-            </div>
+    <div class="balance-card">
+        <div style="font-size: 0.7rem; letter-spacing: 3px; color: #00b9ff; font-weight: bold;">AVAILABLE REVENUE</div>
+        <div class="main-bal"><span class="usd-symbol">$</span><span id="display-balance">0.00</span></div>
+        <div id="mining-speed" style="color: #3f9c35; font-weight: bold; font-size: 0.8rem; margin-bottom: 25px;">+0.000000 USD/s</div>
+        
+        <button class="claim-btn" id="main-claim-trigger" onclick="runUserClaim()">COLLECT PROFITS</button>
+        <div id="timer-display" style="margin-top: 15px; font-size: 0.75rem; color: #777;"></div>
+        
+        <a href="#" class="withdraw-link" onclick="runWithdraw()">
+            <i class="fas fa-credit-card"></i> KARTA ÇIXARIŞ (MIN: $15)
+        </a>
     </div>
-
 </div>
 
 <script>
-    // FİREBASE SİNXRONİZASİYA
-    function startMiningSync() {
-        const u = localStorage.getItem('elite_session');
-        
-        db.ref('mining/' + u).on('value', snap => {
+    (function() {
+        const sessionUser = localStorage.getItem('elite_session') || 'Guest';
+
+        // 1. Balans və Status Yoxlanışı
+        db.ref('mining/' + sessionUser).on('value', snap => {
             const data = snap.val() || { balance: 0, lastClaim: 0, status: 'active' };
             
-            // BLOKLAMA YOXLANILMASI
+            // Əgər admin tərəfindən bloklanıbsa
             if(data.status === 'blocked') {
-                document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>HESABINIZ BLOKLANIB!</h1>";
+                document.getElementById('mining-interface').innerHTML = `
+                    <div style="height:80vh; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+                        <i class="fas fa-user-slash" style="font-size:4rem; color:#ff3344; margin-bottom:20px;"></i>
+                        <h1 style="font-family:Orbitron; color:#fff;">HESAB BLOKLANDI</h1>
+                        <p style="color:#777;">Qaydaları pozduğunuz üçün giriş qadağan edilib.</p>
+                    </div>`;
                 return;
             }
 
-            document.getElementById('user-bal-display').innerText = parseFloat(data.balance).toFixed(2);
-            updateTimer(data.lastClaim);
+            document.getElementById('display-balance').innerText = parseFloat(data.balance).toFixed(2);
+            handleButtonState(data.lastClaim);
+        });
+
+        // 2. Vaxt Hesablanması
+        function handleButtonState(last) {
+            const btn = document.getElementById('main-claim-trigger');
+            const timer = document.getElementById('timer-display');
+            const now = Date.now();
+            const wait = 3600000; 
+
+            if(now - last < wait) {
+                btn.disabled = true;
+                const remaining = wait - (now - last);
+                const mins = Math.floor(remaining / 60000);
+                const secs = Math.floor((remaining % 60000) / 1000);
+                timer.innerText = `Növbəti: ${mins}d ${secs}s`;
+                setTimeout(() => handleButtonState(last), 1000);
+            } else {
+                btn.disabled = false;
+                timer.innerText = "Məhsul toplamağa hazırdır!";
+            }
+        }
+
+        // 3. Qazancı Topla
+        window.runUserClaim = async function() {
+            const snap = await db.ref('mining/' + sessionUser).get();
+            const current = snap.val()?.balance || 0;
+            const reward = (Math.random() * 0.4 + 0.1).toFixed(2);
             
-            // Admin üçün siyahını yenilə
-            if(u === 'admin') loadAdminPanel(); 
-        });
-    }
+            await db.ref('mining/' + sessionUser).update({
+                balance: parseFloat(current) + parseFloat(reward),
+                lastClaim: Date.now()
+            });
+        };
 
-    function updateTimer(last) {
-        const btn = document.getElementById('claim-btn');
-        const timer = document.getElementById('claim-timer');
-        const now = Date.now();
-        const cooldown = 3600000;
+        // 4. Çıxarış
+        window.runWithdraw = function() {
+            alert("Minimum çıxarış 15$-dır. Balansınız çatdıqda adminlə əlaqə saxlayın.");
+        };
 
-        if(now - last < cooldown) {
-            btn.disabled = true;
-            const diff = cooldown - (now - last);
-            timer.innerText = `Next harvest: ${Math.floor(diff/60000)}m ${Math.floor((diff%60000)/1000)}s`;
-            setTimeout(() => updateTimer(last), 1000);
-        } else {
-            btn.disabled = false;
-            timer.innerText = "Mining ready to collect!";
-        }
-    }
-
-    async function handleClaim() {
-        const u = localStorage.getItem('elite_session');
-        const snap = await db.ref('mining/' + u).get();
-        const current = snap.val()?.balance || 0;
-        const reward = (Math.random() * 0.4 + 0.1).toFixed(2);
-        
-        await db.ref('mining/' + u).update({
-            balance: parseFloat(current) + parseFloat(reward),
-            lastClaim: Date.now()
-        });
-    }
-
-    // ADMIN FUNKSİYALARI (WW24)
-    async function loadAdminPanel() {
-        const snap = await db.ref('mining').get();
-        const users = snap.val();
-        const container = document.getElementById('user-list-admin');
-        container.innerHTML = "";
-
-        for(let user in users) {
-            const d = users[user];
-            container.innerHTML += `
-                <div style="border-bottom: 1px solid #222; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 0.8rem;">${user} ($${d.balance})</span>
-                    <div>
-                        <button onclick="adminChangeBal('${user}')" style="background:#3f9c35; border:none; color:#fff; padding:5px;">Edit</button>
-                        <button onclick="adminToggleBlock('${user}', '${d.status}')" style="background:#ff3344; border:none; color:#fff; padding:5px;">
-                            ${d.status === 'blocked' ? 'Unblock' : 'Block'}
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    window.adminChangeBal = async (user) => {
-        const amount = prompt("Yeni balans daxil et:");
-        if(amount) await db.ref('mining/' + user).update({ balance: parseFloat(amount) });
-    };
-
-    window.adminToggleBlock = async (user, current) => {
-        const next = current === 'blocked' ? 'active' : 'blocked';
-        await db.ref('mining/' + user).update({ status: next });
-    };
-
-    // Canlı rəqəm axını animasiyası
-    setInterval(() => {
-        const el = document.getElementById('live-inc');
-        if(el) el.innerText = "+" + (Math.random() * 0.0001).toFixed(6) + " USD/s";
-    }, 2000);
+        // Canlı rəqəm animasiyası
+        setInterval(() => {
+            const speed = document.getElementById('mining-speed');
+            if(speed) speed.innerText = "+" + (Math.random() * 0.000120).toFixed(6) + " USD/s";
+        }, 2000);
+    })();
 </script>
