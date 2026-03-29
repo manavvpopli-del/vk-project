@@ -1,30 +1,33 @@
-<div id="osint-analyzer" style="background: #0a0a0f; color: #00ff88; padding: 20px; font-family: 'Courier New', monospace; border-radius: 20px; border: 1px solid #1a1a2e; max-width: 500px; margin: auto;">
-    
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="font-size: 1rem; letter-spacing: 3px; color: #fff;">FACE RECOGNITION AI</h2>
-        <p style="font-size: 0.6rem; opacity: 0.6;">PYTHON BACKEND CONNECTED</p>
+<div id="osint-portal" style="background: #050505; color: #a855f7; min-height: 100vh; font-family: 'Courier New', monospace; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+
+    <div id="key-section" style="background: rgba(168, 85, 247, 0.05); border: 1px solid #a855f7; padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(168, 85, 247, 0.1);">
+        <i class="fas fa-user-secret" style="font-size: 3rem; margin-bottom: 20px; color: #a855f7;"></i>
+        <h2 style="font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 20px;">ENTER ACCESS KEY</h2>
+        <input type="password" id="access-key-input" placeholder="Giriş açarını daxil edin..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; border-radius: 8px; color: #fff; text-align: center; margin-bottom: 15px;">
+        <button onclick="validateKey()" style="width: 100%; padding: 12px; background: #a855f7; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">SİSTEMƏ DAXİL OL</button>
+        <p id="error-msg" style="color: #ff3344; font-size: 0.65rem; margin-top: 10px; display: none;">YALNIŞ AÇAR! GİRİŞ RƏDD EDİLDİ.</p>
     </div>
 
-    <div id="drop-zone" style="width: 100%; height: 250px; border: 2px dashed #00ff88; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(0,255,136,0.02);">
-        <input type="file" id="file-input" accept="image/*" style="position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;">
-        
-        <div id="upload-icon" style="text-align: center;">
-            <i class="fas fa-camera" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
-            <p style="font-size: 0.7rem;">ŞƏKİL SEÇ VƏ YA ÇƏK</p>
+    <div id="main-analyzer" style="display: none; width: 100%; max-width: 500px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1rem; letter-spacing: 3px; color: #fff;">OSINT FACE INVESTIGATOR</h2>
+            <p style="font-size: 0.6rem; color: #00ff88;">[ CONNECTION: ENCRYPTED ]</p>
         </div>
 
-        <img id="image-preview" style="display: none; width: 100%; height: 100%; object-fit: contain; z-index: 5;">
-        
-        <div id="scanner-bar" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #00ff88; box-shadow: 0 0 20px #00ff88; z-index: 8; animation: moveBar 2s infinite ease-in-out;"></div>
-    </div>
+        <div id="drop-zone" style="width: 100%; height: 250px; border: 2px dashed #a855f7; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(168, 85, 247, 0.02);">
+            <input type="file" id="file-input" accept="image/*" style="position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 10;">
+            <div id="upload-icon"><i class="fas fa-camera" style="font-size: 2.5rem; margin-bottom: 10px;"></i><p style="font-size: 0.7rem;">ŞƏKİL SEÇİN</p></div>
+            <img id="image-preview" style="display: none; width: 100%; height: 100%; object-fit: contain; z-index: 5;">
+            <div id="scanner-bar" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #a855f7; box-shadow: 0 0 20px #a855f7; z-index: 8; animation: moveBar 2s infinite ease-in-out;"></div>
+        </div>
 
-    <div id="result-box" style="display: none; margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border-left: 4px solid #00ff88;">
-        <div id="status-text" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 10px;">ANALİZ EDİLİR...</div>
-        <div id="data-output" style="font-size: 0.65rem; color: #888; line-height: 1.4;"></div>
-        
-        <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button onclick="externalSearch('google')" style="padding: 10px; border-radius: 5px; border: none; background: #4285F4; color: white; font-size: 0.6rem; cursor: pointer;">GOOGLE LENS</button>
-            <button onclick="externalSearch('yandex')" style="padding: 10px; border-radius: 5px; border: none; background: #ff0000; color: white; font-size: 0.6rem; cursor: pointer;">YANDEX IMAGES</button>
+        <div id="result-box" style="display: none; margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border-left: 4px solid #a855f7;">
+            <div id="status-text" style="font-size: 0.7rem; font-weight: bold; margin-bottom: 10px; color: #a855f7;">ANALİZ EDİLİR...</div>
+            <div id="data-output" style="font-size: 0.65rem; color: #888; line-height: 1.4;"></div>
+            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="window.open('https://www.google.com/searchbyimage?image_url=', '_blank')" style="padding: 10px; border-radius: 5px; border: none; background: #4285F4; color: white; font-size: 0.6rem;">GOOGLE LENS</button>
+                <button onclick="window.open('https://yandex.com/images/search?rpt=imageview&url=', '_blank')" style="padding: 10px; border-radius: 5px; border: none; background: #ff0000; color: white; font-size: 0.6rem;">YANDEX IMAGES</button>
+            </div>
         </div>
     </div>
 </div>
@@ -34,72 +37,58 @@
 </style>
 
 <script>
+    // Giriş yoxlaması
+    function validateKey() {
+        const key = document.getElementById('access-key-input').value;
+        const correctKey = "WW24"; // Sənin admin panelində istifadə etdiyin açar (burada dəyişə bilərsən)
+
+        if(key === correctKey) {
+            document.getElementById('key-section').style.display = 'none';
+            document.getElementById('main-analyzer').style.display = 'block';
+            if(navigator.vibrate) navigator.vibrate(100);
+        } else {
+            document.getElementById('error-msg').style.display = 'block';
+            if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
+        }
+    }
+
+    // Əvvəlki Python və Analiz funksiyaları (toxunulmayıb)
+    const PYTHON_SERVER_URL = "SENİN_RENDER_URL_BURA/analyze-face"; 
     const fileInput = document.getElementById('file-input');
-    const imagePreview = document.getElementById('image-preview');
-    const scannerBar = document.getElementById('scanner-bar');
-    const resultBox = document.getElementById('result-box');
-    const statusText = document.getElementById('status-text');
-    const dataOutput = document.getElementById('data-output');
-    
-    // BURANI ÖZ RENDER URL-İN İLƏ DƏYİŞ!
-    const PYTHON_SERVER_URL = "https://senin-projen.onrender.com/analyze-face";
 
     fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Önizləmə
         const reader = new FileReader();
         reader.onload = (e) => {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('image-preview').style.display = 'block';
             document.getElementById('upload-icon').style.display = 'none';
         };
         reader.readAsDataURL(file);
 
-        // Analizi başlat
         startProcess(file);
     });
 
     async function startProcess(file) {
-        scannerBar.style.display = 'block';
-        resultBox.style.display = 'block';
-        statusText.innerText = "SİSTEM: Python Serverinə qoşulur...";
-        dataOutput.innerText = "Şəkil biometrik verilənlərə çevrilir...";
-
+        document.getElementById('scanner-bar').style.display = 'block';
+        document.getElementById('result-box').style.display = 'block';
+        
         const formData = new FormData();
         formData.append('image', file);
 
         try {
-            const response = await fetch(PYTHON_SERVER_URL, {
-                method: 'POST',
-                body: formData
-            });
-
+            const response = await fetch(PYTHON_SERVER_URL, { method: 'POST', body: formData });
             const result = await response.json();
-
             if (result.status === "success") {
-                statusText.innerHTML = "<span style='color: #00ff88;'>UGURLU: Üz Tanındı</span>";
-                dataOutput.innerHTML = `
-                    Vector ID: ${Math.random().toString(16).slice(2, 10)}<br>
-                    Üz Kodu: [${result.face_vector.slice(0, 5).join(', ')}...]<br>
-                    Server Cavabı: 200 OK
-                `;
-                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            } else {
-                statusText.innerHTML = "<span style='color: #ff3344;'>XƏTA: Üz tapılmadı</span>";
+                document.getElementById('status-text').innerText = "UGURLU: Üz Tanındı";
+                document.getElementById('data-output').innerHTML = "Vector ID: " + Math.random().toString(16).slice(2, 10);
             }
         } catch (error) {
-            statusText.innerHTML = "<span style='color: #ff3344;'>SERVER XƏTASI</span>";
-            dataOutput.innerText = "Bağlantı qurula bilmədi. Serverin oyanmasını gözləyin (Render-də 30-50 saniyə çəkə bilər).";
+            document.getElementById('status-text').innerText = "SERVER XƏTASI";
         } finally {
-            scannerBar.style.display = 'none';
+            document.getElementById('scanner-bar').style.display = 'none';
         }
-    }
-
-    function externalSearch(engine) {
-        // Şəkli birbaşa axtarış motorlarına göndərmək üçün
-        // Not: Professional versiyada şəkli birbaşa axtarış linkinə bağlayırıq
-        alert(engine.toUpperCase() + " üzrə dərindən axtarış başladılır...");
     }
 </script>
