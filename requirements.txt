@@ -1,0 +1,5 @@
+Flask==3.0.0
+face_recognition
+opencv-python-headless
+numpy
+flask-cors
