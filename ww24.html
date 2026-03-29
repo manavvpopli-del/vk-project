@@ -3,237 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WW24 - Admin Control Vault</title>
+    <title>WW24 - Master Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Inter:wght@300;600&display=swap');
-
-        :root {
-            --primary: #00b9ff;
-            --success: #3f9c35;
-            --bg: #050507;
-            --card-bg: #0f1115;
-            --border: rgba(255, 255, 255, 0.08);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .admin-box {
-            width: 100%;
-            max-width: 450px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Arxa fon işıq effekti */
-        .admin-box::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
-            background: var(--primary);
-            filter: blur(80px);
-            opacity: 0.15;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .logo-area {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 5px;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .logo-area span { color: #fff; }
-
-        .sub-text {
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #aaa;
-            margin-bottom: 10px;
-            padding-left: 5px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 15px;
-            color: #444;
-            font-size: 1rem;
-        }
-
-        .admin-input {
-            width: 100%;
-            padding: 16px 16px 16px 45px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            color: #fff;
-            font-size: 1rem;
-            transition: 0.3s;
-            outline: none;
-        }
-
-        .admin-input:focus {
-            border-color: var(--primary);
-            background: rgba(0, 185, 255, 0.05);
-            box-shadow: 0 0 15px rgba(0, 185, 255, 0.1);
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--success);
-            color: #fff;
-            border: none;
-            border-radius: 14px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.4s;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            text-transform: uppercase;
-        }
-
-        .action-btn:hover {
-            filter: brightness(1.2);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(63, 156, 53, 0.3);
-        }
-
-        .status-msg {
-            margin-top: 25px;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            text-align: center;
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .success { background: rgba(63, 156, 53, 0.1); color: var(--success); border: 1px solid var(--success); }
+        body { background: #08080a; color: #fff; font-family: 'Inter', sans-serif; padding: 20px; }
+        .panel { max-width: 800px; margin: 0 auto; }
+        h1 { font-family: 'Orbitron'; color: #00b9ff; text-align: center; letter-spacing: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; background: #111; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; }
+        th { background: #1a1a1a; color: #00b9ff; font-size: 0.8rem; text-transform: uppercase; }
+        
+        .input-edit { background: #000; border: 1px solid #333; color: #fff; padding: 5px; width: 80px; border-radius: 5px; }
+        
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #3f9c35; color: white; margin-right: 5px; }
+        .btn-block { background: #ff3344; color: white; }
+        .btn-unblock { background: #555; color: white; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .bg-active { background: rgba(63, 156, 53, 0.2); color: #3f9c35; }
+        .bg-blocked { background: rgba(255, 51, 68, 0.2); color: #ff3344; }
     </style>
 </head>
 <body>
 
-<div class="admin-box">
-    <div class="header">
-        <div class="logo-area">WW<span>24</span></div>
-        <div class="sub-text">Database Control Center</div>
-    </div>
-
-    <div class="form-group">
-        <label>TARGET USERNAME</label>
-        <div class="input-wrapper">
-            <i class="fas fa-user"></i>
-            <input type="text" id="target-user" class="admin-input" placeholder="Məsələn: elvin_99">
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label>NEW BALANCE AMOUNT ($)</label>
-        <div class="input-wrapper">
-            <i class="fas fa-dollar-sign"></i>
-            <input type="number" id="new-bal" class="admin-input" placeholder="Məsələn: 50.00" step="0.01">
-        </div>
-    </div>
-
-    <button class="action-btn" onclick="updateUser()">
-        <i class="fas fa-bolt"></i> APPLY CHANGES
-    </button>
-
-    <div id="status" class="status-msg"></div>
+<div class="panel">
+    <h1>WW24 ADMIN</h1>
+    
+    <table id="user-table">
+        <thead>
+            <tr>
+                <th>İstifadəçi</th>
+                <th>Balans ($)</th>
+                <th>Status</th>
+                <th>Əməliyyatlar</th>
+            </tr>
+        </thead>
+        <tbody id="user-list">
+            </tbody>
+    </table>
 </div>
 
 <script>
-    // FİREBASE AYARLARI (Öz məlumatlarını bura daxil et)
     const firebaseConfig = {
         apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
         databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com"
     };
-    
-    // Firebase başlat
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    async function updateUser() {
-        const user = document.getElementById('target-user').value.trim();
-        const amount = document.getElementById('new-bal').value;
-        const status = document.getElementById('status');
+    // Siyahını Yüklə
+    db.ref('mining').on('value', snap => {
+        const list = document.getElementById('user-list');
+        list.innerHTML = "";
+        const data = snap.val();
 
-        if (!user || !amount) {
-            alert("Bütün xanaları doldurun!");
-            return;
+        for(let user in data) {
+            const d = data[user];
+            const isBlocked = d.status === "blocked";
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: bold;">${user}</td>
+                <td><input type="number" id="bal-${user}" class="input-edit" value="${d.balance}"></td>
+                <td><span class="status-badge ${isBlocked ? 'bg-blocked' : 'bg-active'}">${isBlocked ? 'BLOK' : 'AKTİV'}</span></td>
+                <td>
+                    <button class="btn btn-save" onclick="saveBal('${user}')"><i class="fas fa-save"></i></button>
+                    <button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${user}', ${isBlocked})">
+                        <i class="fas ${isBlocked ? 'fa-user-check' : 'fa-user-slash'}"></i>
+                    </button>
+                </td>
+            `;
+            list.appendChild(tr);
         }
+    });
 
-        try {
-            // Firebase-də balansı birbaşa hədəf istifadəçinin adına görə yeniləyirik
-            await db.ref('mining/' + user).update({
-                balance: parseFloat(amount)
-            });
+    function saveBal(user) {
+        const newBal = document.getElementById('bal-' + user).value;
+        db.ref('mining/' + user).update({ balance: parseFloat(newBal) });
+        alert(user + " balansı yeniləndi!");
+    }
 
-            // Uğur mesajı
-            status.style.display = 'block';
-            status.className = 'status-msg success';
-            status.innerHTML = `<i class="fas fa-check"></i> <b>${user}</b> balansı <b>$${amount}</b> olaraq təsdiqləndi!`;
-
-            // Girişləri təmizlə
-            document.getElementById('new-bal').value = '';
-
-        } catch (e) {
-            console.error(e);
-            alert("Xəta: Məlumat bazasına qoşulmaq mümkün olmadı!");
-        }
+    function toggleBlock(user, isBlocked) {
+        const newStatus = isBlocked ? "active" : "blocked";
+        db.ref('mining/' + user).update({ status: newStatus });
     }
 </script>
-
 </body>
 </html>
