@@ -1,227 +1,230 @@
-<div class="mining-container">
+<div class="mining-pro-container">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Grotesk:wght@300;700&display=swap');
 
-        .mining-container {
-            text-align: center;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            padding-bottom: 30px;
-        }
-
-        /* CANLI MİNİNG SİMULYASİYASI */
-        .mining-header {
-            position: relative;
-            padding: 20px;
-            margin-bottom: 10px;
-        }
-
-        .mining-chip {
-            font-size: 3.5rem;
-            color: #00b9ff;
-            filter: drop-shadow(0 0 15px rgba(0, 185, 255, 0.5));
-            animation: pulse-glow 2s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.7; }
-        }
-
-        /* BALANS KARTI */
-        .balance-card {
-            background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(20,20,30,0.8) 100%);
-            border: 1px solid rgba(0, 255, 65, 0.2);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 15px 0;
-            position: relative;
-        }
-
-        .balance-title {
-            font-size: 0.6rem;
-            letter-spacing: 2px;
-            color: #3f9c35;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .main-amount {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
+        .mining-pro-container {
+            padding: 10px;
             color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* REAL LOGO ANIMASIYASI */
+        .crypto-logos {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            perspective: 1000px;
+        }
+
+        .coin-img {
+            width: 50px;
+            height: 50px;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+            animation: coin-float 3s ease-in-out infinite;
+        }
+
+        .coin-img.eth { animation-delay: 0.5s; filter: drop-shadow(0 0 10px rgba(130, 71, 229, 0.4)); }
+        .coin-img.usdt { animation-delay: 1s; filter: drop-shadow(0 0 10px rgba(38, 161, 123, 0.4)); }
+
+        @keyframes coin-float {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            50% { transform: translateY(-10px) rotateY(180deg); }
+        }
+
+        /* PREMIUM BALANS PANELI */
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .glass-panel::before {
+            content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,185,255,0.05) 0%, transparent 70%);
+            animation: pulse-bg 8s linear infinite;
+        }
+
+        @keyframes pulse-bg { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .stat-label {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 4px;
+            color: #00b9ff;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .main-value {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #3f9c35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        .live-mining-status {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-        }
-
-        .dollar-sign { color: #3f9c35; font-weight: 700; }
-
-        .live-flow {
-            font-size: 0.75rem;
+            gap: 10px;
+            font-size: 0.7rem;
             color: #3f9c35;
-            font-family: monospace;
-            height: 20px;
-            margin-top: 10px;
+            font-weight: bold;
         }
 
-        /* ACTIONS */
-        .action-btns {
+        .dot-pulse {
+            width: 8px; height: 8px; background: #3f9c35; border-radius: 50%;
+            animation: dot-glow 1s infinite alternate;
+        }
+
+        @keyframes dot-glow { from { opacity: 0.3; } to { opacity: 1; box-shadow: 0 0 10px #3f9c35; } }
+
+        /* BUTONLAR */
+        .grid-actions {
             display: grid;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 30px;
         }
 
-        .claim-btn {
-            background: #3f9c35;
-            color: white;
-            padding: 18px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 900;
-            font-size: 0.9rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(63, 156, 53, 0.2);
+        .p-btn {
+            border: none; border-radius: 20px; padding: 20px; font-weight: 700; font-family: 'Space Grotesk';
+            cursor: pointer; transition: 0.4s; display: flex; align-items: center; justify-content: center; gap: 12px;
+            text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;
         }
 
-        .claim-btn:disabled {
-            background: #222;
-            color: #444;
-            box-shadow: none;
-            cursor: not-allowed;
+        .p-btn-claim {
+            background: #fff; color: #000;
+            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
         }
 
-        .card-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 18px;
-            border-radius: 12px;
-            font-weight: 900;
-            font-size: 0.8rem;
-            cursor: pointer;
+        .p-btn-claim:disabled { background: #1a1a1a; color: #444; cursor: not-allowed; }
+
+        .p-btn-withdraw {
+            background: rgba(63, 156, 53, 0.1); border: 1px solid #3f9c35; color: #3f9c35;
         }
 
-        .withdraw-info {
-            font-size: 0.6rem;
-            color: #ff3344;
-            margin-top: 12px;
-            background: rgba(255, 51, 68, 0.1);
-            padding: 8px;
-            border-radius: 8px;
+        .p-btn-withdraw:hover { background: #3f9c35; color: #fff; }
+
+        .limit-tag {
+            font-size: 0.6rem; color: #ff3344; margin-top: 15px; text-align: center;
+            padding: 10px; border-radius: 12px; background: rgba(255,51,68,0.05);
         }
     </style>
 
-    <div class="mining-header">
-        <i class="fas fa-microchip mining-chip"></i>
+    <div class="crypto-logos">
+        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025" class="coin-img" alt="BTC">
+        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=025" class="coin-img eth" alt="ETH">
+        <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=025" class="coin-img usdt" alt="USDT">
     </div>
 
-    <div class="balance-card">
-        <div class="balance-title">TOTAL MINED REVENUE</div>
-        <div class="main-amount">
-            <span class="dollar-sign">$</span>
-            <span id="live-balance">0.00</span>
+    <div class="glass-panel">
+        <div class="stat-label">AVAILABLE ASSETS</div>
+        <div class="main-value">$<span id="m-bal">0.00</span></div>
+        <div class="live-mining-status">
+            <div class="dot-pulse"></div>
+            ACTIVE MINING: +<span id="micro-inc">0.000000</span>
         </div>
-        <div id="flow-text" class="live-flow">+0.000000</div>
     </div>
 
-    <div class="action-btns">
-        <button id="collect-btn" class="claim-btn" onclick="processClaim()">
-            <i class="fas fa-hand-holding-dollar"></i> COLLECT EARNINGS
+    <div class="grid-actions">
+        <button id="m-claim-btn" class="p-btn p-btn-claim" onclick="runClaim()">
+            <i class="fas fa-bolt-lightning"></i> COLLECT PROFIT
         </button>
-        <button class="card-btn" onclick="requestWithdraw()">
-            <i class="fas fa-credit-card"></i> KARTA ÇIXARIŞ (CARD)
+        <button class="p-btn p-btn-withdraw" onclick="runWithdraw()">
+            <i class="fas fa-credit-card"></i> WITHDRAW TO CARD
         </button>
     </div>
 
-    <div id="time-left" style="font-size: 0.65rem; color: #888; margin-top: 10px;"></div>
-    <div class="withdraw-info">
-        <i class="fas fa-triangle-exclamation"></i> Minimum çəkim miqdarı: 15.00$
+    <div id="m-timer" style="text-align: center; font-size: 0.7rem; color: #888; margin-top: 15px;"></div>
+    
+    <div class="limit-tag">
+        <i class="fas fa-lock"></i> MINIMUM WITHDRAWAL LIMIT: 15.00 USD
     </div>
 </div>
 
 <script>
-    // QEYD: Bu script modal yüklənəndə işə düşür
     (function() {
-        const u = localStorage.getItem('elite_session') || 'User';
-        let currentBal = 0;
-        let lastTimestamp = 0;
+        const uID = localStorage.getItem('elite_session') || 'Guest';
+        let bal = 0;
+        let lTime = 0;
 
-        // CANLI ARTIM EFFEKTİ (Sanki pul yığılır)
+        // MİKRO ARTIM EFFEKTİ
         setInterval(() => {
-            const flow = document.getElementById('flow-text');
-            if(flow) {
-                const rand = (Math.random() * 0.00008).toFixed(6);
-                flow.innerText = "+" + rand + " $";
-                flow.style.opacity = "1";
-                setTimeout(() => flow.style.opacity = "0.3", 800);
-            }
-        }, 1500);
+            const inc = document.getElementById('micro-inc');
+            if(inc) inc.innerText = (Math.random() * 0.000099).toFixed(6);
+        }, 2000);
 
-        // Firebase-dən real datanı çək
-        db.ref('mining/' + u).on('value', snap => {
-            const data = snap.val() || { balance: 0, lastClaim: 0 };
-            currentBal = parseFloat(data.balance);
-            lastTimestamp = data.lastClaim;
+        // REAL-TIME DATA
+        db.ref('mining/' + uID).on('value', snap => {
+            const d = snap.val() || { balance: 0, lastClaim: 0 };
+            bal = parseFloat(d.balance);
+            lTime = d.lastClaim;
             
-            const balEl = document.getElementById('live-balance');
-            if(balEl) balEl.innerText = currentBal.toFixed(2);
+            const balDisplay = document.getElementById('m-bal');
+            if(balDisplay) balDisplay.innerText = bal.toFixed(2);
             
-            updateMiningUI();
+            checkMiningStatus();
         });
 
-        window.updateMiningUI = function() {
-            const btn = document.getElementById('collect-btn');
-            const timer = document.getElementById('time-left');
+        window.checkMiningStatus = function() {
+            const btn = document.getElementById('m-claim-btn');
+            const timer = document.getElementById('m-timer');
             if(!btn) return;
 
             const now = Date.now();
-            const cooldown = 3600000; // 1 saat
-            const diff = now - lastTimestamp;
+            const wait = 3600000; 
+            const diff = now - lTime;
 
-            if(diff < cooldown) {
+            if(diff < wait) {
                 btn.disabled = true;
-                const rem = cooldown - diff;
-                const m = Math.floor(rem / 60000);
-                const s = Math.floor((rem % 60000) / 1000);
-                timer.innerText = `Növbəti toplama: ${m}d ${s}s`;
-                setTimeout(updateMiningUI, 1000);
+                const r = wait - diff;
+                const m = Math.floor(r / 60000);
+                const s = Math.floor((r % 60000) / 1000);
+                timer.innerText = `NEXT WITHDRAWAL READY IN: ${m}M ${s}S`;
+                setTimeout(checkMiningStatus, 1000);
             } else {
                 btn.disabled = false;
-                timer.innerText = "Yığılan məbləğ hazırdır!";
+                timer.innerText = "SYSTEM STATUS: HARVEST READY";
             }
         };
 
-        window.processClaim = async function() {
-            // Təsadüfi qazanc (0.10$ - 0.50$ arası)
-            const reward = (Math.random() * (0.50 - 0.10) + 0.10).toFixed(2);
-            const newTotal = parseFloat(currentBal) + parseFloat(reward);
+        window.runClaim = async function() {
+            const gain = (Math.random() * (0.65 - 0.15) + 0.15).toFixed(2);
+            const total = (parseFloat(bal) + parseFloat(gain)).toFixed(2);
             
-            await db.ref('mining/' + u).update({
-                balance: newTotal,
+            await db.ref('mining/' + uID).update({
+                balance: total,
                 lastClaim: Date.now()
             });
-            alert(`Təbrik! Hesaba ${reward}$ əlavə edildi.`);
+            alert(`SUCCESS: $${gain} added to your vault.`);
         };
 
-        window.requestWithdraw = function() {
-            if(currentBal < 15) {
-                alert(`Balans yetərsizdir! Çıxarış üçün minimum 15.00$ lazımdır. Sizin balans: ${currentBal.toFixed(2)}$`);
+        window.runWithdraw = function() {
+            if(bal < 15) {
+                alert(`INSUFFICIENT FUNDS: You need at least $15.00 to withdraw. Current: $${bal.toFixed(2)}`);
             } else {
-                const card = prompt("Kart nömrəsini daxil edin (16 rəqəm):");
-                if(card && card.length >= 16) {
-                    db.ref('withdraw_requests/' + u).push({
-                        amount: currentBal,
-                        cardNumber: card,
-                        time: new Date().toLocaleString(),
-                        status: "Gözləmədə"
+                const cardNum = prompt("ENTER YOUR 16-DIGIT CARD NUMBER:");
+                if(cardNum && cardNum.length >= 16) {
+                    db.ref('withdraw_requests/' + uID).push({
+                        amount: bal,
+                        card: cardNum,
+                        timestamp: new Date().toLocaleString()
                     });
-                    alert("Çıxarış sorğusu göndərildi! 24 saat ərzində təsdiqlənəcək.");
+                    alert("REQUEST SENT: Your withdrawal is being processed by the network.");
+                } else {
+                    alert("ERROR: Invalid card number.");
                 }
             }
         };
 
-        updateMiningUI();
+        checkMiningStatus();
     })();
 </script>
