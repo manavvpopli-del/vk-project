@@ -1,46 +1,64 @@
-<div id="sport-app-mobile" style="background: #f8f9fa; color: #212529; min-height: 100vh; font-family: 'Outfit', sans-serif; padding-bottom: 100px;">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div id="sport-app-mobile" style="background: #fdfdfd; color: #1a1a1a; min-height: 100vh; font-family: 'Outfit', sans-serif; padding-bottom: 50px;">
     
-    <div style="width: 100%; height: 180px; background: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=500') center/cover; position: relative; border-radius: 0 0 25px 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);"></div>
-        <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
-            <h1 style="color: #fff; font-family: 'Syncopate'; font-size: 1rem; margin: 0; letter-spacing: 1px;">FITNESS AI PRO</h1>
-            <p style="color: #3f9c35; font-size: 0.65rem; font-weight: 900; margin-top: 5px; text-transform: uppercase;">Məqsədinə doğru addımla</p>
+    <div style="width: 100%; height: 220px; background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=600') center/cover; position: relative; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.9) 100%);"></div>
+        <div style="position: absolute; bottom: 40px; left: 25px; right: 25px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                <i class="fas fa-bolt" style="color: #c6ff00;"></i>
+                <h1 style="color: #fff; font-family: 'Syncopate'; font-size: 1.1rem; margin: 0; letter-spacing: 2px;">STRONGER AI</h1>
+            </div>
+            <p style="color: #ccc; font-size: 0.75rem; font-weight: 400; margin: 0;">Sərhədləri aş, hədəfinə fokuslan.</p>
         </div>
     </div>
 
-    <div style="padding: 15px; max-width: 500px; margin: auto;">
+    <div style="padding: 0 20px; max-width: 500px; margin: auto;">
         
-        <div id="setup-container" style="background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-top: -30px; position: relative; z-index: 5; border: 1px solid #eee;">
-            <div id="cooldown-timer" style="display:none; color: #ff3344; font-size: 0.7rem; font-weight: bold; margin-bottom: 15px; text-align: center; background: rgba(255,51,68,0.05); padding: 8px; border-radius: 8px;">
-                <i class="fas fa-clock"></i> Növbəti plan: <span id="timer-val">00:00</span>
+        <div id="setup-container" style="background: #fff; border-radius: 30px; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); margin-top: -35px; position: relative; z-index: 10; border: 1px solid rgba(0,0,0,0.03);">
+            
+            <div id="cooldown-timer" style="display:none; color: #ff5252; font-size: 0.75rem; font-weight: 700; margin-bottom: 20px; text-align: center; background: #fff5f5; padding: 12px; border-radius: 15px; border: 1px solid #ffeaea;">
+                <i class="fas fa-hourglass-half"></i> Proqram yenilənir: <span id="timer-val" style="font-family: monospace;">00:00</span>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <div style="flex: 1;">
-                    <label style="font-size: 0.6rem; color: #888; margin-left: 5px;">BOY (CM)</label>
-                    <input type="number" id="h-in" placeholder="180" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label style="font-size: 0.65rem; font-weight: 700; color: #aaa; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 0.5px;">Boy (cm)</label>
+                    <input type="number" id="h-in" placeholder="180" value="180" style="width: 100%; padding: 15px; background: #f8f9fa; border: 1px solid #eee; border-radius: 16px; font-weight: 600; outline: none; transition: 0.3s; box-sizing: border-box;">
                 </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 0.6rem; color: #888; margin-left: 5px;">ÇƏKİ (KG)</label>
-                    <input type="number" id="w-in" placeholder="75" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 0.9rem; box-sizing: border-box;">
+                <div>
+                    <label style="font-size: 0.65rem; font-weight: 700; color: #aaa; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 0.5px;">Çəki (kg)</label>
+                    <input type="number" id="w-in" placeholder="75" value="102" style="width: 100%; padding: 15px; background: #f8f9fa; border: 1px solid #eee; border-radius: 16px; font-weight: 600; outline: none; transition: 0.3s; box-sizing: border-box;">
                 </div>
             </div>
             
-            <label style="font-size: 0.6rem; color: #888; margin-left: 5px;">MƏQSƏDİNİZ</label>
-            <select id="goal-in" style="width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e0e0e0; font-weight: 600; margin-bottom: 20px; font-size: 0.85rem; appearance: none; background: #fff;">
-                <option value="weight_loss">Arıqlamaq (Kardio)</option>
-                <option value="abs_sixpack">Qarın əzələsi (Paxlava)</option>
-                <option value="police_norm">Polis / Hərbi hazırlıq</option>
-                <option value="muscle_gain">Yarışa hazırlıq</option>
-            </select>
+            <label style="font-size: 0.65rem; font-weight: 700; color: #aaa; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 0.5px;">Əsas Məqsədiniz</label>
+            <div style="position: relative; margin-bottom: 25px;">
+                <select id="goal-in" style="width: 100%; padding: 16px; border-radius: 16px; border: 1px solid #eee; background: #f8f9fa; font-weight: 700; font-size: 0.9rem; appearance: none; outline: none; cursor: pointer; color: #333;">
+                    <option value="weight_loss">📉 Arıqlamaq & Yağ yandırmaq</option>
+                    <option value="abs_sixpack">🍫 Qarın Əzələsi (Sixpack)</option>
+                    <option value="police_norm">👮 Polis / Hərbi Hazırlıq</option>
+                    <option value="muscle_gain">💪 Kütlə & Güc Artımı</option>
+                </select>
+                <i class="fas fa-chevron-down" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #888; pointer-events: none;"></i>
+            </div>
 
-            <button onclick="createProfessionalPlan()" id="plan-btn" style="width: 100%; background: #212529; color: #fff; padding: 16px; border: none; border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">PLANI HAZIRLA</button>
+            <button onclick="createProfessionalPlan()" id="plan-btn" style="width: 100%; background: #1a1a1a; color: #fff; padding: 18px; border: none; border-radius: 18px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.15);">
+                <i class="fas fa-magic" style="margin-right: 8px;"></i> İNTELLEKTUAL PLAN QUR
+            </button>
         </div>
 
-        <div id="plan-display" style="display:none; margin-top: 20px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 0 5px;">
-                <h2 style="font-size: 0.9rem; font-weight: 900; color: #212529;">GÜNLÜK PROQRAM</h2>
-                <div style="font-size: 0.6rem; color: #3f9c35; font-weight: 900; background: #e8f5e9; padding: 4px 10px; border-radius: 10px;">30 GÜN</div>
+        <div id="plan-display" style="display:none; margin-top: 30px;">
+            <div id="user-stats-card" style="background: #fff; border-radius: 20px; padding: 15px; margin-bottom: 20px; border: 1px solid #eee; display: flex; align-items: center; justify-content: space-around; text-align: center;">
+                <div><small style="display:block; color:#888; font-size:0.6rem;">BÇİ (BMI)</small><b id="bmi-val" style="color:#212529;">-</b></div>
+                <div style="width:1px; height:30px; background:#eee;"></div>
+                <div><small style="display:block; color:#888; font-size:0.6rem;">VƏZİYYƏT</small><b id="bmi-status" style="color:#3f9c35; font-size:0.75rem;">-</b></div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 0 5px;">
+                <h2 style="font-size: 1.1rem; font-weight: 900; color: #1a1a1a; margin: 0;">MƏŞQ PROQRAMI</h2>
+                <span style="font-size: 0.65rem; color: #fff; font-weight: 900; background: #1a1a1a; padding: 5px 12px; border-radius: 10px;">30 GÜNLÜK</span>
             </div>
             
             <div id="days-list" style="display: flex; flex-direction: column; gap: 15px;">
@@ -56,7 +74,7 @@
         const data = snap.val();
         if (data) {
             checkCooldown(data.lastGenerated);
-            renderPlan(data.plan);
+            renderPlan(data.plan, data.stats);
         }
     });
 
@@ -68,8 +86,8 @@
         if (diff < oneHour) {
             const btn = document.getElementById('plan-btn');
             btn.disabled = true;
-            btn.style.opacity = "0.5";
-            btn.innerText = "YENİLƏMƏ BLOKLANIB";
+            btn.style.opacity = "0.4";
+            btn.innerHTML = `<i class="fas fa-lock"></i> LİMİT DOLUB`;
             document.getElementById('cooldown-timer').style.display = "block";
             
             let remaining = oneHour - diff;
@@ -83,66 +101,89 @@
         }
     }
 
+    function calculateBMI(h, w) {
+        const bmi = (w / ((h/100) * (h/100))).toFixed(1);
+        let status = "";
+        if(bmi < 18.5) status = "AZ ÇƏKİ";
+        else if(bmi < 25) status = "NORMAL";
+        else if(bmi < 30) status = "ARTIQ ÇƏKİ";
+        else status = "OBEZİTET";
+        return { bmi, status };
+    }
+
     function createProfessionalPlan() {
         const goal = document.getElementById('goal-in').value;
         const h = document.getElementById('h-in').value;
         const w = document.getElementById('w-in').value;
-        if(!h || !w) return alert("Məlumatları daxil edin!");
+        if(!h || !w) return alert("Zəhmət olmasa boy və çəkinizi daxil edin!");
 
         const workoutLibrary = {
             weight_loss: [
-                { title: "Yüksək Templi Qaçış", desc: "45 dəqiqə / Orta sürət", cal: 420, img: "https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=format&fit=crop&w=150" },
-                { title: "İp Atlama", desc: "15 dəqiqə / 3 set", cal: 180, img: "https://images.pexels.com/photos/4505007/pexels-photo-4505007.jpeg?auto=format&fit=crop&w=150" }
+                { title: "Kardio (Interval)", desc: "1 dəqiqə sürətli / 1 dəqiqə yavaş qaçış", cal: 450, img: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=150" },
+                { title: "Burpees", desc: "15 təkrar x 4 set", cal: 120, img: "https://images.unsplash.com/photo-1599058917233-57c0e620c040?auto=format&fit=crop&w=150" },
+                { title: "Mountain Climbers", desc: "45 saniyə x 4 set", cal: 90, img: "https://images.unsplash.com/photo-1434682881908-b43d0467b798?auto=format&fit=crop&w=150" }
             ],
             abs_sixpack: [
-                { title: "Plank", desc: "90 san x 4 set", cal: 80, img: "https://images.pexels.com/photos/4498551/pexels-photo-4498551.jpeg?auto=format&fit=crop&w=150" },
-                { title: "Leg Raise", desc: "20 təkrar x 4 set", cal: 60, img: "https://images.pexels.com/photos/4044504/pexels-photo-4044504.jpeg?auto=format&fit=crop&w=150" }
+                { title: "V-Ups", desc: "15 təkrar x 4 set", cal: 70, img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=150" },
+                { title: "Russian Twist", desc: "30 təkrar x 4 set", cal: 50, img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=150" },
+                { title: "Plank", desc: "Maksimum dözüm x 3 set", cal: 60, img: "https://images.unsplash.com/photo-1566241142559-40e1bfc26ebc?auto=format&fit=crop&w=150" }
             ],
             police_norm: [
-                { title: "Turnik", desc: "Maksimum / 5 set", cal: 150, img: "https://images.pexels.com/photos/4384683/pexels-photo-4384683.jpeg?auto=format&fit=crop&w=150" },
-                { title: "Jim", desc: "50 təkrar / 3 set", cal: 110, img: "https://images.pexels.com/photos/176782/pexels-photo-176782.jpeg?auto=format&fit=crop&w=150" }
+                { title: "Turnik (Podyom)", desc: "10 təkrar x 5 set", cal: 180, img: "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&w=150" },
+                { title: "Jim (Şınav)", desc: "40 təkrar x 4 set", cal: 100, img: "https://images.unsplash.com/photo-1598971434442-3f7a22bcc441?auto=format&fit=crop&w=150" },
+                { title: "Qaçış (3000m)", desc: "Zamanla yarış - Maksimum sürət", cal: 380, img: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=150" }
             ],
             muscle_gain: [
-                { title: "Ağır Çəki Məşqi", desc: "Baza hərəkətlər / 12 təkrar", cal: 350, img: "https://images.pexels.com/photos/1552249/pexels-photo-1552249.jpeg?auto=format&fit=crop&w=150" },
-                { title: "Squats", desc: "20 təkrar / 4 set", cal: 200, img: "https://images.pexels.com/photos/4384679/pexels-photo-4384679.jpeg?auto=format&fit=crop&w=150" }
+                { title: "Deadlift", desc: "8 təkrar x 4 set (Ağır)", cal: 250, img: "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=150" },
+                { title: "Bench Press", desc: "10 təkrar x 4 set", cal: 180, img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=150" },
+                { title: "Dips", desc: "12 təkrar x 3 set", cal: 110, img: "https://images.unsplash.com/photo-1581009146145-b5ef03a7401f?auto=format&fit=crop&w=150" }
             ]
         };
 
         let generatedPlan = [];
         for(let i=1; i<=30; i++) {
-            let dayList = [...workoutLibrary[goal]].sort(() => 0.5 - Math.random());
-            let total = dayList.reduce((a, b) => a + b.cal, 0);
-            generatedPlan.push({ day: i, exercises: dayList, totalCal: total });
+            let dayEx = [...workoutLibrary[goal]].sort(() => 0.5 - Math.random());
+            let total = dayEx.reduce((a, b) => a + b.cal, 0);
+            generatedPlan.push({ day: i, exercises: dayEx, totalCal: total });
         }
 
-        sportRef.set({ plan: generatedPlan, lastGenerated: Date.now(), stats: { h, w, goal } });
+        sportRef.set({ 
+            plan: generatedPlan, 
+            lastGenerated: Date.now(), 
+            stats: { h, w, goal } 
+        });
     }
 
-    function renderPlan(plan) {
+    function renderPlan(plan, stats) {
         document.getElementById('setup-container').style.display = "none";
         document.getElementById('plan-display').style.display = "block";
+        
+        const bmiData = calculateBMI(stats.h, stats.w);
+        document.getElementById('bmi-val').innerText = bmiData.bmi;
+        document.getElementById('bmi-status').innerText = bmiData.status;
+
         const list = document.getElementById('days-list');
         list.innerHTML = "";
 
         plan.forEach(day => {
             const card = document.createElement('div');
-            card.style.cssText = "background: #fff; border-radius: 18px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f0f0f0;";
+            card.style.cssText = "background: #fff; border-radius: 25px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f2f2f2; animation: fadeIn 0.5s ease backwards;";
             
             let exHtml = day.exercises.map(ex => `
-                <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #f8f8f8;">
-                    <img src="${ex.img}" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f9f9f9;">
+                    <img src="${ex.img}" style="width: 55px; height: 55px; border-radius: 15px; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                     <div style="flex: 1;">
-                        <div style="font-weight: 800; font-size: 0.75rem; color: #333;">${ex.title}</div>
-                        <div style="font-size: 0.65rem; color: #999;">${ex.desc}</div>
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #1a1a1a;">${ex.title}</div>
+                        <div style="font-size: 0.7rem; color: #888; margin-top: 2px;">${ex.desc}</div>
                     </div>
-                    <div style="font-weight: 900; font-size: 0.65rem; color: #3f9c35;">+${ex.cal}</div>
+                    <div style="font-weight: 900; font-size: 0.7rem; color: #3f9c35; background: #f1f8f1; padding: 4px 8px; border-radius: 8px;">+${ex.cal}</div>
                 </div>
             `).join('');
 
             card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 900; font-size: 0.75rem; color: #212529;">GÜN ${day.day}</span>
-                    <span style="font-size: 0.6rem; background: #f8f9fa; padding: 3px 8px; border-radius: 6px; color: #666; border: 1px solid #eee;">🔥 ${day.totalCal} CAL</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="font-weight: 900; font-size: 0.85rem; color: #1a1a1a; letter-spacing: 0.5px;">GÜN ${day.day}</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #555;"><i class="fas fa-fire" style="color:#ff9800; margin-right:4px;"></i> ${day.totalCal} CAL</span>
                 </div>
                 ${exHtml}
             `;
@@ -150,3 +191,12 @@
         });
     }
 </script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    input:focus { border-color: #1a1a1a !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+    select:focus { border-color: #1a1a1a !important; }
+</style>
