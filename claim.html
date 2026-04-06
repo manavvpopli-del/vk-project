@@ -1,212 +1,157 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 
-<div id="mining-terminal" style="background: #050505; min-height: 100vh; color: #00ff41; font-family: 'Rajdhani', sans-serif; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+<div id="mining-terminal" style="background: #050505; min-height: 100vh; color: #00ff41; font-family: 'Rajdhani', sans-serif; display: flex; flex-direction: column; overflow: hidden;">
 
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
-        .neon-text { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
-        .glass-header { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        body { margin: 0; background: #000; }
+        .glass-header { background: rgba(10, 10, 10, 0.9); border-bottom: 1px solid #1a1a1a; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* MƏRKƏZİ HOLOGRAM */
+        /* HOLOGRAM CORE */
         .hologram-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .hex-grid { position: absolute; width: 300px; height: 300px; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); opacity: 0.1; animation: pulse 4s infinite; }
-        
-        .core-visual { width: 200px; height: 200px; border: 4px solid #1a1a1a; border-radius: 40px; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; position: relative; transition: 0.5s; box-shadow: inset 0 0 20px rgba(0,255,65,0.1); }
-        .mining-active .core-visual { border-color: #00ff41; box-shadow: 0 0 30px rgba(0,255,65,0.3); animation: core-rotate 10s linear infinite; }
+        .core-visual { width: 180px; height: 180px; border: 3px solid #1a1a1a; border-radius: 35px; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; position: relative; transition: 0.5s; }
+        .mining-active .core-visual { border-color: #00ff41; box-shadow: 0 0 25px rgba(0,255,65,0.2); animation: core-rotate 8s linear infinite; }
         .core-inner { transform: rotate(-45deg); text-align: center; }
         
-        /* BOX STATS */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; z-index: 10; }
-        .stat-card { background: #0a0a0a; border: 1px solid #222; border-radius: 12px; padding: 10px 5px; text-align: center; transition: 0.3s; }
-        .stat-card.active { border-color: #00ff41; background: rgba(0,255,65,0.05); }
-        .stat-card.locked { opacity: 0.3; filter: grayscale(1); }
+        /* AD BUTTON */
+        .ad-btn { background: linear-gradient(45deg, #001a00, #003300); border: 1px solid #00ff41; color: #00ff41; padding: 12px; border-radius: 12px; width: calc(100% - 40px); margin: 0 20px 15px 20px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .ad-btn:active { transform: scale(0.98); background: #00ff41; color: #000; }
 
-        /* CONTROL PANEL */
-        .control-panel { background: #0a0a0a; border-top: 1px solid #1a1a1a; border-radius: 30px 30px 0 0; padding: 25px; position: relative; z-index: 100; }
-        .progress-wrap { margin-bottom: 20px; }
-        .bar-bg { width: 100%; height: 8px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
-        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #004d00, #00ff41); transition: 0.3s; position: relative; }
+        /* BOX SELECTION */
+        .box-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 20px 15px 20px; }
+        .box-card { background: #0a0a0a; border: 1px solid #222; border-radius: 10px; padding: 8px; text-align: center; opacity: 0.4; }
+        .box-card.unlocked { opacity: 1; border-color: #444; }
+        .box-card.active { border-color: #00ff41; background: rgba(0,255,65,0.05); }
+
+        .main-btn { width: calc(100% - 40px); padding: 18px; margin: 0 20px 20px 20px; border-radius: 15px; border: none; background: #00ff41; color: #000; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(0,255,65,0.3); }
         
-        .main-btn { width: 100%; padding: 20px; border-radius: 15px; border: none; background: #00ff41; color: #000; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 0 20px rgba(0,255,65,0.4); transition: 0.3s; }
-        .main-btn:disabled { background: #1a1a1a; color: #444; box-shadow: none; cursor: not-allowed; }
-
         @keyframes core-rotate { 0% { transform: rotate(45deg); } 100% { transform: rotate(405deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.3; } }
     </style>
 
     <div class="glass-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; border: 2px solid #00ff41; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(0,255,65,0.1);">
-                <i class="fas fa-user-ninja"></i>
-            </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 35px; height: 35px; border: 1px solid #00ff41; border-radius: 8px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-terminal"></i></div>
             <div>
-                <div id="display-user" style="font-weight: 700; font-size: 1rem; color: #fff; font-family: 'Orbitron';">YÜKLƏNİR...</div>
-                <div style="font-size: 0.65rem; color: #00ff41; letter-spacing: 1px;"><i class="fas fa-link"></i> <span id="ref-count">0</span> REFERRAL</div>
+                <div id="u-name-display" style="font-weight: 700; font-family: 'Orbitron'; color: #fff; font-size: 0.9rem;">LOADING...</div>
+                <div style="font-size: 0.6rem; color: #00ff41;"><i class="fas fa-users"></i> <span id="ref-total">0</span> REFS</div>
             </div>
         </div>
-        <div style="text-align: right;">
-            <div id="current-rank" style="font-size: 0.7rem; font-weight: 900; color: #00ff41;">BRONZE UNIT</div>
-            <div style="font-size: 0.5rem; color: #555;">SYSTEM v4.0.2</div>
-        </div>
+        <div id="rank-tag" style="font-size: 0.6rem; border: 1px solid #333; padding: 4px 8px; border-radius: 5px;">UNIT-01</div>
     </div>
 
-    <div class="hologram-container" id="main-container">
-        <div class="hex-grid"></div>
-        
+    <div class="hologram-container" id="visual-frame">
         <div class="core-visual">
             <div class="core-inner">
-                <i class="fas fa-microchip" style="font-size: 2rem; margin-bottom: 10px; color: #00ff41;"></i>
-                <div id="main-balance" style="font-size: 2.2rem; font-weight: 900; font-family: 'Orbitron'; color: #fff;">0.0000</div>
-                <div style="font-size: 0.6rem; color: #444; letter-spacing: 3px;">USDT CLOUD MINE</div>
+                <div id="main-balance" style="font-size: 2rem; font-weight: 900; font-family: 'Orbitron'; color: #fff;">0.0000</div>
+                <div style="font-size: 0.5rem; color: #555; letter-spacing: 2px;">USDT ASSETS</div>
             </div>
         </div>
-
-        <div style="margin-top: 30px; text-align: center; background: rgba(0,255,65,0.05); padding: 10px 20px; border-radius: 50px; border: 1px solid rgba(0,255,65,0.1);">
-            <span style="font-size: 0.7rem; color: #888;">NETWORK SPEED:</span>
-            <span id="hash-rate" style="font-size: 0.7rem; color: #00ff41; font-weight: 900; margin-left: 5px;">0.00 MH/s</span>
-        </div>
     </div>
 
-    <div style="padding: 0 20px; margin-bottom: 10px;">
-        <div style="background: #111; border-radius: 12px; padding: 12px; border: 1px solid #222; display: flex; align-items: center; justify-content: space-between;">
-            <div style="overflow: hidden; width: 85%;">
-                <div style="font-size: 0.55rem; color: #555; margin-bottom: 3px;">PERSONAL REF LINK</div>
-                <div id="ref-link" style="font-size: 0.65rem; color: #ccc; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">...</div>
-            </div>
-            <i class="fas fa-copy" onclick="copyRef()" style="color: #00ff41; padding: 10px; cursor: pointer;"></i>
-        </div>
+    <button class="ad-btn" onclick="triggerAd()">
+        <i class="fas fa-play-circle"></i> WATCH AD TO EARN +0.10 USDT
+    </button>
+
+    <div class="box-grid">
+        <div class="box-card" id="b1"><small>30 AZN</small></div>
+        <div class="box-card" id="b2"><small>60 AZN</small></div>
+        <div class="box-card" id="b3"><small>90 AZN</small></div>
+        <div class="box-card" id="b4"><small>120 AZN</small></div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card active" id="card1">
-            <b style="font-size: 0.6rem; display: block; color: #cd7f32;">30 AZN</b>
-            <small style="font-size: 0.5rem; color: #555;">30 REF</small>
-        </div>
-        <div class="stat-card locked" id="card2">
-            <b style="font-size: 0.6rem; display: block; color: #c0c0c0;">60 AZN</b>
-            <small style="font-size: 0.5rem; color: #555;">60 REF</small>
-        </div>
-        <div class="stat-card locked" id="card3">
-            <b style="font-size: 0.6rem; display: block; color: #ffd700;">90 AZN</b>
-            <small style="font-size: 0.5rem; color: #555;">90 REF</small>
-        </div>
-        <div class="stat-card locked" id="card4">
-            <b style="font-size: 0.6rem; display: block; color: #e5e4e2;">120 AZN</b>
-            <small style="font-size: 0.5rem; color: #555;">120 REF</small>
-        </div>
-    </div>
-
-    <div class="control-panel">
-        <div class="progress-wrap">
-            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; margin-bottom: 8px;">
-                <span style="color: #444;">SESSION PROGRESS</span>
-                <span id="timer-txt" style="color: #00ff41;">05:00:00</span>
-            </div>
-            <div class="bar-bg"><div class="bar-fill" id="progress-bar"></div></div>
-        </div>
-
-        <button class="main-btn" id="mine-trigger" onclick="startSystem()">INITIALIZE MINING</button>
-    </div>
+    <button class="main-btn" id="start-btn" onclick="toggleMining()">START SYSTEM</button>
 
 </div>
 
 <script>
-    // --- İSTİFADƏÇİ ADINI OXUMAQ ÜÇÜN ƏN TƏHLÜKƏSİZ METOD ---
-    const rawUser = localStorage.getItem('username');
-    const user = (rawUser && rawUser !== "null" && rawUser !== "undefined") ? rawUser : "GUEST_" + Math.floor(Math.random()*999);
-    
-    // UI-da adı dərhal göstər
-    document.getElementById('display-user').innerText = user.toUpperCase();
-    
-    // Ref linkini yarat
-    const myUrl = window.location.origin + window.location.pathname + "?ref=" + user;
-    document.getElementById('ref-link').innerText = myUrl;
-
-    // BOX PARAMETRLƏRİ
-    const CONFIG = {
-        1: { rank: "BRONZE UNIT", ref: 30, spd: 0.00006, hash: "12.40", color: "#cd7f32" },
-        2: { rank: "SILVER UNIT", ref: 60, spd: 0.00012, hash: "28.15", color: "#c0c0c0" },
-        3: { rank: "GOLD UNIT", ref: 90, spd: 0.00018, hash: "45.90", color: "#ffd700" },
-        4: { rank: "PLATINUM UNIT", ref: 120, spd: 0.00025, hash: "72.30", color: "#e5e4e2" }
-    };
+    // 1. İSTİFADƏÇİ MƏLUMATLARI
+    const username = localStorage.getItem('username') || "GUEST";
+    document.getElementById('u-name-display').innerText = username.toUpperCase();
 
     let balance = 0, isRunning = false, startTime = 0, userRefs = 0, activeBox = 1;
 
-    // FIREBASE SYNC
-    if (user) {
-        db.ref('mining/' + user).on('value', snap => {
-            const d = snap.val() || {};
-            balance = d.balance || 0;
-            isRunning = d.isRunning || false;
-            startTime = d.startTime || 0;
-            userRefs = d.referals || 0;
-            activeBox = d.activeBox || 1;
+    // 2. FIREBASE SİNXRONİZASİYA
+    db.ref('mining/' + username).on('value', snap => {
+        const data = snap.val() || {};
+        balance = data.balance || 0;
+        isRunning = data.isRunning || false;
+        startTime = data.startTime || 0;
+        userRefs = data.referals || 0;
+        activeBox = data.activeBox || 1;
 
-            document.getElementById('ref-count').innerText = userRefs;
-            document.getElementById('main-balance').innerText = balance.toFixed(4);
-            
-            syncUI();
-        });
-    }
+        updateUI();
+    });
 
-    function syncUI() {
-        const box = CONFIG[activeBox];
-        document.getElementById('current-rank').innerText = box.rank;
-        document.getElementById('current-rank').style.color = box.color;
-        document.getElementById('hash-rate').innerText = isRunning ? box.hash + " MH/s" : "0.00 MH/s";
+    function updateUI() {
+        document.getElementById('main-balance').innerText = balance.toFixed(4);
+        document.getElementById('ref-total').innerText = userRefs;
         
-        // Animasiyanı idarə et
-        if(isRunning) document.getElementById('main-container').classList.add('mining-active');
-        else document.getElementById('main-container').classList.remove('mining-active');
+        const btn = document.getElementById('start-btn');
+        const frame = document.getElementById('visual-frame');
+        
+        if(isRunning) {
+            btn.innerText = "SYSTEM ACTIVE";
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            frame.classList.add('mining-active');
+        } else {
+            btn.innerText = "START SYSTEM";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            frame.classList.remove('mining-active');
+        }
 
-        // Düyməni tənzimlə
-        const btn = document.getElementById('mine-trigger');
-        btn.disabled = isRunning;
-        btn.innerText = isRunning ? "SYSTEM OPERATIONAL" : "INITIALIZE MINING";
-
-        // Boxların kilidini yoxla
+        // Box Kilidləri
+        const thresholds = [0, 30, 60, 90, 120];
         for(let i=1; i<=4; i++) {
-            const card = document.getElementById('card' + i);
-            card.classList.remove('active', 'locked');
-            if(userRefs < CONFIG[i].ref) card.classList.add('locked');
-            if(i == activeBox) card.classList.add('active');
+            const el = document.getElementById('b' + i);
+            el.className = 'box-card';
+            if(userRefs >= thresholds[i]) el.classList.add('unlocked');
+            if(activeBox == i) el.classList.add('active');
         }
     }
 
-    // LIVE ENGINE
+    // 3. MEDIAN.CO ADMOB REKLAM SİSTEMİ
+    function triggerAd() {
+        if (typeof window.median !== 'undefined') {
+            // REWARDED REKLAMI ÇAĞIR
+            window.median.admob.rewarded.show({
+                adUnitId: 'ca-app-pub-SƏNİN-REWARDED-ID-N' // ADMOB-DAN ALDIĞIN ID
+            });
+        } else {
+            alert("Reklam funksiyası yalnız mobil tətbiqdə aktivdir!");
+        }
+    }
+
+    // Median.co Callback: Reklam bitəndə işə düşür
+    if (typeof window.median !== 'undefined') {
+        window.median.admob.rewarded.onCompleted = function() {
+            rewardUser();
+        };
+    }
+
+    async function rewardUser() {
+        balance += 0.10;
+        await db.ref('mining/' + username).update({ balance: balance });
+        alert("Success: +0.10 USDT credited to your account!");
+    }
+
+    // 4. MİNİNG MƏNTİQİ
     setInterval(() => {
         if(isRunning) {
-            let elapsed = Date.now() - startTime;
-            let limit = 5 * 60 * 60 * 1000;
-
-            if(elapsed < limit) {
-                balance += CONFIG[activeBox].spd;
-                document.getElementById('main-balance').innerText = balance.toFixed(4);
-                document.getElementById('progress-bar').style.width = (elapsed / limit * 100) + "%";
-                
-                let rem = limit - elapsed;
-                let h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
-                document.getElementById('timer-txt').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            } else {
-                stopSystem();
-            }
+            const speeds = [0, 0.00006, 0.00012, 0.00018, 0.00025];
+            balance += speeds[activeBox];
+            document.getElementById('main-balance').innerText = balance.toFixed(4);
         }
     }, 1000);
 
-    async function startSystem() {
+    async function toggleMining() {
         startTime = Date.now();
         isRunning = true;
-        await db.ref('mining/' + user).update({ isRunning: true, startTime: startTime, balance: balance });
-    }
-
-    async function stopSystem() {
-        isRunning = false;
-        await db.ref('mining/' + user).update({ isRunning: false, balance: balance });
-    }
-
-    function copyRef() {
-        navigator.clipboard.writeText(myUrl);
-        alert("Encrypted link copied to clipboard!");
+        await db.ref('mining/' + username).update({ 
+            isRunning: true, 
+            startTime: startTime, 
+            balance: balance 
+        });
     }
 </script>
