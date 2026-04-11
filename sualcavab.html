@@ -1,801 +1,322 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Məni Tanıyırsan? 💕</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --bg:#07060f;
-  --surface:#0f0e1a;
-  --card:#16152a;
-  --card2:#1e1d35;
-  --accent:#c084fc;
-  --accent2:#f472b6;
-  --accent3:#818cf8;
-  --gold:#fbbf24;
-  --green:#34d399;
-  --red:#f87171;
-  --text:#f1f0ff;
-  --muted:#7c7a9e;
-  --border:rgba(192,132,252,0.15);
-  --glow:rgba(192,132,252,0.08);
-}
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
-}
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(129,140,248,0.07) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 60% at 90% 100%, rgba(244,114,182,0.06) 0%,transparent 60%);
-  pointer-events:none;z-index:0;
-}
-.noise{
-  position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
-
-/* ─── SCREENS ─── */
-.screen{display:none;position:relative;z-index:1;min-height:100vh;}
-.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;}
-
-/* ─── LOBBY ─── */
-.lobby-logo{
-  font-family:'Syne',sans-serif;font-size:clamp(2rem,6vw,3.5rem);font-weight:800;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:.4rem;text-align:center;line-height:1.1;
-}
-.lobby-sub{color:var(--muted);font-size:.95rem;margin-bottom:2.5rem;text-align:center;}
-.lobby-box{
-  background:var(--card);border:1px solid var(--border);border-radius:24px;
-  padding:2.5rem 2rem;width:100%;max-width:420px;
-  box-shadow:0 0 80px var(--glow);
-}
-.field-label{font-size:.78rem;font-weight:500;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.5rem;}
-.field-input{
-  width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  border-radius:12px;color:var(--text);font-size:1rem;font-family:'DM Sans',sans-serif;
-  padding:.85rem 1rem;outline:none;transition:border-color .2s,box-shadow .2s;
-  margin-bottom:1.2rem;
-}
-.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(192,132,252,.12);}
-.field-input::placeholder{color:var(--muted);}
-.divider{height:1px;background:var(--border);margin:1.4rem 0;position:relative;}
-.divider span{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:var(--card);padding:0 .75rem;font-size:.78rem;color:var(--muted);
-}
-.btn{
-  width:100%;padding:.9rem;border:none;border-radius:12px;
-  font-size:.95rem;font-weight:500;font-family:'DM Sans',sans-serif;
-  cursor:pointer;transition:opacity .2s,transform .1s;
-}
-.btn:active{transform:scale(.98);}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
-.btn-primary:hover{opacity:.88;}
-.btn-secondary{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);}
-.btn-secondary:hover{background:rgba(255,255,255,.1);}
-.btn-sm{
-  padding:.55rem 1.2rem;font-size:.83rem;border-radius:9px;border:none;
-  font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;width:auto;
-}
-.btn-danger{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);color:var(--red);}
-.btn-danger:hover{background:rgba(248,113,113,.22);}
-.error{color:var(--red);font-size:.82rem;margin-top:.4rem;min-height:1.1rem;}
-
-/* ─── WAITING ─── */
-.wait-card{
-  background:var(--card);border:1px solid var(--border);border-radius:24px;
-  padding:2.5rem 2rem;max-width:400px;width:100%;text-align:center;
-  box-shadow:0 0 80px var(--glow);
-}
-.room-code-display{
-  font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;letter-spacing:6px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin:1rem 0;
-}
-.pulse-dot{
-  width:12px;height:12px;border-radius:50%;background:var(--accent);
-  display:inline-block;margin:0 3px;
-  animation:pulseDot 1.4s ease-in-out infinite;
-}
-.pulse-dot:nth-child(2){animation-delay:.2s;}
-.pulse-dot:nth-child(3){animation-delay:.4s;}
-@keyframes pulseDot{0%,80%,100%{opacity:.2;transform:scale(.7);}40%{opacity:1;transform:scale(1);}}
-.players-row{display:flex;gap:1rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap;}
-.player-chip{
-  display:flex;align-items:center;gap:.5rem;
-  background:rgba(255,255,255,.05);border:1px solid var(--border);
-  border-radius:50px;padding:.4rem 1rem;font-size:.85rem;
-}
-.player-chip.joined{border-color:rgba(52,211,153,.35);color:var(--green);}
-.player-chip.waiting{color:var(--muted);}
-.dot-online{width:7px;height:7px;border-radius:50%;background:var(--green);}
-.dot-wait{width:7px;height:7px;border-radius:50%;background:var(--muted);}
-
-/* ─── ROLE SELECT ─── */
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:500px;width:100%;margin:1.5rem 0;}
-.role-card{
-  background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:1.8rem 1.2rem;text-align:center;cursor:pointer;transition:all .25s;
-}
-.role-card:hover{border-color:var(--accent);background:var(--card2);}
-.role-card.taken{opacity:.4;cursor:not-allowed;pointer-events:none;}
-.role-card.mine{border-color:var(--accent);background:var(--card2);box-shadow:0 0 30px rgba(192,132,252,.1);}
-.role-icon{font-size:2.5rem;margin-bottom:.75rem;}
-.role-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.4rem;}
-.role-desc{font-size:.8rem;color:var(--muted);line-height:1.5;}
-.role-badge{
-  display:inline-block;margin-top:.75rem;
-  font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:50px;
-  background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:var(--green);
-}
-.role-badge.taken-badge{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);color:var(--red);}
-
-/* ─── GAME SCREEN ─── */
-.game-wrap{width:100%;max-width:680px;}
-.score-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--card);border:1px solid var(--border);border-radius:14px;
-  padding:.85rem 1.4rem;margin-bottom:1.5rem;
-}
-.score-item{text-align:center;}
-.score-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
-.score-val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;}
-.score-val.p1{color:var(--accent);}
-.score-val.p2{color:var(--accent2);}
-.score-val.round{color:var(--gold);}
-.vs-sep{font-size:.8rem;color:var(--muted);}
-
-.game-card{
-  background:var(--card);border:1px solid var(--border);border-radius:24px;
-  padding:2rem;
-}
-.game-phase-label{
-  font-size:.72rem;font-weight:600;color:var(--accent);letter-spacing:1px;
-  text-transform:uppercase;margin-bottom:1rem;
-  display:flex;align-items:center;gap:.5rem;
-}
-.phase-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
-
-.q-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;line-height:1.4;}
-.q-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;}
-
-/* Question choices for asker */
-.q-list{display:flex;flex-direction:column;gap:.75rem;}
-.q-item{
-  background:rgba(255,255,255,.03);border:1px solid var(--border);
-  border-radius:14px;padding:1rem 1.2rem;cursor:pointer;
-  transition:all .2s;display:flex;align-items:flex-start;gap:.75rem;
-}
-.q-item:hover{border-color:var(--accent);background:rgba(192,132,252,.06);}
-.q-item.selected{border-color:var(--accent);background:rgba(192,132,252,.1);}
-.q-num{
-  width:26px;height:26px;border-radius:50%;flex-shrink:0;
-  background:rgba(192,132,252,.15);border:1px solid rgba(192,132,252,.3);
-  display:flex;align-items:center;justify-content:center;
-  font-size:.75rem;font-weight:600;color:var(--accent);
-}
-.q-text{font-size:.9rem;line-height:1.5;}
-
-/* Answer choices for answerer */
-.a-list{display:flex;flex-direction:column;gap:.65rem;}
-.a-item{
-  background:rgba(255,255,255,.03);border:1px solid var(--border);
-  border-radius:12px;padding:.9rem 1.1rem;cursor:pointer;
-  transition:all .2s;display:flex;align-items:center;gap:.75rem;
-  font-size:.9rem;
-}
-.a-item:hover{border-color:var(--accent2);background:rgba(244,114,182,.06);}
-.a-item.selected-ans{border-color:var(--accent2);background:rgba(244,114,182,.1);}
-.a-item.correct{border-color:var(--green);background:rgba(52,211,153,.1);color:var(--green);}
-.a-item.wrong{border-color:var(--red);background:rgba(248,113,113,.1);color:var(--red);}
-.a-item.disabled{pointer-events:none;}
-.a-letter{
-  width:28px;height:28px;border-radius:8px;flex-shrink:0;
-  background:rgba(255,255,255,.06);
-  display:flex;align-items:center;justify-content:center;
-  font-size:.8rem;font-weight:600;color:var(--muted);
-}
-
-/* Result popup */
-.result-overlay{
-  position:fixed;inset:0;background:rgba(7,6,15,.85);z-index:200;
-  display:none;align-items:center;justify-content:center;padding:1rem;
-}
-.result-overlay.show{display:flex;}
-.result-box{
-  background:var(--card);border:1px solid var(--border);border-radius:24px;
-  padding:2.5rem 2rem;max-width:380px;width:100%;text-align:center;
-  animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes popIn{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
-.result-icon{font-size:3.5rem;margin-bottom:1rem;}
-.result-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
-.result-title.correct{background:linear-gradient(135deg,var(--green),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.result-title.wrong{background:linear-gradient(135deg,var(--red),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.result-msg{color:var(--muted);font-size:.88rem;line-height:1.5;margin-bottom:.75rem;}
-.result-xal{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;}
-.result-xal.plus{color:var(--green);}
-.result-xal.minus{color:var(--red);}
-
-/* Waiting for other */
-.waiting-msg{
-  text-align:center;padding:2rem;
-  display:flex;flex-direction:column;align-items:center;gap:1rem;
-}
-.waiting-msg p{color:var(--muted);font-size:.9rem;}
-
-/* End screen */
-.end-card{
-  background:var(--card);border:1px solid var(--border);border-radius:24px;
-  padding:3rem 2rem;max-width:500px;width:100%;text-align:center;
-}
-.trophy{font-size:4rem;margin-bottom:1rem;animation:bounce 1s ease infinite alternate;}
-@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-10px);}}
-.end-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.5rem;
-  background:linear-gradient(135deg,var(--gold),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.end-scores{display:flex;gap:1.5rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap;}
-.end-score-box{
-  background:var(--card2);border:1px solid var(--border);border-radius:16px;
-  padding:1.2rem 2rem;min-width:120px;
-}
-.end-score-name{font-size:.8rem;color:var(--muted);margin-bottom:.4rem;}
-.end-score-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;}
-.end-score-val.w{color:var(--gold);}
-.end-score-val.l{color:var(--muted);}
-.play-again-btn{
-  margin-top:1.5rem;padding:1rem 2.5rem;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:500;
-  font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .2s;
-}
-.play-again-btn:hover{opacity:.85;}
-
-/* Toast */
-.toast{
-  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(60px);
-  background:var(--card2);border:1px solid var(--border);border-radius:10px;
-  padding:.75rem 1.5rem;font-size:.85rem;z-index:999;
-  transition:transform .3s;pointer-events:none;white-space:nowrap;
-}
-.toast.up{transform:translateX(-50%) translateY(0);}
-.toast.ok{border-color:rgba(52,211,153,.4);color:var(--green);}
-.toast.err{border-color:rgba(248,113,113,.4);color:var(--red);}
-
-@media(max-width:500px){
-  .role-grid{grid-template-columns:1fr;}
-  .game-card{padding:1.4rem;}
-  .score-bar{padding:.7rem 1rem;}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sual-Cavab | PlayWithLove 💕</title>
+    <style>
+        :root {
+            --pink: #e91e8c; --pink-light: #ff6bb5; --purple: #7c3aed; 
+            --bg: #0d0d1a; --card: #1a1a2e; --text-muted: #a0a0c0;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: #fff;
+            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 90%; max-width: 500px; background: var(--card); padding: 2rem;
+            border-radius: 24px; border: 1px solid rgba(233,30,140,0.3); text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; z-index: 10;
+        }
+        h2 { background: linear-gradient(135deg, var(--pink-light), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1.5rem; }
+        input, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 15px; border: none; font-size: 1rem; transition: 0.3s; }
+        input { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(233,30,140,0.2); outline: none; }
+        input:focus { border-color: var(--pink); box-shadow: 0 0 10px rgba(233,30,140,0.3); }
+        button { background: linear-gradient(135deg, var(--pink), var(--purple)); color: white; font-weight: 700; cursor: pointer; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        button:disabled { background: #444; cursor: not-allowed; transform: none; }
+        .hidden { display: none; }
+        .option-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); text-align: center; font-weight: 500; }
+        .option-btn:hover { background: var(--pink); border-color: var(--pink); }
+        .score-board { font-size: 1.5rem; font-weight: 800; color: var(--pink-light); margin-bottom: 1rem; text-shadow: 0 0 10px rgba(233,30,140,0.5); }
+        .role-badge { display: inline-block; padding: 6px 16px; border-radius: 50px; background: rgba(124,58,237,0.2); border: 1px solid var(--purple); font-size: 0.85rem; margin-bottom: 15px; color: #d8b4fe; }
+        .question-text { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.4; color: #f0f0f0; }
+        #statusMsg { color: var(--text-muted); font-style: italic; font-size: 0.9rem; }
+    </style>
 </head>
 <body>
-<div class="noise"></div>
 
-<!-- ═══ LOBBY ═══ -->
-<div class="screen active" id="screen-lobby">
-  <div class="lobby-logo">💕 Məni Tanıyırsan?</div>
-  <div class="lobby-sub">Sevgilinin səni nə qədər tanıdığını sına!</div>
-  <div class="lobby-box">
-    <div class="field-label">Adın</div>
-    <input class="field-input" id="nameInput" placeholder="Adını daxil et" maxlength="16" autocomplete="off"/>
-    <div class="field-label">Yeni otaq yarat</div>
-    <button class="btn btn-primary" onclick="createRoom()">✨ Otaq Yarat</button>
-    <div class="divider"><span>və ya</span></div>
-    <div class="field-label">Otaq kodunu daxil et</div>
-    <input class="field-input" id="roomInput" placeholder="Məs: AB12" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:3px;font-size:1.2rem;" oninput="this.value=this.value.toUpperCase()"/>
-    <button class="btn btn-secondary" onclick="joinRoom()" style="margin-top:.2rem;">🚀 Qoşul</button>
-    <div class="error" id="lobbyError"></div>
-  </div>
+<div class="container" id="setup">
+    <h2>💕 Sual-Cavab</h2>
+    <p style="color:var(--text-muted)">Eyni otaq kodunu yazaraq sevgilinlə qoşul!</p>
+    <input type="text" id="roomInput" placeholder="Otaq Kodu (məs: sevgi2025)">
+    <button onclick="joinRoom()">Otağa Daxil Ol</button>
 </div>
 
-<!-- ═══ WAITING ROOM ═══ -->
-<div class="screen" id="screen-wait">
-  <div class="wait-card">
-    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.3rem;">Otaq kodu</div>
-    <div class="room-code-display" id="displayCode">----</div>
-    <div style="font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;">Sevgilinə bu kodu paylaş</div>
-    <div class="players-row" id="playersRow"></div>
-    <div style="display:flex;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1.5rem;">
-      <div class="pulse-dot"></div><div class="pulse-dot"></div><div class="pulse-dot"></div>
+<div class="container hidden" id="roleSelection">
+    <h3>Rolunuzu seçin</h3>
+    <p style="color:var(--text-muted); margin-bottom:1.5rem;">Biriniz sual verən, digəriniz cavab verən olmalıdır.</p>
+    <button onclick="chooseRole('asker')">Mən Sual Verəcəyəm 🙋‍♂️</button>
+    <button onclick="chooseRole('answerer')">Mən Cavab Verəcəyəm 🙋‍♀️</button>
+</div>
+
+<div class="container hidden" id="gameArea">
+    <div class="score-board">Xal: <span id="score">0</span></div>
+    <div id="roleDisplay" class="role-badge"></div>
+    
+    <div id="askerSide" class="hidden">
+        <div id="questionList">
+            <h4 class="question-text">Hansı sualı vermək istəyirsən?</h4>
+            <div id="triadQuestions"></div>
+        </div>
+        <div id="correctAnswerSelection" class="hidden">
+            <h4 id="askerActionTitle" class="question-text">Bu sualın sənin üçün cavabı hansıdır?</h4>
+            <div id="myOptions"></div>
+        </div>
     </div>
-    <p style="font-size:.82rem;color:var(--muted);">İkinci oyunçu qoşulduqda oyun başlayacaq</p>
-    <button class="btn btn-danger btn-sm" onclick="leaveRoom()" style="margin-top:1.2rem;width:100%;">Çıxış</button>
-  </div>
-</div>
 
-<!-- ═══ ROLE SELECT ═══ -->
-<div class="screen" id="screen-role">
-  <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.4rem;text-align:center;">Rol seçin</div>
-  <div style="color:var(--muted);font-size:.88rem;margin-bottom:.3rem;text-align:center;">Hər rol bir dəfə seçilə bilər</div>
-  <div class="role-grid">
-    <div class="role-card" id="roleCard-asker" onclick="selectRole('asker')">
-      <div class="role-icon">🎯</div>
-      <div class="role-name">Sual Verən</div>
-      <div class="role-desc">Qarşı tərəfə sual seçirsən və doğru cavabı bilirsən</div>
-      <div id="roleStatus-asker"></div>
+    <div id="answererSide" class="hidden">
+        <div id="waitMsg">
+            <p class="question-text">Sevgilinin sual seçməsini gözləyirsən...</p>
+            <div id="statusMsg">O hələ qərar verir... 🤔</div>
+        </div>
+        <div id="answerArea" class="hidden">
+            <h3 id="displayQuestion" class="question-text"></h3>
+            <div id="displayOptions"></div>
+        </div>
     </div>
-    <div class="role-card" id="roleCard-answerer" onclick="selectRole('answerer')">
-      <div class="role-icon">💭</div>
-      <div class="role-name">Cavab Verən</div>
-      <div class="role-desc">Sualı alırsın, düzgün cavabı tapmalısan</div>
-      <div id="roleStatus-answerer"></div>
-    </div>
-  </div>
-  <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem;">Hər ikisi seçdikdən sonra oyun başlayır</p>
 </div>
-
-<!-- ═══ GAME ═══ -->
-<div class="screen" id="screen-game" style="justify-content:flex-start;padding-top:2rem;">
-  <div class="game-wrap">
-    <div class="score-bar">
-      <div class="score-item">
-        <div class="score-label" id="p1label">Oyunçu 1</div>
-        <div class="score-val p1" id="p1score">0</div>
-      </div>
-      <div>
-        <div class="score-val round" id="roundNum">Tur 1</div>
-        <div class="score-label" style="text-align:center;">/ 10</div>
-      </div>
-      <div class="score-item">
-        <div class="score-label" id="p2label">Oyunçu 2</div>
-        <div class="score-val p2" id="p2score">0</div>
-      </div>
-    </div>
-    <div class="game-card" id="gameCard">
-      <div class="waiting-msg">
-        <div class="pulse-dot" style="width:14px;height:14px;"></div>
-        <p>Yüklənir...</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ END ═══ -->
-<div class="screen" id="screen-end">
-  <div class="end-card">
-    <div class="trophy">🏆</div>
-    <div class="end-title" id="endTitle">Oyun Bitdi!</div>
-    <div style="font-size:.9rem;color:var(--muted);margin-bottom:.5rem;" id="endSub"></div>
-    <div class="end-scores" id="endScores"></div>
-    <button class="play-again-btn" onclick="playAgain()">🔄 Yenidən Oyna</button>
-  </div>
-</div>
-
-<!-- Result popup -->
-<div class="result-overlay" id="resultOverlay">
-  <div class="result-box">
-    <div class="result-icon" id="resultIcon"></div>
-    <div class="result-title" id="resultTitle"></div>
-    <div class="result-msg" id="resultMsg"></div>
-    <div class="result-xal" id="resultXal"></div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, update, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey:"AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
-  authDomain:"sevgili-testi.firebaseapp.com",
-  databaseURL:"https://sevgili-testi-default-rtdb.firebaseio.com",
-  projectId:"sevgili-testi",
-  storageBucket:"sevgili-testi.firebasestorage.app",
-  messagingSenderId:"399260477557",
-  appId:"1:399260477557:web:584204a698d7bf145bb03c",
-  measurementId:"G-44P21XCZ7G"
-};
-const fbApp = initializeApp(firebaseConfig);
-const db = getDatabase(fbApp);
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+        authDomain: "sevgili-testi.firebaseapp.com",
+        databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+        projectId: "sevgili-testi",
+        storageBucket: "sevgili-testi.firebasestorage.app",
+        messagingSenderId: "399260477557",
+        appId: "1:399260477557:web:584204a698d7bf145bb03c"
+    };
 
-// ── 100 SUAL ──
-const QUESTIONS = [
-  {q:"Mənim ən sevdiyim yemək nədir?",opts:["Pizza","Plov","Dolma","Qutab"],ans:0},
-  {q:"Hansı rəng mənim ən sevdiyimdir?",opts:["Mavi","Yaşıl","Qırmızı","Bənövşəyi"],ans:2},
-  {q:"Nə vaxt ən xoşbəxt oluram?",opts:["Dostlarla olanda","Evdə tək olanda","Səninlə olanda","İşdə uğur qazananda"],ans:2},
-  {q:"Ən çox hansı film janrını sevirəm?",opts:["Komediya","Dram","Triller","Fantastika"],ans:0},
-  {q:"Xoşbəxt olmaq üçün nəyə ehtiyacım var?",opts:["Pul","Sevgi","Sağlamlıq","Azadlıq"],ans:1},
-  {q:"Sabah erkən qalxa bilərəmmi?",opts:["Heç vaxt","Çox çətin","Bəzən","Asanlıqla"],ans:1},
-  {q:"Səyahət etmək istərdiyim ölkə?",opts:["İtaliya","Yaponiya","Fransa","Türkiyə"],ans:1},
-  {q:"Ən çox qorxduğum şey nədir?",opts:["Hörümçək","Tənhalıq","Yüksəklik","Qaranlıq"],ans:1},
-  {q:"Boş vaxtımda nə etməyi sevirəm?",opts:["Kitab oxumaq","Musiqi dinləmək","Gəzmək","Oyun oynamaq"],ans:1},
-  {q:"Gecə yuxuya necə gedirəm?",opts:["Dərhal","Bir az vaxt lazımdır","Çox çətin","Musiqiylə"],ans:2},
-  {q:"Ən sevdiyim musiqi janrı?",opts:["Pop","Rock","Klassik","Hip-hop"],ans:0},
-  {q:"Stress olanda nə edirəm?",opts:["Gəzirəm","Yeyirəm","Yatıram","Danışıram"],ans:0},
-  {q:"İdeal tətilim harada olardı?",opts:["Dağlarda","Dənizdə","Böyük şəhərdə","Ev rahatında"],ans:1},
-  {q:"Ən çox hansı heyvanı sevirəm?",opts:["İt","Pişik","Dovşan","Quş"],ans:0},
-  {q:"Sürpriz hədiyyə almağı sevirəmmi?",opts:["Çox sevirəm","Bəzən","Üstünlük vermirəm","Xoşlamıram"],ans:0},
-  {q:"Ən yaxşı vaxt keçirmə üsulum?",opts:["Film baxmaq","Dostlarla çölə çıxmaq","Ev yığışdırmaq","İdman etmək"],ans:0},
-  {q:"Hansı fəsli ən çox sevirəm?",opts:["Yaz","Yay","Payız","Qış"],ans:1},
-  {q:"Romantik an üçün nəyi seçərəm?",opts:["Şam yeməyi","Piknik","Ev filmi","Gəzinti"],ans:0},
-  {q:"Söyüşmüş kimi hiss edəndə nə edirəm?",opts:["Sakit qalıram","Danışıram","Ağlayıram","Gedirəm"],ans:1},
-  {q:"Ən çox nəyə pul xərcləyirəm?",opts:["Geyim","Yemək","Texnika","Əyləncə"],ans:1},
-  {q:"Evdə ən sevdiyim guşə?",opts:["Yataq otağı","Mətbəx","Salon","Balkon"],ans:0},
-  {q:"Romantik filmi sevərəmmi?",opts:["Çox sevirəm","Bəzən","Az","Heç sevirəm"],ans:0},
-  {q:"İlk görüşdə nə hiss etdim?",opts:["Heyranlıq","Maraq","Utanma","Sevinc"],ans:2},
-  {q:"Hansı vaxt daha enerjili oluram?",opts:["Səhər","Gündüz","Axşam","Gecə"],ans:2},
-  {q:"Ən çox nəyin hayalını qururam?",opts:["Səyahət","Karyera","Ailə","Azadlıq"],ans:0},
-  {q:"Çox işlədikdə özümü necə hiss edirəm?",opts:["Həvəsli","Yorğun","Əsəbi","Qürurlu"],ans:1},
-  {q:"Hansı yeməyi özüm bişirə bilərəm?",opts:["Yumurta","Makaron","Şorba","Heç birini"],ans:0},
-  {q:"Əl işlərini sevirəmmi?",opts:["Çox sevirəm","Bəzən","Az","Heç"],ans:1},
-  {q:"Nə vaxt ən çox gülürəm?",opts:["Komediyalarda","Dostlarla","Səninlə","Hər vaxt"],ans:2},
-  {q:"Hansı içki mənim sevimlidir?",opts:["Çay","Qəhvə","Şirə","Su"],ans:0},
-  {q:"Snapehat, Instagram, yoxsa TikTok?",opts:["Instagram","TikTok","Snapchat","Heç biri"],ans:0},
-  {q:"Axşam yeməyini evdə yedim, yoxsa çöldə?",opts:["Evdə","Restorana gedirəm","Hər ikisini","Çox az yeyirəm"],ans:0},
-  {q:"Hansı rəngli paltarları çox geyirəm?",opts:["Tünd rənglər","Açıq rənglər","Rəngarəng","Qara/Ağ"],ans:3},
-  {q:"Yeni insanlarla tanış olmağı sevirəmmi?",opts:["Çox sevirəm","Bəzən","Xoşlamıram","Qorxuram"],ans:1},
-  {q:"Ən çox hansı sport növünü izləyirəm?",opts:["Futbol","Basketbol","Tennis","İzləmirəm"],ans:0},
-  {q:"Hansı iş rejimini seçərəm?",opts:["Evdən iş","Ofis","Hibrid","Fərq etməz"],ans:2},
-  {q:"Səhər ilk nə edirəm?",opts:["Telefona baxıram","Çay içirəm","Duş alıram","Məşq edirəm"],ans:0},
-  {q:"Ən böyük xəyalım nədir?",opts:["Dünya səyahəti","Öz işim","Gözəl ailə","Məşhur olmaq"],ans:0},
-  {q:"Əsəbi olanda hansı addım atıram?",opts:["Sakit qalıram","Danışıram","Musiqi dinləyirəm","Gəzintiyə çıxıram"],ans:2},
-  {q:"Ən sevdiyim tort növü?",opts:["Şokolad","Meyvəli","Pendirli","Heç sevirəm"],ans:0},
-  {q:"Hansı rəng göz mənimdir?",opts:["Qara","Qəhvəyi","Yaşıl","Mavi"],ans:0},
-  {q:"Hər gün idman edirəmmi?",opts:["Hər gün","Həftədə 2-3 dəfə","Nadir hallarda","Etmirəm"],ans:1},
-  {q:"Hansı mövzuda kitab oxumağı sevirəm?",opts:["Roman","Psixologiya","Tarixi","Fantastika"],ans:0},
-  {q:"Çox pulum olsa nə edərəm?",opts:["Səyahət edərəm","Ev alaram","Yaxınlarıma verərəm","Saxlayaram"],ans:0},
-  {q:"Ən çox nəyə görə narahat oluram?",opts:["Gələcək","Keçmiş","İndiki vəziyyət","Ailə"],ans:0},
-  {q:"Hansı dil öyrənmək istərdim?",opts:["İspan","Fransız","Yapon","Alman"],ans:1},
-  {q:"Ən sevdiyim gecə fəaliyyəti?",opts:["Film baxmaq","Oxumaq","Söhbət etmək","Oyun oynamaq"],ans:0},
-  {q:"Hansı rəng saçım var?",opts:["Qara","Qəhvəyi","Sarı","Qırmızı"],ans:0},
-  {q:"Getdiyim şəhərdə ilk nəyə baxıram?",opts:["Restoranlara","Muzeyə","Parklar","Mağazalara"],ans:0},
-  {q:"Sevdiyim şokolad növü?",opts:["Tünd şokolad","Süd şokoladı","Ağ şokolad","Fındıqlı"],ans:1},
-  {q:"Başqasının problemini həll etməyə çalışıram?",opts:["Həmişə","Bəzən","Nadir","Xayır"],ans:0},
-  {q:"Ən sevdiyim fəsil hanısıdır?",opts:["Bahar","Yay","Payız","Qış"],ans:0},
-  {q:"Nə vaxt romantik hiss edirəm?",opts:["Gecə gəzintisidə","Şam yeməyidə","Sürprizlə","Sadə anlarda"],ans:3},
-  {q:"Ən yaxın dostumun adı ilə başlayan hərf?",opts:["A","E","S","N"],ans:0},
-  {q:"Ən çox hansı emoji istifadə edirəm?",opts:["😂","❤️","😊","🙈"],ans:0},
-  {q:"Özüm haqqında ən çox sevdiyim cəhət?",opts:["Xarici görünüş","Xarakter","Zəka","Hümor"],ans:1},
-  {q:"Hansı vaxt pis əhval-ruhiyyəmdə oluram?",opts:["Az yuxu alanda","Aclıq olanda","Tənha olanda","İş problemi olanda"],ans:0},
-  {q:"Ən böyük cəsarətim nə idi?",opts:["Sevgimi etiraf etmək","İmtahan vermək","Yeni iş","Yeni şəhər"],ans:0},
-  {q:"Geyim seçimim necədir?",opts:["Rahat/sadə","Zərif/rəsmi","Trendy","Rəngarəng"],ans:0},
-  {q:"Axşam yatmazdan öncə nə edirəm?",opts:["Telefona baxıram","Kitab oxuyuram","Müzakirə edirəm","Musiqi dinləyirəm"],ans:0},
-  {q:"Ailəmlə münasibətim necədir?",opts:["Çox yaxınıq","Normaldır","Uzağıq","Aradabir görüşürük"],ans:0},
-  {q:"Çayı necə sevirəm?",opts:["Şəkərsiz","Az şəkərli","Çox şəkərli","İçmirəm"],ans:1},
-  {q:"Ən xoşuma gələn hədiyyə növü?",opts:["Zərgərlik","Kitab","Geyim","Səyahət"],ans:3},
-  {q:"Əlimdən gəlsə hər gün nə edərəm?",opts:["Gəzərdim","Oxuyardım","Bişirərdim","Yatardım"],ans:0},
-  {q:"Hansı mövzuda söhbət etməyi sevirəm?",opts:["Həyat fəlsəfəsi","Xəbərlər","Gündəlik həyat","Gələcək planlar"],ans:3},
-  {q:"Ən böyük zəifliyin nədir?",opts:["Şokolad","Uyqu","Sən","Əyləncə"],ans:2},
-  {q:"Gözəl gün üçün lazım olan şey?",opts:["Günəş","Yaxın insan","Gözəl yemək","Planlar"],ans:1},
-  {q:"Bildiyim xarici dil?",opts:["İngilis","Rus","İkisi də","Heç biri"],ans:2},
-  {q:"Çox narahat olanda nə edirəm?",opts:["Danışıram","Sakit qalıram","Ağlayıram","Müzakirə edirəm"],ans:0},
-  {q:"Hansı xüsusiyyəti özümdə dəyişmək istəyirəm?",opts:["Tənbəllik","Utancaqlıq","Narahatçılıq","Heç birini"],ans:2},
-  {q:"Gözəl bir günü necə başladıram?",opts:["Çay/qəhvəylə","İdmanla","Duşla","Musiqiylə"],ans:0},
-  {q:"Hansı mövzuda mütəxəssisəm?",opts:["Yemək","Texnologiya","İncəsənət","Heç birində"],ans:0},
-  {q:"Özümü ən bacarıqlı hiss edirəm nədə?",opts:["Danışmaqda","Dinləməkdə","Problemləri həll etməkdə","Yaratmaqda"],ans:1},
-  {q:"Ən çox sevinc verən an hansıdır?",opts:["Sürpriz","Uğur","Birlikdə vaxt","Hədiyyə"],ans:2},
-  {q:"Hər şeyi buraxıb gedə bilərdim?",opts:["Bəli, asanlıqla","Bəlkə","Çətin olar","Heç vaxt"],ans:1},
-  {q:"Yaxşı bir restoran seçəndə nəyə baxıram?",opts:["Menyuya","Atmosferə","Qiymətə","Dostların tövsiyəsinə"],ans:1},
-  {q:"Hansı vaxt özümü tam rahat hiss edirəm?",opts:["Evdə","Təbiətdə","Dostlarla","Səninlə"],ans:3},
-  {q:"Oxumağı sevirəmmi?",opts:["Çox sevirəm","Az oxuyuram","Nadir hallarda","Oxumuram"],ans:1},
-  {q:"Hansı musiqi aləti çalmaq istərdim?",opts:["Gitara","Piano","Skripka","Heç biri"],ans:0},
-  {q:"Peşəkar həyatda nə olmaq istəyirəm?",opts:["Sahibkar","Həkim","Müəllim","Yaradıcı sahə"],ans:0},
-  {q:"Ən sevdiyim şəhər?",opts:["Bakı","İstanbul","Londra","Barcelona"],ans:0},
-  {q:"Axşamüstü ən çox nə edirəm?",opts:["Gəzirəm","Evdə istirahət","Dostlarla görüşürəm","Oxuyuram"],ans:0},
-  {q:"Köhlən bir iş adamı olsaydım?",opts:["Texnologiya","Moda","Qida","Turizm"],ans:0},
-  {q:"Ən çox qiymətləndirdiyim şəxsiyyət keyfiyyəti?",opts:["Dürüstlük","Sədaqət","Hümor","Zəka"],ans:1},
-  {q:"Bir şey öyrənmək üçün nə qədər vaxt lazımdır?",opts:["Çox tez","Normal vaxt","Yavaş","Çox yavaş"],ans:1},
-  {q:"Gecə şəhərdə nə edirəm?",opts:["Gəzirəm","Kafeye gedirəm","Evdəyəm","Dostlarla görüşürəm"],ans:2},
-  {q:"Ən çox nəyin itkisindən qorxuram?",opts:["Sevdiklərimi","Sağlamlığımı","İşimi","Azadlığımı"],ans:0},
-  {q:"Nə vaxt ağlayıram?",opts:["Kədərli filmlərdə","Çox yorğun olanda","Nadir hallarda","Heç ağlamıram"],ans:0},
-  {q:"Gün ərzində neçə dəfə telefona baxıram?",opts:["Çox tez-tez","Saatda bir","Nadir","Az"],ans:0},
-  {q:"İdeal axşamım necədir?",opts:["Evdə film","Çöldə şam yeməyi","Dostlar toplanışı","Sninlə baş-başa"],ans:3},
-  {q:"Ən böyük uğurum nə idi?",opts:["Təhsil","Karyera","Sevgi","Şəxsi inkişaf"],ans:3},
-  {q:"Həyatda ən vacib şey nədir?",opts:["Sağlamlıq","Sevgi","Azadlıq","Uğur"],ans:1},
-  {q:"Pis bir gündə kim mənə kömək edir?",opts:["Ailə","Dostlar","Sən","Özüm"],ans:2},
-  {q:"Əgər bir gün evdə qalsam nə edərəm?",opts:["Bişirərəm","Film baxaram","Oxuyaram","Yataram"],ans:1},
-  {q:"Romantik bir an üçün idealdır?",opts:["Günbatan","Gecə ulduzlar","Yağış","Qar"],ans:1},
-  {q:"Ən çox sevdiyim dünya yeməyi?",opts:["Sushi","Pizza","Burger","Pasta"],ans:0},
-  {q:"Həyatda ən çox nə mənə sevinc verir?",opts:["Uğur","Sevgi","Səyahət","Tanınmaq"],ans:1},
-  {q:"Öz evimi dizayn etsəm necə olardı?",opts:["Minimal/sadə","Rəngarəng","Klassik","Müasir"],ans:0},
-  {q:"Hər zaman yanımda olmasını istədiyim şey?",opts:["Telefon","Kitab","Sən","Su"],ans:2},
-];
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-// ── STATE ──
-let myName = '';
-let roomCode = '';
-let myRole = '';
-let myId = '';
-let roomRef = null;
-let roundData = null;
-let gameState = null;
-let listeners = [];
+    let roomCode = "";
+    let myRole = "";
+    let currentScore = 0;
 
-// ── UTILS ──
-function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('screen-'+id).classList.add('active'); }
-function toast(msg, type='ok'){ const t=document.getElementById('toast'); t.textContent=msg; t.className=`toast up ${type}`; setTimeout(()=>t.classList.remove('up'),2500); }
-function $(id){ return document.getElementById(id); }
-function genCode(){ return Math.random().toString(36).substr(2,4).toUpperCase(); }
+    // 100 REAL SUAL BAZASI
+    const allQuestions = [
+        { q: "Mənim ən sevdiyim rəng hansıdır?", a: ["Qırmızı", "Mavi", "Qara", "Bənövşəyi", "Ağ"] },
+        { q: "İlk görüşümüzdə mən nə geyinmişdim?", a: ["Cins", "Don", "Kostyum", "Sport", "Xatırlamıram"] },
+        { q: "Ən böyük qorxum nədir?", a: ["Təklik", "Hündürlük", "Qaranlıq", "Böcəklər", "İtirilmək"] },
+        { q: "Hansı yeməyi əsla yemirəm?", a: ["Balıq", "Soğan", "Südlü aş", "Kələm", "Göyərti"] },
+        { q: "Xəyalımdakı səyahət ölkəsi haradır?", a: ["İtaliya", "Yaponiya", "Fransa", "Maldiv", "İsveçrə"] },
+        { q: "Mənim ən çox istifadə etdiyim emoji hansıdır?", a: ["❤️", "😂", "🥰", "🙄", "💀"] },
+        { q: "Səhərlər duranda ilk etdiyim iş nədir?", a: ["Telefon", "Su içmək", "Yuyunmaq", "Sənə yazmaq", "Yuxulu qalmaq"] },
+        { q: "Mənim üçün ən ideal hədiyyə nə olar?", a: ["Kitab", "Geyim", "Texnologiya", "Gül", "Xatirəvi əşya"] },
+        { q: "Ən çox hansı fəsli sevirəm?", a: ["Yaz", "Yay", "Payız", "Qış", "Hamısını"] },
+        { q: "Uşaqlıq xəyalım nə olub?", a: ["Həkim", "Müəllim", "Sənətkar", "Kosmonavt", "Zəngin olmaq"] },
+        { q: "Məni ən çox nə hirsləndirir?", a: ["Yalan", "Gecikmək", "Soyuqluq", "Səs-küy", "Hörmətsizlik"] },
+        { q: "Ən sevdiyim film janrı?", a: ["Qorxu", "Komediya", "Dram", "Fantastika", "Eşq"] },
+        { q: "Mənim ən bəyəndiyim fiziki xüsusiyyətim?", a: ["Gözlərim", "Gülüşüm", "Saçlarım", "Boyum", "Əllərim"] },
+        { q: "Gecə adamıyam yoxsa səhər?", a: ["Tam gecə", "Tam səhər", "Hər ikisi", "Heç biri", "Yuxu olsun bəsdir"] },
+        { q: "Ən sevdiyim içki?", a: ["Çay", "Kofe", "Su", "Meyvə şirəsi", "Cola"] },
+        { q: "Mənə görə ən romantik hərəkət?", a: ["Gözlənilməz hədiyyə", "Məktub yazmaq", "Sıx sarılmaq", "Yemək bişirmək", "Alnımdan öpmək"] },
+        { q: "Mənim ən böyük istedadım?", a: ["Yemək bişirmək", "Dinləmək", "Yaradıcılıq", "Zarafat", "Səbir"] },
+        { q: "Hansı heyvanı evdə saxlamaq istərdim?", a: ["Pişik", "İt", "Dovşan", "Tutuquşu", "Heç birini"] },
+        { q: "Mənə hansı gül alınsa daha çox sevinərəm?", a: ["Qırmızı qızılgül", "Ağ papatya", "Lalə", "Bənövşə", "Sarı gül"] },
+        { q: "Telefonumda ən çox vaxt keçirdiyim proqram?", a: ["Instagram", "TikTok", "WhatsApp", "YouTube", "Oyun"] },
+        { q: "Mənim üçün xoşbəxtlik nədir?", a: ["Hüzur", "Pul", "Sən", "Ailə", "Azadlıq"] },
+        { q: "İlk baxışda aşka inanıram?", a: ["Bəli", "Xeyr", "Bəlkə", "Tanıdıqca", "Bilmirəm"] },
+        { q: "Mənim ən sevdiyim şirniyyat?", a: ["Şokolad", "Tort", "Paxlava", "Dondurma", "Meyvə"] },
+        { q: "Hansı musiqi janrını daha çox dinləyirəm?", a: ["Pop", "Rok", "Muğam/Xalq", "Rep", "Caz"] },
+        { q: "Mən sənə ən çox nəyə görə aşiq olmuşam?", a: ["Xarakterinə", "Görünüşünə", "Zarafatlarına", "Düşüncələrinə", "Səsinə"] },
+        { q: "Mənim ən pis vərdişim?", a: ["Dırnaq yemək", "Gecikmək", "Tənbəllik", "Çox danışmaq", "İnadkarlıq"] },
+        { q: "Bir gün ərzində ən çox nə düşünürəm?", a: ["Gələcəyi", "Yeməyi", "Səni", "İşi/Dərsi", "Yuxunu"] },
+        { q: "Mənə görə ən darıxdırıcı fəaliyyət?", a: ["Növbədə gözləmək", "Dərs oxumaq", "Təmizlik", "Alış-veriş", "Sakit oturmaq"] },
+        { q: "Mənim bürcümün ən bariz xüsusiyyəti məndə varmı?", a: ["Tamamilə", "Bir az", "Xeyr", "Bürclərə inanmıram", "Bilmirəm"] },
+        { q: "Mənim üçün ideal evlilik yaşı?", a: ["20-23", "24-27", "28-30", "30+", "Heç vaxt"] },
+        { q: "Mən daha çox kimə bənzəyirəm?", a: ["Anama", "Atama", "Heç kimə", "Nənəmə/Babama", "Qardaş/Bacıma"] },
+        { q: "Mənim ən böyük arzum?", a: ["Dünya turu", "Karyera", "Böyük ailə", "Hüzurlu həyat", "Məşhur olmaq"] },
+        { q: "Mən romantikəm yoxsa realist?", a: ["Tam romantik", "Tam realist", "Hər ikisindən bir az", "Dəyişir", "Odun kimiyəm"] },
+        { q: "Ən çox hansı növ ayaqqabı geyinirəm?", a: ["Krossovka", "Klassik", "Hündürdaban", "Sandal", "Bot"] },
+        { q: "Mənim ən sevdiyim bayram?", a: ["Novruz", "Yeni İl", "Ad günüm", "Qurban", "8 Mart/Kişilər günü"] },
+        { q: "Mən pulu nəyə xərcləməyi sevirəm?", a: ["Yeməyə", "Geyimə", "Hədiyyəyə", "Gəzməyə", "Yığmağa"] },
+        { q: "Səncə mən qısqancam?", a: ["Həddindən çox", "Normal", "Çox az", "Heç deyiləm", "Yerinə görə"] },
+        { q: "Mənim ən sevdiyim aktyor/aktrisa?", a: ["Türk", "Azərbaycanlı", "Amerikalı", "Koreyalı", "Yoxdur"] },
+        { q: "Yatağımın hansı tərəfində yatıram?", a: ["Sağ", "Sol", "Ortada", "Dəyişir", "Bilmirəm"] },
+        { q: "Mənə görə dünyanın ən gözəl şəhəri?", a: ["Bakı", "İstanbul", "Paris", "Roma", "Nyu York"] },
+        { q: "Mənim sevimli rəqəmim?", a: ["3", "7", "13", "1", "9"] },
+        { q: "Mən dənizi sevirəm yoxsa meşəni?", a: ["Dəniz", "Meşə", "Hər ikisi", "Heç biri", "Şəhər mühiti"] },
+        { q: "Yeməkdən sonra nə etməyi sevirəm?", a: ["Çay içmək", "Uzanmaq", "Meyvə yemək", "Gəzmək", "Yatmaq"] },
+        { q: "Mənim ən çox qorxduğum heyvan?", a: ["İlan", "Hörümçək", "İt", "Siçan", "Qurbağa"] },
+        { q: "Mənim ən sevdiyim maşın markası?", a: ["BMW", "Mercedes", "Porsche", "Audi", "Tesla"] },
+        { q: "Səncə mən bağışlayan biriyəm?", a: ["Bəli", "Xeyr", "Çətinliklə", "Səhvə baxır", "Unutmuram"] },
+        { q: "Mənim ən sevdiyim ləqəbim?", a: ["Canım", "Aşkım", "Ömrüm", "Adım", "Özəl ləqəbimiz"] },
+        { q: "Məktəbdə ən sevdiyim fənn?", a: ["Riyaziyyat", "Tarix", "Ədəbiyyat", "İdman", "Heç biri"] },
+        { q: "Mən çayı necə içirəm?", a: ["Şirin", "Qəndlə", "Şəkərsiz", "Limonlu", "Mürəbbə ilə"] },
+        { q: "Mənim ən çox sevdiyim fəsil meyvəsi?", a: ["Gilas", "Qarpız", "Mandarin", "Çiyələk", "Alma"] },
+        { q: "Mən sirr saxlaya bilirəm?", a: ["Bəli, məzara qədər", "Xeyr, dözmürəm", "Yaxınlara deyirəm", "Unuduram onsuz da", "Adamına baxır"] },
+        { q: "Mən filmlərdə ağlayıram?", a: ["Həmişə", "Bəzən", "Heç vaxt", "Gizli ağlayıram", "Gülürəm hətta"] },
+        { q: "Mənim ən sevdiyim restoran növü?", a: ["Fast Food", "Milli mətbəx", "Bahalı restoranlar", "Kafelər", "Ev yeməyi"] },
+        { q: "Mənim telefon kodum nə ilə bağlıdır?", a: ["Ad günüm", "Sənin ad günün", "Sadə rəqəmlər", "Barmaq izi", "Yoxdur"] },
+        { q: "Mən idman edirəm?", a: ["Hər gün", "Həvəsdən həvəsə", "Xeyr", "Başlamaq istəyirəm", "Ancaq yeriyirəm"] },
+        { q: "Mənim ən sevdiyim oyun növü?", a: ["PUBG/Döyüş", "Məntiq", "Kart", "Futbol", "Oyun oynamıram"] },
+        { q: "Mən paltarlarımı axşamdan hazırlayıram?", a: ["Bəli", "Xeyr, səhər", "Bəzən", "Anam/Başqası hazırlayır", "Üstümdə nə varsa"] },
+        { q: "Mənim ən sevdiyim parfüm qoxusu?", a: ["Şirin", "Sərin", "Odunsu", "Çiçəkli", "Ağır"] },
+        { q: "Mənim üçün ən dəyərli əşya?", a: ["Telefonum", "Hədiyyən", "Şəkillər", "Komputerim", "Maşınım"] },
+        { q: "Mən tənqidə açığam?", a: ["Bəli", "Xeyr", "Bir az", "Hirslənirəm", "Eşitməzliyə vururam"] },
+        { q: "Mənim ən çox işlətdiyim söz?", a: ["Yaxşı", "Nə bilim", "Can", "Hə", "Baxarıq"] },
+        { q: "Mən çox danışıram yoxsa dinləyirəm?", a: ["Çox danışan", "Çox dinləyən", "Hər ikisi", "Heç biri", "Dəyişir"] },
+        { q: "Mən macəra sevirəm?", a: ["Həmişə!", "Yox, sakitlik", "Bəzən", "Qorxuram", "Səninlədirsə hə"] },
+        { q: "Mənim ən sevdiyim dondurma?", a: ["Şokoladlı", "Vanilli", "Meyvəli", "Püstəli", "Qaymaqlı"] },
+        { q: "Mən səhər yeməyində nəyi sevirəm?", a: ["Yumurta", "Pendir-çörək", "Pankeyk", "Sıyıq", "Yemək yemirəm"] },
+        { q: "Mən qaranlıqda yata bilirəm?", a: ["Ancaq qaranlıq", "İşıq olmalıdır", "Fərqi yoxdur", "Televizor açıq qalmalı", "Qorxuram"] },
+        { q: "Mən qənaətciləm?", a: ["Bəli", "Xeyr, israfçıyam", "Normal", "Ancaq sənə qarşı", "Çalışıram"] },
+        { q: "Mən tez inananam?", a: ["Hər kəsə", "Xeyr, çətindir", "Bəzən", "Sənə hə", "Yalnız faktlara"] },
+        { q: "Mənim ən sevdiyim cizgi filmi?", a: ["Tom & Jerry", "Şrek", "Disney filmləri", "Simpsons", "Yoxdur"] },
+        { q: "Mən soyuq su sevirəm yoxsa ilıq?", a: ["Buz kimi", "Ilıq", "İsti", "Fərq etməz", "Çay olsun"] },
+        { q: "Mənim ən böyük peşmanlığım?", a: ["Oxumamaq", "Birinə inanmaq", "Vaxt itkisi", "Yoxdur", "Şəxsi bir şey"] },
+        { q: "Mən səni ilk görəndə nə düşünmüşdüm?", a: ["Vau!", "Nə qəşəngdir", "Nə qəribədir", "Mənim olacaq", "Heç nə"] },
+        { q: "Mənim ən sevdiyim pizza?", a: ["Marqarita", "Qarışıq", "Toyuqlu", "Acılı", "Vegetarian"] },
+        { q: "Mən saçlarımı rəngləmək istərdim?", a: ["Bəli", "Xeyr", "Düşünmüşəm", "Artıq rəngləmişəm", "Heç vaxt"] },
+        { q: "Mən səyahətə çıxanda nəyi unuduram?", a: ["Diş fırçasını", "Şarj alətini", "Paltar", "Pul", "Heç nəyi"] },
+        { q: "Mən stressli olanda nə edirəm?", a: ["Yeyirəm", "Susuram", "Ağlayıram", "Gəzirəm", "Dava edirəm"] },
+        { q: "Mənim ən sevdiyim tərəvəz?", a: ["Pomidor", "Xiyar", "Kartof", "Bibər", "Yoxdur"] },
+        { q: "Mən eynək taxıram?", a: ["Bəli", "Xeyr", "Ancaq günəş eynəyi", "Lenza taxıram", "Lazımdır amma taxmıram"] },
+        { q: "Mən yuxuda danışıram?", a: ["Həmişə", "Bəzən", "Xeyr", "Xoruldayıram", "Bilmirəm"] },
+        { q: "Mənim ən çox bəyəndiyim rəqsim?", a: ["Milli", "Vals", "Disko", "Heç biri", "Yalnız toyda"] },
+        { q: "Mən şanslı biriyəm?", a: ["Çox", "Heç deyiləm", "Səni tapdığım üçün hə", "Orta", "Bilmirəm"] },
+        { q: "Mənim ən sevdiyim şorba?", a: ["Mərci", "Toyuq", "Dovğa", "Göyərti", "Şorba sevmirəm"] },
+        { q: "Mən qocalanda harada yaşamaq istəyirəm?", a: ["Kənddə", "Xaricdə", "Bakıda", "Dəniz kənarında", "Sənin yanında"] },
+        { q: "Mən telefonla danışmağı sevirəm yoxsa yazışmağı?", a: ["Danışmaq", "Yazışmaq", "Səsli mesaj", "Görüşmək", "Heç biri"] },
+        { q: "Mənim sevimli fəsil gülüm?", a: ["Nərgiz", "Bənövşə", "Xrizantem", "Mimoza", "Yoxdur"] },
+        { q: "Mən hündürlükdən qorxuram?", a: ["Bəli", "Xeyr", "Bir az", "Ancaq təyyarədə", "Zövq alıram"] },
+        { q: "Mənim ilk telefonum hansı marka olub?", a: ["Nokia", "Samsung", "iPhone", "Sony", "Bilmirəm"] },
+        { q: "Mən ətir vurmadan çölə çıxıram?", a: ["Əsla", "Bəzən", "Həmişə", "Unudanda hə", "Ətir sevmirəm"] },
+        { q: "Mən səni kimə qısqanıram?", a: ["Hər kəsə", "Keçmişinə", "Dostlarına", "Heç kimə", "Məşhurlara"] },
+        { q: "Mən güzgü qabağında çox vaxt keçirirəm?", a: ["Bəli", "Xeyr", "Ancaq hazırlaşanda", "Gizlicə", "Ehtiyac yoxdur"] },
+        { q: "Mənim ən sevdiyim Tv-şou?", a: ["Masterchef", "Səs Azərbaycan", "Survivor", "Seriallar", "Tv baxmıram"] },
+        { q: "Mən gələcəkdə neçə uşaq istəyirəm?", a: ["1", "2", "3+", "Heç", "Sən nə desən"] },
+        { q: "Mənim üçün ən darıxdırıcı gün hansıdır?", a: ["Bazar ertəsi", "Bazar günü", "Cümə", "Hər gün", "Heç biri"] },
+        { q: "Mən yemək bişirə bilirəm?", a: ["Professional", "Bir az", "Ancaq yumurta", "Xeyr", "Öyrənirəm"] },
+        { q: "Mənim ən çox sevdiyim çərəz?", a: ["Fındıq", "Badam", "Püstə", "Qoz", "Semuçka"] },
+        { q: "Mən yağışı sevirəm yoxsa qarı?", a: ["Yağış", "Qar", "Hər ikisi", "Günəş olsun!", "Heç biri"] },
+        { q: "Mən pul qabımda nə gəzdirirəm?", a: ["Şəklini", "Ancaq pul", "Kartlar", "Dualar/Talisman", "Pul qabım yoxdur"] },
+        { q: "Mənim ən böyük hədəfim?", a: ["Ev almaq", "Dünyanı gəzmək", "Səninlə xoşbəxt olmaq", "Məşhur olmaq", "Yaxşı insan olmaq"] },
+        { q: "Mən səni nə qədər çox sevirəm?", a: ["Dünyalar qədər", "Sonsuzluğa qədər", "Hər şeydən çox", "Sözlərlə deyilməz", "Hamısı!"] }
+    ];
 
-// ── LOBBY ──
-window.createRoom = async function(){
-  const name = $('nameInput').value.trim();
-  if(!name){ $('lobbyError').textContent='Adını daxil et'; return; }
-  myName = name; myId = 'p1';
-  roomCode = genCode();
-  roomRef = ref(db, `rooms/${roomCode}`);
-  await set(roomRef, { code:roomCode, p1:{name, id:'p1'}, status:'waiting', created:Date.now() });
-  $('displayCode').textContent = roomCode;
-  renderPlayers({p1:{name,id:'p1'}});
-  showScreen('wait');
-  listenRoom();
-};
+    window.joinRoom = function() {
+        roomCode = document.getElementById('roomInput').value.trim().toLowerCase();
+        if(!roomCode) return alert("Otaq kodunu daxil et!");
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('roleSelection').classList.remove('hidden');
+    };
 
-window.joinRoom = async function(){
-  const name = $('nameInput').value.trim();
-  const code = $('roomInput').value.trim().toUpperCase();
-  if(!name){ $('lobbyError').textContent='Adını daxil et'; return; }
-  if(!code){ $('lobbyError').textContent='Otaq kodunu daxil et'; return; }
-  const snap = await get(ref(db,`rooms/${code}`));
-  if(!snap.exists()){ $('lobbyError').textContent='Bu otaq mövcud deyil'; return; }
-  const room = snap.val();
-  if(room.p2){ $('lobbyError').textContent='Otaq doludur'; return; }
-  myName=name; myId='p2'; roomCode=code;
-  roomRef = ref(db,`rooms/${code}`);
-  await update(roomRef,{p2:{name,id:'p2'},status:'role_select'});
-  $('displayCode').textContent=code;
-  showScreen('wait');
-  listenRoom();
-};
-
-function renderPlayers(room){
-  const row = $('playersRow'); row.innerHTML='';
-  const p1chip = `<div class="player-chip joined"><div class="dot-online"></div>${room.p1?.name||'?'}</div>`;
-  const p2chip = room.p2
-    ? `<div class="player-chip joined"><div class="dot-online"></div>${room.p2.name}</div>`
-    : `<div class="player-chip waiting"><div class="dot-wait"></div>Beklənilir...</div>`;
-  row.innerHTML = p1chip+p2chip;
-}
-
-window.leaveRoom = async function(){
-  if(roomRef) await remove(roomRef);
-  clearListeners();
-  showScreen('lobby');
-};
-
-// ── ROOM LISTENER ──
-function listenRoom(){
-  clearListeners();
-  const unsub = onValue(roomRef,(snap)=>{
-    if(!snap.exists()){ showScreen('lobby'); return; }
-    const room = snap.val();
-    renderPlayers(room);
-    if(room.status==='role_select') goToRoleSelect(room);
-    if(room.status==='playing') goToGame(room);
-    if(room.status==='ended') goToEnd(room);
-  });
-  listeners.push(unsub);
-}
-function clearListeners(){ listeners.forEach(u=>u()); listeners=[]; }
-
-// ── ROLE SELECT ──
-function goToRoleSelect(room){
-  showScreen('role');
-  const askerTaken = room.asker;
-  const answererTaken = room.answerer;
-  updateRoleCards(room);
-}
-
-function updateRoleCards(room){
-  const askerCard = $('roleCard-asker');
-  const answererCard = $('roleCard-answerer');
-  const askerStatus = $('roleStatus-asker');
-  const answererStatus = $('roleStatus-answerer');
-
-  askerCard.className='role-card';
-  answererCard.className='role-card';
-  askerStatus.innerHTML='';
-  answererStatus.innerHTML='';
-
-  if(room.asker){
-    const isMine = room.asker===myId;
-    askerCard.className='role-card'+(isMine?' mine':' taken');
-    askerStatus.innerHTML=`<div class="role-badge${isMine?'':' taken-badge'}">${isMine?'✓ Sən':'Tutulub'}</div>`;
-  }
-  if(room.answerer){
-    const isMine = room.answerer===myId;
-    answererCard.className='role-card'+(isMine?' mine':' taken');
-    answererStatus.innerHTML=`<div class="role-badge${isMine?'':' taken-badge'}">${isMine?'✓ Sən':'Tutulub'}</div>`;
-  }
-}
-
-window.selectRole = async function(role){
-  const snap = await get(roomRef);
-  const room = snap.val();
-  if(room[role]){ toast('Bu rol artıq seçilib','err'); return; }
-  const other = role==='asker'?'answerer':'asker';
-  if(room[other]===myId){ toast('Digər rolu seçdin','err'); return; }
-  const upd = {};
-  upd[role]=myId;
-  myRole=role;
-  if(room.asker&&role==='answerer'||room.answerer&&role==='asker'){
-    upd.status='playing';
-    upd.round=1;
-    upd.scores={p1:0,p2:0};
-    upd.phase='pick_question';
-    const qs = pickRandomQuestions(10);
-    upd.questions=qs;
-    upd[role]=myId;
-  }
-  await update(roomRef,upd);
-};
-
-function pickRandomQuestions(n){
-  const shuffled=[...QUESTIONS].sort(()=>Math.random()-.5);
-  return shuffled.slice(0,n).map(q=>({...q}));
-}
-
-// ── GAME ──
-function goToGame(room){
-  showScreen('game');
-  gameState=room;
-  const askerName = room[room.asker]?.name||'Sual Verən';
-  const answererName = room[room.answerer]?.name||'Cavab Verən';
-  $('p1label').textContent = room.p1.name;
-  $('p2label').textContent = room.p2.name;
-  updateScores(room);
-  $('roundNum').textContent = `Tur ${room.round}`;
-  renderGamePhase(room);
-}
-
-function updateScores(room){
-  $('p1score').textContent = room.scores?.p1||0;
-  $('p2score').textContent = room.scores?.p2||0;
-}
-
-function renderGamePhase(room){
-  const card=$('gameCard');
-  const round=room.round-1;
-  const q=room.questions?.[round];
-  if(!q){return;}
-  const isAsker=myId===room.asker;
-  const isAnswerer=myId===room.answerer;
-
-  if(room.phase==='pick_question'){
-    if(isAsker){
-      // Show 3 random questions to pick from (current + 2 alternatives)
-      const allQ=room.questions;
-      const picks=[round];
-      let tmp=[...Array(room.questions.length).keys()].filter(i=>i!==round);
-      tmp.sort(()=>Math.random()-.5);
-      picks.push(...tmp.slice(0,2));
-      picks.sort(()=>Math.random()-.5);
-      card.innerHTML=`
-        <div class="game-phase-label"><div class="phase-dot"></div>Tur ${room.round} — Sual Seçimi</div>
-        <div class="q-title">Qarşı tərəfə hansı sualı vermək istəyirsiniz?</div>
-        <div class="q-sub">Aşağıdakı 3 sualdan birini seçin. Siz doğru cavabı bilirsiz, ${room[room.answerer]?.name} tapmalıdır.</div>
-        <div class="q-list" id="qList">
-          ${picks.map((qi,i)=>`
-            <div class="q-item" onclick="pickQuestion(${qi})">
-              <div class="q-num">${i+1}</div>
-              <div class="q-text">${room.questions[qi].q}</div>
-            </div>`).join('')}
-        </div>`;
-    } else {
-      card.innerHTML=`<div class="waiting-msg">
-        <div style="display:flex;gap:6px;"><div class="pulse-dot"></div><div class="pulse-dot"></div><div class="pulse-dot"></div></div>
-        <p>${room[room.asker]?.name} sual seçir...</p></div>`;
-    }
-  } else if(room.phase==='answer'){
-    const selQ=room.questions[room.selectedQ];
-    if(isAnswerer){
-      const answered=room.answered;
-      card.innerHTML=`
-        <div class="game-phase-label"><div class="phase-dot"></div>Tur ${room.round} — Sual</div>
-        <div class="q-title">${selQ.q}</div>
-        <div class="q-sub">Sual verən bu suala cavabı bilir. Siz doğru variantı seçməlisiniz!</div>
-        <div class="a-list">
-          ${selQ.opts.map((opt,i)=>{
-            let cls='a-item';
-            if(answered!==undefined){
-              cls+=' disabled';
-              if(i===selQ.ans) cls+=' correct';
-              else if(i===answered) cls+=' wrong';
+    window.chooseRole = function(role) {
+        myRole = role;
+        document.getElementById('roleSelection').classList.add('hidden');
+        document.getElementById('gameArea').classList.remove('hidden');
+        document.getElementById('roleDisplay').textContent = role === 'asker' ? "Rolunuz: Sual Verən 🙋‍♂️" : "Rolunuz: Cavab Verən 🙋‍♀️";
+        
+        const roomRef = ref(db, 'rooms/' + roomCode);
+        onValue(roomRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentScore = data.score || 0;
+                document.getElementById('score').textContent = currentScore;
+                syncInterface(data);
+            } else {
+                set(roomRef, { score: 0, state: 'waiting' });
             }
-            const letter=String.fromCharCode(65+i);
-            return `<div class="${cls}" onclick="submitAnswer(${i})">
-              <div class="a-letter">${letter}</div>${opt}</div>`;
-          }).join('')}
-        </div>
-        ${answered!==undefined?`<div style="margin-top:1rem;font-size:.8rem;color:var(--muted);text-align:center;">Növbəti tura keçilir...</div>`:''}`;
-    } else {
-      card.innerHTML=`
-        <div class="game-phase-label"><div class="phase-dot"></div>Tur ${room.round} — Cavab Gözlənilir</div>
-        <div class="q-title">${selQ.q}</div>
-        <div class="q-sub">Doğru cavab: <strong style="color:var(--green)">${selQ.opts[selQ.ans]}</strong></div>
-        <div class="a-list">
-          ${selQ.opts.map((opt,i)=>`
-            <div class="a-item disabled ${i===selQ.ans?'correct':''}">
-              <div class="a-letter">${String.fromCharCode(65+i)}</div>${opt}</div>`).join('')}
-        </div>
-        <div style="margin-top:1rem;font-size:.82rem;color:var(--muted);text-align:center;">
-          <div style="display:flex;gap:6px;align-items:center;justify-content:center;"><div class="pulse-dot"></div><div class="pulse-dot"></div><div class="pulse-dot"></div></div>
-          ${room[room.answerer]?.name} cavab verir...
-        </div>`;
+        });
+
+        if(role === 'asker') {
+            generateThreeQuestions();
+            document.getElementById('askerSide').classList.remove('hidden');
+        } else {
+            document.getElementById('answererSide').classList.remove('hidden');
+        }
+    };
+
+    function generateThreeQuestions() {
+        const triadDiv = document.getElementById('triadQuestions');
+        triadDiv.innerHTML = "";
+        const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+        
+        selected.forEach(s => {
+            const btn = document.createElement('button');
+            btn.textContent = s.q;
+            btn.onclick = () => prepareQuestion(s);
+            triadDiv.appendChild(btn);
+        });
     }
-  }
-}
 
-window.pickQuestion = async function(qIdx){
-  await update(roomRef,{ phase:'answer', selectedQ:qIdx });
-};
+    function prepareQuestion(s) {
+        document.getElementById('questionList').classList.add('hidden');
+        document.getElementById('correctAnswerSelection').classList.remove('hidden');
+        const optionsDiv = document.getElementById('myOptions');
+        optionsDiv.innerHTML = "";
 
-window.submitAnswer = async function(answerIdx){
-  const snap=await get(roomRef);
-  const room=snap.val();
-  if(room.answered!==undefined) return;
-  const q=room.questions[room.selectedQ];
-  const correct=answerIdx===q.ans;
-  const scoreDelta=correct?5:-5;
-  const scores={...room.scores};
-  scores[myId]=(scores[myId]||0)+scoreDelta;
-  await update(roomRef,{ answered:answerIdx, scores });
-  showResult(correct, q.opts[q.ans], scoreDelta);
-  setTimeout(async()=>{
-    hideResult();
-    const nextRound=room.round+1;
-    if(nextRound>10){
-      await update(roomRef,{status:'ended'});
-    } else {
-      await update(roomRef,{round:nextRound,phase:'pick_question',answered:null,selectedQ:null});
+        s.a.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.textContent = opt;
+            btn.onclick = () => {
+                update(ref(db, 'rooms/' + roomCode), {
+                    state: 'answering',
+                    currentQ: s.q,
+                    options: s.a,
+                    correctIdx: idx,
+                    askerId: Math.random() // trigger update
+                });
+                document.getElementById('correctAnswerSelection').innerHTML = "<h4 class='question-text'>Sual göndərildi! Sevgilin cavab verəndə yeni suallar gələcək.</h4>";
+            };
+            optionsDiv.appendChild(btn);
+        });
     }
-  },2800);
-};
 
-function showResult(correct, correctAns, delta){
-  $('resultIcon').textContent=correct?'🎉':'💔';
-  $('resultTitle').textContent=correct?'Düzgün!':'Yanlış!';
-  $('resultTitle').className='result-title '+(correct?'correct':'wrong');
-  $('resultMsg').textContent=correct?'Sən məni çox yaxşı tanıyırsan!':`Doğru cavab: "${correctAns}" idi`;
-  $('resultXal').textContent=(delta>0?'+':'')+delta+' xal';
-  $('resultXal').className='result-xal '+(delta>0?'plus':'minus');
-  $('resultOverlay').classList.add('show');
-}
-function hideResult(){ $('resultOverlay').classList.remove('show'); }
+    function syncInterface(data) {
+        if(myRole === 'answerer') {
+            if(data.state === 'answering') {
+                document.getElementById('waitMsg').classList.add('hidden');
+                document.getElementById('answerArea').classList.remove('hidden');
+                document.getElementById('displayQuestion').textContent = data.currentQ;
+                
+                const optDiv = document.getElementById('displayOptions');
+                optDiv.innerHTML = "";
+                data.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn";
+                    btn.textContent = opt;
+                    btn.onclick = () => submitAnswer(idx, data.correctIdx);
+                    optDiv.appendChild(btn);
+                });
+            } else {
+                document.getElementById('waitMsg').classList.remove('hidden');
+                document.getElementById('answerArea').classList.add('hidden');
+            }
+        } else if (myRole === 'asker' && data.state === 'waiting') {
+            // Sevgilisi cavab veribse yeni sual siyahisini goster
+            document.getElementById('correctAnswerSelection').classList.add('hidden');
+            document.getElementById('questionList').classList.remove('hidden');
+            generateThreeQuestions();
+        }
+    }
 
-// ── END ──
-function goToEnd(room){
-  showScreen('end');
-  const s=room.scores||{p1:0,p2:0};
-  const p1score=s.p1||0; const p2score=s.p2||0;
-  const p1win=p1score>p2score; const tie=p1score===p2score;
-  $('endTitle').textContent=tie?'Bərabərlik! 🤝':`${tie?'Heç-heçə':''} ${p1win?room.p1.name:room.p2.name} Qazandı! 🏆`;
-  $('endSub').textContent=tie?'İkiniz də eyni baldasınız!':'Təbriklər!';
-  $('endScores').innerHTML=`
-    <div class="end-score-box">
-      <div class="end-score-name">${room.p1.name}</div>
-      <div class="end-score-val ${p1win||tie?'w':'l'}">${p1score}</div>
-    </div>
-    <div class="end-score-box">
-      <div class="end-score-name">${room.p2.name}</div>
-      <div class="end-score-val ${!p1win||tie?'w':'l'}">${p2score}</div>
-    </div>`;
-}
-
-window.playAgain = async function(){
-  if(!roomRef) return;
-  await update(roomRef,{status:'role_select',round:1,scores:{p1:0,p2:0},asker:null,answerer:null,phase:null,questions:null,answered:null,selectedQ:null});
-  myRole='';
-};
-
-// Init
-document.getElementById('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') window.createRoom(); });
-document.getElementById('roomInput').addEventListener('keydown',e=>{ if(e.key==='Enter') window.joinRoom(); });
+    function submitAnswer(selected, correct) {
+        let newScore = currentScore;
+        if(selected === correct) {
+            alert("Mükəmməl! Doğru tapdın 😍 +5 xal");
+            newScore += 5;
+        } else {
+            alert("Heyf... Səhv cavab 💔 -5 xal");
+            newScore -= 5;
+        }
+        
+        update(ref(db, 'rooms/' + roomCode), {
+            state: 'waiting',
+            score: newScore
+        });
+    }
 </script>
+
 </body>
 </html>
