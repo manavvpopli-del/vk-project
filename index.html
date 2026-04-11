@@ -6,461 +6,208 @@
 <title>PlayWithLove 💕</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   :root {
-    --pink: #e91e8c;
-    --pink-light: #ff6bb5;
-    --pink-dark: #c0156f;
-    --purple: #7c3aed;
-    --purple-light: #a855f7;
-    --bg-dark: #0d0d1a;
-    --bg-card: #1a1a2e;
-    --bg-card2: #16213e;
-    --text: #f0f0f0;
-    --text-muted: #a0a0c0;
-    --border: rgba(233,30,140,0.25);
-    --glow: rgba(233,30,140,0.15);
+    --pink: #e91e8c; --pink-light: #ff6bb5; --pink-dark: #c0156f;
+    --purple: #7c3aed; --purple-light: #a855f7;
+    --bg-dark: #0d0d1a; --bg-card: #1a1a2e; --bg-card2: #16213e;
+    --text: #f0f0f0; --text-muted: #a0a0c0;
+    --border: rgba(233,30,140,0.25); --glow: rgba(233,30,140,0.15);
   }
-
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg-dark);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ─── Animated background ─── */
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,58,237,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(233,30,140,0.10) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,58,237,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(233,30,140,0.10) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
   }
-
-  /* ─── Floating hearts ─── */
   .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-  .heart {
-    position: absolute;
-    font-size: 14px;
-    opacity: 0;
-    animation: floatHeart linear infinite;
-    color: var(--pink-light);
-    user-select: none;
-  }
+  .heart { position: absolute; font-size: 14px; opacity: 0; animation: floatHeart linear infinite; color: var(--pink-light); user-select: none; }
   @keyframes floatHeart {
     0%   { opacity: 0; transform: translateY(100vh) scale(0.5); }
-    10%  { opacity: 0.4; }
-    90%  { opacity: 0.2; }
+    10%  { opacity: 0.4; } 90% { opacity: 0.2; }
     100% { opacity: 0; transform: translateY(-10vh) scale(1.2) rotate(20deg); }
   }
 
-  /* ─── LOGIN SCREEN ─── */
+  /* LOGIN */
   #loginScreen {
     position: fixed; inset: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: center;
-    padding: 1rem;
-    background: var(--bg-dark);
-    transition: opacity 0.5s, transform 0.5s;
+    display: flex; align-items: center; justify-content: center; padding: 1rem;
+    background: var(--bg-dark); transition: opacity 0.5s, transform 0.5s;
   }
-  #loginScreen.hide {
-    opacity: 0; pointer-events: none; transform: scale(0.95);
-  }
-
+  #loginScreen.hide { opacity: 0; pointer-events: none; transform: scale(0.95); }
   .login-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 2.5rem 2rem;
-    width: 100%; max-width: 400px;
-    text-align: center;
-    box-shadow: 0 0 60px var(--glow), 0 0 120px rgba(124,58,237,0.08);
-    position: relative;
-    z-index: 1;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 2.5rem 2rem; width: 100%; max-width: 400px; text-align: center;
+    box-shadow: 0 0 60px var(--glow), 0 0 120px rgba(124,58,237,0.08); position: relative; z-index: 1;
   }
-
-  .login-logo {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-  }
-
+  .login-logo { font-size: 3rem; margin-bottom: 0.5rem; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
   .login-title {
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 1.8rem; font-weight: 700;
     background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     margin-bottom: 0.4rem;
   }
-  .login-subtitle {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 2rem;
-  }
-
-  .input-group {
-    position: relative;
-    margin-bottom: 1rem;
-  }
-  .input-group .icon {
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.1rem;
-    pointer-events: none;
-  }
+  .login-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  .input-group { position: relative; margin-bottom: 1rem; }
+  .input-group .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; pointer-events: none; }
   .input-group input {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 1rem;
-    padding: 0.85rem 1rem 0.85rem 2.8rem;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text); font-size: 1rem;
+    padding: 0.85rem 1rem 0.85rem 2.8rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
   .input-group input::placeholder { color: var(--text-muted); }
-  .input-group input:focus {
-    border-color: var(--pink);
-    box-shadow: 0 0 0 3px rgba(233,30,140,0.15);
-  }
-
+  .input-group input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(233,30,140,0.15); }
   .btn-login {
-    width: 100%;
-    padding: 0.9rem;
+    width: 100%; padding: 0.9rem;
     background: linear-gradient(135deg, var(--pink), var(--purple));
-    border: none; border-radius: 12px;
-    color: #fff; font-size: 1rem; font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    margin-top: 0.5rem;
-    letter-spacing: 0.3px;
+    border: none; border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-top: 0.5rem;
   }
-  .btn-login:hover { opacity: 0.9; }
-  .btn-login:active { transform: scale(0.98); }
+  .btn-login:hover { opacity: 0.9; } .btn-login:active { transform: scale(0.98); }
+  .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-note { margin-top: 1.2rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+  .error-msg { color: #ff6b6b; font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2rem; }
+  .blocked-screen {
+    text-align: center; padding: 2rem;
+  }
+  .blocked-screen h2 { font-size: 1.4rem; color: #ff6b6b; margin-bottom: 1rem; }
+  .blocked-screen p { color: var(--text-muted); font-size: 0.9rem; }
 
-  .login-note {
-    margin-top: 1.2rem;
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
-  .error-msg {
-    color: #ff6b6b;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-    min-height: 1.2rem;
-  }
-
-  /* ─── MAIN APP ─── */
-  #app {
-    position: relative; z-index: 1;
-    opacity: 0; transition: opacity 0.6s;
-  }
+  /* APP */
+  #app { position: relative; z-index: 1; opacity: 0; transition: opacity 0.6s; display: none; }
   #app.visible { opacity: 1; }
-
-  /* ─── HEADER ─── */
   header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1.2rem 2rem;
-    border-bottom: 1px solid var(--border);
-    background: rgba(13,13,26,0.85);
-    backdrop-filter: blur(12px);
+    padding: 1.2rem 2rem; border-bottom: 1px solid var(--border);
+    background: rgba(13,13,26,0.85); backdrop-filter: blur(12px);
     position: sticky; top: 0; z-index: 50;
   }
   .header-logo {
     display: flex; align-items: center; gap: 0.6rem;
     font-size: 1.4rem; font-weight: 700;
     background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-  .header-logo .logo-icon { font-size: 1.5rem; filter: none; }
-
   .header-right { display: flex; align-items: center; gap: 1rem; }
   .welcome-badge {
     display: flex; align-items: center; gap: 0.5rem;
-    background: rgba(233,30,140,0.12);
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    padding: 0.4rem 1rem;
-    font-size: 0.88rem;
-    color: var(--pink-light);
+    background: rgba(233,30,140,0.12); border: 1px solid var(--border);
+    border-radius: 50px; padding: 0.4rem 1rem; font-size: 0.88rem; color: var(--pink-light);
   }
-
   .btn-logout {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    padding: 0.4rem 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: transparent; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-muted); font-size: 0.82rem; padding: 0.4rem 0.8rem;
+    cursor: pointer; transition: all 0.2s;
   }
-  .btn-logout:hover {
-    border-color: var(--pink);
-    color: var(--pink-light);
-  }
-
-  /* ─── HERO ─── */
-  .hero {
-    text-align: center;
-    padding: 4rem 2rem 3rem;
-  }
-  .hero-title {
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-  }
+  .btn-logout:hover { border-color: var(--pink); color: var(--pink-light); }
+  .hero { text-align: center; padding: 4rem 2rem 3rem; }
+  .hero-title { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
   .hero-title span {
     background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-  .hero-sub {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    max-width: 480px;
-    margin: 0 auto 2rem;
-    line-height: 1.6;
-  }
-  .hero-stats {
-    display: flex; justify-content: center; gap: 2.5rem;
-    flex-wrap: wrap;
-  }
+  .hero-sub { color: var(--text-muted); font-size: 1.05rem; max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; }
+  .hero-stats { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
   .stat { text-align: center; }
   .stat-num {
     font-size: 1.6rem; font-weight: 700;
     background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
   .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
-
-  /* ─── GAMES SECTION ─── */
   .section { padding: 1rem 2rem 4rem; max-width: 1100px; margin: 0 auto; }
-  .section-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;
-  }
-  .section-title {
-    font-size: 1.4rem; font-weight: 700;
-  }
-  .filter-tabs {
-    display: flex; gap: 0.5rem; flex-wrap: wrap;
-  }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem; }
+  .section-title { font-size: 1.4rem; font-weight: 700; }
+  .filter-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .tab {
-    padding: 0.4rem 1rem;
-    border-radius: 50px;
-    font-size: 0.83rem;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.83rem;
+    border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
   }
-  .tab.active, .tab:hover {
-    background: linear-gradient(135deg, var(--pink), var(--purple));
-    border-color: transparent;
-    color: #fff;
-  }
-
-  /* ─── GAME CARDS GRID ─── */
-  .games-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.4rem;
-  }
-
+  .tab.active, .tab:hover { background: linear-gradient(135deg, var(--pink), var(--purple)); border-color: transparent; color: #fff; }
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.4rem; }
   .game-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-    position: relative;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+    overflow: hidden; cursor: pointer; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; position: relative;
   }
-  .game-card:hover {
-    transform: translateY(-6px);
-    border-color: var(--pink);
-    box-shadow: 0 12px 40px rgba(233,30,140,0.2);
-  }
-
+  .game-card:hover { transform: translateY(-6px); border-color: var(--pink); box-shadow: 0 12px 40px rgba(233,30,140,0.2); }
   .card-thumb {
-    height: 160px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 4rem;
-    position: relative;
-    overflow: hidden;
+    height: 160px; display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative; overflow: hidden;
   }
-  .card-thumb .thumb-bg {
-    position: absolute; inset: 0;
-    opacity: 0.15;
-    transition: opacity 0.3s;
-  }
+  .card-thumb .thumb-bg { position: absolute; inset: 0; opacity: 0.15; transition: opacity 0.3s; }
   .game-card:hover .thumb-bg { opacity: 0.25; }
-
   .badge-new {
     position: absolute; top: 12px; right: 12px;
     background: linear-gradient(135deg, var(--pink), var(--purple));
-    color: #fff; font-size: 0.7rem; font-weight: 700;
-    padding: 3px 10px; border-radius: 50px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    color: #fff; font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 50px; text-transform: uppercase;
   }
   .badge-soon {
     position: absolute; top: 12px; right: 12px;
-    background: rgba(255,255,255,0.1);
-    color: var(--text-muted); font-size: 0.7rem; font-weight: 600;
-    padding: 3px 10px; border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.15);
-    text-transform: uppercase;
+    background: rgba(255,255,255,0.1); color: var(--text-muted); font-size: 0.7rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); text-transform: uppercase;
   }
-
   .card-body { padding: 1.2rem; }
   .card-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
   .card-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem; }
-  .card-meta {
-    display: flex; align-items: center; justify-content: space-between;
-  }
+  .card-meta { display: flex; align-items: center; justify-content: space-between; }
   .card-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-  .tag {
-    font-size: 0.72rem;
-    padding: 3px 8px; border-radius: 50px;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-  }
-  .card-players {
-    font-size: 0.8rem; color: var(--text-muted);
-    display: flex; align-items: center; gap: 4px;
-  }
-
+  .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 50px; border: 1px solid var(--border); color: var(--text-muted); }
+  .card-players { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
   .card-btn {
-    display: block; width: 100%;
-    padding: 0.7rem;
-    margin-top: 1rem;
+    display: block; width: 100%; padding: 0.7rem; margin-top: 1rem;
     background: linear-gradient(135deg, var(--pink), var(--purple));
-    border: none; border-radius: 10px;
-    color: #fff; font-size: 0.9rem; font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-    text-align: center;
-    text-decoration: none;
+    border: none; border-radius: 10px; color: #fff; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s; text-align: center; text-decoration: none;
   }
   .card-btn:hover { opacity: 0.88; }
-  .card-btn.disabled {
-    background: rgba(255,255,255,0.07);
-    color: var(--text-muted);
-    cursor: not-allowed;
-  }
-
-  /* ─── COMING SOON overlay ─── */
-  .card-soon .card-thumb { filter: grayscale(0.5); }
-
-  /* ─── FOOTER ─── */
-  footer {
-    text-align: center;
-    padding: 2.5rem;
-    border-top: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-  }
-  footer span {
-    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 600;
-  }
-
-  /* ─── Responsive ─── */
+  .card-btn.disabled { background: rgba(255,255,255,0.07); color: var(--text-muted); cursor: not-allowed; }
+  footer { text-align: center; padding: 2.5rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
+  footer span { background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600; }
   @media (max-width: 600px) {
-    header { padding: 1rem; }
-    .hero { padding: 2.5rem 1rem 2rem; }
-    .section { padding: 1rem 1rem 3rem; }
-    .header-logo { font-size: 1.1rem; }
-    .welcome-badge { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+    header { padding: 1rem; } .hero { padding: 2.5rem 1rem 2rem; }
+    .section { padding: 1rem 1rem 3rem; } .header-logo { font-size: 1.1rem; }
   }
 </style>
 </head>
 <body>
-
-<!-- Floating hearts -->
 <div class="hearts-bg" id="heartsContainer"></div>
 
-<!-- ═══════════════════════════════ LOGIN SCREEN ════════════════════════════ -->
+<!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-box">
+  <div class="login-box" id="loginBox">
     <div class="login-logo">💕</div>
     <div class="login-title">PlayWithLove</div>
     <div class="login-subtitle">Sevgilənlə əyləncənin ünvanı</div>
-
     <div class="input-group">
       <span class="icon">👤</span>
       <input type="text" id="usernameInput" placeholder="İstifadəçi adını daxil et" maxlength="20" autocomplete="off" />
     </div>
-
-    <button class="btn-login" onclick="handleLogin()">💫 Daxil ol</button>
+    <button class="btn-login" id="loginBtn" onclick="handleLogin()">💫 Daxil ol</button>
     <div class="error-msg" id="errorMsg"></div>
-
-    <div class="login-note">
-      Qeydiyyat tələb olunmur — sadəcə adını yaz və oyna! 🎮<br>
-      Sevgilən ayrı cihazdan eyni adı istifadə edə bilər.
-    </div>
+    <div class="login-note">Qeydiyyat tələb olunmur — sadəcə adını yaz və oyna! 🎮</div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════ MAIN APP ═══════════════════════════════ -->
+<!-- APP -->
 <div id="app">
-  <!-- Header -->
   <header>
-    <div class="header-logo">
-      <span class="logo-icon">💕</span>
-      PlayWithLove
-    </div>
+    <div class="header-logo"><span>💕</span> PlayWithLove</div>
     <div class="header-right">
-      <div class="welcome-badge">
-        <span>👋</span>
-        <span id="headerUsername">İstifadəçi</span>
-      </div>
+      <div class="welcome-badge">👋 <span id="headerUsername">İstifadəçi</span></div>
       <button class="btn-logout" onclick="handleLogout()">Çıxış</button>
     </div>
   </header>
-
-  <!-- Hero -->
   <div class="hero">
-    <div class="hero-title">
-      Sevgilənlə birlikdə<br>
-      <span>oyna, gül, sevin!</span>
-    </div>
-    <div class="hero-sub">
-      Multiplayer oyunlar, mini yarışlar, testlər — hər şey sevgilənlə birlikdə!
-    </div>
+    <div class="hero-title">Sevgilənlə birlikdə<br><span>oyna, gül, sevin!</span></div>
+    <div class="hero-sub">Multiplayer oyunlar, mini yarışlar, testlər — hər şey sevgilənlə birlikdə!</div>
     <div class="hero-stats">
       <div class="stat"><div class="stat-num">8+</div><div class="stat-label">Oyun</div></div>
       <div class="stat"><div class="stat-num">2</div><div class="stat-label">Oyunçu</div></div>
       <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Əyləncə</div></div>
     </div>
   </div>
-
-  <!-- Games Section -->
   <div class="section">
     <div class="section-header">
       <div class="section-title">🎮 Oyunlar</div>
@@ -471,176 +218,86 @@
         <button class="tab" onclick="filterGames(this,'taxtali')">Taxtası</button>
       </div>
     </div>
-
     <div class="games-grid" id="gamesGrid"></div>
   </div>
-
-  <footer>
-    Made with <span>💕 love</span> — PlayWithLove &copy; 2025
-  </footer>
+  <footer>Made with <span>💕 love</span> — PlayWithLove &copy; 2025</footer>
 </div>
 
-<script>
-  // ─── GAMES DATA ───────────────────────────────────────────────────────────
-  const games = [
-    {
-      id: 'tictactoe',
-      name: 'Daş-Qayçı-Kağız',
-      desc: 'Klassik 2 nəfərlik oyun. Kimdir daha sürətli? Sinəyə vur, qazan!',
-      emoji: '✂️',
-      gradient: 'linear-gradient(135deg,#e91e8c,#7c3aed)',
-      tags: ['Klassik', '2 Oyunçu'],
-      status: 'active',
-      category: 'kart',
-      file: 'games/rock-paper-scissors.html'
-    },
-    {
-      id: 'quiz',
-      name: 'Sevgi Testi',
-      desc: 'Bir-birinizi nə qədər tanıyırsız? Sualları cavablayın, bal toplayın!',
-      emoji: '💝',
-      gradient: 'linear-gradient(135deg,#ff6bb5,#a855f7)',
-      tags: ['Test', 'Romantic'],
-      status: 'active',
-      category: 'test',
-      file: 'games/love-quiz.html'
-    },
-    {
-      id: 'memory',
-      name: 'Yaddaş Oyunu',
-      desc: 'Kartları çevir, cütləri tap! Daha yaxşı yaddaşı olan qazan.',
-      emoji: '🃏',
-      gradient: 'linear-gradient(135deg,#f59e0b,#ef4444)',
-      tags: ['Kart', '2 Oyunçu'],
-      status: 'active',
-      category: 'kart',
-      file: 'games/memory.html'
-    },
-    {
-      id: 'truth',
-      name: 'Həqiqət ya Tapşırıq',
-      desc: 'Sevgilənlə həyəcanlı suallar və əyləncəli tapşırıqlar!',
-      emoji: '🎯',
-      gradient: 'linear-gradient(135deg,#10b981,#0891b2)',
-      tags: ['Test', 'Əyləncə'],
-      status: 'active',
-      category: 'test',
-      file: 'games/truth-or-dare.html'
-    },
-    {
-      id: 'chess',
-      name: 'Mini Şahmat',
-      desc: 'Sadələşdirilmiş şahmat. Strategiyan varmı? Sübut et!',
-      emoji: '♟️',
-      gradient: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
-      tags: ['Taxtası', 'Strateji'],
-      status: 'active',
-      category: 'taxtali',
-      file: 'games/chess.html'
-    },
-    {
-      id: 'words',
-      name: 'Söz Tapma',
-      desc: 'Hərflərdən söz düzəlt, daha çox söz tapan qazanır!',
-      emoji: '📝',
-      gradient: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
-      tags: ['Söz', '2 Oyunçu'],
-      status: 'active',
-      category: 'test',
-      file: 'games/word-game.html'
-    },
-    {
-      id: 'spinner',
-      name: 'Fırlanma Çarxı',
-      desc: 'Romantik tapşırıqlarla dolu xoşbəxtlik çarxını fırlat!',
-      emoji: '🎡',
-      gradient: 'linear-gradient(135deg,#f43f5e,#fb923c)',
-      tags: ['Romantic', 'Əyləncə'],
-      status: 'soon',
-      category: 'kart',
-      file: 'games/spinner.html'
-    },
-    {
-      id: 'puzzle',
-      name: 'Birlikdə Puzzle',
-      desc: 'Şəkilləri birlikdə yığın, vaxt yarışında qazan!',
-      emoji: '🧩',
-      gradient: 'linear-gradient(135deg,#84cc16,#06b6d4)',
-      tags: ['Birlikdə', 'Taxtası'],
-      status: 'soon',
-      category: 'taxtali',
-      file: 'games/puzzle.html'
-    }
-  ];
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  // ─── HEARTS BACKGROUND ───────────────────────────────────────────────────
-  (function spawnHearts() {
-    const container = document.getElementById('heartsContainer');
-    const symbols = ['💕','💗','💓','💞','✨','💫'];
+  const firebaseConfig = {
+    apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+    authDomain: "sevgili-testi.firebaseapp.com",
+    databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+    projectId: "sevgili-testi",
+    storageBucket: "sevgili-testi.firebasestorage.app",
+    messagingSenderId: "399260477557",
+    appId: "1:399260477557:web:584204a698d7bf145bb03c",
+    measurementId: "G-44P21XCZ7G"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Get real IP
+  async function getIP() {
+    try {
+      const r = await fetch('https://api.ipify.org?format=json');
+      const d = await r.json();
+      return d.ip;
+    } catch { return 'unknown'; }
+  }
+
+  // Check if IP is blocked
+  async function isBlocked(ip) {
+    try {
+      const snap = await get(child(ref(db), `blockedIPs/${ip.replace(/\./g, '_')}`));
+      return snap.exists() && snap.val() === true;
+    } catch { return false; }
+  }
+
+  // Save user to Firebase
+  async function saveUser(username, ip) {
+    const userId = `${username}_${ip.replace(/\./g, '_')}`;
+    await set(ref(db, `users/${userId}`), {
+      username,
+      ip,
+      loginTime: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+      online: true
+    });
+  }
+
+  // Hearts
+  (function() {
+    const c = document.getElementById('heartsContainer');
+    const s = ['💕','💗','💓','💞','✨','💫'];
     for (let i = 0; i < 18; i++) {
       const el = document.createElement('span');
       el.className = 'heart';
-      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      el.textContent = s[Math.floor(Math.random() * s.length)];
       el.style.left = Math.random() * 100 + 'vw';
       el.style.animationDuration = (8 + Math.random() * 14) + 's';
       el.style.animationDelay = (Math.random() * 12) + 's';
       el.style.fontSize = (10 + Math.random() * 14) + 'px';
-      container.appendChild(el);
+      c.appendChild(el);
     }
   })();
 
-  // ─── AUTH ─────────────────────────────────────────────────────────────────
-  const STORAGE_KEY = 'pwl_user';
-
-  function handleLogin() {
-    const input = document.getElementById('usernameInput');
-    const name = input.value.trim();
-    const err = document.getElementById('errorMsg');
-
-    if (!name) {
-      err.textContent = '⚠️ Zəhmət olmasa adını daxil et.';
-      input.focus(); return;
-    }
-    if (name.length < 2) {
-      err.textContent = '⚠️ Ad ən az 2 hərf olmalıdır.';
-      input.focus(); return;
-    }
-    err.textContent = '';
-    localStorage.setItem(STORAGE_KEY, name);
-    showApp(name);
-  }
-
-  function handleLogout() {
-    localStorage.removeItem(STORAGE_KEY);
-    document.getElementById('app').classList.remove('visible');
-    const ls = document.getElementById('loginScreen');
-    ls.classList.remove('hide');
-    document.getElementById('usernameInput').value = '';
-  }
-
-  function showApp(name) {
-    document.getElementById('loginScreen').classList.add('hide');
-    document.getElementById('headerUsername').textContent = name;
-    const app = document.getElementById('app');
-    app.style.display = 'block';
-    setTimeout(() => app.classList.add('visible'), 50);
-  }
-
-  // Enter key on login
-  document.getElementById('usernameInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleLogin();
-  });
-
-  // Auto-login if already saved
-  window.addEventListener('DOMContentLoaded', () => {
-    renderGames(games);
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) showApp(saved);
-    document.getElementById('app').style.display = saved ? 'block' : 'none';
-  });
-
-  // ─── RENDER GAMES ─────────────────────────────────────────────────────────
-  let currentFilter = 'all';
+  // Games data
+  const games = [
+    { id:'tictactoe', name:'Daş-Qayçı-Kağız', desc:'Klassik 2 nəfərlik oyun. Kimdir daha sürətli?', emoji:'✂️', gradient:'linear-gradient(135deg,#e91e8c,#7c3aed)', tags:['Klassik','2 Oyunçu'], status:'active', category:'kart', file:'games/rock-paper-scissors.html' },
+    { id:'quiz', name:'Sevgi Testi', desc:'Bir-birinizi nə qədər tanıyırsız? Sualları cavablayın!', emoji:'💝', gradient:'linear-gradient(135deg,#ff6bb5,#a855f7)', tags:['Test','Romantic'], status:'active', category:'test', file:'games/love-quiz.html' },
+    { id:'memory', name:'Yaddaş Oyunu', desc:'Kartları çevir, cütləri tap! Daha yaxşı yaddaşı olan qazan.', emoji:'🃏', gradient:'linear-gradient(135deg,#f59e0b,#ef4444)', tags:['Kart','2 Oyunçu'], status:'active', category:'kart', file:'games/memory.html' },
+    { id:'truth', name:'Həqiqət ya Tapşırıq', desc:'Sevgilənlə həyəcanlı suallar və əyləncəli tapşırıqlar!', emoji:'🎯', gradient:'linear-gradient(135deg,#10b981,#0891b2)', tags:['Test','Əyləncə'], status:'active', category:'test', file:'games/truth-or-dare.html' },
+    { id:'chess', name:'Mini Şahmat', desc:'Sadələşdirilmiş şahmat. Strategiyan varmı?', emoji:'♟️', gradient:'linear-gradient(135deg,#6366f1,#8b5cf6)', tags:['Taxtası','Strateji'], status:'active', category:'taxtali', file:'games/chess.html' },
+    { id:'words', name:'Söz Tapma', desc:'Hərflərdən söz düzəlt, daha çox söz tapan qazanır!', emoji:'📝', gradient:'linear-gradient(135deg,#0ea5e9,#6366f1)', tags:['Söz','2 Oyunçu'], status:'active', category:'test', file:'games/word-game.html' },
+    { id:'spinner', name:'Fırlanma Çarxı', desc:'Romantik tapşırıqlarla dolu xoşbəxtlik çarxını fırlat!', emoji:'🎡', gradient:'linear-gradient(135deg,#f43f5e,#fb923c)', tags:['Romantic','Əyləncə'], status:'soon', category:'kart', file:'games/spinner.html' },
+    { id:'puzzle', name:'Birlikdə Puzzle', desc:'Şəkilləri birlikdə yığın, vaxt yarışında qazan!', emoji:'🧩', gradient:'linear-gradient(135deg,#84cc16,#06b6d4)', tags:['Birlikdə','Taxtası'], status:'soon', category:'taxtali', file:'games/puzzle.html' }
+  ];
 
   function renderGames(list) {
     const grid = document.getElementById('gamesGrid');
@@ -665,20 +322,90 @@
           </div>
           ${isSoon
             ? `<button class="card-btn disabled" disabled>⏳ Tezliklə...</button>`
-            : `<a class="card-btn" href="${g.file}">▶ Oyna</a>`
-          }
+            : `<a class="card-btn" href="${g.file}">▶ Oyna</a>`}
         </div>`;
       grid.appendChild(card);
     });
   }
 
-  function filterGames(btn, cat) {
+  window.filterGames = function(btn, cat) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    currentFilter = cat;
     const filtered = cat === 'all' ? games : games.filter(g => g.category === cat);
     renderGames(filtered);
+  };
+
+  window.handleLogout = function() {
+    localStorage.removeItem('pwl_user');
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('app').style.display = 'none';
+    const ls = document.getElementById('loginScreen');
+    ls.classList.remove('hide');
+    document.getElementById('usernameInput').value = '';
+  };
+
+  function showApp(name) {
+    document.getElementById('loginScreen').classList.add('hide');
+    document.getElementById('headerUsername').textContent = name;
+    const appEl = document.getElementById('app');
+    appEl.style.display = 'block';
+    setTimeout(() => appEl.classList.add('visible'), 50);
+    renderGames(games);
   }
+
+  function showBlocked() {
+    const box = document.getElementById('loginBox');
+    box.innerHTML = `
+      <div class="blocked-screen">
+        <div style="font-size:3rem;margin-bottom:1rem;">🚫</div>
+        <h2>Giriş Bloklanıb</h2>
+        <p>Bu IP ünvanından sayta giriş qadağandır.<br>Ətraflı məlumat üçün adminlə əlaqə saxlayın.</p>
+      </div>`;
+  }
+
+  window.handleLogin = async function() {
+    const input = document.getElementById('usernameInput');
+    const name = input.value.trim();
+    const err = document.getElementById('errorMsg');
+    const btn = document.getElementById('loginBtn');
+
+    if (!name) { err.textContent = '⚠️ Zəhmət olmasa adını daxil et.'; input.focus(); return; }
+    if (name.length < 2) { err.textContent = '⚠️ Ad ən az 2 hərf olmalıdır.'; input.focus(); return; }
+
+    err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = '⏳ Yoxlanılır...';
+
+    const ip = await getIP();
+    const blocked = await isBlocked(ip);
+
+    if (blocked) {
+      showBlocked();
+      return;
+    }
+
+    await saveUser(name, ip);
+    localStorage.setItem('pwl_user', JSON.stringify({ name, ip }));
+    showApp(name);
+    btn.disabled = false;
+    btn.textContent = '💫 Daxil ol';
+  };
+
+  // Auto-login check
+  (async function init() {
+    renderGames(games);
+    const saved = localStorage.getItem('pwl_user');
+    if (saved) {
+      const { name, ip } = JSON.parse(saved);
+      const blocked = await isBlocked(ip);
+      if (blocked) { showBlocked(); return; }
+      showApp(name);
+    }
+  })();
+
+  document.getElementById('usernameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.handleLogin();
+  });
 </script>
 </body>
 </html>
