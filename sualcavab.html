@@ -1,374 +1,546 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Məni Tanı — PlayWithLove</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--pink:#e91e8c;--pkl:#ff6bb5;--pur:#7c3aed;--purl:#a855f7;--bg:#0d0d1a;--card:#1a1a2e;--text:#f0f0f0;--muted:#8888aa;--bdr:rgba(233,30,140,0.2);--grn:#10b981;--red:#ef4444;--amb:#f59e0b}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 40% at 15% 15%,rgba(124,58,237,.1) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 85% 85%,rgba(233,30,140,.08) 0%,transparent 60%)}
-.screen{position:relative;z-index:1;display:none;min-height:100vh}
-.screen.on{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
-.box{background:var(--card);border:1px solid var(--bdr);border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:480px;box-shadow:0 0 60px rgba(233,30,140,.1)}
-.logo{text-align:center;margin-bottom:1.5rem}
-.logo h1{font-size:1.7rem;font-weight:800;margin-top:.5rem;background:linear-gradient(135deg,var(--pkl),var(--purl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo p{color:var(--muted);font-size:.88rem;margin-top:.3rem}
-.field{margin-bottom:1rem}
-.field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
-.field input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--text);font-size:1rem;padding:.8rem 1rem;outline:none;transition:border-color .2s}
-.btn{width:100%;padding:.9rem;border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--pink),var(--pur));margin-top:.5rem}
-.err{color:#ff6b6b;font-size:.83rem;text-align:center;margin-top:.5rem}
-.rcode{font-size:3.5rem;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--pkl),var(--purl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:1rem 0}
-.pslots{display:flex;justify-content:center;gap:1.5rem;margin:1.5rem 0}
-.psl{width:110px;background:rgba(255,255,255,.04);border-radius:14px;padding:1rem .8rem;text-align:center}
-.psl .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--pur));display:flex;align-items:center;justify-content:center;margin:0 auto .5rem}
-.rcards{display:flex;gap:1rem;margin-top:1.5rem;justify-content:center}
-.rcard{flex:1;background:rgba(255,255,255,.04);border:2px solid var(--bdr);border-radius:18px;padding:1.5rem 1rem;text-align:center;cursor:pointer}
-.rcard.sel{border-color:var(--pink);background:rgba(233,30,140,.12)}
-.sboard{display:flex;justify-content:space-between;background:var(--card);border:1px solid var(--bdr);border-radius:16px;padding:1rem;margin-bottom:1.5rem}
-.panel{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:1.5rem;margin-bottom:1rem}
-.qi{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:12px;padding:1rem;margin-bottom:.7rem;cursor:pointer}
-.qi.sel{border-color:var(--pink);background:rgba(233,30,140,.12)}
-.ch{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:12px;padding:.9rem;cursor:pointer;margin-bottom:.65rem}
-.ch.picked{border-color:var(--amb);background:rgba(245,158,11,.1)}
-.ch.correct{border-color:var(--grn)!important;background:rgba(16,185,129,.12)!important}
-.ch.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.1)!important}
-.spin{display:inline-block;width:24px;height:24px;border:3px solid var(--bdr);border-top-color:var(--pink);border-radius:50%;animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.rover{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:200}
-.rpop{background:var(--card);border-radius:24px;padding:2.5rem;text-align:center;width:90%;max-width:360px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SualCavab - Məni nə qədər tanıyırsan? | Multiplayer</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 850px;
+            width: 100%;
+            background: rgba(255,255,240,0.1);
+            backdrop-filter: blur(2px);
+            border-radius: 64px;
+            padding: 20px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+        }
+        .card {
+            background: #fffef7;
+            border-radius: 48px;
+            padding: 28px 24px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 8px 0;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ffb347, #ff6b4a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .sub {
+            text-align: center;
+            color: #4a627a;
+            font-weight: 500;
+            margin-bottom: 28px;
+        }
+        .room-panel {
+            background: #f1f5f9;
+            border-radius: 44px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-group {
+            flex: 2;
+            min-width: 160px;
+        }
+        .input-group label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #1e3a5f;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, button {
+            border: none;
+            border-radius: 60px;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            outline: none;
+        }
+        input {
+            background: white;
+            border: 2px solid #e2e8f0;
+            width: 100%;
+        }
+        input:focus {
+            border-color: #ff9966;
+        }
+        button {
+            background: #2c3e66;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #ff6b4a;
+            transform: scale(1.02);
+        }
+        button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            background: #e9ecef;
+            border-radius: 40px;
+            padding: 12px 20px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+        .question-area, .answer-area, .questioner-panel {
+            margin-top: 20px;
+        }
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .question-btn {
+            background: #ffecd6;
+            color: #a5410f;
+            text-align: left;
+            border-radius: 40px;
+            padding: 14px 20px;
+            font-weight: 600;
+        }
+        .option-btn {
+            background: #e2e3e8;
+            color: #1f3a4b;
+            margin: 8px;
+            padding: 10px 18px;
+        }
+        .score {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #ff6b4a;
+            text-align: center;
+        }
+        .waiting {
+            text-align: center;
+            color: #ff8c42;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        hr {
+            margin: 20px 0;
+        }
+        .role-badge {
+            background: #2c3e66;
+            color: white;
+            border-radius: 50px;
+            padding: 6px 16px;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
+<div class="game-container">
+    <div class="card">
+        <h1>💘 SualCavab</h1>
+        <div style="text-align:center" class="sub">Məni nə qədər tanıyırsan?</div>
 
-<div class="screen on" id="sJoin">
-  <div class="box">
-    <div class="logo"><h1>Məni Tanı</h1><p>Sevgilini nə qədər tanıyırsan?</p></div>
-    <div class="field"><label>Adın</label><input type="text" id="iName" placeholder="Adını daxil et" maxlength="16"/></div>
-    <div class="field"><label>Otaq kodu</label><input type="text" id="iRoom" style="text-align:center" placeholder="_ _ _ _" maxlength="4"/></div>
-    <button class="btn" onclick="joinRoom()">💕 Qoşul</button>
-    <button class="btn" style="background:transparent;border:1px solid var(--bdr)" onclick="createRoom()">✨ Otaq Yarat</button>
-    <div class="err" id="joinErr"></div>
-  </div>
-</div>
+        <div id="app">
+            <!-- Otaq paneli -->
+            <div class="room-panel">
+                <div class="flex-row">
+                    <div class="input-group">
+                        <label>🏠 Otaq kodu (4-6 rəqəm/hərf)</label>
+                        <input type="text" id="roomCode" placeholder="Məs: LOVE1" maxlength="10">
+                    </div>
+                    <div class="input-group">
+                        <label>👤 Adın / Ləqəb</label>
+                        <input type="text" id="playerName" placeholder="Adınız" maxlength="20">
+                    </div>
+                    <button id="joinRoomBtn">🔗 Otağa qoşul</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button id="createRoomBtn">✨ Yeni otaq yarat (kod al)</button>
+                </div>
+            </div>
 
-<div class="screen" id="sWait">
-  <div class="box" style="text-align:center">
-    <h2>Otaq Kodu</h2>
-    <div class="rcode" id="dispCode">----</div>
-    <div class="pslots" id="pslots"></div>
-    <p><span class="spin"></span> Gözlənilir...</p>
-  </div>
-</div>
-
-<div class="screen" id="sRole">
-  <div class="box">
-    <div class="logo"><h1>Rol Seç</h1></div>
-    <div class="rcards">
-      <div class="rcard" id="rcA" onclick="selRole('asker')">🙋<br>Sual Verən</div>
-      <div class="rcard" id="rcB" onclick="selRole('answerer')">💭<br>Cavab Verən</div>
+            <div id="gameStatus" class="status">🔌 Otağa qoşulun...</div>
+            <div id="gameContent"></div>
+        </div>
     </div>
-    <button class="btn" id="roleBtn" style="display:none" onclick="confirmRole()">✅ Təsdiqlə</button>
-    <div class="stmsg" id="roleSt" style="display:none; text-align:center; margin-top:1rem"></div>
-  </div>
 </div>
 
-<div class="screen" id="sGame">
-  <div class="gwrap" style="width:100%; max-width:600px">
-    <div class="sboard">
-      <div><small id="sn1"></small><br><b id="sv1">0</b></div>
-      <div style="text-align:center">TUR<br><b id="svRound">1/10</b></div>
-      <div style="text-align:right"><small id="sn2"></small><br><b id="sv2">0</b></div>
-    </div>
-    <div id="vPickQ" style="display:none" class="panel"><div class="qlist" id="qList"></div><button class="btn" id="sendQBtn" onclick="doSendQ()">Göndər</button></div>
-    <div id="vPickAns" style="display:none" class="panel"><div id="askQShow" style="margin-bottom:1rem"></div><div class="choices" id="askChoices"></div><button class="btn" id="setAnsBtn" onclick="doSetCorrect()">Təsdiqlə</button></div>
-    <div id="vAskWait" style="display:none" class="stmsg"><span class="spin"></span> Cavab gözlənilir...</div>
-    <div id="vAnsWait" style="display:none" class="stmsg"><span class="spin"></span> Sual gözlənilir...</div>
-    <div id="vAnsQ" style="display:none" class="panel"><div id="ansQText" style="font-weight:bold;margin-bottom:1rem"></div><div class="choices" id="ansChoices"></div></div>
-  </div>
-</div>
+<script>
+    // Firebase konfiqurasiya
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+        authDomain: "sevgili-testi.firebaseapp.com",
+        databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+        projectId: "sevgili-testi",
+        storageBucket: "sevgili-testi.firebasestorage.app",
+        messagingSenderId: "399260477557",
+        appId: "1:399260477557:web:584204a698d7bf145bb03c",
+        measurementId: "G-44P21XCZ7G"
+    };
 
-<div class="screen" id="sFinal">
-  <div class="box" style="text-align:center">
-    <h2 id="finTitle">Oyun Bitdi!</h2>
-    <div id="finScores" style="margin:1rem 0"></div>
-    <button class="btn" onclick="location.reload()">🔄 Yenidən</button>
-  </div>
-</div>
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-<div class="rover" id="resOv" style="display:none">
-  <div class="rpop"><h2 id="resT"></h2><p id="resM"></p><button class="btn" id="resBtn" onclick="nextRound()">Davam et</button></div>
-</div>
+    // 100 sual + 5 variant + düzgün cavab indeksi (0-4 arası)
+    const questionsDB = [];
+    for (let i = 1; i <= 100; i++) {
+        const correctIdx = Math.floor(Math.random() * 5); // təsadüfi düzgün
+        let variants = [];
+        for (let v = 0; v < 5; v++) {
+            if (v === correctIdx) variants.push("✅ Hə, məni tanıyır");
+            else variants.push("❌ Yox, səhvdir");
+        }
+        questionsDB.push({
+            id: i,
+            text: `Sual ${i}: Mənim sevimli rəngim hansıdır? (Bu sual test üçün nümunədir)`,
+            variants: variants,
+            correct: correctIdx
+        });
+    }
+    // Daha real suallar (ilk 10-u maraqlı, qalanlar template)
+    const realQuestions = [
+        "Mənim ən sevdiyim yemək nədir?",
+        "Mənim doğum günüm hansı aydadır?",
+        "Mənim ən sevdiyim film hansıdır?",
+        "Mənim ən böyük qorxum nədir?",
+        "Mənim ən sevdiyim musiqi janrı?",
+        "Mənim ideal tətil yerim hara?",
+        "Mən kofe yoxsa çay sevirəm?",
+        "Mən gecə quşu yoxsa səhər adamı?",
+        "Mənim ən yaxşı xüsusiyyətim nədir?",
+        "Mənim ən sevdiyim heyvan?",
+        "Mən yayı qışdan çox sevirəm?",
+        "Mən kitab oxumağı sevirəm?",
+        "Mən asanlıqla əsəbləşirəm?",
+        "Mən sadiq dostam?",
+        "Mən macəra axtarıram?",
+        "Mən romantik biriyəm?",
+        "Mən təmizlik düşkünüyəm?",
+        "Mən səyahət etməyi sevirəm?",
+        "Mən oyun oynamağı sevirəm?",
+        "Mən yumor hissim güclüdür?"
+    ];
+    for (let i = 0; i < realQuestions.length && i < 100; i++) {
+        const correctIdx = Math.floor(Math.random() * 5);
+        let opts = [];
+        for (let v = 0; v < 5; v++) {
+            if (v === correctIdx) opts.push("✅ Düzdür, məni tanıyır");
+            else opts.push("❌ Səhv, məni yaxşı tanımırsan");
+        }
+        questionsDB[i] = {
+            id: i+1,
+            text: realQuestions[i],
+            variants: opts,
+            correct: correctIdx
+        };
+    }
+    // Qalanlar generic
+    for (let i = realQuestions.length; i < 100; i++) {
+        questionsDB[i] = {
+            id: i+1,
+            text: `Sual ${i+1}: Mənim haqqımda bilirsinizmi? (Sevgili tanıma testi)`,
+            variants: ["✔️ Tamamilə", "❌ Yox", "🤔 Bəlkə", "💯 Əminəm", "⭐ Yaxşı tanıyıram"],
+            correct: Math.floor(Math.random() * 5)
+        };
+    }
 
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getDatabase,ref,set,get,onValue,off}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-const cfg={apiKey:"AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",authDomain:"sevgili-testi.firebaseapp.com",databaseURL:"https://sevgili-testi-default-rtdb.firebaseio.com",projectId:"sevgili-testi",storageBucket:"sevgili-testi.firebasestorage.app",messagingSenderId:"399260477557",appId:"1:399260477557:web:584204a698d7bf145bb03c"};
-const db=getDatabase(initializeApp(cfg));
+    let currentRoom = null;
+    let myPlayerId = null;
+    let myName = "";
+    let myRole = null; // "questioner" və ya "answerer"
+    let gameDataRef = null;
+    let currentQuestionObj = null;
+    let waitingForAnswer = false;
 
-// 100 SUALIN HAMISI
-const QS=[
-  {q:"Ən sevdiyi rəng?",o:["Mavi","Qırmızı","Yaşıl","Sarı"]},
-  {q:"Hər gün içdiyi içki?",o:["Çay","Qəhvə","Su","Şirə"]},
-  {q:"Ən sevdiyi mövsüm?",o:["Yaz","Yay","Payız","Qış"]},
-  {q:"Stresli olanda nə edir?",o:["Musiqi","Gəzinti","Yatır","Danışır"]},
-  {q:"Ən çox sevdiyi yemək?",o:["Plov","Pizza","Kebab","Makaron"]},
-  {q:"Yatmadan əvvəl nə edir?",o:["Telefon","Kitab","Musiqi","Düşünür"]},
-  {q:"Ən sevdiyi heyvan?",o:["İt","Pişik","Dovşan","Quş"]},
-  {q:"Boş vaxtında nə edir?",o:["Film","Oyun","Gəzir","Yatır"]},
-  {q:"Ən böyük qorxusu?",o:["Yüksəklik","Hörümçək","Tənhalıq","Qaranlıq"]},
-  {q:"Səhər ilk nə edir?",o:["Telefon","Yuxu","Durur","Su içir"]},
-  {q:"Hansı musiqi janrını sevir?",o:["Pop","Rock","Klassik","Hip-hop"]},
-  {q:"Ən sevdiyi film janrı?",o:["Komediya","Romantik","Aktiv","Dəhşət"]},
-  {q:"İdeal tətil yeri?",o:["Dəniz","Dağ","Şəhər","Kənd"]},
-  {q:"Şirniyyatdan nəyi sevir?",o:["Şokolad","Tort","Dondurma","Yemir"]},
-  {q:"Romantik an üçün nə seçər?",o:["Yemək","Gəzinti","Film","Ev"]},
-  {q:"Telefonda çox vaxtı harada keçir?",o:["Instagram","YouTube","WhatsApp","Oyun"]},
-  {q:"Ən çox nədən şikayətlənir?",o:["Yorğunluq","İnsanlar","İş","Özü"]},
-  {q:"Düşünmədən pul xərclədiyi?",o:["Geyim","Yemək","Texnika","Kitab"]},
-  {q:"Səhər necə qalxır?",o:["Çətin","Rahat","Siqnalla","Köməklə"]},
-  {q:"Ən çox nəyi itirir?",o:["Açar","Telefon","Pul","Eynək"]},
-  {q:"Üşüyəndə nə edir?",o:["Geyinir","Çay","Yorğan","İstilik"]},
-  {q:"Hansı şəhərdə yaşamaq istər?",o:["Bakı","İstanbul","London","Tokio"]},
-  {q:"Ən sevdiyi çiçək?",o:["Qızılgül","Papatya","Lalə","Süsən"]},
-  {q:"Yemək bişirəndə nə edir?",o:["Musiqi","Sükut","Danışır","TV"]},
-  {q:"Gecə neçə saat yatır?",o:["6-","7-8","9+","Dəyişkən"]},
-  {q:"Əhvalı pisləşəndə nə edir?",o:["Uzaqlaşır","Danışır","Yatır","Yeyir"]},
-  {q:"Məzuniyyətdə nə etmək istər?",o:["İstirahət","Səyahət","Ev işi","Kurs"]},
-  {q:"Ən çox bağlandığı insanlar?",o:["Ailə","Sevgili","Dostlar","Özü"]},
-  {q:"Xoşbəxtliyi nədə tapır?",o:["Sevgi","Təbiət","Musiqi","Uğur"]},
-  {q:"Nəyi heç cür yeyə bilmir?",o:["Soğan","Sarımsaq","Göbələk","Balıq"]},
-  {q:"Ən çox hansı rəng geyinir?",o:["Qara","Ağ","Rəngli","Boz"]},
-  {q:"İdeal səhər yeməyi?",o:["Yumurta","Müsli","Meyvə","Heç nə"]},
-  {q:"Ən uzun danışdığı mövzu?",o:["Sevgi","İş/Dərs","Film","Gələcək"]},
-  {q:"Alış-verişdə nəyə baxır?",o:["Qiymət","Keyfiyyət","Rəng","Brend"]},
-  {q:"Gecə qorxusu varmı?",o:["Yox","Bəzən","Çox","Həmişə"]},
-  {q:"Ən çox hansı emojini istifadə edir?",o:["😂","❤️","😍","🙄"]},
-  {q:"Sevdiyi həftə günü?",o:["Cümə","Şənbə","Bazar","Düzgün"]},
-  {q:"Məktəbdə sevdiyi dərs?",o:["Riyaziyyat","Ədəbiyyat","İdman","Tarix"]},
-  {q:"Serial janrı?",o:["Romantik","Kriminal","Komediya","Fantastik"]},
-  {q:"Özünü necə təsvir edər?",o:["İntrovert","Ekstrovert","Qarışıq","Bilmir"]},
-  {q:"Ən böyük arzusu?",o:["Sağlamlıq","Pul","Sevgi","Uğur"]},
-  {q:"Hansı iş saatını seçər?",o:["Səhər","Standart","Axşam","Gecə"]},
-  {q:"Mübahisə edəndə nə edir?",o:["Susur","Danışır","Gedir","Ağlayır"]},
-  {q:"İdeal evi?",o:["Böyük","Kiçik","Müasir","Klassik"]},
-  {q:"Gündə neçə dəfə güzgüyə baxır?",o:["1-2","Çox","Az","Heç"]},
-  {q:"Yuxuda çox nə görür?",o:["Uçmaq","Düşmək","Tanışlar","Yerlər"]},
-  {q:"Ən xoşbəxt yeri?",o:["Ev","Təbiət","Sevgili yanı","Tənha"]},
-  {q:"Stres altında nə edir?",o:["Yeyir","Yatır","İdman","Susur"]},
-  {q:"Ən güclü tərəfi?",o:["Səbr","Xeyirxahlıq","Zəka","Yaradıcılıq"]},
-  {q:"Ən zəif tərəfi?",o:["Tənbəllik","Həssaslıq","Qayğı","Qərarsızlıq"]},
-  {q:"Pul qazansa ilk nə edər?",o:["Yemək","Geyim","Yığar","Hədiyyə"]},
-  {q:"Sevgilisindən nə gözləyir?",o:["Anlayış","Sevgi","Dürüstlük","Yumor"]},
-  {q:"Kiminə daha çox güvənir?",o:["Özü","Ailə","Sevgili","Dost"]},
-  {q:"Yağışlı havada nə edir?",o:["Evdə qalır","Çölə çıxır","Film","Yatır"]},
-  {q:"Ən sevdiyi bayram?",o:["Novruz","Yeni İl","Ad Günü","Sevgililər"]},
-  {q:"Ad günündə nə istər?",o:["Sürpriz","Sakitlik","Hədiyyə","Birlikdəlik"]},
-  {q:"Fast food sevdiyi?",o:["Burger","Pizza","Kartof","Hotdog"]},
-  {q:"Sosial mediada nə paylaşır?",o:["Şəkil","Video","Fikir","Heç nə"]},
-  {q:"Kitab janrı?",o:["Romantik","Dəhşət","Fəlsəfə","Tarix"]},
-  {q:"Gecə nə düşünür?",o:["Gələcək","Sevgili","Keçmiş","Heç nə"]},
-  {q:"Hansı dili öyrənmək istər?",o:["İngilis","Fransız","Yapon","İspan"]},
-  {q:"Nəyin xəyalını qurur?",o:["Sevgi","Uğur","Səyahət","Sülh"]},
-  {q:"Sevgisini necə göstərir?",o:["Sözlə","Qayğıyla","Hədiyyəylə","Vaxtla"]},
-  {q:"Sürprizi necə qarşılayır?",o:["Həyəcan","Utanc","Sevinc","Gülüş"]},
-  {q:"Hər şeydən əvvəl nə gəlir?",o:["Ailə","Sevgili","İş","Özü"]},
-  {q:"Barışmaq üçün nə edir?",o:["Özü gəlir","Gözləyir","Mesaj yazır","Hədiyyə"]},
-  {q:"Hansı oyunu sevir?",o:["Kart","Video","Masa","Heç birini"]},
-  {q:"Gizlətdiyi bir şey varmı?",o:["Hisslər","Xəyallar","Qorxular","Yox"]},
-  {q:"Özünü niyə sevir?",o:["Dürüstlük","Yumor","Zəka","Gözəllik"]},
-  {q:"Nəyə ağlayır?",o:["Film","Musiqi","Yaxınları","Xatirə"]},
-  {q:"Ən yaxşı keyfiyyəti?",o:["Mehribanlıq","Sədaqət","Dürüstlük","Zarafat"]},
-  {q:"Söhbətdə nə edir?",o:["Dinləyir","Danışır","Sual verir","Düşünür"]},
-  {q:"Kiminlə vaxt keçirməyi sevir?",o:["Sevgili","Ailə","Dostlar","Tənha"]},
-  {q:"Nəyə görə sevilir?",o:["Gülüş","Xasiyyət","Zəka","Görünüş"]},
-  {q:"Gündüz yatmağı sevir?",o:["Həmişə","Bəzən","Nadirən","Heç vaxt"]},
-  {q:"Ən çox nədən qorxur?",o:["İtirmək","Uğursuzluq","Tənha qalmaq","Ölüm"]},
-  {q:"Sirrini kimə deyir?",o:["Heç kimə","Sevgiliyə","Dostuna","Ailəyə"]},
-  {q:"İdeal gecə planı?",o:["Ev","Restoran","Dostlar","Gəzinti"]},
-  {q:"Günün sevdiyi vaxtı?",o:["Səhər","Günorta","Axşam","Gecə"]},
-  {q:"İnsan görəndə ilk hara baxır?",o:["Göz","Gülüş","Geyim","Davranış"]},
-  {q:"Nəyin həsrətini çəkir?",o:["Uşaqlıq","Keçmiş","İnsanlar","Heç nə"]},
-  {q:"Həyat yoldaşında nə axtarır?",o:["Sədaqət","Anlayış","Yumor","Hamısı"]},
-  {q:"Mütləq etdiyi hərəkət?",o:["İdman","Kitab","Musiqi","Gündəlik"]},
-  {q:"Ən çox bağlandığı əşya?",o:["Telefon","Dəftər","Hədiyyə","Geyim"]},
-  {q:"Hansı hissi çox yaşayır?",o:["Sevinc","Həyəcan","Narahatlıq","Sakitlik"]},
-  {q:"Özünü nədə göstərir?",o:["Gülüş","Söz","Hərəkət","Göz"]},
-  {q:"Nə zaman xoşbəxtdir?",o:["Sevdikləriylə","Uğurda","Təbiətdə","Musiqidə"]},
-  {q:"Gözlənilmədən nə edər?",o:["Sürpriz","Susmaq","Danışmaq","Getmək"]},
-  {q:"İlk görəndə nə hiss edir?",o:["Həyəcan","Sakitlik","Maraq","Çəkinmə"]},
-  {q:"Söhbət mövzusu sevdiyi?",o:["Gələcək","Xatirə","Sevgi","Zarafat"]},
-  {q:"Özü haqqında fikri?",o:["Yaxşıyam","Daha yaxşı ola bilərəm","Xüsusiyəm","Adiyəm"]},
-  {q:"Necə güldürülür?",o:["Zarafatla","Qıdıqla","Hər şeyə gülür","Çətin"]},
-  {q:"Sevgilisini nə vaxt sevir?",o:["Qayğıda","Güləndə","Hər zaman","Darıxanda"]},
-  {q:"Romantik hədiyyə?",o:["Çiçək","Məktub","Yemək","Səyahət"]},
-  {q:"Güzəştə getdiyi şey?",o:["Vaxt","Pul","Prinsip","Heç nə"]},
-  {q:"Sən olmasan nə edər?",o:["Ağlar","Susar","Güclü qalar","Darıxar"]},
-  {q:"Nə vaxt tənha hiss edir?",o:["Kütlədə","Gecə","Problemdə","Heç vaxt"]},
-  {q:"Nəyi paylaşmır?",o:["Hiss","Plan","Uğursuzluq","Hər şeyi deyir"]},
-  {q:"Sevgisini necə deyir?",o:["Sözlə","Toxunuşla","Hədiyyəylə","Zamanla"]},
-  {q:"Həyatın mənası nədir?",o:["Sevgi","Ailə","Uğur","Xoşbəxtlik"]}
-];
+    function generateRoomId() {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
 
-const ROUNDS=10;
-const $=id=>document.getElementById(id);
-let myName='',roomCode='',myRole='',usedQs=[],resShown=false,myPhase='',localSelQ=null,localSelA=null,currentQI=null,currentSelQ=null,rRef=null,unsub=null;
+    function showMessage(msg, isError = false) {
+        const statusDiv = document.getElementById("gameStatus");
+        statusDiv.innerHTML = msg;
+        statusDiv.style.background = isError ? "#ffe0e0" : "#e6f4ea";
+        setTimeout(() => {
+            if (document.getElementById("gameStatus") === statusDiv) {
+                statusDiv.style.background = "#e9ecef";
+            }
+        }, 2000);
+    }
 
-function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
-function toast(m){alert(m);}
-function rnd(){return String(Math.floor(1000+Math.random()*9000));}
+    async function joinRoom(roomCode, playerName, createIfNotExist = false) {
+        if (!roomCode || !playerName) {
+            showMessage("Otaq kodu və adınızı daxil edin!", true);
+            return false;
+        }
+        const roomRef = database.ref(`rooms/${roomCode}`);
+        const snapshot = await roomRef.once('value');
+        let roomData = snapshot.val();
+        
+        if (!roomData) {
+            if (createIfNotExist) {
+                // yeni otaq yarat
+                await roomRef.set({
+                    players: {},
+                    gameState: "waiting",
+                    questionerId: null,
+                    answererId: null,
+                    currentQuestion: null,
+                    currentVariants: null,
+                    currentCorrect: null,
+                    pendingFor: null,
+                    lastUpdate: Date.now()
+                });
+                roomData = { players: {} };
+            } else {
+                showMessage("Otaq tapılmadı!", true);
+                return false;
+            }
+        }
+        
+        let players = roomData.players || {};
+        const playerCount = Object.keys(players).length;
+        if (playerCount >= 2 && !players[playerName]) {
+            showMessage("Otaq doludur (2 nəfərlik)!", true);
+            return false;
+        }
+        
+        myPlayerId = playerName;
+        myName = playerName;
+        
+        // oyunçu əlavə et
+        const newPlayer = {
+            name: playerName,
+            score: 0,
+            role: null,
+            joinedAt: Date.now()
+        };
+        await roomRef.child(`players/${playerName}`).update(newPlayer);
+        
+        currentRoom = roomCode;
+        localStorage.setItem("lastRoom", roomCode);
+        localStorage.setItem("lastName", playerName);
+        
+        // rolları təyin et: birinci questioner, ikinci answerer
+        const updatedSnapshot = await roomRef.once('value');
+        const updatedData = updatedSnapshot.val();
+        const updatedPlayers = updatedData.players || {};
+        const playerNames = Object.keys(updatedPlayers);
+        if (playerNames.length === 1) {
+            myRole = "questioner";
+            await roomRef.child(`players/${playerName}/role`).set("questioner");
+            await roomRef.child("questionerId").set(playerName);
+            await roomRef.child("gameState").set("waiting_answerer");
+        } else if (playerNames.length === 2) {
+            if (updatedData.questionerId) {
+                myRole = updatedData.questionerId === playerName ? "questioner" : "answerer";
+            } else {
+                myRole = playerNames[0] === playerName ? "questioner" : "answerer";
+                await roomRef.child("questionerId").set(playerNames[0]);
+            }
+            await roomRef.child(`players/${playerName}/role`).set(myRole);
+            if (myRole === "answerer") {
+                await roomRef.child("answererId").set(playerName);
+                await roomRef.child("gameState").set("question_select");
+            }
+        }
+        
+        startListening(roomCode);
+        showMessage(`✅ Otağa qoşuldun: ${roomCode} | Rol: ${myRole === "questioner" ? "Sual verən" : "Cavab verən"}`);
+        return true;
+    }
 
-function pick3(){
-  let av=QS.map((_,i)=>i).filter(i=>!usedQs.includes(i));
-  if(av.length<3){usedQs=[]; av=QS.map((_,i)=>i);}
-  let p=[];while(p.length<3){let i=av[Math.floor(Math.random()*av.length)];if(!p.includes(i))p.push(i);}
-  return p;
-}
+    function startListening(roomCode) {
+        if (gameDataRef) gameDataRef.off();
+        const roomRef = database.ref(`rooms/${roomCode}`);
+        roomRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+            renderGameUI(data);
+            // cavab göndərilmə gözləməsi
+            if (data.gameState === "answering" && data.pendingFor === myName && myRole === "answerer") {
+                if (data.currentQuestion && !waitingForAnswer) {
+                    waitingForAnswer = true;
+                    currentQuestionObj = {
+                        text: data.currentQuestion,
+                        variants: data.currentVariants || [],
+                        correct: data.currentCorrect
+                    };
+                    showAnswerInterface(data.currentQuestion, data.currentVariants, data.currentCorrect);
+                }
+            } else {
+                waitingForAnswer = false;
+            }
+        });
+    }
 
-window.createRoom=async function(){
-  const n=$('iName').value.trim(); if(!n){alert('Ad daxil et!'); return;}
-  roomCode=rnd(); myName=n; rRef=ref(db,`rooms/${roomCode}`);
-  await set(rRef,{player1:{name:n,score:0},player2:null,status:'waiting',round:1,roles:{},currentQ:null});
-  $('dispCode').textContent=roomCode; showScr('sWait'); listen();
-};
+    function renderGameUI(roomData) {
+        const contentDiv = document.getElementById("gameContent");
+        const players = roomData.players || {};
+        const gameState = roomData.gameState;
+        const questionerId = roomData.questionerId;
+        const answererId = roomData.answererId;
+        const myScore = players[myName]?.score || 0;
+        
+        if (!myRole) {
+            contentDiv.innerHTML = `<div class="waiting">Rol təyin edilir...</div>`;
+            return;
+        }
+        
+        if (gameState === "waiting_answerer" && myRole === "questioner") {
+            contentDiv.innerHTML = `
+                <div class="waiting">⏳ İkinci oyunçu gözlənilir... Cavab verən qoşulsun!</div>
+                <div class="score">⭐ Sizin xal: ${myScore}</div>
+            `;
+            return;
+        }
+        
+        if (myRole === "questioner" && gameState === "question_select") {
+            // 3 sual seçimi göstər (random 3 sual)
+            const randomQuestions = [];
+            const shuffled = [...questionsDB];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            for (let i = 0; i < 3; i++) randomQuestions.push(shuffled[i]);
+            
+            let html = `<div class="question-area"><h3>📢 Sual verən (siz): Cavab verənə hansı sualı vermək istəyirsiniz?</h3>`;
+            randomQuestions.forEach((q, idx) => {
+                html += `<button class="question-btn" onclick="selectQuestion(${q.id})">❓ ${q.text}</button>`;
+            });
+            html += `<div class="score">🏆 Sizin xal: ${myScore}</div></div>`;
+            contentDiv.innerHTML = html;
+            window.selectQuestion = async (qId) => {
+                const question = questionsDB.find(q => q.id === qId);
+                if (!question) return;
+                const roomRef = database.ref(`rooms/${currentRoom}`);
+                await roomRef.update({
+                    currentQuestion: question.text,
+                    currentVariants: question.variants,
+                    currentCorrect: question.correct,
+                    gameState: "answering",
+                    pendingFor: answererId
+                });
+                showMessage("Sual cavab verənə göndərildi!");
+            };
+            return;
+        }
+        
+        if (myRole === "answerer" && gameState === "question_select") {
+            contentDiv.innerHTML = `<div class="waiting">🤔 Sual verən sual seçir... Gözləyin ⏳</div><div class="score">⭐ Xalınız: ${myScore}</div>`;
+            return;
+        }
+        
+        if (gameState === "answering" && myRole === "questioner") {
+            contentDiv.innerHTML = `<div class="waiting">Cavab verən cavablandırır... ⏳</div><div class="score">⭐ Xalınız: ${myScore}</div>`;
+        }
+        
+        if (gameState === "result_show") {
+            contentDiv.innerHTML = `<div class="waiting">⚡ Nəticə göndərildi, yeni sual üçün hazırlıq...</div><div class="score">Xal: ${myScore}</div>`;
+        }
+    }
+    
+    async function showAnswerInterface(questionText, variants, correctIdx) {
+        const contentDiv = document.getElementById("gameContent");
+        contentDiv.innerHTML = `
+            <div class="answer-area">
+                <h3>❓ Sual: ${questionText}</h3>
+                <p>Cavab verən sənsən! Düzgün variantı seç.</p>
+                <div id="variantsList"></div>
+            </div>
+        `;
+        const container = document.getElementById("variantsList");
+        variants.forEach((opt, idx) => {
+            const btn = document.createElement("button");
+            btn.innerText = opt;
+            btn.className = "option-btn";
+            btn.style.display = "block";
+            btn.style.width = "100%";
+            btn.style.margin = "8px 0";
+            btn.onclick = async () => {
+                const isCorrect = (idx === correctIdx);
+                const roomRef = database.ref(`rooms/${currentRoom}`);
+                const playerRef = roomRef.child(`players/${myName}`);
+                const snapshot = await playerRef.once('value');
+                let currentScore = snapshot.val()?.score || 0;
+                let newScore = isCorrect ? currentScore + 5 : currentScore - 5;
+                await playerRef.update({ score: newScore });
+                showMessage(isCorrect ? "🎉 Düzgün cavab! +5 xal" : "❌ Səhv cavab! -5 xal", !isCorrect);
+                // növbəti sual seçiminə qayıt
+                await roomRef.update({
+                    gameState: "question_select",
+                    currentQuestion: null,
+                    pendingFor: null
+                });
+                waitingForAnswer = false;
+                renderGameUI((await roomRef.once('value')).val());
+            };
+            container.appendChild(btn);
+        });
+    }
 
-window.joinRoom=async function(){
-  const n=$('iName').value.trim(), c=$('iRoom').value.trim();
-  if(!n||!c){alert('Ad və Kod daxil et!'); return;}
-  rRef=ref(db,`rooms/${c}`); const snap=await get(rRef);
-  if(!snap.exists()){alert('Otaq yoxdur!'); return;}
-  myName=n; roomCode=c;
-  await set(ref(db,`rooms/${c}/player2`),{name:n,score:0});
-  await set(ref(db,`rooms/${c}/status`),'role');
-  $('dispCode').textContent=c; showScr('sWait'); listen();
-};
-
-function listen(){
-  if(unsub)off(rRef,'value',unsub);
-  unsub=onValue(rRef,snap=>{ if(snap.exists()) handle(snap.val()); });
-}
-
-function handle(d){
-  const curScr=[...document.querySelectorAll('.screen.on')][0]?.id;
-  if(d.status==='role' && (curScr==='sWait' || curScr==='sJoin')){ showScr('sRole'); return; }
-  if(curScr==='sRole'){ handleRole(d); return; }
-  if(d.status==='playing'){
-    if(curScr!=='sGame'){
-      const isP1=d.player1.name===myName;
-      myRole=d.roles[isP1?'player1':'player2'];
-      $('sn1').textContent=d.player1.name; $('sn2').textContent=d.player2.name;
-      showScr('sGame');
-      syncView(d);
-    } else { syncView(d); }
-  }
-  if(d.status==='finished') showFinal(d);
-}
-
-async function handleRole(d){
-  if(!d.roles || !d.roles.player1 || !d.roles.player2) return;
-  if(d.roles.player1 === d.roles.player2){
-    if(d.player1.name===myName){ alert('Eyni rollar! Yenidən seçin.'); set(ref(db,`rooms/${roomCode}/roles`),{}); }
-    $('roleBtn').style.display='none'; $('roleSt').style.display='none'; return;
-  }
-  if(d.player1.name===myName && d.status!=='playing'){
-    const qi=pick3();
-    await set(ref(db,`rooms/${roomCode}/currentQ`),{qi,phase:'asker_pick'});
-    await set(ref(db,`rooms/${roomCode}/status`),'playing');
-  }
-}
-
-function syncView(d){
-  const cq=d.currentQ; if(!cq) return;
-  const isP1=d.player1.name===myName;
-  myRole=d.roles[isP1?'player1':'player2'];
-  $('svRound').textContent=`${d.round}/${ROUNDS}`;
-  $('sv1').textContent=d.player1.score; $('sv2').textContent=d.player2.score;
-
-  ['vPickQ','vPickAns','vAskWait','vAnsWait','vAnsQ'].forEach(id=>$(id).style.display='none');
-
-  if(myRole==='asker'){
-    if(cq.phase==='asker_pick') { showPickQ(cq); }
-    else if(cq.phase==='asker_answer') { showPickAns(cq); }
-    else { $('vAskWait').style.display='block'; }
-  } else {
-    if(cq.phase==='answerer_pick') { showAnsQ(cq); }
-    else { $('vAnsWait').style.display='block'; }
-  }
-  if(cq.phase==='show_result' && !resShown){ resShown=true; showResult(d); }
-}
-
-function showPickQ(cq){
-  $('vPickQ').style.display='block'; currentQI=cq.qi;
-  $('qList').innerHTML=cq.qi.map((idx,i)=>`<div class="qi" id="qi${i}" onclick="localSelQ=${i}; document.querySelectorAll('.qi').forEach(e=>e.classList.remove('sel')); $('qi${i}').classList.add('sel')">${QS[idx].q}</div>`).join('');
-}
-
-window.doSendQ=async function(){
-  if(localSelQ===null) return;
-  await set(ref(db,`rooms/${roomCode}/currentQ/selQ`),localSelQ);
-  await set(ref(db,`rooms/${roomCode}/currentQ/phase`),'asker_answer');
-};
-
-function showPickAns(cq){
-  $('vPickAns').style.display='block'; const qo=QS[cq.qi[cq.selQ]];
-  $('askQShow').textContent=qo.q;
-  $('askChoices').innerHTML=qo.o.map((o,i)=>`<div class="ch" id="ac${i}" onclick="localSelA=${i}; document.querySelectorAll('#askChoices .ch').forEach(e=>e.classList.remove('picked')); $('ac${i}').classList.add('picked')">${o}</div>`).join('');
-}
-
-window.doSetCorrect=async function(){
-  if(localSelA===null) return;
-  await set(ref(db,`rooms/${roomCode}/currentQ/ca`),localSelA);
-  await set(ref(db,`rooms/${roomCode}/currentQ/phase`),'answerer_pick');
-};
-
-function showAnsQ(cq){
-  $('vAnsQ').style.display='block'; const qo=QS[cq.qi[cq.selQ]];
-  $('ansQText').textContent=qo.q;
-  $('ansChoices').innerHTML=qo.o.map((o,i)=>`<div class="ch" onclick="submitAns(${i})">${o}</div>`).join('');
-}
-
-window.submitAns=async function(i){
-  const snap=await get(ref(db,`rooms/${roomCode}`)); const d=snap.val();
-  const ok = i === d.currentQ.ca;
-  const isP1 = d.player1.name===myName;
-  const newScore = (isP1?d.player1.score:d.player2.score) + (ok?5:-5);
-  await set(ref(db,`rooms/${roomCode}/${isP1?'player1':'player2'}/score`),newScore);
-  await set(ref(db,`rooms/${roomCode}/currentQ/aok`),ok);
-  await set(ref(db,`rooms/${roomCode}/currentQ/ca_text`),QS[d.currentQ.qi[d.currentQ.selQ]].o[d.currentQ.ca]);
-  await set(ref(db,`rooms/${roomCode}/currentQ/phase`),'show_result');
-};
-
-function showResult(d){
-  $('resOv').style.display='flex'; resShown=true;
-  $('resT').textContent=d.currentQ.aok?'Düzdür! 🎉':'Səhvdir! 💔';
-  $('resM').textContent=`Düzgün cavab: ${d.currentQ.ca_text}`;
-  $('resBtn').style.display = myRole==='answerer'?'block':'none';
-}
-
-window.nextRound=async function(){
-  resShown=false; $('resOv').style.display='none';
-  const d=(await get(rRef)).val();
-  if(d.round >= ROUNDS){ await set(ref(db,`rooms/${roomCode}/status`),'finished'); return; }
-  const qi=pick3();
-  await set(ref(db,`rooms/${roomCode}/round`), d.round+1);
-  await set(ref(db,`rooms/${roomCode}/currentQ`), {qi,phase:'asker_pick'});
-};
-
-function showFinal(d){
-  showScr('sFinal');
-  const s1=d.player1.score, s2=d.player2.score;
-  $('finScores').innerHTML=`${d.player1.name}: ${s1} xal<br>${d.player2.name}: ${s2} xal`;
-}
-
-window.selRole=function(r){ myRole=r; $('rcA').className=r==='asker'?'rcard sel':'rcard'; $('rcB').className=r==='answerer'?'rcard sel':'rcard'; $('roleBtn').style.display='block'; };
-window.confirmRole=async function(){
-  const isP1=(await get(rRef)).val().player1.name===myName;
-  await set(ref(db,`rooms/${roomCode}/roles/${isP1?'player1':'player2'}`),myRole);
-  $('roleBtn').style.display='none'; $('roleSt').style.display='block'; $('roleSt').textContent='Sevgilini gözləyirəm...';
-};
+    document.getElementById("joinRoomBtn").onclick = async () => {
+        const roomCode = document.getElementById("roomCode").value.trim();
+        const playerName = document.getElementById("playerName").value.trim();
+        if (!roomCode || !playerName) {
+            showMessage("Otaq kodu və ad daxil edin!", true);
+            return;
+        }
+        await joinRoom(roomCode, playerName, false);
+    };
+    
+    document.getElementById("createRoomBtn").onclick = async () => {
+        const newRoom = generateRoomId();
+        const playerName = document.getElementById("playerName").value.trim();
+        if (!playerName) {
+            showMessage("Adınızı daxil edin!", true);
+            return;
+        }
+        document.getElementById("roomCode").value = newRoom;
+        await joinRoom(newRoom, playerName, true);
+    };
+    
+    // avtomatik yükləmə
+    (function init() {
+        const lastRoom = localStorage.getItem("lastRoom");
+        const lastName = localStorage.getItem("lastName");
+        if (lastRoom && lastName) {
+            document.getElementById("roomCode").value = lastRoom;
+            document.getElementById("playerName").value = lastName;
+        }
+    })();
 </script>
 </body>
 </html>
-
-```
