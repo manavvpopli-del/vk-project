@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>⚡ Sürətli Barmaqlar - PlayWithLove</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --pink: #e91e8c; --pink-light: #ff6bb5; --purple: #7c3aed; --purple-light: #a855f7;
+    --bg-dark: #0d0d1a; --bg-card: #1a1a2e; --text: #f0f0f0;
+    --text-muted: #a0a0c0; --border: rgba(233,30,140,0.25);
+    --success: #10b981; --error: #ef4444; --warning: #f59e0b;
+  }
+  body {
+    font-family: 'Segoe UI', 'Courier New', monospace;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #0f0f23 100%);
+    min-height: 100vh; color: var(--text); overflow-x: hidden;
+  }
+  
+  .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .heart { position: absolute; font-size: 14px; opacity: 0; animation: floatHeart linear infinite; color: var(--pink-light); }
+  @keyframes floatHeart {
+    0% { opacity: 0; transform: translateY(100vh) scale(0.3); }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-10vh) scale(1.2) rotate(20deg); }
+  }
+  
+  .container { max-width: 950px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+  
+  .login-box {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 48px;
+    padding: 2.5rem; text-align: center; max-width: 400px; margin: 80px auto;
+    box-shadow: 0 0 60px rgba(233,30,140,0.15);
+  }
+  .login-box h2 { font-size: 2rem; margin-bottom: 10px; background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .login-box input {
+    width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 60px; color: var(--text); font-size: 1rem; margin: 15px 0; outline: none;
+  }
+  .login-box input:focus { border-color: var(--pink); }
+  .login-box button {
+    background: linear-gradient(135deg, var(--pink), var(--purple)); border: none;
+    padding: 14px 30px; border-radius: 60px; color: white; font-size: 1rem; font-weight: bold;
+    cursor: pointer; transition: all 0.3s; width: 100%;
+  }
+  .login-box button:hover { transform: scale(1.02); opacity: 0.9; }
+  
+  .room-panel {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 32px;
+    padding: 25px; margin-bottom: 25px;
+  }
+  .flex-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; }
+  .room-input { flex: 1; min-width: 160px; }
+  .room-input label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 5px; }
+  .room-input input {
+    width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border); border-radius: 60px; color: var(--text); font-size: 1rem;
+  }
+  .room-input button {
+    width: 100%; padding: 12px 16px; background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none; border-radius: 60px; color: white; font-weight: bold; cursor: pointer; transition: all 0.2s;
+  }
+  .room-input button:hover { transform: translateY(-2px); }
+  
+  .game-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 48px;
+    padding: 30px; animation: slideIn 0.5s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .timer-area {
+    text-align: center; margin-bottom: 20px;
+  }
+  .timer-circle {
+    width: 120px; height: 120px; margin: 0 auto;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px rgba(233,30,140,0.3);
+  }
+  .timer-value {
+    font-size: 3rem; font-weight: bold; background: var(--bg-dark);
+    width: 100px; height: 100px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  
+  .word-area {
+    text-align: center; padding: 30px; margin: 20px 0;
+    background: rgba(0,0,0,0.3); border-radius: 40px;
+    border: 2px solid var(--border);
+  }
+  .word-to-type {
+    font-size: 2rem; font-weight: bold; letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    word-break: break-word;
+  }
+  
+  .input-area {
+    margin: 20px 0;
+  }
+  .type-input {
+    width: 100%; padding: 18px; font-size: 1.2rem;
+    background: rgba(255,255,255,0.05); border: 2px solid var(--border);
+    border-radius: 60px; color: var(--text); text-align: center;
+    font-family: monospace; letter-spacing: 1px;
+    outline: none; transition: all 0.3s;
+  }
+  .type-input:focus { border-color: var(--pink); transform: scale(1.01); }
+  .type-input.correct { border-color: var(--success); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+  .type-input.wrong { border-color: var(--error); }
+  .type-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  .submit-btn {
+    width: 100%; padding: 16px; margin-top: 15px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none; border-radius: 60px; color: white; font-size: 1.2rem;
+    font-weight: bold; cursor: pointer; transition: all 0.3s;
+  }
+  .submit-btn:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 5px 20px rgba(233,30,140,0.3); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  .score-board {
+    display: flex; justify-content: space-between; padding: 20px 0; margin-top: 20px;
+    border-top: 2px solid var(--border);
+  }
+  .score { text-align: center; flex: 1; }
+  .score-value { font-size: 2.8rem; font-weight: bold; background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .score-name { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
+  
+  .waiting { text-align: center; padding: 50px; font-size: 1.2rem; animation: pulseText 1.5s infinite; }
+  @keyframes pulseText { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  
+  .next-btn {
+    width: 100%; padding: 18px; background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none; border-radius: 60px; color: white; font-size: 1.2rem; font-weight: bold;
+    cursor: pointer; margin-top: 20px; transition: all 0.3s;
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+  
+  .message {
+    text-align: center; padding: 12px; border-radius: 60px; margin: 10px 0;
+    animation: slideDown 0.3s ease;
+  }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  .message.success { background: rgba(16,185,129,0.2); color: var(--success); border: 1px solid var(--success); }
+  .message.error { background: rgba(239,68,68,0.2); color: var(--error); border: 1px solid var(--error); }
+  .message.info { background: rgba(245,158,11,0.2); color: var(--warning); border: 1px solid var(--warning); }
+  
+  .copy-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid var(--border);
+    padding: 8px 15px; border-radius: 60px; cursor: pointer; margin-left: 10px;
+  }
+  .copy-btn:hover { background: var(--pink); }
+  
+  .status-badge {
+    display: inline-block; padding: 8px 20px; border-radius: 60px;
+    background: rgba(0,0,0,0.3); margin-bottom: 20px;
+  }
+  
+  @media (max-width: 600px) {
+    .container { padding: 10px; }
+    .word-to-type { font-size: 1.2rem; }
+    .timer-circle { width: 90px; height: 90px; }
+    .timer-value { width: 75px; height: 75px; font-size: 2rem; }
+    .score-value { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="hearts-bg" id="heartsContainer"></div>
+<div class="container" id="app">
+  <div id="loginScreen">
+    <div class="login-box">
+      <h2>⚡ Sürətli Barmaqlar</h2>
+      <p style="color:var(--text-muted); margin:10px 0">Kim daha sürətli yazır? Yarış başlasın!</p>
+      <input type="text" id="playerName" placeholder="Adınız" maxlength="20">
+      <button onclick="handleLogin()">⚡ YARIŞA BAŞLA</button>
+    </div>
+  </div>
+  
+  <div id="gamePanel" style="display: none;">
+    <div class="room-panel">
+      <div class="flex-row">
+        <div class="room-input">
+          <label>🏠 OTAQ KODU</label>
+          <input type="text" id="roomCode" placeholder="Məs: FAST">
+        </div>
+        <div class="room-input">
+          <button onclick="joinRoom()">🔗 OTAĞA QOŞUL</button>
+        </div>
+        <div class="room-input">
+          <button onclick="createRoom()">✨ YENİ OTAQ YARAT</button>
+        </div>
+      </div>
+    </div>
+    <div id="gameContent"></div>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+    authDomain: "sevgili-testi.firebaseapp.com",
+    databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+    projectId: "sevgili-testi",
+    storageBucket: "sevgili-testi.firebasestorage.app",
+    messagingSenderId: "399260477557",
+    appId: "1:399260477557:web:584204a698d7bf145bb03c"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // ==================== UZUN SÖZLƏR LÜĞƏTİ (30 ədəd) ====================
+  const wordsList = [
+    "sevgilimlə birlikdə əyləncə",
+    "birlikdə xoşbəxt gələcək",
+    "səni hər şeydən çox sevirəm",
+    "ömür boyu birlikdə olmaq",
+    "gözəl xatirələr bir yerdə",
+    "sən mənim hər şeyimsən",
+    "birlikdə gülmək çox gözəl",
+    "sənsiz həyat çox mənasız",
+    "səninlə hər an daha gözəl",
+    "sevgimiz heç vaxt bitməsin",
+    "birlikdə yaşamaq çox xoşdur",
+    "sən mənim ən yaxşı sevgim",
+    "bir ömür boyu səninləyəm",
+    "səninlə hər gün bayramdır",
+    "mənim tək sevgilim sənsən",
+    "sən mənim ürəyimin səsisən",
+    "birlikdə çox gözəl günlər",
+    "sən mənim ən böyük sevgim",
+    "səni tanıdığım üçün xoşbəxtəm",
+    "birlikdə qocalmaq istəyirəm",
+    "sən mənim həyat yoldaşımsan",
+    "birlikdə xəyallar quraq",
+    "səninlə hər şey daha asan",
+    "mənim gözəl sevgilim sənsən",
+    "sən mənim ən dəyərlimsən",
+    "birlikdə çox xoşbəxtik",
+    "sən mənim canımın içisən",
+    "səninlə hər an dəyərlidir",
+    "sən mənim tək eşqimsən",
+    "birlikdə sonsuza qədər"
+  ];
+
+  let currentRoom = null;
+  let myName = null;
+  let myRole = null; // "player1" or "player2"
+  let roomRef = null;
+  let timerInterval = null;
+  let timeLeft = 15;
+  let roundActive = false;
+  let currentWord = "";
+  let hasSubmitted = false;
+
+  function getRandomWord() {
+    return wordsList[Math.floor(Math.random() * wordsList.length)];
+  }
+
+  function generateRoomId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return result;
+  }
+
+  function showMessage(msg, type = "success") {
+    const content = document.getElementById("gameContent");
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${type}`;
+    msgDiv.textContent = msg;
+    const firstChild = content.firstChild;
+    content.insertBefore(msgDiv, firstChild);
+    setTimeout(() => msgDiv.remove(), 2500);
+  }
+
+  async function createRoom() {
+    if (!myName) return;
+    const roomCode = generateRoomId();
+    document.getElementById("roomCode").value = roomCode;
+    
+    const roomDatabaseRef = db.ref(`fast_fingers_rooms/${roomCode}`);
+    await roomDatabaseRef.set({
+      players: {},
+      gameState: "waiting",
+      currentWord: null,
+      roundActive: false,
+      roundEnded: false,
+      winner: null,
+      currentPlayerTurn: null,
+      createdAt: Date.now()
+    });
+    
+    await joinRoom(roomCode);
+    showMessage(`✨ Otaq yaradıldı! Kod: ${roomCode}`, "success");
+  }
+
+  async function joinRoom(roomCodeFromParam) {
+    const roomCode = roomCodeFromParam || document.getElementById("roomCode").value;
+    if (!roomCode || !myName) {
+      showMessage("Adınızı və otaq kodunu daxil edin!", "error");
+      return;
+    }
+    
+    const roomDatabaseRef = db.ref(`fast_fingers_rooms/${roomCode}`);
+    const snapshot = await roomDatabaseRef.once('value');
+    const roomData = snapshot.val();
+    
+    if (!roomData) {
+      showMessage("Otaq tapılmadı! Yeni otaq yaradın.", "error");
+      return;
+    }
+    
+    const players = roomData.players || {};
+    const playerCount = Object.keys(players).length;
+    
+    if (playerCount >= 2 && !players[myName]) {
+      showMessage("Otaq doludur (2 nəfərlik)!", "error");
+      return;
+    }
+    
+    await roomDatabaseRef.child(`players/${myName}`).set({
+      name: myName,
+      score: 0,
+      joinedAt: Date.now()
+    });
+    
+    currentRoom = roomCode;
+    localStorage.setItem("fast_lastRoom", roomCode);
+    startListening(roomCode);
+    showMessage(`✅ Otağa qoşuldun! Kod: ${roomCode}`, "success");
+  }
+
+  async function startListening(roomCode) {
+    if (roomRef) roomRef.off();
+    roomRef = db.ref(`fast_fingers_rooms/${roomCode}`);
+    
+    roomRef.on('value', async (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      
+      const players = data.players || {};
+      const playerNames = Object.keys(players);
+      const playerCount = playerNames.length;
+      
+      // Rolları təyin et
+      if (playerCount === 2 && !data.gameStarted) {
+        await roomRef.update({ 
+          gameStarted: true,
+          gameState: "playing"
+        });
+      }
+      
+      if (playerCount === 2 && !data.currentWord && data.gameState === "playing") {
+        await startNewRound();
+      }
+      
+      renderGame(data);
+    });
+  }
+
+  async function startNewRound() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    const newWord = getRandomWord();
+    currentWord = newWord;
+    timeLeft = 15;
+    hasSubmitted = false;
+    roundActive = true;
+    
+    await roomRef.update({
+      currentWord: newWord,
+      roundActive: true,
+      roundEnded: false,
+      winner: null,
+      timeLeft: 15,
+      startTime: Date.now()
+    });
+    
+    startTimer();
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    timerInterval = setInterval(async () => {
+      if (!roundActive) return;
+      
+      timeLeft--;
+      await roomRef.update({ timeLeft: timeLeft });
+      
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        roundActive = false;
+        
+        // Vaxt bitdi, heç kim yazmasa -2 xal hər ikiyə
+        const snapshot = await roomRef.once('value');
+        const data = snapshot.val();
+        const players = data.players || {};
+        
+        for (const [playerId, playerData] of Object.entries(players)) {
+          if (!playerData.submittedThisRound) {
+            const newScore = (playerData.score || 0) - 2;
+            await roomRef.child(`players/${playerId}/score`).set(newScore);
+            await roomRef.child(`players/${playerId}/submittedThisRound`).set(false);
+          }
+        }
+        
+        await roomRef.update({ 
+          roundEnded: true,
+          roundActive: false
+        });
+        
+        showMessage("⏰ Vaxt bitdi! Heç kim yaza bilmədi.", "error");
+      }
+    }, 1000);
+  }
+
+  async function submitAnswer() {
+    if (!roundActive || hasSubmitted) return;
+    
+    const input = document.getElementById("typeInput");
+    const answer = input.value.trim().toLowerCase();
+    const correctWord = currentWord.toLowerCase();
+    
+    if (answer !== correctWord) {
+      showMessage("❌ Söz səhv yazılıb! Dəqiq yazmalısınız.", "error");
+      input.classList.add("wrong");
+      setTimeout(() => input.classList.remove("wrong"), 500);
+      return;
+    }
+    
+    hasSubmitted = true;
+    clearInterval(timerInterval);
+    roundActive = false;
+    
+    // +5 xal
+    const playerRef = roomRef.child(`players/${myName}`);
+    const snapshot = await playerRef.once('value');
+    const currentScore = snapshot.val()?.score || 0;
+    await playerRef.update({ 
+      score: currentScore + 5,
+      submittedThisRound: true,
+      submitTime: Date.now()
+    });
+    
+    input.disabled = true;
+    document.getElementById("submitBtn").disabled = true;
+    
+    showMessage("🎉 DÜZGÜN YAZDIN! +5 xal qazandın!", "success");
+    
+    // Qalibi yoxla
+    const roomSnapshot = await roomRef.once('value');
+    const data = roomSnapshot.val();
+    const players = data.players || {};
+    const submissions = [];
+    
+    for (const [playerId, playerData] of Object.entries(players)) {
+      if (playerData.submittedThisRound) {
+        submissions.push(playerId);
+      }
+    }
+    
+    if (submissions.length === 2) {
+      await roomRef.update({ roundEnded: true });
+    } else {
+      // Birinci yazan qazandı, digəri -2 xal
+      // Digər oyunçu hələ yazmayıbsa, gözləyək
+      setTimeout(async () => {
+        const checkSnapshot = await roomRef.once('value');
+        const checkData = checkSnapshot.val();
+        if (!checkData.roundEnded && checkData.roundActive === false) {
+          // Digər oyunçu yazmadı
+          for (const [playerId, playerData] of Object.entries(checkData.players || {})) {
+            if (!playerData.submittedThisRound) {
+              const newScore = (playerData.score || 0) - 2;
+              await roomRef.child(`players/${playerId}/score`).set(newScore);
+              await roomRef.child(`players/${playerId}/submittedThisRound`).set(true);
+            }
+          }
+          await roomRef.update({ roundEnded: true });
+        }
+      }, 100);
+    }
+  }
+
+  async function renderGame(data) {
+    const contentDiv = document.getElementById("gameContent");
+    const players = data.players || {};
+    const playerNames = Object.keys(players);
+    const myScore = players[myName]?.score || 0;
+    const opponentName = playerNames.find(n => n !== myName);
+    const opponentScore = opponentName ? players[opponentName]?.score || 0 : 0;
+    const gameState = data.gameState;
+    const roundActive = data.roundActive;
+    const roundEnded = data.roundEnded;
+    const currentWordDisplay = data.currentWord || "Hazırlaşın...";
+    const timeLeftDisplay = data.timeLeft || 15;
+    
+    if (playerNames.length < 2) {
+      contentDiv.innerHTML = `
+        <div class="game-card">
+          <div class="waiting">
+            ⏳ İkinci oyunçu gözlənilir...<br><br>
+            <strong style="font-size: 2rem; letter-spacing: 3px;">${currentRoom}</strong>
+            <button class="copy-btn" onclick="copyRoomCode()">📋 Kopyala</button>
+          </div>
+          <div class="score-board">
+            <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
+            <div class="score"><div class="score-value">${opponentScore || "?"}</div><div class="score-name">${opponentName || "Gözlənilir..."}</div></div>
+          </div>
+        </div>`;
+      return;
+    }
+    
+    if (roundEnded) {
+      contentDiv.innerHTML = `
+        <div class="game-card">
+          <div class="timer-area">
+            <div class="timer-circle">
+              <div class="timer-value">✅</div>
+            </div>
+          </div>
+          <div class="word-area">
+            <div class="word-to-type">"${currentWordDisplay}"</div>
+          </div>
+          <div class="score-board">
+            <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
+            <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
+          </div>
+          <button class="next-btn" onclick="nextRound()">🔄 NÖVBƏTİ SÖZ</button>
+        </div>`;
+      return;
+    }
+    
+    if (roundActive) {
+      const isDisabled = hasSubmitted;
+      contentDiv.innerHTML = `
+        <div class="game-card">
+          <div class="timer-area">
+            <div class="timer-circle">
+              <div class="timer-value" id="timerValue">${timeLeftDisplay}</div>
+            </div>
+          </div>
+          <div class="word-area">
+            <div class="word-to-type">"${currentWordDisplay}"</div>
+          </div>
+          <div class="input-area">
+            <input type="text" id="typeInput" class="type-input" placeholder="Sözü buraya yaz..." ${isDisabled ? 'disabled' : ''} autocomplete="off">
+            <button id="submitBtn" class="submit-btn" ${isDisabled ? 'disabled' : ''} onclick="submitAnswer()">⚡ TƏSDİQ ET</button>
+          </div>
+          <div class="score-board">
+            <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
+            <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
+          </div>
+          <div class="status-badge">⏱️ ${timeLeftDisplay} saniyə qaldı</div>
+        </div>`;
+      
+      // Timer real-time yenilənməsi
+      const timerEl = document.getElementById("timerValue");
+      if (timerEl && timerEl.textContent !== timeLeftDisplay.toString()) {
+        timerEl.textContent = timeLeftDisplay;
+        if (timeLeftDisplay <= 5) {
+          timerEl.style.color = "var(--error)";
+          timerEl.style.animation = "pulse 0.5s infinite";
+        }
+      }
+      
+      const input = document.getElementById("typeInput");
+      if (input && !isDisabled) {
+        input.focus();
+        input.onkeypress = (e) => {
+          if (e.key === 'Enter') submitAnswer();
+        };
+      }
+      return;
+    }
+    
+    contentDiv.innerHTML = `
+      <div class="game-card">
+        <div class="waiting">⏳ Yeni raund hazırlaşır...</div>
+        <div class="score-board">
+          <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
+          <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
+        </div>
+      </div>`;
+  }
+  
+  window.nextRound = async function() {
+    await startNewRound();
+    
+    // Input'u təmizlə və aktiv et
+    setTimeout(() => {
+      const input = document.getElementById("typeInput");
+      if (input) {
+        input.value = "";
+        input.disabled = false;
+        input.focus();
+      }
+      const btn = document.getElementById("submitBtn");
+      if (btn) btn.disabled = false;
+    }, 100);
+  };
+  
+  window.submitAnswer = submitAnswer;
+  
+  window.copyRoomCode = function() {
+    navigator.clipboard.writeText(currentRoom);
+    showMessage("📋 Otaq kodu kopyalandı!", "success");
+  };
+  
+  window.handleLogin = function() {
+    const name = document.getElementById("playerName").value.trim();
+    if (!name || name.length < 2) {
+      showMessage("Adınızı daxil edin (min 2 hərf)", "error");
+      return;
+    }
+    myName = name;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("gamePanel").style.display = "block";
+    
+    const lastRoom = localStorage.getItem("fast_lastRoom");
+    if (lastRoom) document.getElementById("roomCode").value = lastRoom;
+  };
+  
+  // Hearts animation
+  (function() {
+    const container = document.getElementById("heartsContainer");
+    const hearts = ['⚡', '💨', '💕', '💗', '❤️', '💖', '⚡', '💫'];
+    for (let i = 0; i < 35; i++) {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.animationDuration = 6 + Math.random() * 14 + "s";
+      heart.style.animationDelay = Math.random() * 15 + "s";
+      heart.style.fontSize = 12 + Math.random() * 20 + "px";
+      container.appendChild(heart);
+    }
+  })();
+  
+  window.createRoom = createRoom;
+  window.joinRoom = joinRoom;
+</script>
+</body>
+</html>
