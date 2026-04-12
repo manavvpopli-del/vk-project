@@ -9,8 +9,7 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --pink: #e91e8c; --pink-light: #ff6bb5; --pink-dark: #c0156f;
-    --purple: #7c3aed; --purple-light: #a855f7;
+    --pink: #e91e8c; --pink-light: #ff6bb5; --purple: #7c3aed; --purple-light: #a855f7;
     --bg-dark: #0d0d1a; --bg-card: #1a1a2e; --text: #f0f0f0;
     --text-muted: #a0a0c0; --border: rgba(233,30,140,0.25);
     --success: #10b981; --error: #ef4444; --warning: #f59e0b;
@@ -21,7 +20,6 @@
     min-height: 100vh; color: var(--text); overflow-x: hidden;
   }
   
-  /* Animasiya ürəklər */
   .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
   .heart { position: absolute; font-size: 14px; opacity: 0; animation: floatHeart linear infinite; color: var(--pink-light); }
   @keyframes floatHeart {
@@ -33,7 +31,6 @@
   
   .container { max-width: 950px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
   
-  /* Login Box */
   .login-box {
     background: var(--bg-card); border: 1px solid var(--border); border-radius: 48px;
     padding: 2.5rem; text-align: center; max-width: 400px; margin: 80px auto;
@@ -50,16 +47,15 @@
     padding: 14px 30px; border-radius: 60px; color: white; font-size: 1rem; font-weight: bold;
     cursor: pointer; transition: all 0.3s; width: 100%;
   }
-  .login-box button:hover { transform: scale(1.02); opacity: 0.9; box-shadow: 0 5px 20px rgba(233,30,140,0.3); }
+  .login-box button:hover { transform: scale(1.02); opacity: 0.9; }
   
-  /* Room Panel */
   .room-panel {
     background: var(--bg-card); border: 1px solid var(--border); border-radius: 32px;
-    padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);
+    padding: 25px; margin-bottom: 25px;
   }
   .flex-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; }
   .room-input { flex: 1; min-width: 160px; }
-  .room-input label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+  .room-input label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 5px; }
   .room-input input {
     width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05);
     border: 1px solid var(--border); border-radius: 60px; color: var(--text); font-size: 1rem;
@@ -68,12 +64,11 @@
     width: 100%; padding: 12px 16px; background: linear-gradient(135deg, var(--pink), var(--purple));
     border: none; border-radius: 60px; color: white; font-weight: bold; cursor: pointer; transition: all 0.2s;
   }
-  .room-input button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(233,30,140,0.3); }
+  .room-input button:hover { transform: translateY(-2px); }
   
-  /* Game Card */
   .game-card {
     background: var(--bg-card); border: 1px solid var(--border); border-radius: 48px;
-    padding: 30px; backdrop-filter: blur(10px); animation: slideIn 0.5s ease;
+    padding: 30px; animation: slideIn 0.5s ease;
   }
   @keyframes slideIn {
     from { opacity: 0; transform: translateY(30px); }
@@ -83,19 +78,22 @@
   .role-badge {
     display: inline-block; padding: 10px 25px; border-radius: 60px;
     background: linear-gradient(135deg, var(--pink), var(--purple));
-    font-size: 1rem; font-weight: bold; margin-bottom: 25px; animation: pulse 1s infinite;
+    font-size: 1rem; font-weight: bold; margin-bottom: 25px;
+    animation: pulse 1s infinite;
   }
   @keyframes pulse { 0%,100% { box-shadow: 0 0 5px var(--pink); } 50% { box-shadow: 0 0 20px var(--pink); } }
   
   .emojis-area {
-    font-size: 4.5rem; text-align: center; padding: 40px; background: rgba(0,0,0,0.3);
-    border-radius: 60px; margin: 20px 0; letter-spacing: 20px;
-    border: 2px dashed var(--border); animation: bounce 0.5s ease;
+    font-size: 4rem; text-align: center; padding: 40px; background: rgba(0,0,0,0.3);
+    border-radius: 60px; margin: 20px 0; letter-spacing: 15px;
+    border: 2px dashed var(--border); cursor: pointer;
+    transition: all 0.3s;
   }
-  @keyframes bounce { 0% { transform: scale(0.9); } 80% { transform: scale(1.02); } 100% { transform: scale(1); } }
+  .emojis-area:hover { transform: scale(1.02); border-color: var(--pink); }
   
   .word-to-guess {
-    font-size: 2rem; text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(233,30,140,0.1), rgba(124,58,237,0.1));
+    font-size: 2rem; text-align: center; padding: 20px; 
+    background: linear-gradient(135deg, rgba(233,30,140,0.1), rgba(124,58,237,0.1));
     border-radius: 60px; margin: 20px 0; border: 1px solid var(--border);
   }
   .word-to-guess strong { background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -123,10 +121,7 @@
   .score-value { font-size: 2.8rem; font-weight: bold; background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .score-name { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
   
-  .waiting {
-    text-align: center; padding: 50px; font-size: 1.2rem;
-    animation: pulseText 1.5s infinite;
-  }
+  .waiting { text-align: center; padding: 50px; font-size: 1.2rem; animation: pulseText 1.5s infinite; }
   @keyframes pulseText { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
   
   .next-btn {
@@ -151,6 +146,12 @@
   }
   .copy-btn:hover { background: var(--pink); }
   
+  .hint-text {
+    text-align: center; color: var(--text-muted); font-size: 0.85rem;
+    margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2);
+    border-radius: 60px;
+  }
+  
   @media (max-width: 600px) {
     .container { padding: 10px; }
     .emojis-area { font-size: 2.5rem; letter-spacing: 10px; padding: 25px; }
@@ -163,7 +164,6 @@
 <body>
 <div class="hearts-bg" id="heartsContainer"></div>
 <div class="container" id="app">
-  <!-- Login -->
   <div id="loginScreen">
     <div class="login-box">
       <h2>🎭 Emoji Tap</h2>
@@ -173,7 +173,6 @@
     </div>
   </div>
   
-  <!-- Game Panel -->
   <div id="gamePanel" style="display: none;">
     <div class="room-panel">
       <div class="flex-row">
@@ -194,7 +193,6 @@
 </div>
 
 <script>
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
     authDomain: "sevgili-testi.firebaseapp.com",
@@ -207,53 +205,108 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // ==================== SÖZ LÜĞƏTİ ====================
+  // ==================== TƏKMİLLƏŞMİŞ SÖZ LÜĞƏTİ ====================
   const wordsDB = [
-    { word: "Gülümsəmə", emojis: "😊😄😁🙂" },
-    { word: "Ağlamaq", emojis: "😢😭😿💧" },
-    { word: "Sevgi", emojis: "💕❤️💗😍" },
-    { word: "Ürək", emojis: "❤️💖💓💗" },
-    { word: "Qəzəb", emojis: "😠😤🤬👿" },
-    { word: "Şaşqınlıq", emojis: "😲😮😯😧" },
-    { word: "Yorğun", emojis: "😴🥱😪💤" },
-    { word: "Təbrik", emojis: "🎉🎊🥳🙌" },
-    { word: "Yemək", emojis: "🍕🍔🍟🌮" },
-    { word: "Meyvə", emojis: "🍎🍌🍊🍓" },
-    { word: "İdman", emojis: "⚽🏀🏈🎾" },
-    { word: "Musiqi", emojis: "🎵🎶🎸🎹" },
-    { word: "Film", emojis: "🎬🎥📽️🍿" },
-    { word: "Kitab", emojis: "📚📖📘📕" },
-    { word: "Komputer", emojis: "💻🖥️⌨️🖱️" },
-    { word: "Telefon", emojis: "📱📲☎️📞" },
-    { word: "Maşın", emojis: "🚗🚙🚕🚘" },
-    { word: "Təyyarə", emojis: "✈️🛩️🚀🛸" },
-    { word: "Gəmi", emojis: "🚢⛵🛳️🚤" },
-    { word: "Günəş", emojis: "☀️🌞🌅🌄" },
-    { word: "Ay", emojis: "🌙🌛🌜🌝" },
+    { word: "Göy qurşağı", emojis: "🌈🌈🌈" },
+    { word: "Şahzadə", emojis: "👸👑✨" },
+    { word: "Əjdaha", emojis: "🐉🔥🐲" },
+    { word: "Kabus", emojis: "👻🎃💀" },
+    { word: "Cadugər", emojis: "🧙‍♀️🔮🪄" },
+    { word: "Pirate", emojis: "🏴‍☠️⚓🗡️" },
+    { word: "Super qəhrəman", emojis: "🦸‍♂️💪⚡" },
+    { word: "Robot", emojis: "🤖🔧⚙️" },
+    { word: "UFO", emojis: "🛸👽✨" },
+    { word: "Mumiya", emojis: "🗿🧻🔺" },
+    { word: "Zombi", emojis: "🧟‍♂️🧠💀" },
+    { word: "Vampir", emojis: "🧛‍♂️🦷🩸" },
+    { word: "Kovboy", emojis: "🤠🐎🔫" },
+    { word: "Şaxta baba", emojis: "🎅🦌🎄" },
+    { word: "Pasxa", emojis: "🐰🥚🌸" },
+    { word: "Balo", emojis: "🎈🎉🎊" },
+    { word: "Atəşfəşanlıq", emojis: "🎆🎇✨" },
+    { word: "Karnaval", emojis: "🎭🎪🎡" },
+    { word: "Sirr", emojis: "🤫🔒🕵️" },
+    { word: "Xəzinə", emojis: "💎💰🗺️" },
+    { word: "Sehr", emojis: "✨🪄🔮" },
+    { word: "Vaxt maşını", emojis: "⏰🚀🕰️" },
+    { word: "İnternet", emojis: "🌐💻📡" },
+    { word: "Wi-Fi", emojis: "📶📱💻" },
+    { word: "Selfie", emojis: "🤳📸😎" },
+    { word: "Emoji", emojis: "😀😍😂🔥" },
+    { word: "Stiker", emojis: "🏷️🎨😜" },
+    { word: "Mem", emojis: "😂🤣🗿" },
+    { word: "Trend", emojis: "📈🔥🌊" },
+    { word: "Viral", emojis: "🦠📱💥" },
+    { word: "Live", emojis: "🔴📹🎥" },
+    { word: "Stream", emojis: "📺🎮💻" },
+    { word: "Gamer", emojis: "🎮🕹️👾" },
+    { word: "Konsol", emojis: "🎮🖲️📺" },
+    { word: "Proqramçı", emojis: "💻👨‍💻🔧" },
+    { word: "Haker", emojis: "💻🕶️🔓" },
+    { word: "Kod", emojis: "💻⌨️📝" },
+    { word: "Alqoritm", emojis: "🧮📊🔢" },
+    { word: "Bulud", emojis: "☁️🌥️💭" },
+    { word: "Süni intellekt", emojis: "🤖🧠💡" },
+    { word: "Robototexnika", emojis: "🤖⚙️🔧" },
+    { word: "Drone", emojis: "🚁📸🕹️" },
+    { word: "VR", emojis: "🥽🎮🌍" },
+    { word: "AR", emojis: "📱👓🌍" },
+    { word: "NFT", emojis: "🖼️💎🔗" },
+    { word: "Kripto", emojis: "💰🔒🪙" },
+    { word: "Bitcoin", emojis: "₿💰📈" },
+    { word: "Metavers", emojis: "🥽🌍👥" },
+    { word: "Avatar", emojis: "🧑‍🚀🎮👤" },
+    { word: "Youtube", emojis: "📺🎬▶️" },
+    { word: "Tiktok", emojis: "📱🎶💃" },
+    { word: "İnstagram", emojis: "📸📱❤️" },
+    { word: "Twitter", emojis: "🐦📱💬" },
+    { word: "Whatsapp", emojis: "💬📱✅" },
+    { word: "Telegram", emojis: "✈️📱💬" },
+    { word: "Discord", emojis: "🎮💬🎧" },
+    { word: "Reddit", emojis: "🤖💬👽" },
+    { word: "Linkedin", emojis: "💼🔗👔" },
+    { word: "Facebook", emojis: "📘👍👥" },
+    { word: "Snapchat", emojis: "👻📸💛" },
+    { word: "Pinterest", emojis: "📌🎨💡" },
+    { word: "Medium", emojis: "📝✍️📚" },
+    { word: "Twitch", emojis: "🎮📺💜" },
+    { word: "Spotify", emojis: "🎵🎧💚" },
+    { word: "Netflix", emojis: "📺🍿🎬" },
+    { word: "Disney+", emojis: "🏰✨🎬" },
+    { word: "Amazon", emojis: "📦🛒📚" },
+    { word: "Google", emojis: "🔍🌐📱" },
+    { word: "Siri", emojis: "🗣️📱🍎" },
+    { word: "Alexa", emojis: "🗣️🎵🟢" },
+    { word: "Tesla", emojis: "🚗⚡🔋" },
+    { word: "SpaceX", emojis: "🚀🌌✨" },
+    { word: "NASA", emojis: "🚀🌕🔭" },
+    { word: "Astronavt", emojis: "👨‍🚀🌌🛸" },
+    { word: "Qalaktika", emojis: "🌌✨🌟" },
+    { word: "Qara dəlik", emojis: "⚫🌀🌌" },
+    { word: "Supernova", emojis: "💥⭐✨" },
+    { word: "Kometa", emojis: "☄️💫🌟" },
+    { word: "Planet", emojis: "🪐🌍🌕" },
+    { word: "Mars", emojis: "🔴🪐🚀" },
+    { word: "Ay", emojis: "🌙🚀👨‍🚀" },
+    { word: "Günəş", emojis: "☀️🔥🌟" },
     { word: "Ulduz", emojis: "⭐🌟✨" },
-    { word: "Yağış", emojis: "🌧️☔💧🌦️" },
-    { word: "Qar", emojis: "❄️☃️⛄🌨️" },
-    { word: "Çiçək", emojis: "🌹🌸🌺🌻" },
-    { word: "Pişik", emojis: "🐱🐈😺🐾" },
-    { word: "İt", emojis: "🐶🐕🐩🐾" },
-    { word: "Quş", emojis: "🐦🕊️🦜🐤" },
-    { word: "Balıq", emojis: "🐟🐠🐡🎣" },
-    { word: "Kəpənək", emojis: "🦋🐛🐞🦟" },
-    { word: "Şahmat", emojis: "♟️♞♝♜" },
-    { word: "Hədiyyə", emojis: "🎁🎀📦🎉" },
-    { word: "Partiya", emojis: "🎉🎊🥳🎈" },
-    { word: "Dəniz", emojis: "🌊🏖️🏝️🐚" },
-    { word: "Dağ", emojis: "⛰️🏔️🗻🌄" },
-    { word: "Pizza", emojis: "🍕🍕🍕" },
-    { word: "Burger", emojis: "🍔🍔🍔" },
-    { word: "Kofe", emojis: "☕🥤☕" },
-    { word: "Çay", emojis: "🍵🍵🍵" },
-    { word: "Şirniyyat", emojis: "🍰🎂🍪🍫" },
-    { word: "Dondurma", emojis: "🍦🍨🍧🍦" },
-    { word: "Öpüş", emojis: "💋😘😗😙" },
-    { word: "Sarılmak", emojis: "🤗🫂🤗" },
-    { word: "Rəqs", emojis: "💃🕺💃" },
-    { word: "Mahnı", emojis: "🎤🎶🎵" }
+    { word: "Dəniz", emojis: "🌊🐠🏖️" },
+    { word: "Okean", emojis: "🌊🐋🐠" },
+    { word: "Sahil", emojis: "🏖️🌊☀️" },
+    { word: "Ada", emojis: "🏝️🌴🌊" },
+    { word: "Vulkan", emojis: "🌋🔥💨" },
+    { word: "Şəlalə", emojis: "💦🌊🏞️" },
+    { word: "Mağara", emojis: "🪨🔦🦇" },
+    { word: "Meşə", emojis: "🌲🌳🐻" },
+    { word: "Səhra", emojis: "🏜️🌵🐪" },
+    { word: "Safari", emojis: "🦁🐘🌍" },
+    { word: "Panda", emojis: "🐼🎋❤️" },
+    { word: "Koala", emojis: "🐨🌿❤️" },
+    { word: "Kanguru", emojis: "🦘🇦🇺🌏" },
+    { word: "Pinqvin", emojis: "🐧❄️🇦🇶" },
+    { word: "Flamingo", emojis: "🦩💗🌊" },
+    { word: "Tovuz quşu", emojis: "🦚🌈✨" },
+    { word: "Bayquş", emojis: "🦉🌙📚" }
   ];
 
   let currentRoom = null;
@@ -261,7 +314,6 @@
   let myRole = null;
   let roomRef = null;
   let canGuess = false;
-  let currentRound = 0;
 
   function getRandomWord() {
     return wordsDB[Math.floor(Math.random() * wordsDB.length)];
@@ -291,7 +343,7 @@
     const roomCode = generateRoomId();
     document.getElementById("roomCode").value = roomCode;
     
-    const roomDatabaseRef = db.ref(`emoji_rooms/${roomCode}`);
+    const roomDatabaseRef = db.ref(`emoji_rooms_v2/${roomCode}`);
     await roomDatabaseRef.set({
       players: {},
       gameState: "waiting",
@@ -317,7 +369,7 @@
       return;
     }
     
-    const roomDatabaseRef = db.ref(`emoji_rooms/${roomCode}`);
+    const roomDatabaseRef = db.ref(`emoji_rooms_v2/${roomCode}`);
     const snapshot = await roomDatabaseRef.once('value');
     const roomData = snapshot.val();
     
@@ -348,7 +400,7 @@
 
   async function startListening(roomCode) {
     if (roomRef) roomRef.off();
-    roomRef = db.ref(`emoji_rooms/${roomCode}`);
+    roomRef = db.ref(`emoji_rooms_v2/${roomCode}`);
     
     roomRef.on('value', async (snapshot) => {
       const data = snapshot.val();
@@ -358,13 +410,10 @@
       const playerNames = Object.keys(players);
       const playerCount = playerNames.length;
       
-      // Rolları təyin et
-      if (playerCount === 1 && !data.currentDescriber) {
-        if (players[myName]) {
-          myRole = "describer";
-          await roomRef.child("currentDescriber").set(myName);
-          await roomRef.child("gameState").set("waiting_player2");
-        }
+      if (playerCount === 1 && !data.currentDescriber && players[myName]) {
+        myRole = "describer";
+        await roomRef.child("currentDescriber").set(myName);
+        await roomRef.child("gameState").set("waiting_player2");
       } else if (playerCount === 2 && (!data.currentGuesser || data.gameState === "waiting_player2")) {
         const describer = data.currentDescriber || playerNames[0];
         const guesser = playerNames.find(n => n !== describer);
@@ -373,7 +422,7 @@
         await roomRef.child("currentGuesser").set(guesser);
         await roomRef.child("gameState").set("playing");
         
-        if (describer === myName) {
+        if (describer === myName && !data.currentWord) {
           await startNewRound();
         }
       }
@@ -384,9 +433,7 @@
 
   async function startNewRound() {
     const wordObj = getRandomWord();
-    currentRound++;
     
-    // 5 variant yarat (1 düzgün + 4 səhv)
     const otherWords = wordsDB.filter(w => w.word !== wordObj.word).map(w => w.word);
     const shuffled = [...otherWords];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -405,8 +452,7 @@
       options: options,
       correctWord: wordObj.word,
       roundEnded: false,
-      waitingForNext: false,
-      roundNumber: currentRound
+      waitingForNext: false
     });
   }
 
@@ -420,18 +466,14 @@
     const currentDescriber = data.currentDescriber;
     const currentGuesser = data.currentGuesser;
     const roundEnded = data.roundEnded;
-    const waitingForNext = data.waitingForNext;
     
     if (gameState === "waiting" || gameState === "waiting_player2") {
-      const roomCodeDisplay = currentRoom;
       contentDiv.innerHTML = `
         <div class="game-card">
           <div class="waiting">
             ⏳ İkinci oyunçu gözlənilir...<br><br>
-            <strong style="font-size: 2rem; letter-spacing: 3px;">${roomCodeDisplay}</strong>
-            <button class="copy-btn" onclick="copyRoomCode()">📋 Kodu Kopyala</button>
-            <br><br>
-            <span style="font-size: 0.9rem;">Bu kodu sevgilinlə paylaş!</span>
+            <strong style="font-size: 2rem; letter-spacing: 3px;">${currentRoom}</strong>
+            <button class="copy-btn" onclick="copyRoomCode()">📋 Kopyala</button>
           </div>
           <div class="score-board">
             <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
@@ -444,7 +486,6 @@
     const isMyTurnDescriber = (myRole === "describer" && currentDescriber === myName && !roundEnded);
     const isMyTurnGuesser = (myRole === "guesser" && currentGuesser === myName && !roundEnded);
     
-    // Təsvir edən tərəf üçün
     if (isMyTurnDescriber) {
       contentDiv.innerHTML = `
         <div class="game-card">
@@ -452,10 +493,11 @@
           <div class="word-to-guess">
             🎯 Təsvir edəcəyin söz: <strong>${data.currentWord || "?"}</strong>
           </div>
-          <div class="emojis-area">${data.currentEmojis || "❓"}</div>
-          <div style="text-align:center; color:var(--text-muted); padding: 15px;">
-            ✨ Yuxarıdakı emojiləri istifadə edərək sözü təxmin etdir!<br>
-            Cavab verən tərəf variantları görəcək.
+          <div class="emojis-area" onclick="copyEmojis()">
+            ${data.currentEmojis || "❓"}
+          </div>
+          <div class="hint-text">
+            💡 İpucu: Emojilərin üzərinə kliklə, kopyala! Cavab verənə göndərə bilərsən.
           </div>
           <div class="score-board">
             <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
@@ -466,7 +508,6 @@
       return;
     }
     
-    // Təxmin edən tərəf üçün
     if (isMyTurnGuesser && !canGuess) {
       canGuess = true;
       const options = data.options || [];
@@ -474,9 +515,7 @@
         <div class="game-card">
           <div class="role-badge">🤔 Sən TƏXMİN edirsən!</div>
           <div class="emojis-area">${data.currentEmojis || "❓"}</div>
-          <div style="text-align:center; margin:15px 0; color:var(--text-muted);">
-            Bu emojilər hansı sözü təsvir edir?
-          </div>
+          <div style="text-align:center; margin:15px 0;">Bu emojilər hansı sözü təsvir edir?</div>
           <div class="options-grid" id="optionsGrid"></div>
           <div class="score-board">
             <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
@@ -496,8 +535,7 @@
       return;
     }
     
-    // Raund bitibsə
-    if (roundEnded || waitingForNext) {
+    if (roundEnded) {
       contentDiv.innerHTML = `
         <div class="game-card">
           <div class="role-badge">🎉 RAUND TAMAMLANDI!</div>
@@ -512,23 +550,22 @@
         </div>`;
       return;
     }
-    
-    contentDiv.innerHTML = `
-      <div class="game-card">
-        <div class="waiting">⏳ Oyun davam edir...</div>
-        <div class="score-board">
-          <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
-          <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
-        </div>
-      </div>`;
   }
+  
+  window.copyEmojis = function() {
+    const emojis = document.querySelector('.emojis-area')?.innerText;
+    if (emojis) {
+      navigator.clipboard.writeText(emojis);
+      showMessage("📋 Emojilər kopyalandı! Sevgilinə göndərə bilərsən.", "success");
+    }
+  };
   
   async function makeGuess(selectedWord, correctWord) {
     if (!canGuess) return;
     canGuess = false;
     
     const isCorrect = (selectedWord === correctWord);
-    const roomDatabaseRef = db.ref(`emoji_rooms/${currentRoom}`);
+    const roomDatabaseRef = db.ref(`emoji_rooms_v2/${currentRoom}`);
     const playerRef = roomDatabaseRef.child(`players/${myName}`);
     const snapshot = await playerRef.once('value');
     let currentScore = snapshot.val()?.score || 0;
@@ -540,7 +577,6 @@
       waitingForNext: true
     });
     
-    // Animasiya üçün düyməni vurğula
     const btns = document.querySelectorAll('.option-btn');
     btns.forEach(btn => {
       if (btn.textContent === correctWord) {
@@ -554,14 +590,12 @@
   }
   
   window.nextRound = async function() {
-    const roomDatabaseRef = db.ref(`emoji_rooms/${currentRoom}`);
+    const roomDatabaseRef = db.ref(`emoji_rooms_v2/${currentRoom}`);
     const data = (await roomDatabaseRef.once('value')).val();
     
-    // Rolları dəyiş
     const newDescriber = data.currentGuesser;
     const newGuesser = data.currentDescriber;
     
-    // Yeni söz yarat
     const wordObj = getRandomWord();
     const otherWords = wordsDB.filter(w => w.word !== wordObj.word).map(w => w.word);
     const shuffled = [...otherWords];
@@ -583,8 +617,7 @@
       options: options,
       correctWord: wordObj.word,
       roundEnded: false,
-      waitingForNext: false,
-      roundNumber: (data.roundNumber || 0) + 1
+      waitingForNext: false
     });
     
     canGuess = false;
@@ -592,8 +625,7 @@
   };
   
   window.copyRoomCode = function() {
-    const code = currentRoom;
-    navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(currentRoom);
     showMessage("📋 Otaq kodu kopyalandı!", "success");
   };
   
@@ -601,10 +633,6 @@
     const name = document.getElementById("playerName").value.trim();
     if (!name || name.length < 2) {
       showMessage("Adınızı daxil edin (min 2 hərf)", "error");
-      return;
-    }
-    if (name.length > 20) {
-      showMessage("Ad maksimum 20 hərf ola bilər", "error");
       return;
     }
     myName = name;
