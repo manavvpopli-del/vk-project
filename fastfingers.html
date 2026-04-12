@@ -88,6 +88,15 @@
     font-size: 3rem; font-weight: bold; background: var(--bg-dark);
     width: 100px; height: 100px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .timer-value.warning {
+    color: var(--error);
+    animation: pulse 0.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
   }
   
   .word-area {
@@ -253,13 +262,13 @@
 
   let currentRoom = null;
   let myName = null;
-  let myRole = null; // "player1" or "player2"
   let roomRef = null;
   let timerInterval = null;
-  let timeLeft = 15;
-  let roundActive = false;
   let currentWord = "";
+  let roundActive = false;
   let hasSubmitted = false;
+  let roundEnded = false;
+  let currentInputValue = "";
 
   function getRandomWord() {
     return wordsList[Math.floor(Math.random() * wordsList.length)];
@@ -296,8 +305,7 @@
       currentWord: null,
       roundActive: false,
       roundEnded: false,
-      winner: null,
-      currentPlayerTurn: null,
+      timeLeft: 15,
       createdAt: Date.now()
     });
     
@@ -353,20 +361,52 @@
       const playerNames = Object.keys(players);
       const playerCount = playerNames.length;
       
-      // Rolları təyin et
       if (playerCount === 2 && !data.gameStarted) {
-        await roomRef.update({ 
-          gameStarted: true,
-          gameState: "playing"
-        });
+        await roomRef.update({ gameStarted: true, gameState: "playing" });
       }
       
-      if (playerCount === 2 && !data.currentWord && data.gameState === "playing") {
+      if (playerCount === 2 && (!data.currentWord || data.roundEnded === true) && data.gameState === "playing" && !data.roundActive) {
         await startNewRound();
       }
       
-      renderGame(data);
+      // Timer və xal göstəricilərini yenilə (input-u yenidən yaratmadan)
+      updateUIElements(data);
     });
+  }
+
+  function updateUIElements(data) {
+    // Timer yenilə
+    const timerEl = document.getElementById("timerValue");
+    if (timerEl && data.timeLeft !== undefined) {
+      timerEl.textContent = data.timeLeft;
+      if (data.timeLeft <= 5) {
+        timerEl.classList.add("warning");
+      } else {
+        timerEl.classList.remove("warning");
+      }
+    }
+    
+    // Xal yenilə
+    if (data.players && myName) {
+      const myScore = data.players[myName]?.score || 0;
+      const myScoreEl = document.getElementById("myScore");
+      if (myScoreEl) myScoreEl.textContent = myScore;
+      
+      const opponentName = Object.keys(data.players).find(n => n !== myName);
+      if (opponentName) {
+        const opponentScore = data.players[opponentName]?.score || 0;
+        const opponentScoreEl = document.getElementById("opponentScore");
+        if (opponentScoreEl) opponentScoreEl.textContent = opponentScore;
+        
+        const opponentNameEl = document.getElementById("opponentName");
+        if (opponentNameEl) opponentNameEl.textContent = opponentName;
+      }
+    }
+    
+    // Round state yenilə
+    roundActive = data.roundActive || false;
+    roundEnded = data.roundEnded || false;
+    if (data.currentWord) currentWord = data.currentWord;
   }
 
   async function startNewRound() {
@@ -374,20 +414,29 @@
     
     const newWord = getRandomWord();
     currentWord = newWord;
-    timeLeft = 15;
     hasSubmitted = false;
     roundActive = true;
+    roundEnded = false;
     
     await roomRef.update({
       currentWord: newWord,
       roundActive: true,
       roundEnded: false,
-      winner: null,
       timeLeft: 15,
       startTime: Date.now()
     });
     
+    // Hər iki oyunçunun submitted flagını sıfırla
+    const snapshot = await roomRef.once('value');
+    const players = snapshot.val()?.players || {};
+    for (const playerId of Object.keys(players)) {
+      await roomRef.child(`players/${playerId}/submittedThisRound`).set(false);
+    }
+    
     startTimer();
+    
+    // UI-nu yenidən render et (input sahəsi ilə)
+    renderGameArea();
   }
 
   function startTimer() {
@@ -396,23 +445,20 @@
     timerInterval = setInterval(async () => {
       if (!roundActive) return;
       
-      timeLeft--;
-      await roomRef.update({ timeLeft: timeLeft });
+      const snapshot = await roomRef.once('value');
+      const data = snapshot.val();
+      let currentTime = data.timeLeft || 15;
       
-      if (timeLeft <= 0) {
+      if (currentTime <= 1) {
         clearInterval(timerInterval);
         roundActive = false;
         
-        // Vaxt bitdi, heç kim yazmasa -2 xal hər ikiyə
-        const snapshot = await roomRef.once('value');
-        const data = snapshot.val();
+        // Vaxt bitdi, yazmayanlardan -2 xal
         const players = data.players || {};
-        
         for (const [playerId, playerData] of Object.entries(players)) {
           if (!playerData.submittedThisRound) {
             const newScore = (playerData.score || 0) - 2;
             await roomRef.child(`players/${playerId}/score`).set(newScore);
-            await roomRef.child(`players/${playerId}/submittedThisRound`).set(false);
           }
         }
         
@@ -421,7 +467,10 @@
           roundActive: false
         });
         
-        showMessage("⏰ Vaxt bitdi! Heç kim yaza bilmədi.", "error");
+        showMessage("⏰ Vaxt bitdi!", "error");
+        renderGameArea();
+      } else {
+        await roomRef.update({ timeLeft: currentTime - 1 });
       }
     }, 1000);
   }
@@ -430,6 +479,8 @@
     if (!roundActive || hasSubmitted) return;
     
     const input = document.getElementById("typeInput");
+    if (!input) return;
+    
     const answer = input.value.trim().toLowerCase();
     const correctWord = currentWord.toLowerCase();
     
@@ -455,73 +506,41 @@
     });
     
     input.disabled = true;
-    document.getElementById("submitBtn").disabled = true;
+    const submitBtn = document.getElementById("submitBtn");
+    if (submitBtn) submitBtn.disabled = true;
     
     showMessage("🎉 DÜZGÜN YAZDIN! +5 xal qazandın!", "success");
     
-    // Qalibi yoxla
+    // Digər oyunçu yazıb yazmadığını yoxla
     const roomSnapshot = await roomRef.once('value');
     const data = roomSnapshot.val();
     const players = data.players || {};
-    const submissions = [];
+    const submissions = Object.values(players).filter(p => p.submittedThisRound).length;
     
-    for (const [playerId, playerData] of Object.entries(players)) {
-      if (playerData.submittedThisRound) {
-        submissions.push(playerId);
-      }
-    }
-    
-    if (submissions.length === 2) {
+    if (submissions === 2) {
       await roomRef.update({ roundEnded: true });
+      renderGameArea();
     } else {
-      // Birinci yazan qazandı, digəri -2 xal
-      // Digər oyunçu hələ yazmayıbsa, gözləyək
+      // 3 saniyə gözlə, digər oyunçu yazmasa -2 xal
       setTimeout(async () => {
         const checkSnapshot = await roomRef.once('value');
         const checkData = checkSnapshot.val();
-        if (!checkData.roundEnded && checkData.roundActive === false) {
-          // Digər oyunçu yazmadı
+        if (checkData.roundActive === false && !checkData.roundEnded) {
           for (const [playerId, playerData] of Object.entries(checkData.players || {})) {
             if (!playerData.submittedThisRound) {
               const newScore = (playerData.score || 0) - 2;
               await roomRef.child(`players/${playerId}/score`).set(newScore);
-              await roomRef.child(`players/${playerId}/submittedThisRound`).set(true);
             }
           }
           await roomRef.update({ roundEnded: true });
+          renderGameArea();
         }
-      }, 100);
+      }, 3000);
     }
   }
 
-  async function renderGame(data) {
+  function renderGameArea() {
     const contentDiv = document.getElementById("gameContent");
-    const players = data.players || {};
-    const playerNames = Object.keys(players);
-    const myScore = players[myName]?.score || 0;
-    const opponentName = playerNames.find(n => n !== myName);
-    const opponentScore = opponentName ? players[opponentName]?.score || 0 : 0;
-    const gameState = data.gameState;
-    const roundActive = data.roundActive;
-    const roundEnded = data.roundEnded;
-    const currentWordDisplay = data.currentWord || "Hazırlaşın...";
-    const timeLeftDisplay = data.timeLeft || 15;
-    
-    if (playerNames.length < 2) {
-      contentDiv.innerHTML = `
-        <div class="game-card">
-          <div class="waiting">
-            ⏳ İkinci oyunçu gözlənilir...<br><br>
-            <strong style="font-size: 2rem; letter-spacing: 3px;">${currentRoom}</strong>
-            <button class="copy-btn" onclick="copyRoomCode()">📋 Kopyala</button>
-          </div>
-          <div class="score-board">
-            <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
-            <div class="score"><div class="score-value">${opponentScore || "?"}</div><div class="score-name">${opponentName || "Gözlənilir..."}</div></div>
-          </div>
-        </div>`;
-      return;
-    }
     
     if (roundEnded) {
       contentDiv.innerHTML = `
@@ -532,11 +551,11 @@
             </div>
           </div>
           <div class="word-area">
-            <div class="word-to-type">"${currentWordDisplay}"</div>
+            <div class="word-to-type">"${currentWord}"</div>
           </div>
           <div class="score-board">
-            <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
-            <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
+            <div class="score"><div class="score-value" id="myScore">0</div><div class="score-name" id="myNameLabel">${myName}</div></div>
+            <div class="score"><div class="score-value" id="opponentScore">0</div><div class="score-name" id="opponentName">?</div></div>
           </div>
           <button class="next-btn" onclick="nextRound()">🔄 NÖVBƏTİ SÖZ</button>
         </div>`;
@@ -544,40 +563,29 @@
     }
     
     if (roundActive) {
-      const isDisabled = hasSubmitted;
       contentDiv.innerHTML = `
         <div class="game-card">
           <div class="timer-area">
             <div class="timer-circle">
-              <div class="timer-value" id="timerValue">${timeLeftDisplay}</div>
+              <div class="timer-value" id="timerValue">15</div>
             </div>
           </div>
           <div class="word-area">
-            <div class="word-to-type">"${currentWordDisplay}"</div>
+            <div class="word-to-type">"${currentWord}"</div>
           </div>
           <div class="input-area">
-            <input type="text" id="typeInput" class="type-input" placeholder="Sözü buraya yaz..." ${isDisabled ? 'disabled' : ''} autocomplete="off">
-            <button id="submitBtn" class="submit-btn" ${isDisabled ? 'disabled' : ''} onclick="submitAnswer()">⚡ TƏSDİQ ET</button>
+            <input type="text" id="typeInput" class="type-input" placeholder="Sözü buraya yaz..." autocomplete="off">
+            <button id="submitBtn" class="submit-btn" onclick="submitAnswer()">⚡ TƏSDİQ ET</button>
           </div>
           <div class="score-board">
-            <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
-            <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
+            <div class="score"><div class="score-value" id="myScore">0</div><div class="score-name">${myName}</div></div>
+            <div class="score"><div class="score-value" id="opponentScore">0</div><div class="score-name" id="opponentNameLabel">?</div></div>
           </div>
-          <div class="status-badge">⏱️ ${timeLeftDisplay} saniyə qaldı</div>
+          <div class="status-badge" id="statusBadge">⏱️ 15 saniyə qaldı</div>
         </div>`;
       
-      // Timer real-time yenilənməsi
-      const timerEl = document.getElementById("timerValue");
-      if (timerEl && timerEl.textContent !== timeLeftDisplay.toString()) {
-        timerEl.textContent = timeLeftDisplay;
-        if (timeLeftDisplay <= 5) {
-          timerEl.style.color = "var(--error)";
-          timerEl.style.animation = "pulse 0.5s infinite";
-        }
-      }
-      
       const input = document.getElementById("typeInput");
-      if (input && !isDisabled) {
+      if (input) {
         input.focus();
         input.onkeypress = (e) => {
           if (e.key === 'Enter') submitAnswer();
@@ -586,30 +594,58 @@
       return;
     }
     
+    // Gözləmə ekranı
     contentDiv.innerHTML = `
       <div class="game-card">
         <div class="waiting">⏳ Yeni raund hazırlaşır...</div>
         <div class="score-board">
-          <div class="score"><div class="score-value">${myScore}</div><div class="score-name">${myName}</div></div>
-          <div class="score"><div class="score-value">${opponentScore}</div><div class="score-name">${opponentName}</div></div>
+          <div class="score"><div class="score-value" id="myScore">0</div><div class="score-name">${myName}</div></div>
+          <div class="score"><div class="score-value" id="opponentScore">0</div><div class="score-name" id="opponentNameLabel">?</div></div>
         </div>
       </div>`;
   }
   
+  async function renderGame(data) {
+    const players = data.players || {};
+    const playerNames = Object.keys(players);
+    
+    // Xalları yenilə
+    const myScoreEl = document.getElementById("myScore");
+    const opponentScoreEl = document.getElementById("opponentScore");
+    const opponentNameEl = document.getElementById("opponentNameLabel");
+    
+    if (myScoreEl && players[myName]) {
+      myScoreEl.textContent = players[myName].score || 0;
+    }
+    
+    if (opponentScoreEl) {
+      const opponentName = playerNames.find(n => n !== myName);
+      if (opponentName) {
+        if (opponentNameEl) opponentNameEl.textContent = opponentName;
+        opponentScoreEl.textContent = players[opponentName]?.score || 0;
+      }
+    }
+    
+    // Status badge yenilə
+    const statusBadge = document.getElementById("statusBadge");
+    if (statusBadge && data.timeLeft !== undefined && roundActive) {
+      statusBadge.textContent = `⏱️ ${data.timeLeft} saniyə qaldı`;
+    }
+    
+    // Timer yenilə
+    const timerEl = document.getElementById("timerValue");
+    if (timerEl && data.timeLeft !== undefined && roundActive) {
+      timerEl.textContent = data.timeLeft;
+      if (data.timeLeft <= 5) {
+        timerEl.classList.add("warning");
+      } else {
+        timerEl.classList.remove("warning");
+      }
+    }
+  }
+  
   window.nextRound = async function() {
     await startNewRound();
-    
-    // Input'u təmizlə və aktiv et
-    setTimeout(() => {
-      const input = document.getElementById("typeInput");
-      if (input) {
-        input.value = "";
-        input.disabled = false;
-        input.focus();
-      }
-      const btn = document.getElementById("submitBtn");
-      if (btn) btn.disabled = false;
-    }, 100);
   };
   
   window.submitAnswer = submitAnswer;
