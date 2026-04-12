@@ -1,5 +1,3 @@
-Budur kodun tam versiyası. Heç bir funksiyanı və ya dizaynı silmədən, sadəcə rol seçimi zamanı yaranan sinxronizasiya problemini (hər iki tərəfin eyni anda bazanı sıfırlamağa çalışması və oyunun başlamaması) həll edərək yenidən topladım:
-```html
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -15,186 +13,94 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .screen.on{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
 .box{background:var(--card);border:1px solid var(--bdr);border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:480px;box-shadow:0 0 60px rgba(233,30,140,.1)}
 .logo{text-align:center;margin-bottom:1.5rem}
-.logo .em{font-size:3rem;display:block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 .logo h1{font-size:1.7rem;font-weight:800;margin-top:.5rem;background:linear-gradient(135deg,var(--pkl),var(--purl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .logo p{color:var(--muted);font-size:.88rem;margin-top:.3rem}
 .field{margin-bottom:1rem}
 .field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
 .field input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--text);font-size:1rem;padding:.8rem 1rem;outline:none;transition:border-color .2s}
-.field input::placeholder{color:var(--muted)}
-.field input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(233,30,140,.15)}
-.code-i{letter-spacing:4px;text-align:center;font-weight:700;font-size:1.3rem}
-.code-i::placeholder{letter-spacing:0;font-weight:400;font-size:1rem}
-.btn{width:100%;padding:.9rem;border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;background:linear-gradient(135deg,var(--pink),var(--pur));margin-top:.5rem}
-.btn:hover{opacity:.88}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.ol{background:transparent;border:1px solid var(--bdr);color:var(--muted)}
-.btn.ol:hover{border-color:var(--pink);color:var(--pkl)}
-.err{color:#ff6b6b;font-size:.83rem;text-align:center;margin-top:.5rem;min-height:1.1rem}
-.rcode{font-size:3.5rem;font-weight:900;letter-spacing:.5rem;text-align:center;background:linear-gradient(135deg,var(--pkl),var(--purl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:1rem 0}
-.pslots{display:flex;justify-content:center;align-items:center;gap:1.5rem;margin:1.5rem 0;flex-wrap:wrap}
-.psl{width:110px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:14px;padding:1rem .8rem;text-align:center}
-.psl .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--pur));display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;margin:0 auto .5rem}
-.psl.emp .av{background:rgba(255,255,255,.07)}
-.psl .pn{font-size:.82rem;font-weight:600}
-.psl.emp .pn{color:var(--muted)}
-.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--grn);animation:blink 1.2s infinite;margin-right:6px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.rcards{display:flex;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;justify-content:center}
-.rcard{flex:1;min-width:160px;background:rgba(255,255,255,.04);border:2px solid var(--bdr);border-radius:18px;padding:1.5rem 1rem;text-align:center;cursor:pointer;transition:all .25s}
-.rcard:hover{border-color:var(--pink);background:rgba(233,30,140,.08);transform:translateY(-3px)}
+.btn{width:100%;padding:.9rem;border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--pink),var(--pur));margin-top:.5rem}
+.err{color:#ff6b6b;font-size:.83rem;text-align:center;margin-top:.5rem}
+.rcode{font-size:3.5rem;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--pkl),var(--purl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:1rem 0}
+.pslots{display:flex;justify-content:center;gap:1.5rem;margin:1.5rem 0}
+.psl{width:110px;background:rgba(255,255,255,.04);border-radius:14px;padding:1rem .8rem;text-align:center}
+.psl .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--pur));display:flex;align-items:center;justify-content:center;margin:0 auto .5rem}
+.rcards{display:flex;gap:1rem;margin-top:1.5rem;justify-content:center}
+.rcard{flex:1;background:rgba(255,255,255,.04);border:2px solid var(--bdr);border-radius:18px;padding:1.5rem 1rem;text-align:center;cursor:pointer}
 .rcard.sel{border-color:var(--pink);background:rgba(233,30,140,.12)}
-.rcard .ri{font-size:2.8rem;margin-bottom:.6rem}
-.rcard .rn{font-size:1rem;font-weight:700;margin-bottom:.3rem}
-.rcard .rd{font-size:.78rem;color:var(--muted);line-height:1.4}
-.gwrap{max-width:600px;width:100%}
-.sboard{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--bdr);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem}
-.si{text-align:center}
-.si .sn{font-size:.75rem;color:var(--muted);margin-bottom:.2rem}
-.si .sv{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--pkl),var(--purl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.ssep{width:1px;height:40px;background:var(--bdr)}
+.sboard{display:flex;justify-content:space-between;background:var(--card);border:1px solid var(--bdr);border-radius:16px;padding:1rem;margin-bottom:1.5rem}
 .panel{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:1.5rem;margin-bottom:1rem}
-.ptitle{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem}
-.qlist{display:flex;flex-direction:column;gap:.7rem}
-.qi{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.8rem}
-.qi:hover{border-color:var(--pink);background:rgba(233,30,140,.07)}
+.qi{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:12px;padding:1rem;margin-bottom:.7rem;cursor:pointer}
 .qi.sel{border-color:var(--pink);background:rgba(233,30,140,.12)}
-.qnum{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--pink),var(--pur));display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700}
-.qtext{font-size:.92rem;line-height:1.4}
-.aqbox{background:rgba(233,30,140,.1);border:1px solid var(--bdr);border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem}
-.aql{font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
-.aqt{font-size:1.1rem;font-weight:700;line-height:1.4}
-.choices{display:flex;flex-direction:column;gap:.65rem}
-.ch{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1.1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.8rem;font-size:.92rem}
-.ch:hover:not(.lk){border-color:var(--pink);background:rgba(233,30,140,.07)}
+.ch{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:12px;padding:.9rem;cursor:pointer;margin-bottom:.65rem}
 .ch.picked{border-color:var(--amb);background:rgba(245,158,11,.1)}
 .ch.correct{border-color:var(--grn)!important;background:rgba(16,185,129,.12)!important}
 .ch.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.1)!important}
-.ch.lk{cursor:default;pointer-events:none}
-.cl{width:28px;height:28px;border-radius:8px;flex-shrink:0;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700}
-.stmsg{text-align:center;padding:2rem;color:var(--muted);font-size:.9rem;line-height:1.8}
-.spin{display:inline-block;width:24px;height:24px;border:3px solid var(--bdr);border-top-color:var(--pink);border-radius:50%;animation:sp 1s linear infinite;margin-bottom:1rem}
+.spin{display:inline-block;width:24px;height:24px;border:3px solid var(--bdr);border-top-color:var(--pink);border-radius:50%;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.rover{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:1rem}
-.rpop{background:var(--card);border:1px solid var(--bdr);border-radius:24px;padding:2.5rem 2rem;text-align:center;max-width:360px;width:100%;animation:pi .3s ease}
-@keyframes pi{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.rpop .re{font-size:4rem;margin-bottom:1rem}
-.rpop h2{font-size:1.4rem;font-weight:800;margin-bottom:.5rem}
-.rpop p{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;line-height:1.5}
-.xal{font-size:2.5rem;font-weight:900;margin-bottom:1.5rem}
-.xal.p{color:var(--grn)}.xal.m{color:var(--red)}
-.fscores{display:flex;justify-content:center;gap:1.5rem;margin:1.5rem 0;flex-wrap:wrap}
-.fsc{background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:16px;padding:1.2rem 1.8rem;text-align:center;min-width:120px}
-.fsc.win{border-color:var(--amb);background:rgba(245,158,11,.1)}
-.fsc .fn{font-size:.85rem;color:var(--muted);margin-bottom:.3rem}
-.fsc .fv{font-size:2rem;font-weight:800}
-.fsc.win .fv{color:var(--amb)}
-.trophy{font-size:5rem;margin-bottom:1rem;animation:bo .6s ease infinite alternate}
-@keyframes bo{from{transform:translateY(0)}to{transform:translateY(-12px)}}
-.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:.8rem 1.5rem;font-size:.88rem;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
-.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
-@media(max-width:500px){.box{padding:1.8rem 1.2rem}.rcards{flex-direction:column}.sboard{justify-content:center}}
+.rover{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:200}
+.rpop{background:var(--card);border-radius:24px;padding:2.5rem;text-align:center;width:90%;max-width:360px}
 </style>
 </head>
 <body>
+
 <div class="screen on" id="sJoin">
   <div class="box">
-    <div class="logo"><span class="em">🧠</span><h1>Məni Tanı</h1><p>Sevgilini nə qədər tanıyırsan?</p></div>
-    <div class="field"><label>Adın</label><input type="text" id="iName" placeholder="Adını daxil et" maxlength="16" autocomplete="off"/></div>
-    <div class="field"><label>Otaq kodu (qoşulmaq üçün)</label><input type="text" id="iRoom" class="code-i" placeholder="_ _ _ _" maxlength="4" autocomplete="off"/></div>
-    <button class="btn" onclick="joinRoom()">💕 Otağa Qoşul</button>
-    <button class="btn ol" style="margin-top:.6rem" onclick="createRoom()">✨ Yeni Otaq Yarat</button>
+    <div class="logo"><h1>Məni Tanı</h1><p>Sevgilini nə qədər tanıyırsan?</p></div>
+    <div class="field"><label>Adın</label><input type="text" id="iName" placeholder="Adını daxil et" maxlength="16"/></div>
+    <div class="field"><label>Otaq kodu</label><input type="text" id="iRoom" style="text-align:center" placeholder="_ _ _ _" maxlength="4"/></div>
+    <button class="btn" onclick="joinRoom()">💕 Qoşul</button>
+    <button class="btn" style="background:transparent;border:1px solid var(--bdr)" onclick="createRoom()">✨ Otaq Yarat</button>
     <div class="err" id="joinErr"></div>
   </div>
 </div>
 
 <div class="screen" id="sWait">
   <div class="box" style="text-align:center">
-    <div style="font-size:2.5rem;margin-bottom:.5rem">⏳</div>
-    <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:.3rem">Otaq Kodu</h2>
+    <h2>Otaq Kodu</h2>
     <div class="rcode" id="dispCode">----</div>
-    <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Bu kodu sevgilənlə paylaş</p>
     <div class="pslots" id="pslots"></div>
-    <p style="color:var(--muted);font-size:.82rem"><span class="pdot"></span>Sevgilinin qoşulmasını gözləyirəm...</p>
+    <p><span class="spin"></span> Gözlənilir...</p>
   </div>
 </div>
 
 <div class="screen" id="sRole">
   <div class="box">
-    <div class="logo"><span class="em">🎯</span><h1>Rol Seç</h1><p>Hər ikisi fərqli rol seçməlisiniz</p></div>
+    <div class="logo"><h1>Rol Seç</h1></div>
     <div class="rcards">
-      <div class="rcard" id="rcA" onclick="selRole('asker')"><div class="ri">🙋</div><div class="rn">Sual Verən</div><div class="rd">Sual seçirsən, cavabı öncədən bilirsən</div></div>
-      <div class="rcard" id="rcB" onclick="selRole('answerer')"><div class="ri">💭</div><div class="rn">Cavab Verən</div><div class="rd">Sualı cavablandırırsın, +5 ya -5 xal</div></div>
+      <div class="rcard" id="rcA" onclick="selRole('asker')">🙋<br>Sual Verən</div>
+      <div class="rcard" id="rcB" onclick="selRole('answerer')">💭<br>Cavab Verən</div>
     </div>
-    <button class="btn" id="roleBtn" style="margin-top:1.5rem;display:none" onclick="confirmRole()">✅ Rolu Təsdiqlə</button>
-    <div class="stmsg" id="roleSt" style="display:none"></div>
+    <button class="btn" id="roleBtn" style="display:none" onclick="confirmRole()">✅ Təsdiqlə</button>
+    <div class="stmsg" id="roleSt" style="display:none; text-align:center; margin-top:1rem"></div>
   </div>
 </div>
 
-<div class="screen" id="sGame" style="align-items:flex-start;padding-top:1.5rem">
-  <div class="gwrap">
+<div class="screen" id="sGame">
+  <div class="gwrap" style="width:100%; max-width:600px">
     <div class="sboard">
-      <div class="si"><div class="sn" id="sn1">—</div><div class="sv" id="sv1">0</div></div>
-      <div class="ssep"></div>
-      <div class="si" style="text-align:center"><div class="sn">TUR</div><div class="sv" id="svRound">1/10</div></div>
-      <div class="ssep"></div>
-      <div class="si"><div class="sn" id="sn2">—</div><div class="sv" id="sv2">0</div></div>
+      <div><small id="sn1"></small><br><b id="sv1">0</b></div>
+      <div style="text-align:center">TUR<br><b id="svRound">1/10</b></div>
+      <div style="text-align:right"><small id="sn2"></small><br><b id="sv2">0</b></div>
     </div>
-
-    <div id="vPickQ" style="display:none">
-      <div class="panel">
-        <div class="ptitle">🙋 Sevgilinə hansı sualı vermək istəyirsən?</div>
-        <div class="qlist" id="qList"></div>
-        <button class="btn" id="sendQBtn" style="margin-top:1.2rem;display:none" onclick="doSendQ()">📨 Sualı Göndər</button>
-      </div>
-    </div>
-
-    <div id="vPickAns" style="display:none">
-      <div class="panel">
-        <div class="ptitle">✅ Bu suala sənin cavabın nədir? (Sevgilindən gizli)</div>
-        <div class="aqbox" id="askQShow"></div>
-        <div class="choices" id="askChoices"></div>
-        <button class="btn" id="setAnsBtn" style="margin-top:1.2rem;display:none" onclick="doSetCorrect()">🔒 Cavabımı Təsdiqlə</button>
-      </div>
-    </div>
-
-    <div id="vAskWait" style="display:none">
-      <div class="stmsg"><div class="spin"></div><br>Sevgilinin cavabını gözləyirəm...</div>
-    </div>
-
-    <div id="vAnsWait" style="display:none">
-      <div class="stmsg"><div class="spin"></div><br>Sevgilindən sual gözləyirəm...</div>
-    </div>
-
-    <div id="vAnsQ" style="display:none">
-      <div class="aqbox"><div class="aql">💌 Sevgilindən sual</div><div class="aqt" id="ansQText">—</div></div>
-      <div class="choices" id="ansChoices"></div>
-    </div>
+    <div id="vPickQ" style="display:none" class="panel"><div class="qlist" id="qList"></div><button class="btn" id="sendQBtn" onclick="doSendQ()">Göndər</button></div>
+    <div id="vPickAns" style="display:none" class="panel"><div id="askQShow" style="margin-bottom:1rem"></div><div class="choices" id="askChoices"></div><button class="btn" id="setAnsBtn" onclick="doSetCorrect()">Təsdiqlə</button></div>
+    <div id="vAskWait" style="display:none" class="stmsg"><span class="spin"></span> Cavab gözlənilir...</div>
+    <div id="vAnsWait" style="display:none" class="stmsg"><span class="spin"></span> Sual gözlənilir...</div>
+    <div id="vAnsQ" style="display:none" class="panel"><div id="ansQText" style="font-weight:bold;margin-bottom:1rem"></div><div class="choices" id="ansChoices"></div></div>
   </div>
 </div>
 
 <div class="screen" id="sFinal">
   <div class="box" style="text-align:center">
-    <div class="trophy" id="finTrophy">🏆</div>
-    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem" id="finTitle">Oyun Bitdi!</h2>
-    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem" id="finSub"></p>
-    <div class="fscores" id="finScores"></div>
-    <button class="btn" onclick="playAgain()">🔄 Yenidən Oyna</button>
-    <button class="btn ol" style="margin-top:.6rem" onclick="location.href='index.html'">🏠 Ana Səhifə</button>
+    <h2 id="finTitle">Oyun Bitdi!</h2>
+    <div id="finScores" style="margin:1rem 0"></div>
+    <button class="btn" onclick="location.reload()">🔄 Yenidən</button>
   </div>
 </div>
 
 <div class="rover" id="resOv" style="display:none">
-  <div class="rpop">
-    <div class="re" id="resE">🎉</div>
-    <h2 id="resT">Düzgün!</h2>
-    <p id="resM"></p>
-    <div class="xal" id="resX">+5</div>
-    <button class="btn" id="resBtn" onclick="nextRound()">Növbəti Sual →</button>
-  </div>
+  <div class="rpop"><h2 id="resT"></h2><p id="resM"></p><button class="btn" id="resBtn" onclick="nextRound()">Davam et</button></div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -202,299 +108,265 @@ import{getDatabase,ref,set,get,onValue,off}from"https://www.gstatic.com/firebase
 const cfg={apiKey:"AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",authDomain:"sevgili-testi.firebaseapp.com",databaseURL:"https://sevgili-testi-default-rtdb.firebaseio.com",projectId:"sevgili-testi",storageBucket:"sevgili-testi.firebasestorage.app",messagingSenderId:"399260477557",appId:"1:399260477557:web:584204a698d7bf145bb03c"};
 const db=getDatabase(initializeApp(cfg));
 
+// 100 SUALIN HAMISI
 const QS=[
-  {q:"Ən sevdiyi rəng hansıdır?",o:["Mavi","Qırmızı","Yaşıl","Sarı"]},
-  {q:"Hər gün içdiyi içki nədir?",o:["Çay","Qəhvə","Su","Şirə"]},
-  {q:"Ən sevdiyi mövsüm hansıdır?",o:["Yaz","Yay","Payız","Qış"]},
-  {q:"Stresli olanda nə edir?",o:["Musiqi dinləyir","Gəzintiyə çıxır","Yatır","Danışır"]},
-  {q:"Ən çox sevdiyi yemək nədir?",o:["Plov","Pizza","Kebab","Makaron"]},
-  {q:"Axşam yatmaqdan əvvəl nə edir?",o:["Telefona baxır","Kitab oxuyur","Musiqi dinləyir","Düşüncəyə dalır"]},
-  {q:"Ən çox hansı heyvanı sevir?",o:["İt","Pişik","Dovşan","Quş"]},
-  {q:"Boş vaxtında nə edir?",o:["Film izləyir","Oyun oynayır","Çöldə gəzir","Yatır"]},
-  {q:"Ən böyük qorxusu nədir?",o:["Yüksəklik","Hörümçək","Tənhalıq","Qaranlıq"]},
-  {q:"Səhər qalxanda ilk nə edir?",o:["Telefona baxır","Uzanıb yatır","Dərhal durur","Su içir"]},
+  {q:"Ən sevdiyi rəng?",o:["Mavi","Qırmızı","Yaşıl","Sarı"]},
+  {q:"Hər gün içdiyi içki?",o:["Çay","Qəhvə","Su","Şirə"]},
+  {q:"Ən sevdiyi mövsüm?",o:["Yaz","Yay","Payız","Qış"]},
+  {q:"Stresli olanda nə edir?",o:["Musiqi","Gəzinti","Yatır","Danışır"]},
+  {q:"Ən çox sevdiyi yemək?",o:["Plov","Pizza","Kebab","Makaron"]},
+  {q:"Yatmadan əvvəl nə edir?",o:["Telefon","Kitab","Musiqi","Düşünür"]},
+  {q:"Ən sevdiyi heyvan?",o:["İt","Pişik","Dovşan","Quş"]},
+  {q:"Boş vaxtında nə edir?",o:["Film","Oyun","Gəzir","Yatır"]},
+  {q:"Ən böyük qorxusu?",o:["Yüksəklik","Hörümçək","Tənhalıq","Qaranlıq"]},
+  {q:"Səhər ilk nə edir?",o:["Telefon","Yuxu","Durur","Su içir"]},
   {q:"Hansı musiqi janrını sevir?",o:["Pop","Rock","Klassik","Hip-hop"]},
-  {q:"Ən sevdiyi film janrı nədir?",o:["Komediya","Romantik","Aktiv","Dəhşət"]},
-  {q:"İdeal tətil yeri harası olardı?",o:["Dəniz kənarı","Dağlar","Böyük şəhər","Sakit kənd"]},
-  {q:"Şirniyyatdan nəyi sevir?",o:["Şokolad","Tort","Dondurma","Heç birini"]},
-  {q:"Romantik anlar üçün nəyi seçər?",o:["Şam yemeyi","Gəzinti","Film gecəsi","Evdə qalmaq"]},
-  {q:"Telefonda çox vaxtını nədə keçirir?",o:["Instagram","YouTube","Whatsapp","Oyunlar"]},
-  {q:"Ən çox nədən şikayətlənir?",o:["Yorğunluqdan","İnsanlardan","İşdən","Özündən"]},
-  {q:"Düşünmədən pul xərclədiyi şey nədir?",o:["Geyim","Yemək","Texnologiya","Kitab"]},
-  {q:"Səhər yuxudan necə qalxır?",o:["Çox çətin","Öz-özünə","Siqnalla","Birinin köməyilə"]},
-  {q:"Ən çox nəyi itirir?",o:["Açarlarını","Telefonunu","Pul kisəsini","Eynəyini"]},
-  {q:"Üşüyəndə nə edir?",o:["Paltar geyinir","Çay içir","Yorğana bürünür","İstilik axtarır"]},
-  {q:"Hansı şəhərdə yaşamaq istərdi?",o:["Bakı","İstanbul","London","Tokyo"]},
-  {q:"Ən sevdiyi çiçək nədir?",o:["Qızılgül","Papatya","Lalə","Süsən"]},
-  {q:"Yemək hazırlayarkən nə edir?",o:["Musiqi qoyur","Sükutda bişirir","Danışır","TV izləyir"]},
-  {q:"Hər gecə neçə saat yatır?",o:["6 saatdan az","7-8 saat","9+ saat","Dəyişkən"]},
-  {q:"Əhval-ruhiyyəsi pisləşəndə nə edir?",o:["Uzaqlaşır","Danışır","Yatır","Yeyir"]},
-  {q:"Məzuniyyətdə nə etmək istər?",o:["İstirahət etmək","Səyahət etmək","Ev işləri","Kurslar"]},
-  {q:"Ən çox bağlandığı insanlar kimdir?",o:["Ailə","Sevgilisi","Dostlar","Özü"]},
-  {q:"Xoşbəxtliyi nədə tapır?",o:["Sevdikləriylə olmaq","Təbiətdə","Musiqidə","Uğurda"]},
-  {q:"Nəyi heç cür yeyə bilmir?",o:["Soğan","Sarımsaq","Göbələk","Dəniz məhsulları"]},
-  {q:"Ən çox hansı rəngli paltar geyinir?",o:["Qara","Ağ","Rəngarəng","Boz"]},
-  {q:"İdeal səhər yeməyi nədir?",o:["Yumurta","Müsli","Meyvə","Heç nə yemiyor"]},
-  {q:"Ən çox hansı emoji hansıdır?",o:["😂","❤️","😍","🙄"]},
-  {q:"Ən çox xoşladığı həftə günü hansıdır?",o:["Cümə","Şənbə","Bazar","Heç birini"]},
-  {q:"Məktəbdə ən sevdiyi dərs nə idi?",o:["Riyaziyyat","Ədəbiyyat","İdman","Tarix"]},
+  {q:"Ən sevdiyi film janrı?",o:["Komediya","Romantik","Aktiv","Dəhşət"]},
+  {q:"İdeal tətil yeri?",o:["Dəniz","Dağ","Şəhər","Kənd"]},
+  {q:"Şirniyyatdan nəyi sevir?",o:["Şokolad","Tort","Dondurma","Yemir"]},
+  {q:"Romantik an üçün nə seçər?",o:["Yemək","Gəzinti","Film","Ev"]},
+  {q:"Telefonda çox vaxtı harada keçir?",o:["Instagram","YouTube","WhatsApp","Oyun"]},
+  {q:"Ən çox nədən şikayətlənir?",o:["Yorğunluq","İnsanlar","İş","Özü"]},
+  {q:"Düşünmədən pul xərclədiyi?",o:["Geyim","Yemək","Texnika","Kitab"]},
+  {q:"Səhər necə qalxır?",o:["Çətin","Rahat","Siqnalla","Köməklə"]},
+  {q:"Ən çox nəyi itirir?",o:["Açar","Telefon","Pul","Eynək"]},
+  {q:"Üşüyəndə nə edir?",o:["Geyinir","Çay","Yorğan","İstilik"]},
+  {q:"Hansı şəhərdə yaşamaq istər?",o:["Bakı","İstanbul","London","Tokio"]},
+  {q:"Ən sevdiyi çiçək?",o:["Qızılgül","Papatya","Lalə","Süsən"]},
+  {q:"Yemək bişirəndə nə edir?",o:["Musiqi","Sükut","Danışır","TV"]},
+  {q:"Gecə neçə saat yatır?",o:["6-","7-8","9+","Dəyişkən"]},
+  {q:"Əhvalı pisləşəndə nə edir?",o:["Uzaqlaşır","Danışır","Yatır","Yeyir"]},
+  {q:"Məzuniyyətdə nə etmək istər?",o:["İstirahət","Səyahət","Ev işi","Kurs"]},
+  {q:"Ən çox bağlandığı insanlar?",o:["Ailə","Sevgili","Dostlar","Özü"]},
+  {q:"Xoşbəxtliyi nədə tapır?",o:["Sevgi","Təbiət","Musiqi","Uğur"]},
+  {q:"Nəyi heç cür yeyə bilmir?",o:["Soğan","Sarımsaq","Göbələk","Balıq"]},
+  {q:"Ən çox hansı rəng geyinir?",o:["Qara","Ağ","Rəngli","Boz"]},
+  {q:"İdeal səhər yeməyi?",o:["Yumurta","Müsli","Meyvə","Heç nə"]},
+  {q:"Ən uzun danışdığı mövzu?",o:["Sevgi","İş/Dərs","Film","Gələcək"]},
+  {q:"Alış-verişdə nəyə baxır?",o:["Qiymət","Keyfiyyət","Rəng","Brend"]},
+  {q:"Gecə qorxusu varmı?",o:["Yox","Bəzən","Çox","Həmişə"]},
+  {q:"Ən çox hansı emojini istifadə edir?",o:["😂","❤️","😍","🙄"]},
+  {q:"Sevdiyi həftə günü?",o:["Cümə","Şənbə","Bazar","Düzgün"]},
+  {q:"Məktəbdə sevdiyi dərs?",o:["Riyaziyyat","Ədəbiyyat","İdman","Tarix"]},
+  {q:"Serial janrı?",o:["Romantik","Kriminal","Komediya","Fantastik"]},
   {q:"Özünü necə təsvir edər?",o:["İntrovert","Ekstrovert","Qarışıq","Bilmir"]},
-  {q:"Ən böyük arzusu nədir?",o:["Sağlıq","Pul","Sevgi","Uğur"]},
-  {q:"Sevgisini necə ifadə edir?",o:["Söz ilə","Toxunuşla","Hədiyyə ilə","Zamanla"]}
+  {q:"Ən böyük arzusu?",o:["Sağlamlıq","Pul","Sevgi","Uğur"]},
+  {q:"Hansı iş saatını seçər?",o:["Səhər","Standart","Axşam","Gecə"]},
+  {q:"Mübahisə edəndə nə edir?",o:["Susur","Danışır","Gedir","Ağlayır"]},
+  {q:"İdeal evi?",o:["Böyük","Kiçik","Müasir","Klassik"]},
+  {q:"Gündə neçə dəfə güzgüyə baxır?",o:["1-2","Çox","Az","Heç"]},
+  {q:"Yuxuda çox nə görür?",o:["Uçmaq","Düşmək","Tanışlar","Yerlər"]},
+  {q:"Ən xoşbəxt yeri?",o:["Ev","Təbiət","Sevgili yanı","Tənha"]},
+  {q:"Stres altında nə edir?",o:["Yeyir","Yatır","İdman","Susur"]},
+  {q:"Ən güclü tərəfi?",o:["Səbr","Xeyirxahlıq","Zəka","Yaradıcılıq"]},
+  {q:"Ən zəif tərəfi?",o:["Tənbəllik","Həssaslıq","Qayğı","Qərarsızlıq"]},
+  {q:"Pul qazansa ilk nə edər?",o:["Yemək","Geyim","Yığar","Hədiyyə"]},
+  {q:"Sevgilisindən nə gözləyir?",o:["Anlayış","Sevgi","Dürüstlük","Yumor"]},
+  {q:"Kiminə daha çox güvənir?",o:["Özü","Ailə","Sevgili","Dost"]},
+  {q:"Yağışlı havada nə edir?",o:["Evdə qalır","Çölə çıxır","Film","Yatır"]},
+  {q:"Ən sevdiyi bayram?",o:["Novruz","Yeni İl","Ad Günü","Sevgililər"]},
+  {q:"Ad günündə nə istər?",o:["Sürpriz","Sakitlik","Hədiyyə","Birlikdəlik"]},
+  {q:"Fast food sevdiyi?",o:["Burger","Pizza","Kartof","Hotdog"]},
+  {q:"Sosial mediada nə paylaşır?",o:["Şəkil","Video","Fikir","Heç nə"]},
+  {q:"Kitab janrı?",o:["Romantik","Dəhşət","Fəlsəfə","Tarix"]},
+  {q:"Gecə nə düşünür?",o:["Gələcək","Sevgili","Keçmiş","Heç nə"]},
+  {q:"Hansı dili öyrənmək istər?",o:["İngilis","Fransız","Yapon","İspan"]},
+  {q:"Nəyin xəyalını qurur?",o:["Sevgi","Uğur","Səyahət","Sülh"]},
+  {q:"Sevgisini necə göstərir?",o:["Sözlə","Qayğıyla","Hədiyyəylə","Vaxtla"]},
+  {q:"Sürprizi necə qarşılayır?",o:["Həyəcan","Utanc","Sevinc","Gülüş"]},
+  {q:"Hər şeydən əvvəl nə gəlir?",o:["Ailə","Sevgili","İş","Özü"]},
+  {q:"Barışmaq üçün nə edir?",o:["Özü gəlir","Gözləyir","Mesaj yazır","Hədiyyə"]},
+  {q:"Hansı oyunu sevir?",o:["Kart","Video","Masa","Heç birini"]},
+  {q:"Gizlətdiyi bir şey varmı?",o:["Hisslər","Xəyallar","Qorxular","Yox"]},
+  {q:"Özünü niyə sevir?",o:["Dürüstlük","Yumor","Zəka","Gözəllik"]},
+  {q:"Nəyə ağlayır?",o:["Film","Musiqi","Yaxınları","Xatirə"]},
+  {q:"Ən yaxşı keyfiyyəti?",o:["Mehribanlıq","Sədaqət","Dürüstlük","Zarafat"]},
+  {q:"Söhbətdə nə edir?",o:["Dinləyir","Danışır","Sual verir","Düşünür"]},
+  {q:"Kiminlə vaxt keçirməyi sevir?",o:["Sevgili","Ailə","Dostlar","Tənha"]},
+  {q:"Nəyə görə sevilir?",o:["Gülüş","Xasiyyət","Zəka","Görünüş"]},
+  {q:"Gündüz yatmağı sevir?",o:["Həmişə","Bəzən","Nadirən","Heç vaxt"]},
+  {q:"Ən çox nədən qorxur?",o:["İtirmək","Uğursuzluq","Tənha qalmaq","Ölüm"]},
+  {q:"Sirrini kimə deyir?",o:["Heç kimə","Sevgiliyə","Dostuna","Ailəyə"]},
+  {q:"İdeal gecə planı?",o:["Ev","Restoran","Dostlar","Gəzinti"]},
+  {q:"Günün sevdiyi vaxtı?",o:["Səhər","Günorta","Axşam","Gecə"]},
+  {q:"İnsan görəndə ilk hara baxır?",o:["Göz","Gülüş","Geyim","Davranış"]},
+  {q:"Nəyin həsrətini çəkir?",o:["Uşaqlıq","Keçmiş","İnsanlar","Heç nə"]},
+  {q:"Həyat yoldaşında nə axtarır?",o:["Sədaqət","Anlayış","Yumor","Hamısı"]},
+  {q:"Mütləq etdiyi hərəkət?",o:["İdman","Kitab","Musiqi","Gündəlik"]},
+  {q:"Ən çox bağlandığı əşya?",o:["Telefon","Dəftər","Hədiyyə","Geyim"]},
+  {q:"Hansı hissi çox yaşayır?",o:["Sevinc","Həyəcan","Narahatlıq","Sakitlik"]},
+  {q:"Özünü nədə göstərir?",o:["Gülüş","Söz","Hərəkət","Göz"]},
+  {q:"Nə zaman xoşbəxtdir?",o:["Sevdikləriylə","Uğurda","Təbiətdə","Musiqidə"]},
+  {q:"Gözlənilmədən nə edər?",o:["Sürpriz","Susmaq","Danışmaq","Getmək"]},
+  {q:"İlk görəndə nə hiss edir?",o:["Həyəcan","Sakitlik","Maraq","Çəkinmə"]},
+  {q:"Söhbət mövzusu sevdiyi?",o:["Gələcək","Xatirə","Sevgi","Zarafat"]},
+  {q:"Özü haqqında fikri?",o:["Yaxşıyam","Daha yaxşı ola bilərəm","Xüsusiyəm","Adiyəm"]},
+  {q:"Necə güldürülür?",o:["Zarafatla","Qıdıqla","Hər şeyə gülür","Çətin"]},
+  {q:"Sevgilisini nə vaxt sevir?",o:["Qayğıda","Güləndə","Hər zaman","Darıxanda"]},
+  {q:"Romantik hədiyyə?",o:["Çiçək","Məktub","Yemək","Səyahət"]},
+  {q:"Güzəştə getdiyi şey?",o:["Vaxt","Pul","Prinsip","Heç nə"]},
+  {q:"Sən olmasan nə edər?",o:["Ağlar","Susar","Güclü qalar","Darıxar"]},
+  {q:"Nə vaxt tənha hiss edir?",o:["Kütlədə","Gecə","Problemdə","Heç vaxt"]},
+  {q:"Nəyi paylaşmır?",o:["Hiss","Plan","Uğursuzluq","Hər şeyi deyir"]},
+  {q:"Sevgisini necə deyir?",o:["Sözlə","Toxunuşla","Hədiyyəylə","Zamanla"]},
+  {q:"Həyatın mənası nədir?",o:["Sevgi","Ailə","Uğur","Xoşbəxtlik"]}
 ];
 
 const ROUNDS=10;
 const $=id=>document.getElementById(id);
-
-let myName='',roomCode='',myRole='',usedQs=[],resShown=false;
-let myPhase=''; 
-let localSelQ=null,localSelA=null; 
-let currentQI=null; 
-let currentSelQ=null; 
-let rRef=null,unsub=null;
+let myName='',roomCode='',myRole='',usedQs=[],resShown=false,myPhase='',localSelQ=null,localSelA=null,currentQI=null,currentSelQ=null,rRef=null,unsub=null;
 
 function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+function toast(m){alert(m);}
 function rnd(){return String(Math.floor(1000+Math.random()*9000));}
+
 function pick3(){
-  const av=QS.map((_,i)=>i).filter(i=>!usedQs.includes(i));
-  if(av.length<3){usedQs=[];return pick3();}
-  const p=[];while(p.length<3){const i=av[Math.floor(Math.random()*av.length)];if(!p.includes(i))p.push(i);}
+  let av=QS.map((_,i)=>i).filter(i=>!usedQs.includes(i));
+  if(av.length<3){usedQs=[]; av=QS.map((_,i)=>i);}
+  let p=[];while(p.length<3){let i=av[Math.floor(Math.random()*av.length)];if(!p.includes(i))p.push(i);}
   return p;
 }
 
-function hideAllViews(){
-  ['vPickQ','vPickAns','vAskWait','vAnsWait','vAnsQ'].forEach(id=>$(id).style.display='none');
-}
-
-function showPhase(phase){
-  hideAllViews();
-  myPhase=phase;
-  if(phase==='pickQ') $('vPickQ').style.display='block';
-  else if(phase==='pickAns') $('vPickAns').style.display='block';
-  else if(phase==='askWait') $('vAskWait').style.display='block';
-  else if(phase==='ansWait') $('vAnsWait').style.display='block';
-  else if(phase==='ansQ') $('vAnsQ').style.display='block';
-}
-
-function renderSlots(d){
-  const p1=d.player1,p2=d.player2;
-  $('pslots').innerHTML=`<div class="psl"><div class="av">${p1?p1.name.slice(0,2).toUpperCase():'?'}</div><div class="pn">${p1?p1.name:'...'}</div></div><div style="font-size:1.5rem;color:var(--muted)">💕</div><div class="psl ${p2?'':'emp'}"><div class="av">${p2?p2.name.slice(0,2).toUpperCase():'?'}</div><div class="pn">${p2?p2.name:'Gözlənilir...'}</div></div>`;
-}
-
 window.createRoom=async function(){
-  const n=$('iName').value.trim();
-  if(!n||n.length<2){$('joinErr').textContent='⚠️ Adını daxil et';return;}
-  const c=rnd();myName=n;roomCode=c;rRef=ref(db,`rooms/${c}`);
+  const n=$('iName').value.trim(); if(!n){alert('Ad daxil et!'); return;}
+  roomCode=rnd(); myName=n; rRef=ref(db,`rooms/${roomCode}`);
   await set(rRef,{player1:{name:n,score:0},player2:null,status:'waiting',round:1,roles:{},currentQ:null});
-  $('dispCode').textContent=c;renderSlots({player1:{name:n},player2:null});showScr('sWait');listen();
+  $('dispCode').textContent=roomCode; showScr('sWait'); listen();
 };
 
 window.joinRoom=async function(){
-  const n=$('iName').value.trim(),c=$('iRoom').value.trim(),e=$('joinErr');
-  if(!n||n.length<2){e.textContent='⚠️ Adını daxil et';return;}
-  if(!c||c.length!==4){e.textContent='⚠️ 4 rəqəmli kodu daxil et';return;}
-  const snap=await get(ref(db,`rooms/${c}`));
-  if(!snap.exists()){e.textContent='❌ Belə otaq tapılmadı';return;}
-  const d=snap.val();
-  if(d.player2){e.textContent='⚠️ Otaq doludur';return;}
-  myName=n;roomCode=c;rRef=ref(db,`rooms/${c}`);
+  const n=$('iName').value.trim(), c=$('iRoom').value.trim();
+  if(!n||!c){alert('Ad və Kod daxil et!'); return;}
+  rRef=ref(db,`rooms/${c}`); const snap=await get(rRef);
+  if(!snap.exists()){alert('Otaq yoxdur!'); return;}
+  myName=n; roomCode=c;
   await set(ref(db,`rooms/${c}/player2`),{name:n,score:0});
   await set(ref(db,`rooms/${c}/status`),'role');
-  $('dispCode').textContent=c;renderSlots({player1:d.player1,player2:{name:n}});showScr('sWait');listen();
+  $('dispCode').textContent=c; showScr('sWait'); listen();
 };
 
 function listen(){
   if(unsub)off(rRef,'value',unsub);
-  unsub=onValue(rRef,snap=>{if(snap.exists())handle(snap.val());});
+  unsub=onValue(rRef,snap=>{ if(snap.exists()) handle(snap.val()); });
 }
 
 function handle(d){
-  const cur=[...document.querySelectorAll('.screen.on')][0]?.id;
-  if(d.status==='role'&&(cur==='sWait'||cur==='sJoin')){
-    renderSlots(d);setTimeout(()=>showScr('sRole'),400);return;
-  }
-  if(cur==='sRole'){handleRole(d);return;}
+  const curScr=[...document.querySelectorAll('.screen.on')][0]?.id;
+  if(d.status==='role' && (curScr==='sWait' || curScr==='sJoin')){ showScr('sRole'); return; }
+  if(curScr==='sRole'){ handleRole(d); return; }
   if(d.status==='playing'){
-    if(cur!=='sGame'){
+    if(curScr!=='sGame'){
       const isP1=d.player1.name===myName;
       myRole=d.roles[isP1?'player1':'player2'];
-      $('sn1').textContent=d.player1.name;$('sn2').textContent=d.player2.name;
+      $('sn1').textContent=d.player1.name; $('sn2').textContent=d.player2.name;
       showScr('sGame');
-      if(myRole==='asker') startPickQ(d.currentQ); else startAnsWait();
-    } else {
-      syncPhase(d);
-    }
+      syncView(d);
+    } else { syncView(d); }
   }
   if(d.status==='finished') showFinal(d);
 }
 
-function syncPhase(d){
-  if(!d.currentQ)return;
-  const fbPhase=d.currentQ.phase;
+async function handleRole(d){
+  if(!d.roles || !d.roles.player1 || !d.roles.player2) return;
+  if(d.roles.player1 === d.roles.player2){
+    if(d.player1.name===myName){ alert('Eyni rollar! Yenidən seçin.'); set(ref(db,`rooms/${roomCode}/roles`),{}); }
+    $('roleBtn').style.display='none'; $('roleSt').style.display='none'; return;
+  }
+  if(d.player1.name===myName && d.status!=='playing'){
+    const qi=pick3();
+    await set(ref(db,`rooms/${roomCode}/currentQ`),{qi,phase:'asker_pick'});
+    await set(ref(db,`rooms/${roomCode}/status`),'playing');
+  }
+}
+
+function syncView(d){
+  const cq=d.currentQ; if(!cq) return;
   const isP1=d.player1.name===myName;
   myRole=d.roles[isP1?'player1':'player2'];
-  $('svRound').textContent=`${d.round||1}/${ROUNDS}`;
-  $('sv1').textContent=d.player1.score||0;$('sv2').textContent=d.player2.score||0;
+  $('svRound').textContent=`${d.round}/${ROUNDS}`;
+  $('sv1').textContent=d.player1.score; $('sv2').textContent=d.player2.score;
+
+  ['vPickQ','vPickAns','vAskWait','vAnsWait','vAnsQ'].forEach(id=>$(id).style.display='none');
 
   if(myRole==='asker'){
-    if(fbPhase==='asker_pick' && myPhase!=='pickQ') startPickQ(d.currentQ);
-    else if(fbPhase==='asker_answer' && myPhase!=='pickAns') startPickAns(d.currentQ);
-    else if((fbPhase==='answerer_pick'||fbPhase==='asker_locked') && myPhase!=='askWait') showPhase('askWait');
+    if(cq.phase==='asker_pick') { showPickQ(cq); }
+    else if(cq.phase==='asker_answer') { showPickAns(cq); }
+    else { $('vAskWait').style.display='block'; }
   } else {
-    if((fbPhase==='asker_pick'||fbPhase==='asker_answer'||fbPhase==='asker_locked') && myPhase!=='ansWait') showPhase('ansWait');
-    else if(fbPhase==='answerer_pick' && myPhase!=='ansQ') startAnsQ(d.currentQ);
+    if(cq.phase==='answerer_pick') { showAnsQ(cq); }
+    else { $('vAnsWait').style.display='block'; }
   }
-  if(fbPhase==='show_result'&&!resShown){resShown=true;showResult(d);}
+  if(cq.phase==='show_result' && !resShown){ resShown=true; showResult(d); }
 }
 
-async function handleRole(d){
-  if(!d.roles)return;
-  const r1=d.roles.player1,r2=d.roles.player2;
-  if(r1&&r2){
-    if(r1===r2){
-      if(d.player1.name === myName) {
-        toast('⚠️ Eyni rol seçildi! Rollar sıfırlandı.');
-        await set(ref(db,`rooms/${roomCode}/roles`),{});
-      }
-      myRole='';document.querySelectorAll('.rcard').forEach(e=>e.classList.remove('sel'));
-      $('roleBtn').style.display='none';$('roleSt').style.display='none';return;
-    }
-    if(d.player1.name === myName && d.status !== 'playing') {
-      const qi=pick3();
-      await set(ref(db,`rooms/${roomCode}/currentQ`),{qi,selQ:null,phase:'asker_pick',ca:null,aa:null,aok:null});
-      await set(ref(db,`rooms/${roomCode}/status`),'playing');
-    }
-  }
+function showPickQ(cq){
+  $('vPickQ').style.display='block'; currentQI=cq.qi;
+  $('qList').innerHTML=cq.qi.map((idx,i)=>`<div class="qi" id="qi${i}" onclick="localSelQ=${i}; document.querySelectorAll('.qi').forEach(e=>e.classList.remove('sel')); $('qi${i}').classList.add('sel')">${QS[idx].q}</div>`).join('');
 }
-
-function startPickQ(cq){
-  currentQI=cq.qi;localSelQ=null;
-  showPhase('pickQ');$('sendQBtn').style.display='none';
-  $('qList').innerHTML=cq.qi.map((qi,i)=>
-    `<div class="qi" id="qi${i}" onclick="pickQ(${i})"><div class="qnum">${i+1}</div><div class="qtext">${QS[qi].q}</div></div>`
-  ).join('');
-}
-
-window.pickQ=function(i){
-  document.querySelectorAll('.qi').forEach(e=>e.classList.remove('sel'));
-  $('qi'+i)?.classList.add('sel');localSelQ=i;$('sendQBtn').style.display='block';
-};
 
 window.doSendQ=async function(){
-  if(localSelQ===null)return;
-  currentSelQ=localSelQ;
+  if(localSelQ===null) return;
   await set(ref(db,`rooms/${roomCode}/currentQ/selQ`),localSelQ);
   await set(ref(db,`rooms/${roomCode}/currentQ/phase`),'asker_answer');
-  startPickAns({qi:currentQI,selQ:localSelQ});
 };
 
-function startPickAns(cq){
-  localSelA=null;showPhase('pickAns');$('setAnsBtn').style.display='none';
-  const qi=cq.qi||currentQI, sq=cq.selQ!==null?cq.selQ:currentSelQ;
-  const qo=QS[qi[sq]];
-  $('askQShow').innerHTML=`<div class="aql">Seçdiyin sual</div><div class="aqt">${qo.q}</div>`;
-  $('askChoices').innerHTML=qo.o.map((op,i)=>
-    `<div class="ch" id="ac${i}" onclick="pickAA(${i})"><div class="cl">${'ABCD'[i]}</div>${op}</div>`
-  ).join('');
+function showPickAns(cq){
+  $('vPickAns').style.display='block'; const qo=QS[cq.qi[cq.selQ]];
+  $('askQShow').textContent=qo.q;
+  $('askChoices').innerHTML=qo.o.map((o,i)=>`<div class="ch" id="ac${i}" onclick="localSelA=${i}; document.querySelectorAll('#askChoices .ch').forEach(e=>e.classList.remove('picked')); $('ac${i}').classList.add('picked')">${o}</div>`).join('');
 }
-
-window.pickAA=function(i){
-  document.querySelectorAll('#askChoices .ch').forEach(e=>e.classList.remove('picked'));
-  $('ac'+i)?.classList.add('picked');localSelA=i;$('setAnsBtn').style.display='block';
-};
 
 window.doSetCorrect=async function(){
-  if(localSelA===null)return;
+  if(localSelA===null) return;
   await set(ref(db,`rooms/${roomCode}/currentQ/ca`),localSelA);
   await set(ref(db,`rooms/${roomCode}/currentQ/phase`),'answerer_pick');
-  showPhase('askWait');
 };
 
-function startAnsWait(){ showPhase('ansWait'); }
-
-function startAnsQ(cq){
-  showPhase('ansQ');
-  const qo=QS[cq.qi[cq.selQ]];
+function showAnsQ(cq){
+  $('vAnsQ').style.display='block'; const qo=QS[cq.qi[cq.selQ]];
   $('ansQText').textContent=qo.q;
-  $('ansChoices').innerHTML=qo.o.map((op,i)=>
-    `<div class="ch" id="anc${i}" onclick="pickAC(${i})"><div class="cl">${'ABCD'[i]}</div>${op}</div>`
-  ).join('');
+  $('ansChoices').innerHTML=qo.o.map((o,i)=>`<div class="ch" onclick="submitAns(${i})">${o}</div>`).join('');
 }
 
-window.pickAC=async function(i){
-  document.querySelectorAll('#ansChoices .ch').forEach(e=>e.classList.add('lk'));
-  const cq=(await get(ref(db,`rooms/${roomCode}/currentQ`))).val();
-  const correct=cq.ca,ok=i===correct;
-  document.querySelectorAll('#ansChoices .ch').forEach((e,idx)=>{
-    if(idx===correct)e.classList.add('correct'); else if(idx===i&&!ok)e.classList.add('wrong');
-  });
-  const d=(await get(rRef)).val();
-  const isP1=d.player1.name===myName;
-  const cur=isP1?d.player1.score:d.player2.score;
-  await set(ref(db,`rooms/${roomCode}/${isP1?'player1':'player2'}/score`),cur+(ok?5:-5));
-  await set(ref(db,`rooms/${roomCode}/currentQ/aa`),i);
+window.submitAns=async function(i){
+  const snap=await get(ref(db,`rooms/${roomCode}`)); const d=snap.val();
+  const ok = i === d.currentQ.ca;
+  const isP1 = d.player1.name===myName;
+  const newScore = (isP1?d.player1.score:d.player2.score) + (ok?5:-5);
+  await set(ref(db,`rooms/${roomCode}/${isP1?'player1':'player2'}/score`),newScore);
   await set(ref(db,`rooms/${roomCode}/currentQ/aok`),ok);
+  await set(ref(db,`rooms/${roomCode}/currentQ/ca_text`),QS[d.currentQ.qi[d.currentQ.selQ]].o[d.currentQ.ca]);
   await set(ref(db,`rooms/${roomCode}/currentQ/phase`),'show_result');
 };
 
 function showResult(d){
-  const cq=d.currentQ,ok=cq.aok,isA=myRole==='answerer';
-  const qo=QS[cq.qi[cq.selQ]];
-  let e,t,m,x,xc;
-  if(isA){
-    if(ok){e='🎉';t='Düzgün!';m=`"${qo.o[cq.ca]}" 💕`;x='+5';xc='p';}
-    else{e='💔';t='Səhv!';m=`Düz: "${qo.o[cq.ca]}"`;x='-5';xc='m';}
-  } else {
-    if(ok){e='🌟';t='Bildi!';m='Sevgilin düz tapdı!';x='';xc='';}
-    else{e='😅';t='Bilmədi!';m='Bu dəfə səhv tapdı.';x='';xc='';}
-  }
-  $('resE').textContent=e;$('resT').textContent=t;$('resM').textContent=m;
-  $('resX').textContent=x;$('resX').className='xal '+xc;
-  $('resOv').style.display='flex';
-  $('resBtn').style.display=isA?'block':'none';
-  if(!isA) setTimeout(()=>{$('resOv').style.display='none';resShown=false;},4500);
+  $('resOv').style.display='flex'; resShown=true;
+  $('resT').textContent=d.currentQ.aok?'Düzdür! 🎉':'Səhvdir! 💔';
+  $('resM').textContent=`Düzgün cavab: ${d.currentQ.ca_text}`;
+  $('resBtn').style.display = myRole==='answerer'?'block':'none';
 }
 
 window.nextRound=async function(){
-  $('resOv').style.display='none';resShown=false;
+  resShown=false; $('resOv').style.display='none';
   const d=(await get(rRef)).val();
-  const nr=(d.round||1)+1;
-  if(nr>ROUNDS){await set(ref(db,`rooms/${roomCode}/status`),'finished');return;}
+  if(d.round >= ROUNDS){ await set(ref(db,`rooms/${roomCode}/status`),'finished'); return; }
   const qi=pick3();
-  await set(ref(db,`rooms/${roomCode}/round`),nr);
-  await set(ref(db,`rooms/${roomCode}/currentQ`),{qi,selQ:null,phase:'asker_pick',ca:null,aa:null,aok:null});
+  await set(ref(db,`rooms/${roomCode}/round`), d.round+1);
+  await set(ref(db,`rooms/${roomCode}/currentQ`), {qi,phase:'asker_pick'});
 };
 
 function showFinal(d){
   showScr('sFinal');
-  const s1=d.player1.score||0,s2=d.player2.score||0;
-  const win=s1>s2?d.player1.name:s2>s1?d.player2.name:null;
-  $('finTitle').textContent=win?`${win} Qazandı! 🏆`:'Bərabərə! 🤝';
-  $('finScores').innerHTML=`<div class="fsc ${s1>=s2?'win':''}"><div class="fn">${d.player1.name}</div><div class="fv">${s1}</div></div><div class="fsc ${s2>=s1?'win':''}"><div class="fn">${d.player2.name}</div><div class="fv">${s2}</div></div>`;
+  const s1=d.player1.score, s2=d.player2.score;
+  $('finScores').innerHTML=`${d.player1.name}: ${s1} xal<br>${d.player2.name}: ${s2} xal`;
 }
 
-window.selRole=function(r){
-  myRole=r;$('rcA').classList.toggle('sel',r==='asker');$('rcB').classList.toggle('sel',r==='answerer');$('roleBtn').style.display='block';
-};
+window.selRole=function(r){ myRole=r; $('rcA').className=r==='asker'?'rcard sel':'rcard'; $('rcB').className=r==='answerer'?'rcard sel':'rcard'; $('roleBtn').style.display='block'; };
 window.confirmRole=async function(){
-  if(!myRole)return;
-  const d=(await get(rRef)).val();
-  const isP1=d.player1.name===myName;
+  const isP1=(await get(rRef)).val().player1.name===myName;
   await set(ref(db,`rooms/${roomCode}/roles/${isP1?'player1':'player2'}`),myRole);
-  $('roleBtn').style.display='none';$('roleSt').style.display='block';
-  $('roleSt').innerHTML='<div class="spin"></div><br>Sevgilini gözləyirəm...';
+  $('roleBtn').style.display='none'; $('roleSt').style.display='block'; $('roleSt').textContent='Sevgilini gözləyirəm...';
 };
-window.playAgain=async function(){
-  usedQs=[];myRole='';myPhase='';
-  await set(ref(db,`rooms/${roomCode}/status`),'role');
-  await set(ref(db,`rooms/${roomCode}/roles`),{});
-  await set(ref(db,`rooms/${roomCode}/round`),1);
-  showScr('sRole');
-};
-
-$('iRoom').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
-$('iName').addEventListener('keydown',e=>{if(e.key==='Enter')$('iRoom').focus();});
 </script>
 </body>
 </html>
