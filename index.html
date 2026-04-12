@@ -2,8 +2,8 @@
 <html lang="az">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PlayWithLove 💕</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>PlayWithLove 💕 - Sevgililər üçün oyunlar</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -169,6 +169,36 @@
   .card-btn.disabled:hover { transform: none; box-shadow: none; }
   footer { text-align: center; padding: 2.5rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
   footer span { background: linear-gradient(135deg, var(--pink-light), var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600; }
+
+  /* GAME MODAL - Oyun burada açılacaq */
+  .game-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); z-index: 200;
+    display: flex; flex-direction: column;
+    opacity: 0; visibility: hidden; transition: all 0.3s ease;
+  }
+  .game-modal.active {
+    opacity: 1; visibility: visible;
+  }
+  .game-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 2rem; background: var(--bg-card); border-bottom: 1px solid var(--border);
+  }
+  .game-modal-title {
+    font-size: 1.2rem; font-weight: 600;
+    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .close-game-btn {
+    background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+    width: 40px; height: 40px; font-size: 1.5rem; color: #fff;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .close-game-btn:hover { background: var(--pink); transform: rotate(90deg); }
+  .game-iframe {
+    flex: 1; width: 100%; border: none; background: #fff;
+  }
+
   @media (max-width: 600px) {
     header { padding: 1rem; } .hero { padding: 2.5rem 1rem 2rem; }
     .section { padding: 1rem 1rem 3rem; } .header-logo { font-size: 1.1rem; }
@@ -193,6 +223,15 @@
     <div class="error-msg" id="errorMsg"></div>
     <div class="login-note">✨ Qeydiyyat tələb olunmur — sadəcə adını yaz və oyna! 🎮</div>
   </div>
+</div>
+
+<!-- GAME MODAL (iframe ilə oyunlar burada açılacaq) -->
+<div id="gameModal" class="game-modal">
+  <div class="game-modal-header">
+    <span class="game-modal-title" id="gameModalTitle">Oyun</span>
+    <button class="close-game-btn" onclick="closeGame()">✕</button>
+  </div>
+  <iframe id="gameIframe" class="game-iframe" src="about:blank"></iframe>
 </div>
 
 <!-- APP -->
@@ -248,7 +287,6 @@
   const db = getDatabase(app);
 
   // ==================== OYUN SİYAHISI ====================
-  // YENİ OYUN ƏLAVƏ ETMƏK ÜÇÜN: buraya yeni oyun obyekti əlavə edin!
   const games = [
     { 
       id: 'quiz', 
@@ -259,7 +297,7 @@
       tags: ['Test', 'Multiplayer', 'Romantic'], 
       status: 'active', 
       category: 'test', 
-      file: 'sualcavab.html'  // ← BU OYUN FAYLINIZ
+      file: 'sualcavab.html'
     },
     { 
       id: 'tictactoe', 
@@ -340,36 +378,25 @@
     }
   ];
 
-  // ==================== OYUN SİYAHISI SONU ====================
+  // Oyunu iframe ilə aç
+  window.openGame = function(gameFile, gameName) {
+    const modal = document.getElementById('gameModal');
+    const iframe = document.getElementById('gameIframe');
+    const title = document.getElementById('gameModalTitle');
+    
+    title.textContent = gameName;
+    iframe.src = gameFile;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
 
-  // Get real IP
-  async function getIP() {
-    try {
-      const r = await fetch('https://api.ipify.org?format=json');
-      const d = await r.json();
-      return d.ip;
-    } catch { return 'unknown'; }
-  }
-
-  // Check if IP is blocked
-  async function isBlocked(ip) {
-    try {
-      const snap = await get(child(ref(db), `blockedIPs/${ip.replace(/\./g, '_')}`));
-      return snap.exists() && snap.val() === true;
-    } catch { return false; }
-  }
-
-  // Save user to Firebase
-  async function saveUser(username, ip) {
-    const userId = `${username}_${ip.replace(/\./g, '_')}`;
-    await set(ref(db, `users/${userId}`), {
-      username,
-      ip,
-      loginTime: new Date().toISOString(),
-      lastSeen: new Date().toISOString(),
-      online: true
-    });
-  }
+  window.closeGame = function() {
+    const modal = document.getElementById('gameModal');
+    const iframe = document.getElementById('gameIframe');
+    modal.classList.remove('active');
+    iframe.src = 'about:blank';
+    document.body.style.overflow = '';
+  };
 
   // Hearts animation
   (function() {
@@ -412,7 +439,7 @@
           </div>
           ${isSoon
             ? `<button class="card-btn disabled" disabled>⏳ Hazırlanır...</button>`
-            : `<a class="card-btn" href="${g.file}" target="_blank">✨ Oyna</a>`}
+            : `<button class="card-btn" onclick="openGame('${g.file}', '${g.name}')">✨ Oyna</button>`}
         </div>`;
       grid.appendChild(card);
     });
@@ -453,6 +480,33 @@
       </div>`;
   }
 
+  // Get real IP
+  async function getIP() {
+    try {
+      const r = await fetch('https://api.ipify.org?format=json');
+      const d = await r.json();
+      return d.ip;
+    } catch { return 'unknown'; }
+  }
+
+  async function isBlocked(ip) {
+    try {
+      const snap = await get(child(ref(db), `blockedIPs/${ip.replace(/\./g, '_')}`));
+      return snap.exists() && snap.val() === true;
+    } catch { return false; }
+  }
+
+  async function saveUser(username, ip) {
+    const userId = `${username}_${ip.replace(/\./g, '_')}`;
+    await set(ref(db, `users/${userId}`), {
+      username,
+      ip,
+      loginTime: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+      online: true
+    });
+  }
+
   window.handleLogin = async function() {
     const input = document.getElementById('usernameInput');
     const name = input.value.trim();
@@ -481,6 +535,13 @@
     btn.disabled = false;
     btn.textContent = '💫 Daxil ol';
   };
+
+  // ESC ilə oyunu bağlama
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeGame();
+    }
+  });
 
   // Auto-login check
   (async function init() {
