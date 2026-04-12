@@ -3,86 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Fingers Multiplayer</title>
+    <title>Sürətli Yazı - Sevgi Yarışı</title>
     <style>
+        :root {
+            --love-pink: #ff4d6d;
+            --love-purple: #c9184a;
+            --neon-white: #fff0f3;
+            --bg-dark: #1a0a1a;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e;
-            color: #fff;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            background-image: radial-gradient(circle at center, #2d0a1e 0%, #1a0a1a 100%);
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
+
         .container {
-            background: #16213e;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(255, 77, 109, 0.05);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 77, 109, 0.2);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 0 50px rgba(255, 77, 109, 0.15);
             text-align: center;
-            width: 400px;
+            width: 480px;
+            position: relative;
         }
+
+        h2 { 
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--love-pink);
+            text-shadow: 0 0 15px var(--love-pink);
+            letter-spacing: 2px;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--love-pink), #ff758f);
+            box-shadow: 0 0 10px var(--love-pink);
+            transition: width 1s linear;
+        }
+
+        .word-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--neon-white);
+            background: rgba(0,0,0,0.4);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border-left: 5px solid var(--love-pink);
+            letter-spacing: 1px;
+        }
+
         input {
-            padding: 10px;
-            width: 80%;
-            border-radius: 5px;
-            border: none;
-            margin: 10px 0;
-            font-size: 16px;
+            width: 85%;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            transition: 0.4s;
         }
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
+
+        input:focus {
+            border-color: var(--love-pink);
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.4);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .action-btn {
+            margin-top: 20px;
+            padding: 12px 35px;
             border: none;
-            background: #e94560;
+            border-radius: 50px;
+            background: var(--love-pink);
             color: white;
             font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
             transition: 0.3s;
         }
-        button:disabled { background: #555; cursor: not-allowed; }
-        .word-display {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #0f3460;
-            background: #00d2ff;
-            padding: 10px;
-            border-radius: 5px;
+
+        .action-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.6);
         }
-        .stats {
+
+        .action-btn:disabled {
+            background: #444;
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .scoreboard {
             display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            font-size: 14px;
+            justify-content: space-between;
+            margin-top: 35px;
         }
-        #game-area { display: none; }
+
+        .player-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 15px;
+            width: 45%;
+        }
+
+        .score-num {
+            display: block;
+            font-size: 28px;
+            color: var(--love-pink);
+            font-weight: bold;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .error-shake { animation: shake 0.3s ease-in-out; }
+
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="game-box">
     <div id="lobby">
-        <h2>Fast Fingers</h2>
+        <h2>Sürətli Yazı</h2>
+        <p style="opacity: 0.7;">Sevgilinlə yarışmağa başla ❤️</p>
         <input type="text" id="username" placeholder="Adın">
-        <br>
-        <button onclick="createRoom()">Otaq Yarat</button>
-        <p>və ya</p>
+        <br><br>
+        <button class="action-btn" onclick="createRoom()">Otaq Yarat</button>
+        <div style="margin: 15px 0; font-size: 0.8em; opacity: 0.5;">və ya</div>
         <input type="text" id="room-id-input" placeholder="Otaq Kodu">
-        <button onclick="joinRoom()">Qoşul</button>
+        <button class="action-btn" onclick="joinRoom()">Qoşul</button>
     </div>
 
-    <div id="game-area">
-        <h3 id="room-display">Otaq: </h3>
-        <div class="word-display" id="target-word">Gözlənilir...</div>
-        <input type="text" id="word-input" placeholder="Sözü bura yaz..." autocomplete="off">
+    <div id="game-area" style="display: none;">
+        <div class="timer-container">
+            <div id="timer-bar" class="timer-bar"></div>
+        </div>
+        <div id="room-code-tag" style="font-size: 10px; color: var(--love-pink); margin-bottom: 5px;"></div>
+        <div class="word-display" id="target-word">YÜKLƏNİR...</div>
+        <input type="text" id="word-input" placeholder="Yaz və düyməyə bas!" autocomplete="off">
         <br>
-        <button id="submit-btn" onclick="checkWord()" disabled>GÖNDƏR (+5)</button>
+        <button id="submit-btn" class="action-btn" onclick="checkWord()" disabled>GÖNDƏR (+5)</button>
         
-        <div class="stats">
-            <div>Sən: <span id="my-score">0</span></div>
-            <div>Rəqib: <span id="opp-score">0</span></div>
+        <div class="scoreboard">
+            <div class="player-card">SƏN <span class="score-num" id="my-score">0</span></div>
+            <div class="player-card">RƏQİB <span class="score-num" id="opp-score">0</span></div>
         </div>
     </div>
 </div>
@@ -105,56 +197,54 @@
     const db = getDatabase(app);
 
     const words = [
-        "texnologiya", "proqramlaşdırma", "kibertehlükəsizlik", "süniintellekt", 
-        "məlumatbazası", "alqoritmik", "interaktivlik", "multiplayer", 
-        "konfiqurasiya", "müasirləşdirmə", "optimallaşdırma", "translyasiya",
-        "identifikasiya", "funksionallıq", "vallaşdırma", "reallaşdırmaq",
-        "universitet", "istiqamətləndirmə", "prosedurallaşdırma", "kompüterləşmə",
-        "elektromaqnit", "avtomatlaşdırma", "məsuliyyətlilik", "mükəmməlləşdirmə",
-        "müstəqilləşmə", "kodlaşdırma", "əməliyyatçı", "təkmilləşdirmə", 
-        "professional", "strateji"
+        "SƏNİ-ÇOX-SEVİRƏM", "GƏLƏCƏYİMİZ", "XURAFATLAR", "PROQRAMLAŞDIRMA",
+        "MEHRİBANLIQ", "SƏADƏTİMİZ", "EHTİRAMSIZLIQ", "MÜKƏMMƏLLİYYƏT",
+        "MƏSULİYYƏTLİLİK", "MÜNASİBƏTLƏR", "KONFİQURASİYA", "HƏYAT-YOLDAŞIM",
+        "XƏYALLARIMIZ", "GÖZƏLLİKLƏR", "AVTOMATLAŞDIRMA", "SÜNİ-İNTELLEKT",
+        "HİSSİYYATLAR", "DÜNYAGÖRÜŞÜ", "MÜSTƏQİLLİYİMİZ", "SADİQLİYİMİZ"
     ];
 
     let currentRoomId = "";
     let myId = "";
-    let currentWord = "";
+    let timeLeft = 15;
+    let timerInterval;
 
     window.createRoom = function() {
         const name = document.getElementById('username').value;
-        if(!name) return alert("Ad yazın!");
-        currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        if(!name) return;
+        currentRoomId = Math.random().toString(36).substring(2, 7).toUpperCase();
         myId = "p1";
-        
         set(ref(db, 'rooms/' + currentRoomId), {
             p1: { name: name, score: 0 },
             currentWord: words[Math.floor(Math.random() * words.length)],
-            status: "waiting"
+            lastUpdate: Date.now()
         });
-        setupGame();
+        initUI();
     }
 
     window.joinRoom = function() {
         const name = document.getElementById('username').value;
         const rid = document.getElementById('room-id-input').value.toUpperCase();
-        if(!name || !rid) return alert("Məlumatları doldurun!");
-        
+        if(!name || !rid) return;
         myId = "p2";
         currentRoomId = rid;
-        update(ref(db, 'rooms/' + currentRoomId + '/p2'), { name: name, score: 0 });
-        setupGame();
+        update(ref(db, `rooms/${currentRoomId}/p2`), { name: name, score: 0 });
+        initUI();
     }
 
-    function setupGame() {
+    function initUI() {
         document.getElementById('lobby').style.display = 'none';
         document.getElementById('game-area').style.display = 'block';
-        document.getElementById('room-display').innerText = "Otaq: " + currentRoomId;
+        document.getElementById('room-code-tag').innerText = "OTAQ KODU: " + currentRoomId;
 
         onValue(ref(db, 'rooms/' + currentRoomId), (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
-
-            currentWord = data.currentWord;
-            document.getElementById('target-word').innerText = currentWord;
+            
+            if(document.getElementById('target-word').innerText !== data.currentWord) {
+                document.getElementById('target-word').innerText = data.currentWord;
+                resetTimer();
+            }
             
             document.getElementById('my-score').innerText = data[myId] ? data[myId].score : 0;
             const oppId = myId === "p1" ? "p2" : "p1";
@@ -162,44 +252,58 @@
         });
     }
 
-    // Yazı yoxlanışı və düymə bloklanması
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 15;
+        const bar = document.getElementById('timer-bar');
+        bar.style.width = "100%";
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            bar.style.width = (timeLeft / 15 * 100) + "%";
+            if(timeLeft <= 0) {
+                clearInterval(timerInterval);
+                const score = parseInt(document.getElementById('my-score').innerText);
+                update(ref(db, `rooms/${currentRoomId}/${myId}`), { score: Math.max(0, score - 2) });
+                update(ref(db, `rooms/${currentRoomId}`), { currentWord: words[Math.floor(Math.random() * words.length)] });
+            }
+        }, 1000);
+    }
+
     document.getElementById('word-input').addEventListener('input', (e) => {
+        const target = document.getElementById('target-word').innerText;
         const btn = document.getElementById('submit-btn');
-        if(e.target.value === currentWord) {
+        const gameBox = document.getElementById('game-box');
+
+        if(e.target.value === target) {
             btn.disabled = false;
+            gameBox.classList.remove('error-shake');
         } else {
             btn.disabled = true;
+            if(e.target.value.length >= target.length) {
+                gameBox.classList.add('error-shake');
+            }
         }
     });
 
-    window.checkWord = async function() {
+    window.checkWord = function() {
         const input = document.getElementById('word-input');
-        const btn = document.getElementById('submit-btn');
+        const score = parseInt(document.getElementById('my-score').innerText) + 5;
+        const oppId = myId === "p1" ? "p2" : "p1";
         
-        if(input.value === currentWord) {
-            // Xal artır (+5) və yeni söz təyin et
-            const nextWord = words[Math.floor(Math.random() * words.length)];
-            const scoreSpan = document.getElementById('my-score');
-            let newScore = parseInt(scoreSpan.innerText) + 5;
+        const updates = {};
+        updates[`rooms/${currentRoomId}/${myId}/score`] = score;
+        updates[`rooms/${currentRoomId}/currentWord`] = words[Math.floor(Math.random() * words.length)];
 
-            // Database-i yeniləyirik
-            const updates = {};
-            updates[`rooms/${currentRoomId}/${myId}/score`] = newScore;
-            updates[`rooms/${currentRoomId}/currentWord`] = nextWord;
-            
-            // Rəqibdən xal çıxılması (-2)
-            const oppId = myId === "p1" ? "p2" : "p1";
-            onValue(ref(db, `rooms/${currentRoomId}/${oppId}/score`), (snapshot) => {
-                let oppScore = snapshot.val() || 0;
-                if(oppScore > 0) {
-                    updates[`rooms/${currentRoomId}/${oppId}/score`] = oppScore - 2;
-                }
-            }, { onlyOnce: true });
+        // Rəqib xalını azaltma məntiqi
+        onValue(ref(db, `rooms/${currentRoomId}/${oppId}/score`), (snap) => {
+            let oScore = snap.val() || 0;
+            if(oScore > 0) updates[`rooms/${currentRoomId}/${oppId}/score`] = oScore - 2;
+        }, { onlyOnce: true });
 
-            update(ref(db), updates);
-            input.value = "";
-            btn.disabled = true;
-        }
+        update(ref(db), updates);
+        input.value = "";
+        document.getElementById('submit-btn').disabled = true;
     }
 </script>
 
