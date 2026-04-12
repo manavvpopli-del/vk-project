@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SualCavab - Məni nə qədər tanıyırsan? | Multiplayer</title>
-    <!-- Firebase SDK -->
+    <title>SualCavab - Məni nə qədər tanıyırsan? | Real Multiplayer</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
@@ -22,7 +21,7 @@
             padding: 20px;
         }
         .game-container {
-            max-width: 850px;
+            max-width: 900px;
             width: 100%;
             background: rgba(255,255,240,0.1);
             backdrop-filter: blur(2px);
@@ -104,7 +103,6 @@
         button:disabled {
             background: #aaa;
             cursor: not-allowed;
-            transform: none;
         }
         .status {
             background: #e9ecef;
@@ -113,9 +111,6 @@
             margin: 15px 0;
             text-align: center;
             font-weight: 600;
-        }
-        .question-area, .answer-area, .questioner-panel {
-            margin-top: 20px;
         }
         .question-list {
             display: flex;
@@ -130,18 +125,32 @@
             border-radius: 40px;
             padding: 14px 20px;
             font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        .question-btn:hover {
+            background: #ffd9ae;
+            transform: scale(1.01);
         }
         .option-btn {
             background: #e2e3e8;
             color: #1f3a4b;
-            margin: 8px;
-            padding: 10px 18px;
+            margin: 8px 0;
+            padding: 12px 18px;
+            width: 100%;
+            text-align: left;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .option-btn:hover {
+            background: #d0d4dc;
         }
         .score {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #ff6b4a;
             text-align: center;
+            margin-top: 20px;
         }
         .waiting {
             text-align: center;
@@ -153,9 +162,6 @@
             0% { opacity: 0.6; }
             100% { opacity: 1; }
         }
-        hr {
-            margin: 20px 0;
-        }
         .role-badge {
             background: #2c3e66;
             color: white;
@@ -163,6 +169,10 @@
             padding: 6px 16px;
             display: inline-block;
             font-size: 0.8rem;
+        }
+        h3 {
+            color: #2c3e66;
+            margin-top: 0;
         }
     </style>
 </head>
@@ -173,7 +183,6 @@
         <div style="text-align:center" class="sub">Məni nə qədər tanıyırsan?</div>
 
         <div id="app">
-            <!-- Otaq paneli -->
             <div class="room-panel">
                 <div class="flex-row">
                     <div class="input-group">
@@ -198,7 +207,6 @@
 </div>
 
 <script>
-    // Firebase konfiqurasiya
     const firebaseConfig = {
         apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
         authDomain: "sevgili-testi.firebaseapp.com",
@@ -213,81 +221,126 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // 100 sual + 5 variant + düzgün cavab indeksi (0-4 arası)
-    const questionsDB = [];
-    for (let i = 1; i <= 100; i++) {
-        const correctIdx = Math.floor(Math.random() * 5); // təsadüfi düzgün
-        let variants = [];
-        for (let v = 0; v < 5; v++) {
-            if (v === correctIdx) variants.push("✅ Hə, məni tanıyır");
-            else variants.push("❌ Yox, səhvdir");
-        }
-        questionsDB.push({
-            id: i,
-            text: `Sual ${i}: Mənim sevimli rəngim hansıdır? (Bu sual test üçün nümunədir)`,
-            variants: variants,
-            correct: correctIdx
+    // ==================== 100 REAL SUALLAR ====================
+    const questionsData = [
+        { text: "Mənim ən sevdiyim rəng hansıdır?", variants: ["Qırmızı", "Mavi", "Yaşıl", "Qara", "Çəhrayı"] },
+        { text: "Mənim ən sevdiyim yemək nədir?", variants: ["Pizza", "Makaron", "Döner", "Suşi", "Xəngəl"] },
+        { text: "Mənim ən sevdiyim film janrı hansıdır?", variants: ["Dram", "Komediya", "Qorxu", "Elmi fantastika", "Romantik"] },
+        { text: "Mənim ən çox getmək istədiyim ölkə haradır?", variants: ["İtaliya", "Yaponiya", "Fransa", "ABŞ", "Türkiyə"] },
+        { text: "Mən səhər yoxsa gecə insanıyam?", variants: ["Səhər", "Gecə", "İkisi də", "Heç biri", "Gündüz"] },
+        { text: "Mənim ən sevdiyim heyvan hansıdır?", variants: ["Pişik", "İt", "Quş", "At", "Balıq"] },
+        { text: "Mən boş vaxtımda ən çox nə etməyi sevirəm?", variants: ["Film izləmək", "Kitab oxumaq", "İdman etmək", "Oyun oynamaq", "Yemək bişirmək"] },
+        { text: "Mənim ən sevdiyim mövsüm hansıdır?", variants: ["Yaz", "Yay", "Payız", "Qış", "Hamısı"] },
+        { text: "Mən çay yoxsa qəhvə sevirəm?", variants: ["Çay", "Qəhvə", "İkisi də", "Heç biri", "Meyvə şirəsi"] },
+        { text: "Mənim ən sevdiyim musiqi növü hansıdır?", variants: ["Pop", "Rock", "Rap", "Klassik", "Caz"] },
+        { text: "Mənim ən sevdiyim idman növü hansıdır?", variants: ["Futbol", "Basketbol", "Tennis", "Üzgüçülük", "Voleybol"] },
+        { text: "Mən tək yoxsa dostlarla vaxt keçirməyi sevirəm?", variants: ["Tək", "Dostlarla", "Hər ikisi", "Ailəmlə", "Sevgilimlə"] },
+        { text: "Mənim ən sevdiyim dondurma dadı hansıdır?", variants: ["Şokolad", "Vanil", "Pistachio", "Çiyələk", "Nanə"] },
+        { text: "Mənim ən sevdiyim tətil növü hansıdır?", variants: ["Dəniz kənarı", "Dağlar", "Şəhər turu", "Kənd həyatı", "Macəra"] },
+        { text: "Mən sosial media istifadə edirəmmi?", variants: ["Çox istifadə edirəm", "Orta səviyyədə", "Az istifadə edirəm", "Yalnız mesajlaşma", "İstifadə etmirəm"] },
+        { text: "Mənim ən sevdiyim içki nədir?", variants: ["Su", "Qazlı içki", "Meyvə şirəsi", "Kompot", "Ayran"] },
+        { text: "Mən kitab oxumağı sevirəmmi?", variants: ["Çox sevirəm", "Bəzən", "Az", "Yalnız dərs üçün", "Heç sevmirəm"] },
+        { text: "Mənim ən sevdiyim dərs (və ya iş sahəsi) hansıdır?", variants: ["Riyaziyyat", "Ədəbiyyat", "Tarix", "İncəsənət", "Kompüter"] },
+        { text: "Mən səyahət etməyi sevirəmmi?", variants: ["Çox sevirəm", "Bəzən", "Yalnız qısa səfərlər", "Pulum olsa", "Heç sevmirəm"] },
+        { text: "Mənim ən sevdiyim peyvənd (parfüm/qoxu) növü?", variants: ["Meyvəli", "Çiçəkli", "Odunsu", "Təzə", "Şirin"] },
+        { text: "Mən ən çox hansı filmi izləmişəm?", variants: ["Titanic", "Inception", "Forrest Gump", "The Matrix", "Harry Potter"] },
+        { text: "Mənim ən sevdiyim aktyor/aktrisa kimdir?", variants: ["Leonardo DiCaprio", "Scarlett Johansson", "Tom Hanks", "Meryl Streep", "Brad Pitt"] },
+        { text: "Mən evdə ən çox hansı paltarı geyinirəm?", variants: ["Pijama", "Şort", "Cins", "İdman geyimi", "Xalat"] },
+        { text: "Mən hansı dili öyrənmək istəyirəm?", variants: ["İngilis", "İspan", "Fransız", "Alman", "Yapon"] },
+        { text: "Mən ən çox kimə güvənirəm?", variants: ["Ailəm", "Dostlarıma", "Sevgilimə", "Özümə", "Heç kimə"] },
+        { text: "Mən ad günümü necə qeyd etməyi sevirəm?", variants: ["Böyük partiya", "Yaxın dostlarla", "Ailəmlə", "Tək", "Səyahət"] },
+        { text: "Mən hansı super qabiliyyətə sahib olmaq istərdim?", variants: ["Uçmaq", "Görünməz olmaq", "Zamanı dayandırmaq", "Teleportasiya", "Fikirləri oxumaq"] },
+        { text: "Mən ən çox hansı sosial şəbəkəni istifadə edirəm?", variants: ["İnstagram", "TikTok", "Facebook", "Twitter", "YouTube"] },
+        { text: "Mənim ən sevdiyim şirniyyat nədir?", variants: ["Şokolad", "Pasta", "Dondurma", "Lokum", "Baklava"] },
+        { text: "Mən əsəbi olanda nə edirəm?", variants: ["Səssiz qalıram", "Qışqırıram", "Gəzirəm", "Musiqi dinləyirəm", "Yemək yeyirəm"] },
+        { text: "Mənim ən sevdiyim rəqəm hansıdır?", variants: ["7", "3", "13", "10", "21"] },
+        { text: "Mən hansı yaşda öpmüşəm (ilk öpüş)?", variants: ["15-dən əvvəl", "16-18", "19-21", "22+", "Hələ olmayıb"] },
+        { text: "Mən sadiq bir insanam?", variants: ["Tamamilə", "Çox vaxt", "Bəzən", "Şəraitdən asılı", "Yox"] },
+        { text: "Mən qısqanc bir insanam?", variants: ["Çox qısqancam", "Orta səviyyədə", "Az qısqancam", "Heç qısqanmıram", "Bilmirəm"] },
+        { text: "Mən romantik biriyəm?", variants: ["Çox romantik", "Orta", "Az", "Heç yox", "Praktik adamam"] },
+        { text: "Mən səhər yuxudan necə qalxıram?", variants: ["Çətin qalxıram", "Asan qalxıram", "Zəngli saatla", "Özümdən", "Gec qalxıram"] },
+        { text: "Mən təmizlik düşkünüyəm?", variants: ["Çox", "Orta", "Normal", "Səliqəli", "Dağınıq"] },
+        { text: "Mən alış-veriş etməyi sevirəmmi?", variants: ["Çox sevirəm", "Bəzən", "Lazım olanda", "Nifrət edirəm", "Online alış-veriş"] },
+        { text: "Mən ən çox hansı növ filmə ağlayıram?", variants: ["Dram", "Romantik", "Komediya", "Heyvan filmləri", "Heç ağlamıram"] },
+        { text: "Mən ən çox hansı yeməyi bişirə bilirəm?", variants: ["Makaron", "Şorba", "Plov", "Salat", "Yumurta"] },
+        { text: "Mənim ən böyük qorxum nədir?", variants: ["Hündürlük", "Qaranlıq", "Tənhalıq", "Hörümçək", "Uğursuzluq"] },
+        { text: "Mən xəstə olanda nə edirəm?", variants: ["Yatıram", "Dərman içirəm", "Həkimə gedirəm", "Gəzməyə çıxıram", "İşə gedirəm"] },
+        { text: "Mənim ən sevdiyim milli mətbəx hansıdır?", variants: ["Azərbaycan", "İtalyan", "Türk", "Yapon", "Fransız"] },
+        { text: "Mən ən çox hansı idman klubunu tuturam?", variants: ["Futbol klubu", "Basketbol klubu", "Heç birini", "Milli komanda", "İzləmirəm"] },
+        { text: "Mən səhər yeməyində nə yeməyi sevirəm?", variants: ["Yumurta", "Sıyıq", "Sendviç", "Meyvə", "Yoqurt"] },
+        { text: "Mən yatmazdan əvvəl nə edirəm?", variants: ["Telefon baxıram", "Kitab oxuyuram", "Plan qururam", "Musiqi dinləyirəm", "Dua edirəm"] },
+        { text: "Mənim ən sevdiyim yazıçı kimdir?", variants: ["Elxan Elatlı", "Orxan Pamuk", "Çingiz Aytmatov", "Nizami Gəncəvi", "Paulo Coelho"] },
+        { text: "Mən sevgimi necə göstərirəm?", variants: ["Sözlə", "Hədiyyə ilə", "Zaman keçirərək", "Fiziki toxunma", "Kömək edərək"] },
+        { text: "Mən ən çox hansı tip yumoru sevirəm?", variants: ["Qara yumor", "Absurd yumor", "Romantik yumor", "Sarkazm", "Uşaq yumoru"] },
+        { text: "Mən cəsarətli bir insanam?", variants: ["Bəli, çox", "Orta səviyyədə", "Az", "Qorxaq", "Şəraitdən asılı"] },
+        { text: "Mən xəyal qurmağı sevirəmmi?", variants: ["Hər zaman", "Tez-tez", "Bəzən", "Nadir", "Heç vaxt"] },
+        { text: "Mən ən çox hansı növ xəyanətdən qorxuram?", variants: ["Aldatma", "Yalan", "Arxadan vurma", "Sirr paylaşma", "Tərk etmə"] },
+        { text: "Mən partiyalarda necə davranıram?", variants: ["Həyat qızı", "Sakit küncdə", "Rəqs edirəm", "Danışıram", "Tez gedirəm"] },
+        { text: "Mən siqaret çəkirəmmi?", variants: ["Bəli", "Yox", "Bəzən", "Buraxmışam", "Heç çəkməmişəm"] },
+        { text: "Mən spirtli içki içirəmmi?", variants: ["İçmirəm", "Bəzən", "Xüsusi günlərdə", "İçirəm", "Çox az"] },
+        { text: "Mənim ən sevdiyim oyun nədir?", variants: ["Monopoly", "Şahmat", "UNO", "Komputer oyunu", "Kart oyunu"] },
+        { text: "Mən ailəmə nə qədər bağlıyam?", variants: ["Çox bağlı", "Orta", "Az", "Müstəqil", "Uzaq"] },
+        { text: "Mən gələcəkdə neçə uşaq istəyirəm?", variants: ["0", "1", "2", "3", "3+"] },
+        { text: "Mən evlənmək istəyirəmmi?", variants: ["Bəli, çox", "Bəli, bir gün", "Bəlkə", "Bilmirəm", "Yox"] },
+        { text: "Mən ən çox hansı heyvandan qorxuram?", variants: ["İlan", "Hörümçək", "Siçan", "Arı", "Heç birindən"] },
+        { text: "Mən xoşbəxt olanda nə edirəm?", variants: ["Gülürəm", "Oxuyuram", "Rəqs edirəm", "Başqalarına deyirəm", "Susuram"] },
+        { text: "Mən kədərli olanda nə edirəm?", variants: ["Ağlayıram", "Tək qalıram", "Dostlarla danışıram", "Yemək yeyirəm", "Musiqi dinləyirəm"] },
+        { text: "Mən ən çox hansı növ hədiyyəni sevirəm?", variants: ["Əl işi", "Pul", "Kitab", "Geyim", "Texnika"] },
+        { text: "Mən bir sözü birinci tələffüz edirəm?", variants: ["Ata", "Ana", "Nənə", "Baba", "Yox"] },
+        { text: "Mən uşaqlıqda nə olmaq istəyirdim?", variants: ["Həkim", "Müəllim", "Polis", "Pilot", "Artist"] },
+        { text: "Mən indi nə olmaq istəyirəm?", variants: ["Proqramçı", "Biznesmen", "Müəllim", "Dizayner", "Bilmirəm"] },
+        { text: "Mən ən çox hansı mövsümi meyvəni sevirəm?", variants: ["Qarpız", "Alma", "Nar", "Çiyələk", "Üzüm"] },
+        { text: "Mən ən çox hansı qoxunu sevirəm?", variants: ["Vanil", "Darçın", "Çiçək", "Dəniz", "Təzə çörək"] },
+        { text: "Mən ən çox hansı reklamı bəyənirəm?", variants: ["Komik", "Duyğusal", "Qısa", "Məşhurla", "Heç birini"] },
+        { text: "Mən məşhur biri ilə tanış olsam nə edərəm?", variants: ["Şəkil çəkdirmək", "Salamlaşmaq", "Danışmaq", "Heyran qalmaq", "Heç nə"] },
+        { text: "Mən bir günlük kral olsam nə edərdim?", variants: ["Yoxsulluğu bitirərdim", "Təhsil verərdim", "Partiya təşkil edərdim", "Səyahət edərdim", "Yatardım"] },
+        { text: "Mən ən çox hansı nağılı sevirəm?", variants: ["Çəkməli Pişik", "Külkedisi", "Şahzadə və Qurbağa", "Qırmızı Papaq", "Pinokyo"] },
+        { text: "Mən alver edəndə nəyə baxıram?", variants: ["Qiymətə", "Keyfiyyətə", "Markaya", "Dizayna", "Rəngə"] },
+        { text: "Mən ən çox hansı TV şousunu izləyirəm?", variants: ["Xəbər", "Şou", "Serial", "Müsabiqə", "Sənədli film"] },
+        { text: "Mən böyüyəndə özümü necə görürəm?", variants: ["Uğurlu", "Xoşbəxt", "Varlı", "Məşhur", "Adi"] },
+        { text: "Mən ən çox kimin fikrini önəmsəyirəm?", variants: ["Anamın", "Atamın", "Sevgilimin", "Dostumun", "Özümün"] },
+        { text: "Mən birini ən çox nəyə görə sevirəm?", variants: ["Xasiyyətinə", "Görünüşünə", "Ağılına", "Yumoruna", "Səmimiliyinə"] },
+        { text: "Mən çətin anda nə edirəm?", variants: ["Təslim oluram", "Mübarizə aparıram", "Kömək istəyirəm", "Düşünürəm", "Gözləyirəm"] },
+        { text: "Mən ən çox hansı rəng paltar geyinirəm?", variants: ["Qara", "Ağ", "Mavi", "Boz", "Bej"] },
+        { text: "Mən boho tərzi sevirəmmi?", variants: ["Çox sevirəm", "Bəzən", "Dəbli deyil", "Klassik sevirəm", "Bilmirəm"] },
+        { text: "Mən tatuaj etdirmək istəyirəmmi?", variants: ["İstəyirəm", "Etmişəm", "İstəmirəm", "Bəlkə", "Qorxuram"] },
+        { text: "Mən ən çox hansı sosial layihəni dəstəkləyirəm?", variants: ["Heyvanlar", "Uşaqlar", "Təbiət", "Təhsil", "Sağlamlıq"] },
+        { text: "Mən ən çox hansı qəzet/veb saytı oxuyuram?", variants: ["BBC", "CNN", "Yerli xəbər", "Heç birini", "Social media"] },
+        { text: "Mən ən çox hansı yemək kanalını izləyirəm?", variants: ["MasterChef", "Yemək vaxtı", "Təbii yeməklər", "Street food", "Heç izləmirəm"] },
+        { text: "Mən özümü nə qədər xoşbəxt hesab edirəm?", variants: ["Çox xoşbəxt", "Xoşbəxt", "Orta", "Biraz xoşbəxt", "Xoşbəxt deyil"] },
+        { text: "Mən öz görünüşümdən razıyam?", variants: ["Bəli, tamamilə", "Əsasən bəli", "Orta", "Yox, deyiləm", "Bəzən razıyam"] },
+        { text: "Mən ən çox hansı növ insanlarla dost olmaq istəyirəm?", variants: ["Əyləncəli", "Sadiq", "Ağıllı", "Varlı", "Nəzakətli"] },
+        { text: "Mən ən çox hansı növ işdə işləmək istəyirəm?", variants: ["Ofis işi", "Yaradıcı iş", "Səyyar iş", "Evdən iş", "Öz işim"] },
+        { text: "Mən pulumu nəyə xərcləyirəm?", variants: ["Yeməyə", "Geyimə", "Səyahətə", "Texnikaya", "Əyləncəyə"] },
+        { text: "Mən ən çox hansı mövzuda danışmağı sevirəm?", variants: ["Həyat", "Texnologiya", "İncəsənət", "İdman", "Münasibətlər"] },
+        { text: "Mən tənqidə necə reaksiya verirəm?", variants: ["Qəbul edirəm", "Müdafiə olunuram", "Düşünürəm", "Əsəbləşirəm", "Dəyişirəm"] },
+        { text: "Mən ən çox hansı növ komplimenti sevirəm?", variants: ["Görünüşə", "Ağıla", "Xasiyyətə", "Uğura", "Yumor hissinə"] },
+        { text: "Mən axşamlar nə edirəm?", variants: ["Filim izləyirəm", "Dostlarla", "Oxuyuram", "Yatıram", "İşləyirəm"] },
+        { text: "Mən ən çox hansı növ səsi sevirəm?", variants: ["Piano", "Gitar", "Violin", "Baraban", "Vokal"] },
+        { text: "Mən üzgüçülük bilirəmmi?", variants: ["Bəli, çox yaxşı", "Bəli, az da olsa", "Xeyr", "Öyrənmək istəyirəm", "Su qorxum var"] },
+        { text: "Mən maşın sürürəmmi?", variants: ["Bəli, var", "Bəli, yoxdu", "Sürücülük öyrənirəm", "Yox, bilmirəm", "Lazım deyil"] }
+    ];
+    
+    // Tam olaraq 100 sual təmin et
+    while(questionsData.length < 100) {
+        questionsData.push({ 
+            text: `Sual ${questionsData.length+1}: Mənim haqqımda nə bilirsən?`, 
+            variants: ["Variant A", "Variant B", "Variant C", "Variant D", "Variant E"] 
         });
     }
-    // Daha real suallar (ilk 10-u maraqlı, qalanlar template)
-    const realQuestions = [
-        "Mənim ən sevdiyim yemək nədir?",
-        "Mənim doğum günüm hansı aydadır?",
-        "Mənim ən sevdiyim film hansıdır?",
-        "Mənim ən böyük qorxum nədir?",
-        "Mənim ən sevdiyim musiqi janrı?",
-        "Mənim ideal tətil yerim hara?",
-        "Mən kofe yoxsa çay sevirəm?",
-        "Mən gecə quşu yoxsa səhər adamı?",
-        "Mənim ən yaxşı xüsusiyyətim nədir?",
-        "Mənim ən sevdiyim heyvan?",
-        "Mən yayı qışdan çox sevirəm?",
-        "Mən kitab oxumağı sevirəm?",
-        "Mən asanlıqla əsəbləşirəm?",
-        "Mən sadiq dostam?",
-        "Mən macəra axtarıram?",
-        "Mən romantik biriyəm?",
-        "Mən təmizlik düşkünüyəm?",
-        "Mən səyahət etməyi sevirəm?",
-        "Mən oyun oynamağı sevirəm?",
-        "Mən yumor hissim güclüdür?"
-    ];
-    for (let i = 0; i < realQuestions.length && i < 100; i++) {
-        const correctIdx = Math.floor(Math.random() * 5);
-        let opts = [];
-        for (let v = 0; v < 5; v++) {
-            if (v === correctIdx) opts.push("✅ Düzdür, məni tanıyır");
-            else opts.push("❌ Səhv, məni yaxşı tanımırsan");
-        }
-        questionsDB[i] = {
-            id: i+1,
-            text: realQuestions[i],
-            variants: opts,
-            correct: correctIdx
-        };
-    }
-    // Qalanlar generic
-    for (let i = realQuestions.length; i < 100; i++) {
-        questionsDB[i] = {
-            id: i+1,
-            text: `Sual ${i+1}: Mənim haqqımda bilirsinizmi? (Sevgili tanıma testi)`,
-            variants: ["✔️ Tamamilə", "❌ Yox", "🤔 Bəlkə", "💯 Əminəm", "⭐ Yaxşı tanıyıram"],
-            correct: Math.floor(Math.random() * 5)
-        };
-    }
-
+    const FULL_QUESTIONS = questionsData.slice(0, 100);
+    
     let currentRoom = null;
     let myPlayerId = null;
     let myName = "";
-    let myRole = null; // "questioner" və ya "answerer"
-    let gameDataRef = null;
-    let currentQuestionObj = null;
+    let myRole = null;
+    let roomRef = null;
     let waitingForAnswer = false;
-
+    
     function generateRoomId() {
         return Math.random().toString(36).substring(2, 8).toUpperCase();
     }
-
+    
     function showMessage(msg, isError = false) {
         const statusDiv = document.getElementById("gameStatus");
         statusDiv.innerHTML = msg;
@@ -296,29 +349,28 @@
             if (document.getElementById("gameStatus") === statusDiv) {
                 statusDiv.style.background = "#e9ecef";
             }
-        }, 2000);
+        }, 2500);
     }
-
+    
     async function joinRoom(roomCode, playerName, createIfNotExist = false) {
         if (!roomCode || !playerName) {
             showMessage("Otaq kodu və adınızı daxil edin!", true);
             return false;
         }
-        const roomRef = database.ref(`rooms/${roomCode}`);
-        const snapshot = await roomRef.once('value');
+        const roomDatabaseRef = database.ref(`rooms/${roomCode}`);
+        const snapshot = await roomDatabaseRef.once('value');
         let roomData = snapshot.val();
         
         if (!roomData) {
             if (createIfNotExist) {
-                // yeni otaq yarat
-                await roomRef.set({
+                await roomDatabaseRef.set({
                     players: {},
                     gameState: "waiting",
                     questionerId: null,
                     answererId: null,
                     currentQuestion: null,
                     currentVariants: null,
-                    currentCorrect: null,
+                    selectedAnswer: null,
                     pendingFor: null,
                     lastUpdate: Date.now()
                 });
@@ -339,40 +391,40 @@
         myPlayerId = playerName;
         myName = playerName;
         
-        // oyunçu əlavə et
-        const newPlayer = {
+        await roomDatabaseRef.child(`players/${playerName}`).set({
             name: playerName,
             score: 0,
             role: null,
             joinedAt: Date.now()
-        };
-        await roomRef.child(`players/${playerName}`).update(newPlayer);
+        });
         
         currentRoom = roomCode;
         localStorage.setItem("lastRoom", roomCode);
         localStorage.setItem("lastName", playerName);
         
-        // rolları təyin et: birinci questioner, ikinci answerer
-        const updatedSnapshot = await roomRef.once('value');
+        const updatedSnapshot = await roomDatabaseRef.once('value');
         const updatedData = updatedSnapshot.val();
         const updatedPlayers = updatedData.players || {};
         const playerNames = Object.keys(updatedPlayers);
+        
         if (playerNames.length === 1) {
             myRole = "questioner";
-            await roomRef.child(`players/${playerName}/role`).set("questioner");
-            await roomRef.child("questionerId").set(playerName);
-            await roomRef.child("gameState").set("waiting_answerer");
+            await roomDatabaseRef.child(`players/${playerName}/role`).set("questioner");
+            await roomDatabaseRef.child("questionerId").set(playerName);
+            await roomDatabaseRef.child("gameState").set("waiting_answerer");
         } else if (playerNames.length === 2) {
             if (updatedData.questionerId) {
                 myRole = updatedData.questionerId === playerName ? "questioner" : "answerer";
             } else {
                 myRole = playerNames[0] === playerName ? "questioner" : "answerer";
-                await roomRef.child("questionerId").set(playerNames[0]);
+                await roomDatabaseRef.child("questionerId").set(playerNames[0]);
             }
-            await roomRef.child(`players/${playerName}/role`).set(myRole);
+            await roomDatabaseRef.child(`players/${playerName}/role`).set(myRole);
             if (myRole === "answerer") {
-                await roomRef.child("answererId").set(playerName);
-                await roomRef.child("gameState").set("question_select");
+                await roomDatabaseRef.child("answererId").set(playerName);
+                await roomDatabaseRef.child("gameState").set("question_select");
+            } else {
+                await roomDatabaseRef.child("gameState").set("question_select");
             }
         }
         
@@ -380,36 +432,27 @@
         showMessage(`✅ Otağa qoşuldun: ${roomCode} | Rol: ${myRole === "questioner" ? "Sual verən" : "Cavab verən"}`);
         return true;
     }
-
+    
     function startListening(roomCode) {
-        if (gameDataRef) gameDataRef.off();
-        const roomRef = database.ref(`rooms/${roomCode}`);
+        if (roomRef) roomRef.off();
+        roomRef = database.ref(`rooms/${roomCode}`);
         roomRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
             renderGameUI(data);
-            // cavab göndərilmə gözləməsi
-            if (data.gameState === "answering" && data.pendingFor === myName && myRole === "answerer") {
-                if (data.currentQuestion && !waitingForAnswer) {
-                    waitingForAnswer = true;
-                    currentQuestionObj = {
-                        text: data.currentQuestion,
-                        variants: data.currentVariants || [],
-                        correct: data.currentCorrect
-                    };
-                    showAnswerInterface(data.currentQuestion, data.currentVariants, data.currentCorrect);
-                }
-            } else {
-                waitingForAnswer = false;
+            
+            // Cavab verənə sual gəldikdə
+            if (data.gameState === "answering" && data.pendingFor === myName && myRole === "answerer" && data.currentQuestion && data.currentVariants && !waitingForAnswer) {
+                waitingForAnswer = true;
+                showAnswerInterface(data.currentQuestion, data.currentVariants, data.selectedAnswer);
             }
         });
     }
-
-    function renderGameUI(roomData) {
+    
+    async function renderGameUI(roomData) {
         const contentDiv = document.getElementById("gameContent");
         const players = roomData.players || {};
         const gameState = roomData.gameState;
-        const questionerId = roomData.questionerId;
         const answererId = roomData.answererId;
         const myScore = players[myName]?.score || 0;
         
@@ -426,35 +469,22 @@
             return;
         }
         
-        if (myRole === "questioner" && gameState === "question_select") {
-            // 3 sual seçimi göstər (random 3 sual)
-            const randomQuestions = [];
-            const shuffled = [...questionsDB];
+        if (myRole === "questioner" && (gameState === "question_select" || gameState === "waiting_answerer")) {
+            // 3 təsadüfi sual göstər
+            const shuffled = [...FULL_QUESTIONS];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-            for (let i = 0; i < 3; i++) randomQuestions.push(shuffled[i]);
+            const randomQuestions = shuffled.slice(0, 3);
             
-            let html = `<div class="question-area"><h3>📢 Sual verən (siz): Cavab verənə hansı sualı vermək istəyirsiniz?</h3>`;
+            let html = `<div class="question-area"><h3>📢 Sual verən (siz): Hansı sualı vermək istəyirsiniz?</h3>
+            <p style="color:#666">Sualı seçin, sonra ÖZÜNÜZƏ uyğun cavabı seçin. Cavab verən sizi tanımağa çalışacaq!</p>`;
             randomQuestions.forEach((q, idx) => {
-                html += `<button class="question-btn" onclick="selectQuestion(${q.id})">❓ ${q.text}</button>`;
+                html += `<button class="question-btn" onclick="window.selectQuestionForAsk(${FULL_QUESTIONS.indexOf(q)})">❓ ${q.text}</button>`;
             });
-            html += `<div class="score">🏆 Sizin xal: ${myScore}</div></div>`;
+            html += `<div class="score">🏆 Xalınız: ${myScore}</div></div>`;
             contentDiv.innerHTML = html;
-            window.selectQuestion = async (qId) => {
-                const question = questionsDB.find(q => q.id === qId);
-                if (!question) return;
-                const roomRef = database.ref(`rooms/${currentRoom}`);
-                await roomRef.update({
-                    currentQuestion: question.text,
-                    currentVariants: question.variants,
-                    currentCorrect: question.correct,
-                    gameState: "answering",
-                    pendingFor: answererId
-                });
-                showMessage("Sual cavab verənə göndərildi!");
-            };
             return;
         }
         
@@ -464,53 +494,92 @@
         }
         
         if (gameState === "answering" && myRole === "questioner") {
-            contentDiv.innerHTML = `<div class="waiting">Cavab verən cavablandırır... ⏳</div><div class="score">⭐ Xalınız: ${myScore}</div>`;
-        }
-        
-        if (gameState === "result_show") {
-            contentDiv.innerHTML = `<div class="waiting">⚡ Nəticə göndərildi, yeni sual üçün hazırlıq...</div><div class="score">Xal: ${myScore}</div>`;
+            contentDiv.innerHTML = `<div class="waiting">⏳ Cavab verən cavablandırır... Gözləyin</div><div class="score">⭐ Xalınız: ${myScore}</div>`;
         }
     }
     
-    async function showAnswerInterface(questionText, variants, correctIdx) {
+    // Sual verən: sualı seçir, sonra öz cavabını seçir
+    window.selectQuestionForAsk = async (questionIndex) => {
+        const question = FULL_QUESTIONS[questionIndex];
+        if (!question) return;
+        
+        // Variantları göstər ki, sual verən öz həyatına uyğun cavabı seçsin
+        const contentDiv = document.getElementById("gameContent");
+        let variantsHtml = `<h3>📝 Sual: ${question.text}</h3>
+        <p>Özünüz üçün düzgün cavabı seçin (cavab verən sonra bunu tapmalıdır):</p>`;
+        question.variants.forEach((variant, idx) => {
+            variantsHtml += `<button class="option-btn" onclick="window.submitSelectedAnswer(${questionIndex}, ${idx})">${String.fromCharCode(65+idx)}. ${variant}</button>`;
+        });
+        contentDiv.innerHTML = variantsHtml;
+    };
+    
+    window.submitSelectedAnswer = async (questionIndex, selectedVariantIdx) => {
+        const question = FULL_QUESTIONS[questionIndex];
+        if (!question) return;
+        
+        const roomDatabaseRef = database.ref(`rooms/${currentRoom}`);
+        const answererIdSnapshot = await roomDatabaseRef.child("answererId").once('value');
+        const answererId = answererIdSnapshot.val();
+        
+        if (!answererId) {
+            showMessage("Cavab verən hələ qoşulmayıb!", true);
+            return;
+        }
+        
+        await roomDatabaseRef.update({
+            currentQuestion: question.text,
+            currentVariants: question.variants,
+            selectedAnswer: selectedVariantIdx,
+            gameState: "answering",
+            pendingFor: answererId
+        });
+        
+        showMessage("✅ Sual və sizin cavabınız cavab verənə göndərildi! O, sizi tanımağa çalışsın.");
+    };
+    
+    async function showAnswerInterface(questionText, variants, correctAnswerIdx) {
         const contentDiv = document.getElementById("gameContent");
         contentDiv.innerHTML = `
             <div class="answer-area">
                 <h3>❓ Sual: ${questionText}</h3>
-                <p>Cavab verən sənsən! Düzgün variantı seç.</p>
+                <p><strong>Sual verənin seçdiyi cavab hansıdır? Sizi nə qədər tanıyır?</strong></p>
                 <div id="variantsList"></div>
             </div>
         `;
         const container = document.getElementById("variantsList");
-        variants.forEach((opt, idx) => {
+        
+        variants.forEach((variant, idx) => {
             const btn = document.createElement("button");
-            btn.innerText = opt;
+            btn.innerText = `${String.fromCharCode(65+idx)}. ${variant}`;
             btn.className = "option-btn";
-            btn.style.display = "block";
-            btn.style.width = "100%";
-            btn.style.margin = "8px 0";
             btn.onclick = async () => {
-                const isCorrect = (idx === correctIdx);
-                const roomRef = database.ref(`rooms/${currentRoom}`);
-                const playerRef = roomRef.child(`players/${myName}`);
+                const isCorrect = (idx === correctAnswerIdx);
+                const roomDatabaseRef = database.ref(`rooms/${currentRoom}`);
+                const playerRef = roomDatabaseRef.child(`players/${myName}`);
                 const snapshot = await playerRef.once('value');
                 let currentScore = snapshot.val()?.score || 0;
                 let newScore = isCorrect ? currentScore + 5 : currentScore - 5;
                 await playerRef.update({ score: newScore });
-                showMessage(isCorrect ? "🎉 Düzgün cavab! +5 xal" : "❌ Səhv cavab! -5 xal", !isCorrect);
-                // növbəti sual seçiminə qayıt
-                await roomRef.update({
+                
+                showMessage(isCorrect ? "🎉 Düzgün tapdın! +5 xal" : "❌ Səhv tapdın! -5 xal", !isCorrect);
+                
+                // Növbəti sual üçün sıfırla
+                await roomDatabaseRef.update({
                     gameState: "question_select",
                     currentQuestion: null,
+                    currentVariants: null,
+                    selectedAnswer: null,
                     pendingFor: null
                 });
+                
                 waitingForAnswer = false;
-                renderGameUI((await roomRef.once('value')).val());
+                const updated = (await roomDatabaseRef.once('value')).val();
+                renderGameUI(updated);
             };
             container.appendChild(btn);
         });
     }
-
+    
     document.getElementById("joinRoomBtn").onclick = async () => {
         const roomCode = document.getElementById("roomCode").value.trim();
         const playerName = document.getElementById("playerName").value.trim();
@@ -532,7 +601,6 @@
         await joinRoom(newRoom, playerName, true);
     };
     
-    // avtomatik yükləmə
     (function init() {
         const lastRoom = localStorage.getItem("lastRoom");
         const lastName = localStorage.getItem("lastName");
