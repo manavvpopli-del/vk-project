@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Giriş</title>
-    <!-- Font yükləmək üçün Google Fonts istifadə olunur (Instagram-stil) -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- İkonlar üçün FontAwesome -->
+    <title>Instagram Login</title>
+    <!-- Font Awesome ikonları -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* Ümumi stil və sıfırlama */
+        /* Ümumi Sazlamalar */
+        :root {
+            --bg-color: #fafafa;
+            --white: #ffffff;
+            --border-color: #dbdbdb;
+            --link-blue: #0095f6;
+            --text-color: #262626;
+            --secondary-text: #8e8e8e;
+            --facebook-blue: #385185;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -18,120 +26,113 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
-            background-color: #fafafa; /* Instagram arxa plan rəngi */
-            color: #262626;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            flex-direction: column;
+            padding-top: 30px;
         }
 
-        /* Əsas konteyner */
         .container {
+            width: 100%;
+            max-width: 350px;
+            padding: 0 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            max-width: 350px; /* Mobil görünüş ölçüsü */
-            padding: 20px;
+            gap: 10px;
         }
 
-        /* Telefon hissəsi (Kompüterdə görünən şəkil) */
-        .phones-image {
-            display: none; /* Kiçik ekranlarda gizlət */
-            margin-right: 32px;
-            margin-bottom: 12px;
-        }
-        
-        .phones-image img {
-            max-width: 380px;
-            height: auto;
-        }
-
-        /* Giriş qutusu (Card) */
+        /* 1. Login Qutusu */
         .login-box {
-            background-color: white;
-            border: 1px solid #dbdbdb;
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
             padding: 40px;
-            margin-bottom: 10px;
             width: 100%;
             text-align: center;
+            margin-bottom: 10px;
         }
 
         /* Instagram Logosu */
-        .logo {
-            margin-bottom: 30px;
-            margin-top: 10px;
-            font-family: 'Grand Hotel', cursive; /* Alternativ: şəkil kimi istifadə olunur */
-            font-size: 3rem;
-            display: block;
-        }
-        
-        .logo img {
-            max-width: 175px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        /* Form elementləri */
-        form {
+        .app-title {
+            margin: 0 auto 30px auto;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            height: 51px; /* Orijinal Instagram logosunun hündürlüyü */
         }
 
-        .input-group {
-            position: relative;
-            margin-bottom: 6px;
+        .app-title img {
+            width: 175px;
+            max-width: 100%;
+            object-fit: contain;
         }
 
+        /* Form Elementləri */
         input {
             width: 100%;
             background: #fafafa;
-            border: 1px solid #dbdbdb;
+            border: 1px solid var(--border-color);
             border-radius: 3px;
             padding: 9px 8px 7px;
             font-size: 12px;
             line-height: 18px;
-            color: #262626;
+            color: var(--text-color);
             outline: none;
+            margin-bottom: 6px;
         }
 
         input:focus {
-            border-color: #a8a8a8;
+            border: 1px solid var(--text-color);
         }
 
-        /* Giriş düyməsi */
+        .password-container {
+            position: relative;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Log In Düyməsi */
         .btn-login {
-            background-color: #0095f6;
+            width: 100%;
+            background-color: var(--link-blue);
             color: white;
             border: none;
             border-radius: 4px;
             padding: 7px 16px;
-            font-weight: 600;
             font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
-            margin-bottom: 20px;
-            opacity: 0.7; /* Aktiv olmayan vəziyyət */
-            transition: opacity 0.2s;
+            margin: 15px 0;
+            transition: background-color 0.2s;
         }
 
-        .btn-login.active {
-            opacity: 1;
+        .btn-login:disabled {
+            background-color: #b2dffc;
+            cursor: default;
         }
 
-        .btn-login:hover {
-            opacity: 0.9;
+        .btn-login:hover:not(:disabled) {
+            background-color: #1877f2;
         }
 
-        /* Və ya ayırıcısı */
+        /* Ayırıcı (OR) */
         .separator {
             display: flex;
             align-items: center;
             margin: 20px 0;
-            color: #8e8e8e;
+            color: var(--secondary-text);
             font-size: 13px;
             font-weight: 600;
         }
@@ -139,7 +140,7 @@
         .line {
             flex-grow: 1;
             height: 1px;
-            background-color: #dbdbdb;
+            background-color: var(--border-color);
         }
 
         .or-text {
@@ -147,35 +148,36 @@
             text-transform: uppercase;
         }
 
-        /* Facebook ilə giriş */
+        /* Facebook Linki */
         .fb-login {
-            color: #385185;
-            font-weight: 600;
+            color: var(--facebook-blue);
             font-size: 14px;
+            font-weight: 600;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 8px;
             margin-bottom: 12px;
+            cursor: pointer;
         }
 
         .fb-login i {
-            margin-right: 8px;
             font-size: 16px;
         }
 
         .forgot-password {
-            color: #00376b;
             font-size: 12px;
+            color: var(--facebook-blue);
             text-decoration: none;
-            margin-bottom: 15px;
-            display: block;
+            margin-top: 12px;
+            display: inline-block;
         }
 
-        /* Qeydiyyat qutusu */
+        /* 2. Qeydiyyat Qutusu */
         .signup-box {
-            background-color: white;
-            border: 1px solid #dbdbdb;
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
             padding: 20px;
             width: 100%;
             text-align: center;
@@ -183,202 +185,164 @@
         }
 
         .signup-box a {
-            color: #0095f6;
+            color: var(--link-blue);
             text-decoration: none;
             font-weight: 600;
             margin-left: 5px;
         }
 
-        /* Tətbiqləri yüklə */
+        /* Tətbiq Endirmə hissəsi */
         .get-app {
-            text-align: center;
             margin-top: 20px;
+            text-align: center;
+            display: none; /* Mobildə gizli */
+        }
+
+        @media (min-width: 450px) and (min-height: 700px) {
+            .get-app {
+                display: block;
+            }
+        }
+
+        .get-app p {
             font-size: 14px;
+            margin-bottom: 10px;
         }
 
-        .stores {
+        .store-images {
             display: flex;
+            gap: 10px;
             justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
         }
 
-        .stores img {
+        .store-images img {
             height: 40px;
             cursor: pointer;
         }
 
-        /* Footer */
-        footer {
-            margin-top: 40px;
-            padding: 0 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #8e8e8e;
+        /* Toast Bildirişi */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #262626;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
 
-        .footer-links {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            max-width: 800px;
-        }
-
-        .footer-links span {
-            cursor: pointer;
-        }
-
-        .copyright {
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
-
-        /* Kənarlardakı fontlar (Daxil olduğu mətn) */
-        .input-placeholder {
-            position: absolute;
-            left: 8px;
-            top: 9px;
-            font-size: 12px;
-            color: #8e8e8e;
-            pointer-events: none;
-            transition: all 0.1s ease;
-        }
-
-        input:focus ~ .input-placeholder,
-        input:not(:placeholder-shown) ~ .input-placeholder {
-            display: none; /* Instagramda yazıldıqda yoxa çıxır */
-        }
-
-        /* Responsive dizayn */
-        @media (min-width: 870px) {
-            body {
-                flex-direction: row;
-                align-items: flex-start;
-                padding-top: 32px;
-            }
-            
-            .phones-image {
-                display: block;
-                /* Instagramın daxili ekran görüntüsü */
-                background-image: url('https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png'); 
-                background-position: -46px 0;
-                background-size: 468.32px 634.96px;
-                width: 380px;
-                height: 580px;
-                margin-left: -100px; /* Səhifənin kənarına biraz yer */
-            }
-
-            .container {
-                margin-top: 32px;
-                margin-left: 32px;
-                flex-grow: 1;
-            }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 40px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Sol tərəf: Telefon şəkilləri (Böyük ekranda görünür) -->
-    <div class="phones-image"></div>
-
-    <!-- Sağ tərəf: Giriş hissəsi -->
-    <main class="container">
-        
-        <!-- Giriş kartı -->
-        <div class="login-box">
-            <div class="logo">
-                <!-- Instagram Logosu (SVG şəkli kimi) -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/800px-Instagram_logo.svg.png" alt="Instagram">
-            </div>
-
+    <div class="container">
+        <main class="login-box">
+            <!-- Instagram Logosu (Şəkil kimi) -->
+            <h1 class="app-title">
+                <img src="https://i.postimg.cc/d0JbSVLG/Instagram-2018-Logo-Vector-svg.png" alt="𝐈𝐍𝐒𝐓𝐀𝐆𝐑𝐀𝐌">
+            </h1>
+            
             <form id="loginForm">
-                <div class="input-group">
-                    <input type="text" id="username" placeholder=" " required aria-label="Telefon nömrəsi, istifadəçi adı və ya e-poçt">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder=" " required aria-label="Şifrə">
+                <input type="text" id="username" placeholder="Telefon nömrəsi, istifadəçi adı və ya e-poçt" required autocomplete="username">
+                
+                <div class="password-container">
+                    <input type="password" id="password" placeholder="Şifrə" required autocomplete="current-password">
+                    <i class="fa-regular fa-eye show-password" id="togglePassword"></i>
                 </div>
 
-                <button type="submit" class="btn-login" id="loginBtn">Daxil ol</button>
+                <button type="submit" class="btn-login" id="loginBtn" disabled>Daxil ol</button>
+
+                <div class="separator">
+                    <div class="line"></div>
+                    <div class="or-text">və ya</div>
+                    <div class="line"></div>
+                </div>
+
+                <div class="fb-login">
+                    <i class="fab fa-facebook-square"></i>
+                    Facebook ilə daxil ol
+                </div>
+
+                <a href="#" class="forgot-password" onclick="showToast('Şifrə bərpa funksiyası demo rejimindədir.')">Giriş məlumatlarınızı unutdunuzmu? Kömək alın.</a>
             </form>
+        </main>
 
-            <div class="separator">
-                <div class="line"></div>
-                <span class="or-text">VƏ YA</span>
-                <div class="line"></div>
-            </div>
+        <section class="signup-box">
+            Hesabınız yoxdur? <a href="#">Qeydiyyatdan keçin</a>
+        </section>
 
-            <a href="#" class="fb-login">
-                <i class="fab fa-facebook-square"></i>
-                Facebook ilə daxil ol
-            </a>
-
-            <a href="#" class="forgot-password">Şifrəni unutdun?</a>
-        </div>
-
-        <!-- Qeydiyyat kartı -->
-        <div class="signup-box">
-            Hesabın yoxdur? <a href="#">Qeydiyyatdan keç</a>
-        </div>
-
-        <!-- Tətbiq hissəsi -->
         <div class="get-app">
-            Tətbiqi endir.
-            <div class="stores">
-                <img src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png" alt="App Store" style="background-position: 0 0; width: 134px; height: 40px; object-fit: cover; display:none;"> <!-- Burada şəkilləri dəqiq linklə əvəz etmək çətin oldu, sadə placeholder -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/200px-Google_Play_Store_badge_EN.svg.png" alt="Google Play">
+            <p>Tətbiqi endirin.</p>
+            <div class="store-images">
+                <img src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png" alt="App Store">
+                <img src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png" alt="Google Play">
             </div>
         </div>
+    </div>
 
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-links">
-            <span>Haqqımızda</span>
-            <span>Blog</span>
-            <span>İşlər</span>
-            <span>Kömək</span>
-            <span>API</span>
-            <span>Məxfilik</span>
-            <span>Şərtlər</span>
-            <span>Hesablar</span>
-            <span>Məkanlar</span>
-        </div>
-        <div class="copyright">
-            © 2023 Instagram from Meta
-        </div>
-    </footer>
+    <div id="toast" class="toast">Bildiriş</div>
 
     <script>
-        // Sadə interaktivlik: Düyməni aktiv etmək
-        const inputs = document.querySelectorAll('input');
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('loginBtn');
+        const togglePassword = document.getElementById('togglePassword');
+        const toast = document.getElementById('toast');
 
-        inputs.forEach(input => {
-            input.addEventListener('input', () => {
-                // İstifadəçi bir şey yazsa düyməni parlaq et
-                let hasValue = false;
-                inputs.forEach(i => {
-                    if (i.value.length > 0) hasValue = true;
-                });
-                
-                if (hasValue) {
-                    loginBtn.style.opacity = '1';
-                } else {
-                    loginBtn.style.opacity = '0.7';
-                }
-            });
+        function checkInputs() {
+            if (usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '') {
+                loginBtn.removeAttribute('disabled');
+            } else {
+                loginBtn.setAttribute('disabled', 'true');
+            }
+        }
+
+        usernameInput.addEventListener('input', checkInputs);
+        passwordInput.addEventListener('input', checkInputs);
+
+        passwordInput.addEventListener('input', function() {
+            togglePassword.style.display = this.value.length > 0 ? 'block' : 'none';
         });
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            // Sadə göstəriş
-            alert('Bu sadəcə Instagramın görünüşünün klounudur. Daxil olmaq mümkün deyil.');
+            loginBtn.innerText = 'Daxil olunur...';
+            loginBtn.style.opacity = '0.7';
+            setTimeout(() => {
+                showToast('Demo: Giriş uğurlu!');
+                loginBtn.innerText = 'Daxil ol';
+                loginBtn.style.opacity = '1';
+            }, 1500);
         });
+
+        document.querySelector('.fb-login').addEventListener('click', function() {
+            showToast('Demo: Facebook pəncərəsi açılardı.');
+        });
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
     </script>
 </body>
 </html>
-```
