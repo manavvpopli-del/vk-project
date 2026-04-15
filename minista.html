@@ -3,109 +3,188 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Instagram Giriş</title>
-<!-- Google Fonts ilə Roboto şriftini əlavə edirik -->
+<title>Takipçi Paneli</title>
+<!-- Google Fonts ilə şrift əlavə edilir -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
 <style>
   body {
-    background-color: #fafafa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    background-color: #f0f2f5;
     margin: 0;
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
-  .login-container {
-    width: 350px;
+  /* Giriş ekranı */
+#intro-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
     background-color: #fff;
-    border: 1px solid #dbdbdb;
-    padding: 40px 40px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    border-radius: 4px;
+    transition: all 0.5s ease;
   }
-  .logo {
-    display: block;
-    margin: 0 auto 20px auto;
-    width: 175px;
+  #package-selection {
+    background: #fff;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: fadeIn 1s;
   }
-  input[type=text], input[type=password] {
-    width: 100%;
-    padding: 8px 0;
-    margin: 8px 0;
-    border: 1px solid #dbdbdb;
-    background: #fafafa;
-    border-radius: 3px;
-    font-family: 'Roboto', Arial, sans-serif;
-    font-size: 14px;
-    outline: none;
-  }
-  button {
-    width: 100%;
-    padding: 8px 0;
-    margin: 8px 0;
-    background-color: #3897f0;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    font-family: 'Roboto', Arial, sans-serif;
+  h2 {
+    margin-bottom: 20px;
     font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
   }
-  button:hover {
+  .package-btn {
+    margin: 10px 0;
+    padding: 12px 20px;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    background-color: #3897f0;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .package-btn:hover {
     background-color: #3182f6;
   }
-  .divider {
-    text-align: center;
-    margin: 12px 0;
-    color: #999;
-    font-size: 13px;
+  /* Takipçi paneli */
+#followers-panel {
+    display: none;
+    padding: 20px;
+    animation: fadeIn 1s;
   }
-  .signup {
-    background-color: #fff;
-    border: 1px solid #dbdbdb;
-    border-radius: 4px;
-    padding: 10px 0;
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 24px;
     font-weight: 600;
-    font-family: 'Roboto', Arial, sans-serif;
-    font-size: 14px;
+  }
+  .logout-btn {
+    padding: 8px 16px;
+    background-color: #ff4d4d;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
     cursor: pointer;
-    text-align: center;
+    font-size: 14px;
+    transition: background-color 0.3s;
   }
-  .signup:hover {
-    background-color: #fafafa;
+  .logout-btn:hover {
+    background-color: #e04d4d;
   }
-  .footer {
-    margin-top: 20px;
-    font-size: 12px;
-    color: #999;
-    text-align: center;
-  }
+  /* Animasiya üçün keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Followçi kartları */
+.followers-container {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+.follower-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.follower-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.follower-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+.follower-name {
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+}
 </style>
 </head>
 <body>
-<div class="login-container">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" class="logo" alt="Instagram Logo" />
-  <input type="text" placeholder="Telefon nömrəsi, istifadəçi adı və ya email" id="username" />
-  <input type="password" placeholder="Şifrə" id="password" />
-  <button onclick="login()">Daxil ol</button>
-  <div class="divider">və ya</div>
-  <div class="signup" onclick="alert('Qeydiyyat səhifəsinə yönləndirilir')">Qeydiyyatdan keç</div>
-  <div class="footer">
-    <p>Instagram-in istifadə şərtləri və gizlilik siyasəti</p>
+
+<!-- Giriş ekranı -->
+<div id="intro-screen">
+  <div id="package-selection">
+    <h2>Takipçi Paneli Paketi Seçin</h2>
+    <button class="package-btn" onclick="startPanel('Basic')">Basic Paket</button>
+    <button class="package-btn" onclick="startPanel('Premium')">Premium Paket</button>
+    <button class="package-btn" onclick="startPanel('Pro')">Pro Paket</button>
   </div>
 </div>
+
+<!-- Takipçi paneli -->
+<div id="followers-panel">
+  <div class="panel-header">
+    <div class="panel-title">Takipçi Paneli</div>
+    <button class="logout-btn" onclick="logout()">Çıxış</button>
+  </div>
+  <div class="followers-container" id="followers-list">
+    <!-- Followçilər burada dinamik olaraq yüklənəcək -->
+  </div>
+</div>
+
 <script>
-  function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    if (username && password) {
-      alert('Uğurla daxil oldunuz!');
-    } else {
-      alert('Zəhmət olmasa bütün məlumatları doldurun.');
-    }
+  // Demo followçi məlumatları
+  const followersData = [
+    { name: 'Ali Vəliyev', img: 'https://randomuser.me/api/portraits/men/32.jpg' },
+    { name: 'Nigar Həsənova', img: 'https://randomuser.me/api/portraits/women/44.jpg' },
+    { name: 'Elçin Məmmədov', img: 'https://randomuser.me/api/portraits/men/54.jpg' },
+    { name: 'Aylin Quliyeva', img: 'https://randomuser.me/api/portraits/women/65.jpg' },
+    { name: 'Rəşad Rəhimov', img: 'https://randomuser.me/api/portraits/men/78.jpg' }
+  ];
+
+  function startPanel(packageName) {
+    // Paket seçimi sonrası giriş ekranını gizlə və paneli göstər
+    document.getElementById('intro-screen').style.display = 'none';
+    document.getElementById('followers-panel').style.display = 'block';
+
+    // Followçiləri yüklə
+    loadFollowers();
+  }
+
+  function loadFollowers() {
+    const container = document.getElementById('followers-list');
+    container.innerHTML = '';
+
+    followersData.forEach(follower => {
+      const card = document.createElement('div');
+      card.className = 'follower-card';
+
+      const img = document.createElement('img');
+      img.src = follower.img;
+      img.className = 'follower-img';
+
+      const name = document.createElement('div');
+      name.className = 'follower-name';
+      name.innerText = follower.name;
+
+      card.appendChild(img);
+      card.appendChild(name);
+      container.appendChild(card);
+    });
+  }
+
+  function logout() {
+    // Paneli bağla və giriş ekranına qayıt
+    document.getElementById('followers-panel').style.display = 'none';
+    document.getElementById('intro-screen').style.display = 'flex';
   }
 </script>
+
 </body>
 </html>
