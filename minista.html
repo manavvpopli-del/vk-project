@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mini Instagram</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background-color: #fff;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .container {
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  .post {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .post img {
+    width: 100%;
+    display: block;
+  }
+  .actions {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+  .like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin-right: 10px;
+  }
+  .likes-count {
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>Mini Instagram</header>
+
+<div class="container" id="posts">
+  <!-- Postlar burada yaradılacaq -->
+</div>
+
+<script>
+  // Postlar üçün məlumatlar
+  const postsData = [
+    {
+      id: 1,
+      image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+      likes: 0
+    },
+    {
+      id: 2,
+      image: 'https://images.unsplash.com/photo-1516117172878-fd2c41f4a759?auto=format&fit=crop&w=800&q=80',
+      likes: 0
+    }
+  ];
+
+  const postsContainer = document.getElementById('posts');
+
+  // Postları yaratmaq üçün funksiya
+  function createPost(post) {
+    const postDiv = document.createElement('div');
+    postDiv.className = 'post';
+
+    const img = document.createElement('img');
+    img.src = post.image;
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'actions';
+
+    const likeBtn = document.createElement('button');
+    likeBtn.className = 'like-btn';
+    likeBtn.innerHTML = '♡'; // boş ürək
+    likeBtn.onclick = () => {
+      post.likes++;
+      likesSpan.innerHTML = post.likes + ' bəyənmə';
+      likeBtn.innerHTML = '♥'; // dolu ürək
+    };
+
+    const likesSpan = document.createElement('span');
+    likesSpan.className = 'likes-count';
+    likesSpan.innerHTML = post.likes + ' bəyənmə';
+
+    actionsDiv.appendChild(likeBtn);
+    actionsDiv.appendChild(likesSpan);
+
+    postDiv.appendChild(img);
+    postDiv.appendChild(actionsDiv);
+
+    return postDiv;
+  }
+
+  // Postları səhifəyə əlavə etmək
+  postsData.forEach(post => {
+    const postElement = createPost(post);
+    postsContainer.appendChild(postElement);
+  });
+</script>
+
+</body>
+</html>
