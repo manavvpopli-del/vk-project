@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mini Instagram Giriş</title>
-<!-- Google Fonts əlavə edilir -->
+<title>Instagram Giriş</title>
+<!-- Google Fonts ilə Roboto şriftini əlavə edirik -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
 <style>
   body {
@@ -14,37 +14,32 @@
     align-items: center;
     height: 100vh;
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
   }
-
-  .login-box {
-    background-color: #fff;
-    padding: 40px 40px;
-    border: 1px solid #dbdbdb;
+  .login-container {
     width: 350px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    border-radius: 1px;
+    background-color: #fff;
+    border: 1px solid #dbdbdb;
+    padding: 40px 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 4px;
   }
-
   .logo {
     display: block;
     margin: 0 auto 20px auto;
     width: 175px;
   }
-
-  input[type=text],
-  input[type=password] {
+  input[type=text], input[type=password] {
     width: 100%;
-    padding: 9px 0 9px 8px;
+    padding: 8px 0;
     margin: 8px 0;
     border: 1px solid #dbdbdb;
     background: #fafafa;
-    outline: none;
     border-radius: 3px;
+    font-family: 'Roboto', Arial, sans-serif;
     font-size: 14px;
-    font-family: 'Roboto', sans-serif;
+    outline: none;
   }
-
   button {
     width: 100%;
     padding: 8px 0;
@@ -52,67 +47,55 @@
     background-color: #3897f0;
     border: none;
     border-radius: 4px;
-    color: white;
+    color: #fff;
+    font-family: 'Roboto', Arial, sans-serif;
     font-weight: 600;
-    cursor: pointer;
-    font-family: 'Roboto', sans-serif;
     font-size: 14px;
+    cursor: pointer;
   }
-
   button:hover {
     background-color: #3182f6;
   }
-
   .divider {
     text-align: center;
     margin: 12px 0;
     color: #999;
     font-size: 13px;
   }
-
-  .sign-up {
+  .signup {
     background-color: #fff;
     border: 1px solid #dbdbdb;
-    padding: 10px 0;
     border-radius: 4px;
-    font-size: 14px;
+    padding: 10px 0;
     font-weight: 600;
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 14px;
     cursor: pointer;
     text-align: center;
   }
-
-  .sign-up:hover {
+  .signup:hover {
     background-color: #fafafa;
   }
-
   .footer {
     margin-top: 20px;
     font-size: 12px;
     color: #999;
     text-align: center;
   }
-
 </style>
 </head>
 <body>
-
-<div class="login-box">
+<div class="login-container">
   <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" class="logo" alt="Instagram Logo" />
-
   <input type="text" placeholder="Telefon nömrəsi, istifadəçi adı və ya email" id="username" />
   <input type="password" placeholder="Şifrə" id="password" />
-
   <button onclick="login()">Daxil ol</button>
-
   <div class="divider">və ya</div>
-
-  <div class="sign-up" onclick="alert('Qeydiyyat səhifəsinə yönləndirilir')">Qeydiyyatdan keç</div>
-
+  <div class="signup" onclick="alert('Qeydiyyat səhifəsinə yönləndirilir')">Qeydiyyatdan keç</div>
   <div class="footer">
     <p>Instagram-in istifadə şərtləri və gizlilik siyasəti</p>
   </div>
 </div>
-
 <script>
   function login() {
     const username = document.getElementById('username').value;
@@ -124,6 +107,5 @@
     }
   }
 </script>
-
 </body>
 </html>
