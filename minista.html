@@ -1,190 +1,389 @@
+Əlbəttə, Instagram giriş səhifəsinin görünüşünü (UI) eyniləşdirən HTML və CSS kodunu təqdim edirəm. Bu kod bir faylda cəmləşib və fontlar da Instagramın istifadə etdiyi stilə uyğun seçilib.
+
+Siz bu kodu kopyalayıb bir mətn redaktoruna (Notepad və s.) əlavə edib faylı `index.html` kimi yadda saxlaya bilərsiniz.
+
+```html
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Takipçi Paneli</title>
-<!-- Google Fonts ilə şrift əlavə edilir -->
-<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-<style>
-  body {
-    background-color: #f0f2f5;
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-  }
-  /* Giriş ekranı */
-#intro-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #fff;
-    transition: all 0.5s ease;
-  }
-  #package-selection {
-    background: #fff;
-    padding: 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-radius: 10px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    animation: fadeIn 1s;
-  }
-  h2 {
-    margin-bottom: 20px;
-    font-weight: 600;
-  }
-  .package-btn {
-    margin: 10px 0;
-    padding: 12px 20px;
-    width: 100%;
-    border: none;
-    border-radius: 6px;
-    background-color: #3897f0;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  .package-btn:hover {
-    background-color: #3182f6;
-  }
-  /* Takipçi paneli */
-#followers-panel {
-    display: none;
-    padding: 20px;
-    animation: fadeIn 1s;
-  }
-  .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .panel-title {
-    font-size: 24px;
-    font-weight: 600;
-  }
-  .logout-btn {
-    padding: 8px 16px;
-    background-color: #ff4d4d;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
-  .logout-btn:hover {
-    background-color: #e04d4d;
-  }
-  /* Animasiya üçün keyframes */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-/* Followçi kartları */
-.followers-container {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
-}
-.follower-card {
-  background: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.follower-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-.follower-img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-bottom: 10px;
-}
-.follower-name {
-  font-weight: 600;
-  font-size: 16px;
-  text-align: center;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Giriş</title>
+    <!-- Font yükləmək üçün Google Fonts istifadə olunur (Instagram-stil) -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- İkonlar üçün FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Ümumi stil və sıfırlama */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
+            background-color: #fafafa; /* Instagram arxa plan rəngi */
+            color: #262626;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Əsas konteyner */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 350px; /* Mobil görünüş ölçüsü */
+            padding: 20px;
+        }
+
+        /* Telefon hissəsi (Kompüterdə görünən şəkil) */
+        .phones-image {
+            display: none; /* Kiçik ekranlarda gizlət */
+            margin-right: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .phones-image img {
+            max-width: 380px;
+            height: auto;
+        }
+
+        /* Giriş qutusu (Card) */
+        .login-box {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            padding: 40px;
+            margin-bottom: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Instagram Logosu */
+        .logo {
+            margin-bottom: 30px;
+            margin-top: 10px;
+            font-family: 'Grand Hotel', cursive; /* Alternativ: şəkil kimi istifadə olunur */
+            font-size: 3rem;
+            display: block;
+        }
+        
+        .logo img {
+            max-width: 175px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Form elementləri */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            background: #fafafa;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            padding: 9px 8px 7px;
+            font-size: 12px;
+            line-height: 18px;
+            color: #262626;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #a8a8a8;
+        }
+
+        /* Giriş düyməsi */
+        .btn-login {
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 7px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            opacity: 0.7; /* Aktiv olmayan vəziyyət */
+            transition: opacity 0.2s;
+        }
+
+        .btn-login.active {
+            opacity: 1;
+        }
+
+        .btn-login:hover {
+            opacity: 0.9;
+        }
+
+        /* Və ya ayırıcısı */
+        .separator {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #8e8e8e;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: #dbdbdb;
+        }
+
+        .or-text {
+            margin: 0 15px;
+            text-transform: uppercase;
+        }
+
+        /* Facebook ilə giriş */
+        .fb-login {
+            color: #385185;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .fb-login i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .forgot-password {
+            color: #00376b;
+            font-size: 12px;
+            text-decoration: none;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Qeydiyyat qutusu */
+        .signup-box {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .signup-box a {
+            color: #0095f6;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* Tətbiqləri yüklə */
+        .get-app {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .stores {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .stores img {
+            height: 40px;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 40px;
+            padding: 0 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            max-width: 800px;
+        }
+
+        .footer-links span {
+            cursor: pointer;
+        }
+
+        .copyright {
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Kənarlardakı fontlar (Daxil olduğu mətn) */
+        .input-placeholder {
+            position: absolute;
+            left: 8px;
+            top: 9px;
+            font-size: 12px;
+            color: #8e8e8e;
+            pointer-events: none;
+            transition: all 0.1s ease;
+        }
+
+        input:focus ~ .input-placeholder,
+        input:not(:placeholder-shown) ~ .input-placeholder {
+            display: none; /* Instagramda yazıldıqda yoxa çıxır */
+        }
+
+        /* Responsive dizayn */
+        @media (min-width: 870px) {
+            body {
+                flex-direction: row;
+                align-items: flex-start;
+                padding-top: 32px;
+            }
+            
+            .phones-image {
+                display: block;
+                /* Instagramın daxili ekran görüntüsü */
+                background-image: url('https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png'); 
+                background-position: -46px 0;
+                background-size: 468.32px 634.96px;
+                width: 380px;
+                height: 580px;
+                margin-left: -100px; /* Səhifənin kənarına biraz yer */
+            }
+
+            .container {
+                margin-top: 32px;
+                margin-left: 32px;
+                flex-grow: 1;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<!-- Giriş ekranı -->
-<div id="intro-screen">
-  <div id="package-selection">
-    <h2>Takipçi Paneli Paketi Seçin</h2>
-    <button class="package-btn" onclick="startPanel('Basic')">Basic Paket</button>
-    <button class="package-btn" onclick="startPanel('Premium')">Premium Paket</button>
-    <button class="package-btn" onclick="startPanel('Pro')">Pro Paket</button>
-  </div>
-</div>
+    <!-- Sol tərəf: Telefon şəkilləri (Böyük ekranda görünür) -->
+    <div class="phones-image"></div>
 
-<!-- Takipçi paneli -->
-<div id="followers-panel">
-  <div class="panel-header">
-    <div class="panel-title">Takipçi Paneli</div>
-    <button class="logout-btn" onclick="logout()">Çıxış</button>
-  </div>
-  <div class="followers-container" id="followers-list">
-    <!-- Followçilər burada dinamik olaraq yüklənəcək -->
-  </div>
-</div>
+    <!-- Sağ tərəf: Giriş hissəsi -->
+    <main class="container">
+        
+        <!-- Giriş kartı -->
+        <div class="login-box">
+            <div class="logo">
+                <!-- Instagram Logosu (SVG şəkli kimi) -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/800px-Instagram_logo.svg.png" alt="Instagram">
+            </div>
 
-<script>
-  // Demo followçi məlumatları
-  const followersData = [
-    { name: 'Ali Vəliyev', img: 'https://randomuser.me/api/portraits/men/32.jpg' },
-    { name: 'Nigar Həsənova', img: 'https://randomuser.me/api/portraits/women/44.jpg' },
-    { name: 'Elçin Məmmədov', img: 'https://randomuser.me/api/portraits/men/54.jpg' },
-    { name: 'Aylin Quliyeva', img: 'https://randomuser.me/api/portraits/women/65.jpg' },
-    { name: 'Rəşad Rəhimov', img: 'https://randomuser.me/api/portraits/men/78.jpg' }
-  ];
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder=" " required aria-label="Telefon nömrəsi, istifadəçi adı və ya e-poçt">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder=" " required aria-label="Şifrə">
+                </div>
 
-  function startPanel(packageName) {
-    // Paket seçimi sonrası giriş ekranını gizlə və paneli göstər
-    document.getElementById('intro-screen').style.display = 'none';
-    document.getElementById('followers-panel').style.display = 'block';
+                <button type="submit" class="btn-login" id="loginBtn">Daxil ol</button>
+            </form>
 
-    // Followçiləri yüklə
-    loadFollowers();
-  }
+            <div class="separator">
+                <div class="line"></div>
+                <span class="or-text">VƏ YA</span>
+                <div class="line"></div>
+            </div>
 
-  function loadFollowers() {
-    const container = document.getElementById('followers-list');
-    container.innerHTML = '';
+            <a href="#" class="fb-login">
+                <i class="fab fa-facebook-square"></i>
+                Facebook ilə daxil ol
+            </a>
 
-    followersData.forEach(follower => {
-      const card = document.createElement('div');
-      card.className = 'follower-card';
+            <a href="#" class="forgot-password">Şifrəni unutdun?</a>
+        </div>
 
-      const img = document.createElement('img');
-      img.src = follower.img;
-      img.className = 'follower-img';
+        <!-- Qeydiyyat kartı -->
+        <div class="signup-box">
+            Hesabın yoxdur? <a href="#">Qeydiyyatdan keç</a>
+        </div>
 
-      const name = document.createElement('div');
-      name.className = 'follower-name';
-      name.innerText = follower.name;
+        <!-- Tətbiq hissəsi -->
+        <div class="get-app">
+            Tətbiqi endir.
+            <div class="stores">
+                <img src="https://static.cdninstagram.com/rsrc.php/v3/yt/r/Yfc020c87j0.png" alt="App Store" style="background-position: 0 0; width: 134px; height: 40px; object-fit: cover; display:none;"> <!-- Burada şəkilləri dəqiq linklə əvəz etmək çətin oldu, sadə placeholder -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/200px-Google_Play_Store_badge_EN.svg.png" alt="Google Play">
+            </div>
+        </div>
 
-      card.appendChild(img);
-      card.appendChild(name);
-      container.appendChild(card);
-    });
-  }
+    </main>
 
-  function logout() {
-    // Paneli bağla və giriş ekranına qayıt
-    document.getElementById('followers-panel').style.display = 'none';
-    document.getElementById('intro-screen').style.display = 'flex';
-  }
-</script>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <span>Haqqımızda</span>
+            <span>Blog</span>
+            <span>İşlər</span>
+            <span>Kömək</span>
+            <span>API</span>
+            <span>Məxfilik</span>
+            <span>Şərtlər</span>
+            <span>Hesablar</span>
+            <span>Məkanlar</span>
+        </div>
+        <div class="copyright">
+            © 2023 Instagram from Meta
+        </div>
+    </footer>
 
+    <script>
+        // Sadə interaktivlik: Düyməni aktiv etmək
+        const inputs = document.querySelectorAll('input');
+        const loginBtn = document.getElementById('loginBtn');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                // İstifadəçi bir şey yazsa düyməni parlaq et
+                let hasValue = false;
+                inputs.forEach(i => {
+                    if (i.value.length > 0) hasValue = true;
+                });
+                
+                if (hasValue) {
+                    loginBtn.style.opacity = '1';
+                } else {
+                    loginBtn.style.opacity = '0.7';
+                }
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Sadə göstəriş
+            alert('Bu sadəcə Instagramın görünüşünün klounudur. Daxil olmaq mümkün deyil.');
+        });
+    </script>
 </body>
 </html>
+```
