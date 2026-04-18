@@ -3,112 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zerowallet App</title>
+    <title>Zerowallet - Giriş</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --main-cyan: #00f2ff; --bg-dark: #050505; --card-bg: #0d0d0d; }
+        :root { --main-cyan: #00f2ff; --bg-dark: #050505; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Rajdhani', sans-serif; overflow: hidden; }
-
-        /* GİRİŞ EKRANI */
-        #auth-screen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
-        .auth-card { background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid #1a1a1a; width: 100%; max-width: 350px; text-align: center; }
-        .auth-input { width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: var(--main-cyan); font-family: 'Orbitron'; margin: 20px 0; text-align: center; }
-        .auth-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--main-cyan); color: #000; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; }
-
-        /* APP INTERFACE */
-        #main-app { display: none; height: 100vh; flex-direction: column; }
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(13,13,13,0.8); border-bottom: 1px solid #1a1a1a; }
-        .balance-box { font-family: 'Orbitron'; font-size: 1.2rem; color: var(--main-cyan); }
-
-        /* MINING AREA */
-        .mining-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .coin-btn { width: 220px; height: 220px; cursor: pointer; transition: transform 0.1s; position: relative; z-index: 5; }
-        .coin-btn:active { transform: scale(0.92); }
-        .coin-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px var(--main-cyan)); }
         
-        .click-limit-info { margin-top: 20px; color: #888; font-weight: bold; }
-        .progress-container { width: 200px; height: 6px; background: #111; border-radius: 10px; margin-top: 10px; overflow: hidden; border: 1px solid #222; }
-        .progress-fill { height: 100%; background: var(--main-cyan); width: 0%; transition: 0.3s; }
+        body { 
+            margin: 0; 
+            background: var(--bg-dark); 
+            color: #fff; 
+            font-family: 'Rajdhani', sans-serif; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            overflow: hidden;
+        }
 
-        /* SHOP SECTION */
-        .shop-section { padding: 15px; background: var(--card-bg); border-top: 1px solid #1a1a1a; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .rocket-item { background: #000; padding: 10px; border-radius: 15px; border: 1px solid #222; text-align: center; font-size: 0.7rem; }
-        .rocket-item.active { border-color: var(--main-cyan); background: rgba(0,242,255,0.05); }
-        .buy-btn { margin-top: 5px; background: #222; border: none; color: #fff; padding: 5px; border-radius: 5px; width: 100%; font-size: 0.6rem; cursor: pointer; }
+        .auth-container {
+            width: 90%;
+            max-width: 380px;
+            padding: 40px 25px;
+            background: #0d0d0d;
+            border-radius: 25px;
+            border: 1px solid #1a1a1a;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
 
-        /* OVERLAYS */
-        #cooldown-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.95); z-index: 10; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        
-        @keyframes floatUp { 0% { opacity:1; transform:translateY(0); } 100% { opacity:0; transform:translateY(-100px); } }
+        .logo-area {
+            font-family: 'Orbitron';
+            font-size: 1.8rem;
+            color: var(--main-cyan);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: #555;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 18px;
+            background: #000;
+            border: 1px solid #222;
+            border-radius: 15px;
+            color: var(--main-cyan);
+            font-family: 'Orbitron';
+            text-align: center;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .auth-input:focus {
+            border-color: var(--main-cyan);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            background: var(--main-cyan);
+            color: #000;
+            font-family: 'Orbitron';
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .login-btn:active {
+            transform: scale(0.96);
+        }
+
+        .login-btn:disabled {
+            background: #1a1a1a;
+            color: #444;
+            box-shadow: none;
+        }
+
+        #status-msg {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            min-height: 1.2rem;
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-card">
-            <h2 style="font-family: 'Orbitron'; color: var(--main-cyan); letter-spacing: 2px;">ZEROWALLET</h2>
-            <p style="font-size: 0.7rem; color: #555;">SİSTEMƏ DAXİL OLMAQ ÜÇÜN USERNAME TƏYİN EDİN</p>
-            <input type="text" id="username-input" class="auth-input" placeholder="USERNAME" maxlength="12">
-            <button class="auth-btn" id="login-btn" onclick="handleAuth()">GİRİŞ ET</button>
-            <p id="auth-status" style="color: #666; font-size: 0.7rem; margin-top: 15px;"></p>
-        </div>
-    </div>
+    <div class="auth-container">
+        <div class="logo-area">ZEROWALLET</div>
+        <div class="subtitle">Secure Mining Systems</div>
 
-    <div id="main-app">
-        <div class="header">
-            <div>
-                <small style="color: #555;">PROGRAM İSTİFADƏÇİSİ</small>
-                <div id="user-display" style="font-weight: bold; color: #fff; font-family: 'Orbitron'; font-size: 0.8rem;">...</div>
-            </div>
-            <div class="balance-box">
-                <span id="bal-val">0.00</span> <small style="font-size: 0.6rem;">AZN</small>
-            </div>
+        <div class="input-group">
+            <input type="text" id="username-input" class="auth-input" placeholder="USERNAME" maxlength="12" spellcheck="false">
         </div>
 
-        <div class="mining-section">
-            <div id="cooldown-overlay">
-                <i class="fas fa-bolt" style="font-size: 3rem; color: var(--main-cyan); margin-bottom: 15px;"></i>
-                <h3 style="font-family: 'Orbitron';">SİSTEM YENİLƏNİR</h3>
-                <p id="timer-display" style="font-size: 1.5rem; font-family: 'Orbitron'; color: var(--main-cyan);">08:00:00</p>
-                <p style="font-size: 0.7rem; color: #444;">15 klik limiti dolub. Gözləmək lazımdır.</p>
-            </div>
+        <button class="login-btn" id="login-btn" onclick="handleAuth()">
+            <span id="btn-text">SİSTEMƏ DAXİL OL</span>
+            <div class="loader" id="btn-loader"></div>
+        </button>
 
-            <div class="coin-btn" onclick="processClick(event)">
-                <img src="coin.png" class="coin-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/217/217853.png'">
-            </div>
-
-            <div class="click-limit-info">KLİK: <span id="c-count">0</span> / 15</div>
-            <div class="progress-container"><div class="progress-fill" id="p-fill"></div></div>
-        </div>
-
-        <div style="text-align: center; font-size: 0.65rem; color: #333; margin-bottom: 10px; font-family: 'Orbitron';">
-            <i class="fas fa-microchip"></i> ACTIVE_UNIT: <span id="unit-name" style="color: var(--main-cyan);">STANDART</span>
-        </div>
-
-        <div class="shop-section">
-            <div class="rocket-item" id="r-elite">
-                <b style="color:#cd7f32">ELITE</b><br><small>+0.05 AZN</small>
-                <button class="buy-btn" onclick="upgradeRocket('elite', 3)">3 AZN</button>
-            </div>
-            <div class="rocket-item" id="r-pro">
-                <b style="color:#c0c0c0">PRO</b><br><small>+0.10 AZN</small>
-                <button class="buy-btn" onclick="upgradeRocket('pro', 5)">5 AZN</button>
-            </div>
-            <div class="rocket-item" id="r-super">
-                <b style="color:#ffd700">SUPER</b><br><small>+0.25 AZN</small>
-                <button class="buy-btn" onclick="upgradeRocket('super', 8)">8 AZN</button>
-            </div>
-        </div>
+        <div id="status-msg"></div>
     </div>
 
     <script>
-        // 1. FIREBASE INITIALIZATION
+        // FIREBASE KONFİQURASİYASI
         const firebaseConfig = {
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             authDomain: "sevgili-testi.firebaseapp.com",
@@ -121,162 +154,84 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentUser = null;
-        let userData = {};
-        const ROCKET_STATS = {
-            'standart': { val: 0.001, name: 'STANDART UNIT' }, // 0.1 qəpik = 0.001 AZN (Məntiqlə)
-            'elite': { val: 0.05, name: 'ELITE ROCKET' },
-            'pro': { val: 0.10, name: 'PRO ROCKET' },
-            'super': { val: 0.25, name: 'SUPER ROCKET' }
-        };
+        // AVTOMATİK GİRİŞ YOXLANIŞI
+        if (localStorage.getItem('zerowallet_session')) {
+            window.location.href = "main.html";
+        }
 
-        // 2. AUTHENTICATION & IP PROTECTION
         async function handleAuth() {
-            const user = document.getElementById('username-input').value.trim().toLowerCase();
+            const userField = document.getElementById('username-input');
+            const username = userField.value.trim().toLowerCase();
             const btn = document.getElementById('login-btn');
-            const status = document.getElementById('auth-status');
+            const btnText = document.getElementById('btn-text');
+            const loader = document.getElementById('btn-loader');
+            const status = document.getElementById('status-msg');
 
-            if(user.length < 3) return alert("Username ən az 3 hərf olmalıdır.");
-            
+            if (username.length < 3) {
+                showStatus("Username ən az 3 hərf olmalıdır!", "#ff3e3e");
+                return;
+            }
+
+            // UI Yüklənir vəziyyətinə gətirilir
             btn.disabled = true;
-            status.innerText = "IP Yoxlanılır...";
+            btnText.style.display = 'none';
+            loader.style.display = 'block';
+            showStatus("IP yoxlanılır və sistemə qoşulur...", "#888");
 
             try {
+                // IP ÜNVANININ ALINMASI
                 const ipRes = await fetch('https://api.ipify.org?format=json');
                 const { ip } = await ipRes.json();
-                const cleanIp = ip.replace(/\./g, '_');
+                const cleanIp = ip.replace(/\./g, '_'); // Firebase '.' işarəsini qəbul etmir
 
-                // IP Yoxlanışı: Bu IP ilə başqa user var?
+                // 1. IP YOXLANIŞI
                 const ipRef = await db.ref('ip_logs/' + cleanIp).once('value');
                 const ipOwner = ipRef.val();
 
-                if (ipOwner && ipOwner !== user) {
-                    status.innerText = "XƏTA: Bu cihazdan artıq bir hesab açılıb!";
-                    btn.disabled = false;
-                    return;
+                if (ipOwner && ipOwner !== username) {
+                    throw new Error("Bu cihazdan artıq '" + ipOwner + "' adına giriş edilib!");
                 }
 
-                // Username Yoxlanışı: Bu ad başqasınındır?
-                const userRef = await db.ref('zerowallet_users/' + user).once('value');
-                if (userRef.exists() && !localStorage.getItem('zerowallet_session')) {
-                    status.innerText = "XƏTA: Bu istifadəçi adı artıq götürülüb!";
-                    btn.disabled = false;
-                    return;
-                }
-
-                // Giriş və ya Qeydiyyat
-                if (!userRef.exists()) {
-                    await db.ref('zerowallet_users/' + user).set({
-                        username: user,
+                // 2. USERNAME YOXLANIŞI
+                const userRef = await db.ref('zerowallet_users/' + username).once('value');
+                
+                if (userRef.exists()) {
+                    // İstifadəçi artıq var, sadəcə giriş edir
+                    showStatus("Giriş təsdiqləndi! Yönləndirilir...", var(--main-cyan));
+                } else {
+                    // Yeni istifadəçi yaradılır
+                    await db.ref('zerowallet_users/' + username).set({
+                        username: username,
                         ip: ip,
                         balance: 0,
                         clicks: 0,
                         lastReset: 0,
-                        rocket: 'standart'
+                        rocket: 'standart',
+                        joinedAt: Date.now()
                     });
-                    await db.ref('ip_logs/' + cleanIp).set(user);
+                    // IP-ni bu username-ə bağla
+                    await db.ref('ip_logs/' + cleanIp).set(username);
+                    showStatus("Hesab yaradıldı! Xoş gəldiniz.", "#00ff41");
                 }
 
-                currentUser = user;
-                localStorage.setItem('zerowallet_session', user);
-                startApp();
+                // Sessiyanı yadda saxla və yönləndir
+                localStorage.setItem('zerowallet_session', username);
+                setTimeout(() => {
+                    window.location.href = "main.html";
+                }, 1000);
 
-            } catch (e) {
-                alert("Sistem xətası! İnterneti yoxlayın.");
+            } catch (error) {
+                showStatus(error.message || "Bağlantı xətası!", "#ff3e3e");
                 btn.disabled = false;
+                btnText.style.display = 'block';
+                loader.style.display = 'none';
             }
         }
 
-        function startApp() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'flex';
-            document.getElementById('user-display').innerText = currentUser.toUpperCase();
-            
-            // Real-time Data Sync
-            db.ref('zerowallet_users/' + currentUser).on('value', snap => {
-                userData = snap.val();
-                syncUI();
-            });
-        }
-
-        function syncUI() {
-            document.getElementById('bal-val').innerText = userData.balance.toFixed(2);
-            document.getElementById('c-count').innerText = userData.clicks;
-            document.getElementById('p-fill').style.width = (userData.clicks / 15 * 100) + "%";
-            document.getElementById('unit-name').innerText = ROCKET_STATS[userData.rocket].name;
-
-            // Rocket Shop Style
-            ['elite', 'pro', 'super'].forEach(r => {
-                const el = document.getElementById('r-' + r);
-                el.classList.remove('active');
-                if(userData.rocket === r) el.classList.add('active');
-            });
-
-            // Cooldown Check
-            if (userData.lastReset > 0) {
-                checkCooldown();
-            }
-        }
-
-        function processClick(e) {
-            if (userData.clicks >= 15) return;
-
-            const increment = ROCKET_STATS[userData.rocket].val;
-            let newClicks = userData.clicks + 1;
-            let updates = {
-                balance: userData.balance + increment,
-                clicks: newClicks
-            };
-
-            if (newClicks >= 15) {
-                updates.lastReset = Date.now();
-            }
-
-            db.ref('zerowallet_users/' + currentUser).update(updates);
-            
-            // Visual Effect
-            const fx = document.createElement('div');
-            fx.innerText = "+" + increment;
-            fx.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; color:var(--main-cyan); font-family:Orbitron; animation:floatUp 0.8s forwards; pointer-events:none;`;
-            document.body.appendChild(fx);
-            setTimeout(() => fx.remove(), 800);
-        }
-
-        function checkCooldown() {
-            const limit = 8 * 60 * 60 * 1000;
-            const now = Date.now();
-            const elapsed = now - userData.lastReset;
-
-            if (elapsed < limit) {
-                document.getElementById('cooldown-overlay').style.display = 'flex';
-                const remaining = limit - elapsed;
-                
-                const h = Math.floor(remaining / 3600000);
-                const m = Math.floor((remaining % 3600000) / 60000);
-                const s = Math.floor((remaining % 60000) / 1000);
-                document.getElementById('timer-display').innerText = 
-                    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                
-                setTimeout(checkCooldown, 1000);
-            } else {
-                document.getElementById('cooldown-overlay').style.display = 'none';
-                db.ref('zerowallet_users/' + currentUser).update({ clicks: 0, lastReset: 0 });
-            }
-        }
-
-        async function upgradeRocket(type, price) {
-            // Qeyd: Real tətbiqdə burada balans yoxlanmalı və ya ödəniş sisteminə yönləndirilməlidir.
-            if(confirm(price + " AZN ödəyərək " + type.toUpperCase() + " almaq istəyirsiz?")) {
-                await db.ref('zerowallet_users/' + currentUser).update({ rocket: type });
-                alert("Uğurla alındı!");
-            }
-        }
-
-        // Auto Login if session exists
-        const session = localStorage.getItem('zerowallet_session');
-        if(session) {
-            currentUser = session;
-            startApp();
+        function showStatus(text, color) {
+            const msg = document.getElementById('status-msg');
+            msg.innerText = text;
+            msg.style.color = color;
         }
     </script>
 </body>
