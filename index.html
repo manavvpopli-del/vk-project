@@ -55,7 +55,7 @@
 
         .toggle-text b { color: var(--main-cyan); }
 
-        #status-msg { margin-top: 15px; font-size: 0.75rem; min-height: 1rem; }
+        #status-msg { margin-top: 15px; font-size: 0.75rem; min-height: 1rem; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -122,25 +122,28 @@
                 const { ip } = await ipRes.json();
                 const cleanIp = ip.replace(/\./g, '_');
 
+                // --- IP BLOKLAMA YOXLANIŞI ---
+                const blockCheck = await db.ref('blocked_ips/' + cleanIp).once('value');
+                if (blockCheck.exists()) {
+                    return showStatus("GİRİŞ QADAĞANDIR!<br>IP ünvanınız bloklanıb.", "#ff3e3e");
+                }
+                // -----------------------------
+
                 const userRef = await db.ref('zerowallet_users/' + user).once('value');
                 const ipRef = await db.ref('ip_logs/' + cleanIp).once('value');
 
                 if (isLoginMode) {
-                    // GİRİŞ MƏNTİQİ
                     if (!userRef.exists()) throw new Error("İstifadəçi tapılmadı!");
                     if (userRef.val().password !== pass) throw new Error("Şifrə yanlışdır!");
                     
                     loginSuccess(user);
                 } else {
-                    // QEYDİYYAT MƏNTİQİ
                     if (userRef.exists()) throw new Error("Bu username artıq götürülüb!");
-                    
-                    // IP YOXLANIŞI (Hər IP-yə 1 Hesab)
                     if (ipRef.exists()) throw new Error("Bu cihazdan artıq qeydiyyat olunub!");
 
                     await db.ref('zerowallet_users/' + user).set({
                         username: user,
-                        password: pass, // Real proyektlərdə şifrəni "hash" etmək lazımdır
+                        password: pass,
                         ip: ip,
                         balance: 0,
                         clicks: 0,
@@ -165,7 +168,7 @@
 
         function showStatus(text, color) {
             const m = document.getElementById('status-msg');
-            m.innerText = text; m.style.color = color;
+            m.innerHTML = text; m.style.color = color;
         }
     </script>
 </body>
