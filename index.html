@@ -4,79 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Zerowallet - Access</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    
     <style>
         :root { --main-cyan: #00f2ff; --bg-dark: #050505; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
-        body { 
-            margin: 0; background: var(--bg-dark); color: #fff; 
-            font-family: 'Rajdhani', sans-serif; height: 100vh; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-
-        .auth-container {
-            width: 90%; max-width: 380px; padding: 40px 25px;
-            background: #0d0d0d; border-radius: 25px; border: 1px solid #1a1a1a;
-            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
-
-        .logo-area {
-            font-family: 'Orbitron'; font-size: 1.8rem; color: var(--main-cyan);
-            letter-spacing: 3px; margin-bottom: 5px;
-        }
-
+        body { margin: 0; background: var(--bg-dark); color: #fff; font-family: 'Rajdhani', sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .auth-container { width: 90%; max-width: 380px; padding: 40px 25px; background: #0d0d0d; border-radius: 25px; border: 1px solid #1a1a1a; text-align: center; }
+        .logo-area { font-family: 'Orbitron'; font-size: 1.8rem; color: var(--main-cyan); letter-spacing: 3px; margin-bottom: 5px; }
         .subtitle { font-size: 0.7rem; color: #444; margin-bottom: 25px; letter-spacing: 2px; }
-
-        .input-group { margin-bottom: 15px; }
-
-        .auth-input {
-            width: 100%; padding: 16px; background: #000; border: 1px solid #222;
-            border-radius: 12px; color: var(--main-cyan); font-family: 'Orbitron';
-            text-align: center; font-size: 0.9rem; transition: 0.3s;
-        }
-
-        .auth-input:focus { border-color: var(--main-cyan); }
-
-        .action-btn {
-            width: 100%; padding: 16px; border-radius: 12px; border: none;
-            background: var(--main-cyan); color: #000; font-family: 'Orbitron';
-            font-weight: 900; cursor: pointer; margin-top: 10px;
-        }
-
-        .toggle-text {
-            margin-top: 20px; font-size: 0.8rem; color: #666; cursor: pointer;
-        }
-
-        .toggle-text b { color: var(--main-cyan); }
-
+        .auth-input { width: 100%; padding: 16px; background: #000; border: 1px solid #222; border-radius: 12px; color: var(--main-cyan); font-family: 'Orbitron'; text-align: center; margin-bottom: 15px; }
+        .action-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--main-cyan); color: #000; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; }
+        .toggle-text { margin-top: 20px; font-size: 0.8rem; color: #666; cursor: pointer; }
         #status-msg { margin-top: 15px; font-size: 0.75rem; min-height: 1rem; line-height: 1.4; }
     </style>
 </head>
 <body>
-
     <div class="auth-container">
         <div class="logo-area">ZEROWALLET</div>
-        <div class="subtitle" id="auth-title">HESABA GİRİŞ</div>
-
-        <div class="input-group">
-            <input type="text" id="username" class="auth-input" placeholder="USERNAME" maxlength="12">
-        </div>
-        <div class="input-group">
-            <input type="password" id="password" class="auth-input" placeholder="PASSWORD">
-        </div>
-
+        <div id="auth-title" class="subtitle">HESABA GİRİŞ</div>
+        <input type="text" id="username" class="auth-input" placeholder="USERNAME" maxlength="12">
+        <input type="password" id="password" class="auth-input" placeholder="PASSWORD">
         <button class="action-btn" id="main-btn" onclick="handleAuth()">DAXİL OL</button>
-
-        <div class="toggle-text" id="toggle-link" onclick="toggleMode()">
-            Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b>
-        </div>
-
+        <div class="toggle-text" id="toggle-link" onclick="toggleMode()">Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b></div>
         <div id="status-msg"></div>
     </div>
 
@@ -92,78 +43,52 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         let isLoginMode = true;
-
-        if (localStorage.getItem('zerowallet_session')) {
-            window.location.href = "main.html";
-        }
 
         function toggleMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? "HESABA GİRİŞ" : "YENİ QEYDİYYAT";
             document.getElementById('main-btn').innerText = isLoginMode ? "DAXİL OL" : "QEYDİYYAT OL";
-            document.getElementById('toggle-link').innerHTML = isLoginMode ? 
-                "Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b>" : 
-                "Artıq hesabınız var? <b>Giriş edin</b>";
+            document.getElementById('toggle-link').innerHTML = isLoginMode ? "Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b>" : "Artıq hesabınız var? <b>Giriş edin</b>";
         }
 
         async function handleAuth() {
             const user = document.getElementById('username').value.trim().toLowerCase();
             const pass = document.getElementById('password').value.trim();
-            const status = document.getElementById('status-msg');
-
-            if (user.length < 3 || pass.length < 4) {
-                return showStatus("Məlumatlar çox qısadır!", "#ff3e3e");
-            }
+            if (user.length < 3 || pass.length < 4) return showStatus("Məlumatlar qısadır!", "#ff3e3e");
 
             try {
                 const ipRes = await fetch('https://api.ipify.org?format=json');
                 const { ip } = await ipRes.json();
                 const cleanIp = ip.replace(/\./g, '_');
 
-                // --- IP BLOKLAMA YOXLANIŞI ---
-                const blockCheck = await db.ref('blocked_ips/' + cleanIp).once('value');
-                if (blockCheck.exists()) {
-                    return showStatus("GİRİŞ QADAĞANDIR!<br>IP ünvanınız bloklanıb.", "#ff3e3e");
+                // --- IP BLOK YOXLANIŞI (Burada dayanır) ---
+                const blockSnap = await db.ref('blocked_ips/' + cleanIp).once('value');
+                if (blockSnap.exists()) {
+                    return showStatus("GİRİŞ QADAĞANDIR!<br>Cihazınız bloklanıb.", "#ff3e3e");
                 }
-                // -----------------------------
 
                 const userRef = await db.ref('zerowallet_users/' + user).once('value');
-                const ipRef = await db.ref('ip_logs/' + cleanIp).once('value');
-
                 if (isLoginMode) {
-                    if (!userRef.exists()) throw new Error("İstifadəçi tapılmadı!");
-                    if (userRef.val().password !== pass) throw new Error("Şifrə yanlışdır!");
-                    
+                    if (!userRef.exists() || userRef.val().password !== pass) throw new Error("Giriş məlumatları səhvdir!");
                     loginSuccess(user);
                 } else {
-                    if (userRef.exists()) throw new Error("Bu username artıq götürülüb!");
-                    if (ipRef.exists()) throw new Error("Bu cihazdan artıq qeydiyyat olunub!");
+                    if (userRef.exists()) throw new Error("Bu username doludur!");
+                    const ipLog = await db.ref('ip_logs/' + cleanIp).once('value');
+                    if (ipLog.exists()) throw new Error("Bu cihazdan artıq qeydiyyat var!");
 
                     await db.ref('zerowallet_users/' + user).set({
-                        username: user,
-                        password: pass,
-                        ip: ip,
-                        balance: 0,
-                        clicks: 0,
-                        lastReset: 0,
-                        rocket: 'standart',
-                        joinedAt: Date.now()
+                        username: user, password: pass, ip: ip, balance: 0, clicks: 0, rocket: 'standart'
                     });
                     await db.ref('ip_logs/' + cleanIp).set(user);
-                    
-                    showStatus("Hesab yaradıldı! Giriş edilir...", "#00ff41");
                     loginSuccess(user);
                 }
-            } catch (e) {
-                showStatus(e.message, "#ff3e3e");
-            }
+            } catch (e) { showStatus(e.message, "#ff3e3e"); }
         }
 
         function loginSuccess(user) {
             localStorage.setItem('zerowallet_session', user);
-            setTimeout(() => window.location.href = "main.html", 1000);
+            window.location.href = "main.html";
         }
 
         function showStatus(text, color) {
