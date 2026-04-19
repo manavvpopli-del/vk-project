@@ -48,9 +48,11 @@
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
 
-        .coupon-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.03); border: 1px dashed var(--primary); }
-        .coupon-input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 10px; font-weight: 700; outline: none; text-align: center; }
-        .coupon-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 12px; margin-top: 10px; font-weight: 800; cursor: pointer; }
+        /* Referral Card Styling */
+        .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid #f1f5f9; }
+        .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; }
+        .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; }
+        .my-code-display { background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed var(--primary); font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 10px; }
 
         .rocket-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .rocket-img { width: 50px; height: 50px; object-fit: contain; }
@@ -92,18 +94,25 @@
         </div>
     </div>
 
-    <div id="market-sec" class="section">
-        <div class="coupon-card">
-            <h4 style="margin:0; color:var(--primary)"><i class="fas fa-gift"></i> Hədiyyə Kuponu</h4>
-            <p style="font-size:0.75rem; color:#64748b; margin: 5px 0;">Dostunun kodunu yaz və 1 AZN qazan!</p>
-            <input type="text" id="coupon-input" class="coupon-input" placeholder="INV-0000">
-            <button class="coupon-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
-            <div style="margin-top:15px; padding-top:10px; border-top:1px solid #f1f5f9; text-align:center;">
-                <small style="color:#64748b; font-weight:700">SƏNİN KODUN:</small><br>
-                <b id="my-invite-code" style="color:var(--text); letter-spacing:1px;">YÜKLƏNİR...</b>
-            </div>
+    <div id="referral-sec" class="section">
+        <h2 style="margin-bottom:20px;">Dəvət Sistemi</h2>
+        <div class="ref-card">
+            <i class="fas fa-gift" style="font-size: 2rem; color: #10b981;"></i>
+            <h4>Kupon Daxil Et</h4>
+            <p style="font-size: 0.8rem; color: #64748b;">Dostunun kodunu yaz və dərhal 1 AZN qazan!</p>
+            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
+            <button class="ref-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
         </div>
 
+        <div class="ref-card">
+            <i class="fas fa-users" style="font-size: 2rem; color: var(--primary);"></i>
+            <h4>Sənin Dəvət Kodun</h4>
+            <div class="my-code-display" id="my-invite-code">YÜKLƏNİR...</div>
+            <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 10px;">Bu kodu dostlarınla paylaş.</p>
+        </div>
+    </div>
+
+    <div id="market-sec" class="section">
         <h2 style="margin-bottom:20px;">Qazanc Paketləri</h2>
         <div class="rocket-card">
             <img src="elite.png" class="rocket-img">
@@ -134,6 +143,7 @@
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-th-large"></i></div>
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-rocket"></i></div>
+        <div class="nav-item" onclick="showSec('referral-sec', this)"><i class="fas fa-user-plus"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
     </nav>
 
@@ -213,7 +223,6 @@
 
         function requestWithdraw() {
             const hasRocket = userData.rocket && userData.rocket !== 'standart';
-            // Dəqiq qanun: 150 AZN və ən azı Elite Rocket
             if(userData.balance < 150) return showToast("Minimum 150 AZN balans lazımdır!");
             if(!hasRocket) return showToast("Çıxarış üçün ən azı Elite Rocket lazımdır!");
             
