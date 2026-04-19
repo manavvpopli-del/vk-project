@@ -55,7 +55,6 @@
         .section.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* COIN ANIMATION */
         .mining-container {
             background: var(--card); border-radius: 40px; padding: 60px 20px;
             border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05);
@@ -79,7 +78,7 @@
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
 
-        .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; }
+        .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
@@ -123,7 +122,7 @@
         </div>
         <div class="rocket-card">
             <img src="super.png" class="rocket-img">
-            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.090 AZN Per Click</p></div>
+            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.040 AZN Per Click</p></div>
             <button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button>
         </div>
     </div>
@@ -132,7 +131,7 @@
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
             <div class="w-icon" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-university"></i></div>
-            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Min. 20 AZN balans və ən azı Elite Rocket tələb olunur.</p>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Min. 150 AZN balans və ən azı Elite Rocket tələb olunur.</p>
             <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
@@ -162,8 +161,8 @@
         if(!user) location.href="index.html";
 
         let userData = {};
-        // YENİ QAZANC DƏRƏCƏLƏRİ
-        const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.090 };
+        // Super Rocket üçün yeni dəyər: 0.040
+        const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
 
         function showSec(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -174,7 +173,6 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val();
-            // 4 rəqəmli dəqiqlik (0.0001 üçün)
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
             const currentSpeed = VALUES[userData.rocket] || 0.0001;
             document.getElementById('active-speed-txt').innerText = currentSpeed;
@@ -183,10 +181,7 @@
 
         function mine(e) {
             const val = VALUES[userData.rocket] || 0.0001;
-            
-            // Klik effektini göstər
             showClickEffect(e, val);
-
             db.ref('zerowallet_users/' + user).update({
                 balance: userData.balance + val
             });
@@ -210,7 +205,8 @@
 
         function requestWithdraw() {
             const hasRocket = userData.rocket && userData.rocket !== 'standart';
-            if(userData.balance < 20) return showToast("Minimum 20 AZN balans lazımdır!");
+            // Yeni çıxarış limiti: 150 AZN
+            if(userData.balance < 150) return showToast("Minimum 150 AZN balans lazımdır!");
             if(!hasRocket) return showToast("Çıxarış üçün ən azı Elite Rocket lazımdır!");
             
             let overlay = document.createElement('div');
