@@ -23,6 +23,15 @@
         .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: monospace; }
         .btn-block { background: #ff3e3e; color: white; }
         .btn-unblock { background: #00ff41; color: black; }
+        
+        /* Balansın dəyişdirilməsi üçün stil */
+        .editable-balance { 
+            color: #00ff41; 
+            cursor: pointer; 
+            text-decoration: underline dotted; 
+            font-weight: bold;
+        }
+        .editable-balance:hover { color: #fff; background: #222; }
     </style>
 </head>
 <body>
@@ -43,8 +52,7 @@
                     <th>Tarix</th>
                 </tr>
             </thead>
-            <tbody id="withdraw-body">
-                </tbody>
+            <tbody id="withdraw-body"></tbody>
         </table>
     </div>
 
@@ -54,14 +62,13 @@
             <thead>
                 <tr>
                     <th>Username</th>
-                    <th>Balans</th>
+                    <th>Balans (Dəyişmək üçün kliklə)</th>
                     <th>IP Ünvanı</th>
                     <th>Status</th>
                     <th>İdarəetmə</th>
                 </tr>
             </thead>
-            <tbody id="user-body">
-                </tbody>
+            <tbody id="user-body"></tbody>
         </table>
     </div>
 </div>
@@ -113,7 +120,7 @@
                 const rowHtml = `
                     <tr id="${rowId}">
                         <td>${u.username}</td>
-                        <td>${u.balance.toFixed(2)} AZN</td>
+                        <td><span class="editable-balance" onclick="editBalance('${u.username}', ${u.balance})">${u.balance.toFixed(2)} AZN</span></td>
                         <td>${u.ip}</td>
                         <td>${isBlocked ? '<b style="color:red">BLOKLU</b>' : '<b style="color:green">AKTİV</b>'}</td>
                         <td>
@@ -129,6 +136,20 @@
             });
         });
     });
+
+    // Balansı Redaktə Etmək Funksiyası
+    function editBalance(username, currentBalance) {
+        const newBalance = prompt(`${username} üçün yeni balans daxil edin:`, currentBalance);
+        if (newBalance !== null && !isNaN(newBalance)) {
+            db.ref('zerowallet_users/' + username).update({
+                balance: parseFloat(newBalance)
+            }).then(() => {
+                alert("Balans uğurla yeniləndi!");
+            }).catch(err => {
+                alert("Xəta baş verdi: " + err.message);
+            });
+        }
+    }
 
     function toggleBlock(ip, status) {
         if (!ip) return;
