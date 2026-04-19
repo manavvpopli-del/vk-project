@@ -48,9 +48,9 @@
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
 
-        /* Referal Dizaynı */
-        .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; }
-        .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; }
+        /* Referal.html-dən gələn yeni dizayn blokları */
+        .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid rgba(0,0,0,0.02); }
+        .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; color: var(--text); }
         .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; }
         .ref-btn:active { transform: scale(0.98); }
         .my-code-display { background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed var(--primary); font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 10px; letter-spacing: 2px; }
@@ -108,7 +108,7 @@
 
         <div class="ref-card">
             <h4 style="margin: 0 0 5px 0;">Sənin Dəvət Kodun</h4>
-            <p style="font-size:0.8rem; color:#64748b;">Bu kodu paylaşaraq qazancını artır.</p>
+            <p style="font-size:0.8rem; color:#64748b;">Bu kodu dostlarınla paylaş.</p>
             <div class="my-code-display" id="my-invite-code">YÜKLƏNİR...</div>
         </div>
 
@@ -158,7 +158,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        // --- MAINTENANCE (TEXNİKİ YENİLƏMƏ) KODU ---
+        // --- MAINTENANCE (TEXNİKİ YENİLƏMƏ) ---
         db.ref('settings/system_status').on('value', snap => {
             if (snap.val() === "maintenance") {
                 document.body.innerHTML = `
@@ -227,7 +227,7 @@
         }
 
         async function buyRocket(type, price) {
-            if(userData.balance < price) return showToast("Kifayət qədər balans yoxdur!");
+            if(userData.balance < price) return showToast("Balans yetmir!");
             await db.ref('zerowallet_users/' + user).update({ rocket: type, balance: userData.balance - price });
             showToast(type.toUpperCase() + " Aktiv Edildi!");
         }
