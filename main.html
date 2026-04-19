@@ -48,13 +48,13 @@
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
 
-        /* Referal.html-dən gələn yeni dizayn blokları */
+        /* Referal Bloqları */
         .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid rgba(0,0,0,0.02); }
-        .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; color: var(--text); }
+        .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; }
         .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .ref-btn:active { transform: scale(0.98); }
         .my-code-display { background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed var(--primary); font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 10px; letter-spacing: 2px; }
 
+        /* Roket Bloqları */
         .rocket-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .rocket-img { width: 50px; height: 50px; object-fit: contain; }
         .buy-btn { background: var(--text); color: #fff; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
@@ -67,6 +67,8 @@
 
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
+        
+        .section-divider { height: 2px; background: rgba(0,0,0,0.05); margin: 30px 0; position: relative; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -96,8 +98,7 @@
     </div>
 
     <div id="market-sec" class="section">
-        <h2 style="margin-bottom:20px;">Dəvət Sistemi</h2>
-        
+        <h2 style="margin-bottom:20px;"><i class="fas fa-users" style="color:var(--primary)"></i> Dəvət Sistemi</h2>
         <div class="ref-card">
             <i class="fas fa-gift" style="font-size: 2.5rem; color: #10b981;"></i>
             <h4 style="margin: 15px 0 5px 0;">Kupon Daxil Et</h4>
@@ -108,11 +109,12 @@
 
         <div class="ref-card">
             <h4 style="margin: 0 0 5px 0;">Sənin Dəvət Kodun</h4>
-            <p style="font-size:0.8rem; color:#64748b;">Bu kodu dostlarınla paylaş.</p>
             <div class="my-code-display" id="my-invite-code">YÜKLƏNİR...</div>
         </div>
 
-        <h2 style="margin-top:40px; margin-bottom:20px;">Qazanc Paketləri</h2>
+        <div class="section-divider"></div>
+
+        <h2 style="margin-bottom:20px;"><i class="fas fa-rocket" style="color:var(--primary)"></i> Qazanc Paketləri</h2>
         <div class="rocket-card">
             <img src="elite.png" class="rocket-img">
             <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.005 AZN</p></div>
@@ -128,6 +130,7 @@
             <div class="rocket-info"><h4>Super Rocket</h4><p>+0.040 AZN</p></div>
             <button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button>
         </div>
+        <div style="height: 50px;"></div>
     </div>
 
     <div id="withdraw-sec" class="section">
@@ -141,7 +144,7 @@
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-th-large"></i></div>
-        <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-user-plus"></i></div>
+        <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-store"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
     </nav>
 
@@ -158,7 +161,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        // --- MAINTENANCE (TEXNİKİ YENİLƏMƏ) ---
+        // --- MAINTENANCE KODU ---
         db.ref('settings/system_status').on('value', snap => {
             if (snap.val() === "maintenance") {
                 document.body.innerHTML = `
