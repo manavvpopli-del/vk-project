@@ -55,18 +55,15 @@
         .section.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* COIN ANIMATION */
         .mining-container {
-            background: var(--card); border-radius: 40px; padding: 50px 20px;
+            background: var(--card); border-radius: 40px; padding: 60px 20px;
             border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05);
             text-align: center; margin-top: 10px; position: relative;
         }
-        .coin-trigger { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: 0.1s; position: relative; }
-        .coin-trigger:active { transform: scale(0.9); }
-        .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.4)); pointer-events: none; }
-
-        .energy-bar-wrap { margin-top: 40px; }
-        .bar-bg { width: 100%; height: 14px; background: #e2e8f0; border-radius: 50px; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--grad); width: 0%; transition: 0.4s; }
+        .coin-trigger { width: 240px; height: 240px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
+        .coin-trigger:active { transform: scale(0.92); }
+        .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
 
         .rocket-card {
             background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px;
@@ -74,15 +71,16 @@
             border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
         .rocket-img { width: 50px; height: 50px; object-fit: contain; }
-        .buy-btn { background: var(--text); color: #fff; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; }
+        .buy-btn { background: var(--text); color: #fff; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
         
         .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
         .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        #lock-screen { position: absolute; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 50; border-radius: 40px; display: none; flex-direction: column; align-items: center; justify-content: center; }
-
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
+
+        .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; }
+        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -91,43 +89,41 @@
         <div class="logo">ZERO.WALLET</div>
         <div class="balance-card">
             <small style="color:#64748b; font-weight:700">BALANS</small><br>
-            <span id="bal">0.00</span> AZN
+            <span id="bal">0.0000</span> AZN
         </div>
     </div>
 
     <div id="mining-sec" class="section active">
         <div class="mining-container">
-            <div id="lock-screen">
-                <i class="fas fa-bolt" style="font-size: 3rem; color: var(--primary);"></i>
-                <h2 style="margin: 15px 0;">Enerji Dolur</h2>
-                <div id="timer" style="font-size: 1.5rem; font-weight: 800; color: var(--text);">08:00:00</div>
-            </div>
-            <div class="coin-trigger" onclick="mine(event)"><img src="https://cdn-icons-png.flaticon.com/512/217/217853.png"></div>
-            <div class="energy-bar-wrap">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:800; font-size:0.8rem;">
-                    <span style="color:#64748b">QALAN ENERJİ</span><span id="click-txt" style="color:var(--primary)">0 / 15</span>
+            <div id="coin-area" style="position: relative;">
+                <div class="coin-trigger" onclick="mine(event)">
+                    <img src="coin.png" id="main-coin">
                 </div>
-                <div class="bar-bg"><div class="bar-fill" id="p-bar"></div></div>
             </div>
-            <div style="margin-top:20px; font-size:0.8rem; font-weight:700; color:#64748b;">Aktiv: <span id="active-rocket-txt" style="color:var(--primary)">Standart</span></div>
+            <div style="margin-top:30px; font-size:0.9rem; font-weight:700; color:#64748b;">
+                Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
+            </div>
+            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">
+                Aktiv Paket: <span id="active-rocket-txt">Standart</span>
+            </div>
         </div>
     </div>
 
     <div id="market-sec" class="section">
-        <h2 style="margin-bottom:20px;">Rocket Mağazası</h2>
+        <h2 style="margin-bottom:20px;">Qazanc Paketləri</h2>
         <div class="rocket-card">
             <img src="elite.png" class="rocket-img">
-            <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.05 AZN Per Click</p></div>
+            <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.005 AZN Per Click</p></div>
             <button class="buy-btn" onclick="buyRocket('elite', 3)">3.00 AZN</button>
         </div>
         <div class="rocket-card">
             <img src="pro.png" class="rocket-img">
-            <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.10 AZN Per Click</p></div>
+            <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.010 AZN Per Click</p></div>
             <button class="buy-btn" onclick="buyRocket('pro', 5)">5.00 AZN</button>
         </div>
         <div class="rocket-card">
             <img src="super.png" class="rocket-img">
-            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.25 AZN Per Click</p></div>
+            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.090 AZN Per Click</p></div>
             <button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button>
         </div>
     </div>
@@ -136,7 +132,7 @@
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
             <div class="w-icon" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-university"></i></div>
-            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Çıxarış üçün min. 20 AZN balans və ən azı Elite Rocket tələb olunur.</p>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Min. 20 AZN balans və ən azı Elite Rocket tələb olunur.</p>
             <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
@@ -166,7 +162,8 @@
         if(!user) location.href="index.html";
 
         let userData = {};
-        const VALUES = { 'standart': 0.001, 'elite': 0.05, 'pro': 0.10, 'super': 0.25 };
+        // YENİ QAZANC DƏRƏCƏLƏRİ
+        const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.090 };
 
         function showSec(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -177,20 +174,32 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val();
-            document.getElementById('bal').innerText = userData.balance.toFixed(2);
-            document.getElementById('click-txt').innerText = userData.clicks + " / 15";
-            document.getElementById('p-bar').style.width = (userData.clicks / 15 * 100) + "%";
+            // 4 rəqəmli dəqiqlik (0.0001 üçün)
+            document.getElementById('bal').innerText = userData.balance.toFixed(4);
+            const currentSpeed = VALUES[userData.rocket] || 0.0001;
+            document.getElementById('active-speed-txt').innerText = currentSpeed;
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
-            if(userData.lastReset > 0) startTimer();
         });
 
         function mine(e) {
-            if(userData.clicks >= 15) return;
+            const val = VALUES[userData.rocket] || 0.0001;
+            
+            // Klik effektini göstər
+            showClickEffect(e, val);
+
             db.ref('zerowallet_users/' + user).update({
-                balance: userData.balance + (VALUES[userData.rocket] || 0.001),
-                clicks: userData.clicks + 1,
-                lastReset: (userData.clicks + 1 >= 15) ? Date.now() : 0
+                balance: userData.balance + val
             });
+        }
+
+        function showClickEffect(e, val) {
+            const text = document.createElement('div');
+            text.className = 'click-val-text';
+            text.innerText = "+" + val;
+            text.style.left = e.clientX + "px";
+            text.style.top = e.clientY + "px";
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 600);
         }
 
         async function buyRocket(type, price) {
@@ -201,13 +210,8 @@
 
         function requestWithdraw() {
             const hasRocket = userData.rocket && userData.rocket !== 'standart';
-            
-            if(userData.balance < 20) {
-                return showToast("Minimum 20 AZN balans lazımdır!");
-            }
-            if(!hasRocket) {
-                return showToast("Çıxarış üçün ən azı Elite Rocket almalısınız!");
-            }
+            if(userData.balance < 20) return showToast("Minimum 20 AZN balans lazımdır!");
+            if(!hasRocket) return showToast("Çıxarış üçün ən azı Elite Rocket lazımdır!");
             
             let overlay = document.createElement('div');
             overlay.style.cssText = "position:fixed; inset:0; z-index:99999; background:#fff;";
@@ -220,22 +224,6 @@
             let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
             document.body.appendChild(t);
             setTimeout(() => t.remove(), 2500);
-        }
-
-        function startTimer() {
-            document.getElementById('lock-screen').style.display = 'flex';
-            const end = userData.lastReset + (8 * 60 * 60 * 1000);
-            const intv = setInterval(() => {
-                const diff = end - Date.now();
-                if(diff <= 0) {
-                    clearInterval(intv);
-                    db.ref('zerowallet_users/' + user).update({ clicks: 0, lastReset: 0 });
-                    document.getElementById('lock-screen').style.display = 'none';
-                } else {
-                    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-                    document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                }
-            }, 1000);
         }
     </script>
 </body>
