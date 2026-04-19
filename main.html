@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Zerowallet - Quantum Earning</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -21,7 +23,17 @@
             --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* Kopyalamanın və Seçilmənin Qarşısını Alır */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none; /* iOS Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version */
+        }
+
         body { 
             margin: 0; background: var(--bg); color: var(--text); 
             font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; 
@@ -68,7 +80,7 @@
             transition: 0.1s; position: relative;
         }
         .coin-trigger:active { transform: scale(0.9); }
-        .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.4)); }
+        .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.4)); pointer-events: none; }
 
         .energy-bar-wrap { margin-top: 40px; }
         .bar-bg { width: 100%; height: 14px; background: #e2e8f0; border-radius: 50px; overflow: hidden; }
@@ -104,9 +116,7 @@
         }
     </style>
 </head>
-<body>
-
-    <div class="header">
+<body oncontextmenu="return false;"> <div class="header">
         <div class="logo">ZERO.WALLET</div>
         <div class="balance-card">
             <small style="color:#64748b; font-weight:700">BALANS</small><br>
@@ -180,6 +190,20 @@
     </nav>
 
     <script>
+        // URL-i təmiz saxlamaq üçün (back/forward istisna olmaqla brauzer tarixçəsini manipulyasiya edir)
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+
+        // Kopyalamağa və F12-yə qadağa (İnspect element qarşısı alınması üçün)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 'i' || e.key === 's')) {
+                e.preventDefault();
+            }
+            if (e.key === 'F12') e.preventDefault();
+        });
+
         const firebaseConfig = {
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             authDomain: "sevgili-testi.firebaseapp.com",
