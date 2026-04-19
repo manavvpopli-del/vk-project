@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dəvət Sistemi | Zerowallet</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #6366f1; --bg: #f8fafc; --text: #0f172a; }
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body { margin: 0; background: var(--bg); padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        .header { width: 100%; max-width: 450px; display: flex; align-items: center; margin-bottom: 30px; }
+        .back-btn { background: #fff; width: 45px; height: 45px; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; }
+
+        .card { 
+            width: 100%; max-width: 450px; background: #fff; border-radius: 30px; 
+            padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.03); text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .code-box { 
+            background: #f1f5f9; padding: 20px; border-radius: 20px; 
+            margin: 20px 0; border: 2px dashed var(--primary);
+            font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; color: var(--primary);
+        }
+
+        .input-field {
+            width: 100%; padding: 16px; border: 2px solid #f1f5f9; border-radius: 16px;
+            font-size: 1rem; font-weight: 700; margin-top: 15px; outline: none; text-align: center;
+        }
+
+        .action-btn {
+            width: 100%; padding: 18px; border: none; border-radius: 18px;
+            background: var(--primary); color: #fff; font-size: 1rem; font-weight: 800;
+            margin-top: 15px; cursor: pointer; transition: 0.3s;
+        }
+
+        .info-txt { font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-top: 10px; }
+
+        .toast { position: fixed; bottom: 30px; background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; z-index: 1000; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(100px); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="header">
+        <div class="back-btn" onclick="location.href='main.html'"><i class="fas fa-chevron-left"></i></div>
+        <h3 style="margin-left: 20px;">Referal Sistemi</h3>
+    </div>
+
+    <div class="card">
+        <i class="fas fa-share-nodes" style="font-size: 2rem; color: var(--primary);"></i>
+        <h4 style="margin: 15px 0 5px;">Sənin Dəvət Kodun</h4>
+        <p class="info-txt">Bu kodu dostlarınla paylaş, onlar qazansın!</p>
+        <div class="code-box" id="my-code">...</div>
+        <button class="action-btn" style="background:#f1f5f9; color:var(--text);" onclick="copyCode()">KODU KOPYALA</button>
+    </div>
+
+    <div class="card">
+        <i class="fas fa-gift" style="font-size: 2rem; color: #10b981;"></i>
+        <h4 style="margin: 15px 0 5px;">Kupon Daxil Et</h4>
+        <p class="info-txt">Dostunun kodunu yazaraq balansına <b>1.00 AZN</b> hədiyyə al.</p>
+        <input type="text" id="coupon-input" class="input-field" placeholder="INV-0000">
+        <button class="action-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
+
+        let userData = {};
+
+        // Məlumatları Yüklə
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            userData = snap.val();
+            document.getElementById('my-code').innerText = userData.inviteCode;
+        });
+
+        async function useCoupon() {
+            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if(!code) return showToast("Kod daxil edin!");
+            if(code === userData.inviteCode) return showToast("Öz kodunu istifadə edə bilməzsən!");
+            
+            // Əvvəl işlədibmi?
+            if(userData.usedCoupons && userData.usedCoupons.includes(code)) {
+                return showToast("Bu kodu artıq istifadə etmisiniz!");
+            }
+
+            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
+                if(snap.exists()) {
+                    let usedList = userData.usedCoupons || [];
+                    usedList.push(code);
+                    
+                    db.ref('zerowallet_users/' + user).update({
+                        balance: userData.balance + 1,
+                        usedCoupons: usedList
+                    });
+                    showToast("Təbriklər! +1.00 AZN əlavə edildi.");
+                    document.getElementById('coupon-input').value = "";
+                } else {
+                    showToast("Belə bir kod mövcud deyil!");
+                }
+            });
+        }
+
+        function copyCode() {
+            const code = document.getElementById('my-code').innerText;
+            navigator.clipboard.writeText(code);
+            showToast("Kod kopyalandı!");
+        }
+
+        function showToast(msg) {
+            let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+    </script>
+</body>
+</html>
