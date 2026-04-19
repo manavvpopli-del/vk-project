@@ -45,21 +45,23 @@
 
         .mining-container { background: var(--card); border-radius: 40px; padding: 60px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
         .coin-trigger { width: 240px; height: 240px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
+        .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
 
-        .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; }
-        .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; }
-        .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; }
-        .my-code-display { background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed var(--primary); font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        .coupon-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.03); border: 1px dashed var(--primary); }
+        .coupon-input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-top: 10px; font-weight: 700; outline: none; text-align: center; }
+        .coupon-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 12px; margin-top: 10px; font-weight: 800; cursor: pointer; }
 
-        .rocket-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .rocket-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .rocket-img { width: 50px; height: 50px; object-fit: contain; }
         .buy-btn { background: var(--text); color: #fff; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
         
         .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
-        .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; cursor: pointer; }
+        .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; z-index: 10000; animation: slideUp 0.3s ease; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
+
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
@@ -76,38 +78,55 @@
 
     <div id="mining-sec" class="section active">
         <div class="mining-container">
-            <div id="coin-area"><div class="coin-trigger" onclick="mine(event)"><img src="coin.png"></div></div>
-            <div style="margin-top:30px; font-size:0.9rem; font-weight:700; color:#64748b;">Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik</div>
-            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">Aktiv Paket: <span id="active-rocket-txt">STANDART</span></div>
-        </div>
-    </div>
-
-    <div id="referral-sec" class="section">
-        <h2 style="margin-bottom:20px;">Dəvət Sistemi</h2>
-        <div class="ref-card">
-            <i class="fas fa-gift" style="font-size: 2rem; color: #10b981;"></i>
-            <h4>Kupon Daxil Et</h4>
-            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
-            <button class="ref-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
-        </div>
-        <div class="ref-card">
-            <h4>Sənin Dəvət Kodun</h4>
-            <div class="my-code-display" id="my-invite-code">YÜKLƏNİR...</div>
+            <div id="coin-area">
+                <div class="coin-trigger" onclick="mine(event)">
+                    <img src="coin.png" id="main-coin">
+                </div>
+            </div>
+            <div style="margin-top:30px; font-size:0.9rem; font-weight:700; color:#64748b;">
+                Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
+            </div>
+            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">
+                Aktiv Paket: <span id="active-rocket-txt">STANDART</span>
+            </div>
         </div>
     </div>
 
     <div id="market-sec" class="section">
+        <div class="coupon-card">
+            <h4 style="margin:0; color:var(--primary)"><i class="fas fa-gift"></i> Hədiyyə Kuponu</h4>
+            <p style="font-size:0.75rem; color:#64748b; margin: 5px 0;">Dostunun kodunu yaz və 1 AZN qazan!</p>
+            <input type="text" id="coupon-input" class="coupon-input" placeholder="INV-0000">
+            <button class="coupon-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
+            <div style="margin-top:15px; padding-top:10px; border-top:1px solid #f1f5f9; text-align:center;">
+                <small style="color:#64748b; font-weight:700">SƏNİN KODUN:</small><br>
+                <b id="my-invite-code" style="color:var(--text); letter-spacing:1px;">YÜKLƏNİR...</b>
+            </div>
+        </div>
+
         <h2 style="margin-bottom:20px;">Qazanc Paketləri</h2>
-        <div class="rocket-card"><img src="elite.png" class="rocket-img"><div><h4>Elite Rocket</h4><p>+0.005 AZN</p></div><button class="buy-btn" onclick="buyRocket('elite', 3)">3.00 AZN</button></div>
-        <div class="rocket-card"><img src="pro.png" class="rocket-img"><div><h4>Pro Rocket</h4><p>+0.010 AZN</p></div><button class="buy-btn" onclick="buyRocket('pro', 5)">5.00 AZN</button></div>
-        <div class="rocket-card"><img src="super.png" class="rocket-img"><div><h4>Super Rocket</h4><p>+0.040 AZN</p></div><button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button></div>
+        <div class="rocket-card">
+            <img src="elite.png" class="rocket-img">
+            <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.005 AZN</p></div>
+            <button class="buy-btn" onclick="buyRocket('elite', 3)">3.00 AZN</button>
+        </div>
+        <div class="rocket-card">
+            <img src="pro.png" class="rocket-img">
+            <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.010 AZN</p></div>
+            <button class="buy-btn" onclick="buyRocket('pro', 5)">5.00 AZN</button>
+        </div>
+        <div class="rocket-card">
+            <img src="super.png" class="rocket-img">
+            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.040 AZN</p></div>
+            <button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button>
+        </div>
     </div>
 
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
-            <i class="fas fa-university" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Minimum 150 AZN balans və Elite Rocket tələb olunur.</p>
+            <div class="w-icon" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-university"></i></div>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Minimum 150 AZN balans və ən azı Elite Rocket tələb olunur.</p>
             <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
@@ -115,7 +134,6 @@
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-th-large"></i></div>
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-rocket"></i></div>
-        <div class="nav-item" onclick="showSec('referral-sec', this)"><i class="fas fa-user-plus"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
     </nav>
 
@@ -131,15 +149,22 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const user = localStorage.getItem('zerowallet_session');
-        if(!user) location.href="index.html";
 
-        // SİSTEM STATUSU QORUMASI
+        // --- SİSTEM STATUSU KODU (ƏLAVƏ OLUNDU) ---
         db.ref('settings/system_status').on('value', snap => {
             if (snap.val() === "maintenance") {
-                document.body.innerHTML = `<div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0f172a; color:#fff; font-family:sans-serif; text-align:center; padding:20px;"><i class="fas fa-tools" style="font-size:4rem; color:#6366f1; margin-bottom:20px;"></i><h1>TEXNİKİ YENİLƏMƏ</h1><p style="color:#64748b;">Sistemdə yeniləmə gedir. Az sonra cəhd edin.</p></div>`;
+                document.body.innerHTML = `
+                    <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0f172a; color:#fff; font-family:sans-serif; text-align:center; padding:20px;">
+                        <i class="fas fa-tools" style="font-size:4rem; color:#6366f1; margin-bottom:20px;"></i>
+                        <h1>TEXNİKİ YENİLƏMƏ</h1>
+                        <p style="color:#64748b;">Hazırda sistemdə yeniləmə işləri gedir. Az sonra yenidən cəhd edin.</p>
+                    </div>`;
             }
         });
+        // ---------------------------------------
+
+        const user = localStorage.getItem('zerowallet_session');
+        if(!user) location.href="index.html";
 
         let userData = {};
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
@@ -156,36 +181,57 @@
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
         });
 
-        function mine(e) {
-            const val = VALUES[userData.rocket] || 0.0001;
-            const text = document.createElement('div'); text.className = 'click-val-text'; text.innerText = "+" + val;
-            text.style.left = e.clientX + "px"; text.style.top = e.clientY + "px";
-            document.body.appendChild(text); setTimeout(() => text.remove(), 600);
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val });
-        }
-
-        async function buyRocket(type, price) {
-            if(userData.balance < price) return showToast("Balans yetmir!");
-            await db.ref('zerowallet_users/' + user).update({ rocket: type, balance: userData.balance - price });
-            showToast(type.toUpperCase() + " Hazırdır!");
-        }
-
         async function useCoupon() {
             const code = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!code || code === userData.inviteCode || (userData.usedCoupons && userData.usedCoupons.includes(code))) return showToast("Xətalı kod!");
+            if(!code) return showToast("Kod daxil edin!");
+            if(code === userData.inviteCode) return showToast("Öz kodunu istifadə edə bilməzsən!");
+            if(userData.usedCoupons && userData.usedCoupons.includes(code)) return showToast("Bu kod artıq istifadə olunub!");
+
             db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
                 if(snap.exists()) {
-                    let used = userData.usedCoupons || []; used.push(code);
-                    db.ref('zerowallet_users/' + user).update({ balance: userData.balance + 1, usedCoupons: used });
-                    showToast("+1 AZN!");
-                } else showToast("Tapılmadı!");
+                    let usedList = userData.usedCoupons || [];
+                    usedList.push(code);
+                    db.ref('zerowallet_users/' + user).update({
+                        balance: userData.balance + 1,
+                        usedCoupons: usedList
+                    });
+                    showToast("+1.00 AZN əlavə edildi!");
+                    document.getElementById('coupon-input').value = "";
+                } else {
+                    showToast("Yanlış kod!");
+                }
             });
         }
 
+        function mine(e) {
+            const val = VALUES[userData.rocket] || 0.0001;
+            showClickEffect(e, val);
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val });
+        }
+
+        function showClickEffect(e, val) {
+            const text = document.createElement('div');
+            text.className = 'click-val-text';
+            text.innerText = "+" + val;
+            text.style.left = e.clientX + "px";
+            text.style.top = e.clientY + "px";
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 600);
+        }
+
+        async function buyRocket(type, price) {
+            if(userData.balance < price) return showToast("Kifayət qədər balans yoxdur!");
+            await db.ref('zerowallet_users/' + user).update({ rocket: type, balance: userData.balance - price });
+            showToast(type.toUpperCase() + " Aktiv Edildi!");
+        }
+
         function requestWithdraw() {
-            if(userData.balance < 150) return showToast("150 AZN lazımdır!");
-            if(userData.rocket === 'standart') return showToast("Elite Rocket lazımdır!");
-            let overlay = document.createElement('div'); overlay.style.cssText = "position:fixed; inset:0; z-index:99999; background:#fff;";
+            const hasRocket = userData.rocket && userData.rocket !== 'standart';
+            if(userData.balance < 150) return showToast("Minimum 150 AZN balans lazımdır!");
+            if(!hasRocket) return showToast("Çıxarış üçün ən azı Elite Rocket lazımdır!");
+            
+            let overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed; inset:0; z-index:99999; background:#fff;";
             overlay.innerHTML = `<iframe src="withdraw.html" style="width:100%; height:100%; border:none;"></iframe>`;
             document.body.appendChild(overlay);
         }
@@ -193,12 +239,14 @@
         function showSec(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); el.classList.add('active');
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
         }
 
         function showToast(msg) {
             let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-            document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
         }
     </script>
 </body>
