@@ -20,7 +20,6 @@
             --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
         }
 
-        /* KOPYALAMA VƏ SEÇMƏ QADAĞASI */
         * { 
             box-sizing: border-box; -webkit-tap-highlight-color: transparent;
             -webkit-user-select: none; user-select: none;
@@ -33,7 +32,6 @@
                               radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
         }
 
-        /* HEADER */
         .header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-family: 'Space Grotesk'; font-size: 1.5rem; letter-spacing: -1px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .balance-card {
@@ -43,7 +41,6 @@
         }
         .balance-card span { font-weight: 800; font-size: 1.2rem; color: var(--primary); }
 
-        /* NAV BAR */
         .nav-bar {
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
             width: 90%; max-width: 400px; background: rgba(15, 23, 42, 0.9);
@@ -54,12 +51,10 @@
         .nav-item.active { color: #fff; transform: translateY(-5px); }
         .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: var(--primary); border-radius: 50%; }
 
-        /* SECTIONS */
         .section { display: none; height: calc(100vh - 180px); padding: 0 20px; overflow-y: auto; }
         .section.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* MINING UNIT */
         .mining-container {
             background: var(--card); border-radius: 40px; padding: 50px 20px;
             border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05);
@@ -73,19 +68,19 @@
         .bar-bg { width: 100%; height: 14px; background: #e2e8f0; border-radius: 50px; overflow: hidden; }
         .bar-fill { height: 100%; background: var(--grad); width: 0%; transition: 0.4s; }
 
-        /* SHOP & WITHDRAW */
         .rocket-card {
             background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: space-between;
             border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
+        .rocket-img { width: 50px; height: 50px; object-fit: contain; }
         .buy-btn { background: var(--text); color: #fff; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; }
+        
         .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
         .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
         #lock-screen { position: absolute; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 50; border-radius: 40px; display: none; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* TOAST BİLDİRİŞİ */
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
     </style>
@@ -114,18 +109,26 @@
                 </div>
                 <div class="bar-bg"><div class="bar-fill" id="p-bar"></div></div>
             </div>
+            <div style="margin-top:20px; font-size:0.8rem; font-weight:700; color:#64748b;">Aktiv: <span id="active-rocket-txt" style="color:var(--primary)">Standart</span></div>
         </div>
     </div>
 
     <div id="market-sec" class="section">
         <h2 style="margin-bottom:20px;">Rocket Mağazası</h2>
         <div class="rocket-card">
+            <img src="elite.png" class="rocket-img">
             <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.05 AZN Per Click</p></div>
             <button class="buy-btn" onclick="buyRocket('elite', 3)">3.00 AZN</button>
         </div>
         <div class="rocket-card">
+            <img src="pro.png" class="rocket-img">
             <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.10 AZN Per Click</p></div>
             <button class="buy-btn" onclick="buyRocket('pro', 5)">5.00 AZN</button>
+        </div>
+        <div class="rocket-card">
+            <img src="super.png" class="rocket-img">
+            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.25 AZN Per Click</p></div>
+            <button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button>
         </div>
     </div>
 
@@ -133,7 +136,7 @@
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
             <div class="w-icon" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-university"></i></div>
-            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Qazandığınız vəsaiti birbaşa bank kartınıza transfer edin.</p>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Çıxarış üçün min. 20 AZN balans və ən azı Elite Rocket tələb olunur.</p>
             <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
@@ -145,7 +148,6 @@
     </nav>
 
     <script>
-        // URL GİZLƏMƏ VƏ BRAUZER QORUMASI
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = () => window.history.pushState(null, "", window.location.href);
         
@@ -178,6 +180,7 @@
             document.getElementById('bal').innerText = userData.balance.toFixed(2);
             document.getElementById('click-txt').innerText = userData.clicks + " / 15";
             document.getElementById('p-bar').style.width = (userData.clicks / 15 * 100) + "%";
+            document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
             if(userData.lastReset > 0) startTimer();
         });
 
@@ -197,9 +200,15 @@
         }
 
         function requestWithdraw() {
-            if(userData.balance < 20) return showToast("Minimum 20 AZN lazımdır!");
+            const hasRocket = userData.rocket && userData.rocket !== 'standart';
             
-            // URL DƏYİŞMƏDƏN SƏHİFƏNİ ÜSTƏ AÇMAQ (IFRAME METODU)
+            if(userData.balance < 20) {
+                return showToast("Minimum 20 AZN balans lazımdır!");
+            }
+            if(!hasRocket) {
+                return showToast("Çıxarış üçün ən azı Elite Rocket almalısınız!");
+            }
+            
             let overlay = document.createElement('div');
             overlay.style.cssText = "position:fixed; inset:0; z-index:99999; background:#fff;";
             overlay.innerHTML = `<iframe src="withdraw.html" style="width:100%; height:100%; border:none;"></iframe>`;
