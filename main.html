@@ -32,7 +32,6 @@
         .header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-family: 'Space Grotesk'; font-size: 1.5rem; letter-spacing: -1px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Balans kartı yeniləndi */
         .balance-card { 
             background: #fff; 
             padding: 8px 15px; 
@@ -105,6 +104,9 @@
             <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">
                 Aktiv Paket: <span id="active-rocket-txt">STANDART</span>
             </div>
+            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
+                Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
+            </div>
         </div>
     </div>
 
@@ -128,17 +130,17 @@
         <div class="rocket-card">
             <img src="elite.png" class="rocket-img">
             <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.005 AZN</p></div>
-            <button class="buy-btn" onclick="buyRocket('elite', 3)">3.00 AZN</button>
+            <button class="buy-btn" onclick="buyRocket('elite', 10)">10 DƏVƏT</button>
         </div>
         <div class="rocket-card">
             <img src="pro.png" class="rocket-img">
             <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.010 AZN</p></div>
-            <button class="buy-btn" onclick="buyRocket('pro', 5)">5.00 AZN</button>
+            <button class="buy-btn" onclick="buyRocket('pro', 20)">20 DƏVƏT</button>
         </div>
         <div class="rocket-card">
             <img src="super.png" class="rocket-img">
             <div class="rocket-info"><h4>Super Rocket</h4><p>+0.040 AZN</p></div>
-            <button class="buy-btn" onclick="buyRocket('super', 8)">8.00 AZN</button>
+            <button class="buy-btn" onclick="buyRocket('super', 30)">30 DƏVƏT</button>
         </div>
     </div>
 
@@ -185,24 +187,38 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val();
+            if(!userData) return;
+            
             if(!userData.inviteCode) {
                 const newCode = "INV-" + Math.floor(1000 + Math.random() * 9000);
-                db.ref('zerowallet_users/' + user).update({ inviteCode: newCode });
+                db.ref('zerowallet_users/' + user).update({ inviteCode: newCode, invites: 0 });
             }
+            
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
             document.getElementById('my-invite-code').innerText = userData.inviteCode;
             document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket] || 0.0001;
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
+            document.getElementById('ref-count-txt').innerText = userData.invites || 0;
         });
 
         async function useCoupon() {
             const code = document.getElementById('coupon-input').value.trim().toUpperCase();
             if(!code) return showToast("Kod daxil edin!");
             if(code === userData.inviteCode) return showToast("Öz kodunu istifadə edə bilməzsən!");
+            
             db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
                 if(snap.exists()) {
+                    const ownerId = Object.keys(snap.val())[0];
+                    const ownerData = snap.val()[ownerId];
+                    
+                    // Kuponu yazana pul ver
                     db.ref('zerowallet_users/' + user).update({ balance: userData.balance + 1 });
+                    
+                    // Kod sahibinin dəvət sayını artır
+                    db.ref('zerowallet_users/' + ownerId).update({ invites: (ownerData.invites || 0) + 1 });
+                    
                     showToast("+1.00 AZN!");
+                    document.getElementById('coupon-input').value = "";
                 } else { showToast("Yanlış kod!"); }
             });
         }
@@ -223,10 +239,14 @@
             setTimeout(() => text.remove(), 600);
         }
 
-        async function buyRocket(type, price) {
-            if(userData.balance < price) return showToast("Balans yetmir!");
-            await db.ref('zerowallet_users/' + user).update({ rocket: type, balance: userData.balance - price });
-            showToast("Aktiv Edildi!");
+        async function buyRocket(type, requiredInvites) {
+            const currentInvites = userData.invites || 0;
+            if(currentInvites < requiredInvites) {
+                return showToast(`Hələ ${requiredInvites - currentInvites} dəvət lazımdır!`);
+            }
+            
+            await db.ref('zerowallet_users/' + user).update({ rocket: type });
+            showToast(type.toUpperCase() + " Aktiv Edildi!");
         }
 
         function requestWithdraw() {
