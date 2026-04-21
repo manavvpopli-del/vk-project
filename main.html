@@ -206,9 +206,10 @@
             if(!code) return showToast("Kod daxil edin!");
             if(code === userData.inviteCode) return showToast("Öz kodunu istifadə edə bilməzsən!");
             
-            // YENİ: İstifadəçi artıq kupon işlədibmi?
-            if(userData.usedCoupon === true) {
-                return showToast("Artıq kupon istifadə etmisiniz!");
+            // YENİ MƏNTİQ: Bu kod artıq bu istifadəçi tərəfindən istifadə olunubmu?
+            const usedCoupons = userData.usedCoupons || {};
+            if(usedCoupons[code.replace("-","_")]) {
+                return showToast("Bu kodu artıq istifadə etmisiniz!");
             }
             
             db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
@@ -217,11 +218,12 @@
                     const ownerData = snap.val()[ownerId];
                     
                     const updates = {};
-                    // Sənin balansını 1 AZN artırır və usedCoupon markerini qoyur
+                    // Balansı artır
                     updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
-                    updates['zerowallet_users/' + user + '/usedCoupon'] = true;
+                    // İstifadə olunan kodlar siyahısına bu kodu əlavə et
+                    updates['zerowallet_users/' + user + '/usedCoupons/' + code.replace("-","_")] = true;
                     
-                    // Dostunun dəvət sayını artırır
+                    // Kod sahibinin dəvət sayını artır
                     updates['zerowallet_users/' + ownerId + '/invites'] = (ownerData.invites || 0) + 1;
                     
                     db.ref().update(updates).then(() => {
