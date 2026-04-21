@@ -15,173 +15,68 @@
             --border-glow: rgba(245, 158, 11, 0.15);
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none; /* Kopyalamağı qadağan edir */
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
         body { 
-            margin: 0; 
-            background: var(--dark-surface); 
-            color: #e2e8f0; 
-            font-family: 'Outfit', sans-serif; 
-            height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden;
+            margin: 0; background: var(--dark-surface); color: #e2e8f0; 
+            font-family: 'Outfit', sans-serif; height: 100vh; display: flex; 
+            align-items: center; justify-content: center; overflow: hidden;
         }
 
-        /* Qazanc platformasına xas hərəkətli fon */
         .bg-gradient {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0a0a0c 100%);
             z-index: -1;
         }
 
         .auth-card { 
-            width: 90%; 
-            max-width: 400px; 
-            padding: 40px 30px; 
-            background: var(--card-inner); 
-            border-radius: 32px; 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            text-align: center; 
-            position: relative;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            width: 90%; max-width: 380px; padding: 40px 25px; background: var(--card-inner); 
+            border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.05); 
+            text-align: center; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.8);
         }
 
-        .auth-card::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(135deg, var(--main-gold), transparent, var(--main-gold));
-            z-index: -1;
-            border-radius: 34px;
-            opacity: 0.1;
-        }
-
-        .brand-header { margin-bottom: 40px; }
-        
+        .brand-header { margin-bottom: 30px; }
         .brand-header h1 { 
-            font-size: 2rem; 
-            font-weight: 900; 
-            letter-spacing: -1px; 
-            margin: 0;
+            font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; margin: 0;
             background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        .brand-header p { 
-            color: var(--main-gold); 
-            font-size: 0.75rem; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: 3px;
-            margin-top: 5px;
-        }
-
-        .field-label {
-            display: block;
-            text-align: left;
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-bottom: 8px;
-            margin-left: 5px;
-            font-weight: 600;
-        }
-
-        .input-wrapper { margin-bottom: 20px; }
+        .subtitle { font-size: 0.7rem; color: var(--main-gold); font-weight: 600; text-transform: uppercase; letter-spacing: 3px; margin-top: 5px; }
 
         .auth-input { 
-            width: 100%; 
-            padding: 16px 20px; 
-            background: #000; 
-            border: 1px solid #222; 
-            border-radius: 16px; 
-            color: #fff; 
-            font-size: 1rem;
+            width: 100%; padding: 16px; background: #000; border: 1px solid #222; 
+            border-radius: 12px; color: #fff; font-family: 'Outfit'; text-align: center; margin-bottom: 15px; 
             transition: 0.3s;
-            font-family: inherit;
         }
+        .auth-input:focus { border-color: var(--main-gold); box-shadow: 0 0 15px var(--border-glow); }
 
-        .auth-input:focus {
-            border-color: var(--main-gold);
-            background: #050505;
-            box-shadow: 0 0 15px var(--border-glow);
+        .action-btn { 
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            background: var(--main-gold); color: #000; font-family: 'Outfit'; 
+            font-weight: 900; cursor: pointer; transition: 0.3s;
         }
+        .action-btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
-        .main-button { 
-            width: 100%; 
-            padding: 18px; 
-            border-radius: 18px; 
-            border: none; 
-            background: var(--main-gold);
-            color: #000; 
-            font-size: 1rem;
-            font-weight: 800; 
-            cursor: pointer; 
-            transition: 0.4s;
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
-
-        .main-button:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
-        }
-
-        .mode-switcher { 
-            margin-top: 25px; 
-            font-size: 0.85rem; 
-            color: #94a3b8; 
-            cursor: pointer; 
-        }
-
-        .mode-switcher span { color: #fff; border-bottom: 1px solid var(--main-gold); padding-bottom: 2px; }
-
-        #status-msg { 
-            margin-top: 20px; 
-            font-size: 0.8rem; 
-            font-weight: 600;
-            min-height: 1.2rem;
-        }
-
-        /* Saytın URL və ya digər dataları göstərməməsi üçün gizlətmə */
-        iframe, img { -webkit-user-drag: none; }
+        .toggle-text { margin-top: 20px; font-size: 0.8rem; color: #666; cursor: pointer; }
+        .toggle-text b { color: #fff; border-bottom: 1px solid var(--main-gold); }
+        #status-msg { margin-top: 15px; font-size: 0.75rem; min-height: 1rem; line-height: 1.4; }
     </style>
 </head>
 <body oncontextmenu="return false;">
-
     <div class="bg-gradient"></div>
 
     <div class="auth-card">
         <div class="brand-header">
-            <h1>ZeroWallet</h1>
-            <p>Quantum Asset Manager</p>
+            <h1>ZEROWALLET</h1>
+            <div id="auth-title" class="subtitle">HESABA GİRİŞ</div>
         </div>
 
-        <div id="auth-form">
-            <div class="input-wrapper">
-                <span class="field-label">İSTİFADƏÇİ KİMLİYİ</span>
-                <input type="text" id="username" class="auth-input" placeholder="Məs: kml_01" maxlength="12" autocomplete="off">
-            </div>
-
-            <div class="input-wrapper">
-                <span class="field-label">TƏHLÜKƏSİZLİK ŞİFRƏSİ</span>
-                <input type="password" id="password" class="auth-input" placeholder="••••••••" autocomplete="off">
-            </div>
-
-            <button class="main-button" id="main-btn" onclick="handleAuth()">Sistemə Daxil Ol</button>
-        </div>
-
-        <div class="mode-switcher" id="toggle-link" onclick="toggleMode()">
-            Hələ də üzv deyilsiniz? <span>Yeni hesab yarat</span>
-        </div>
-
+        <input type="text" id="username" class="auth-input" placeholder="USERNAME" maxlength="12">
+        <input type="password" id="password" class="auth-input" placeholder="PASSWORD">
+        
+        <button class="action-btn" id="main-btn" onclick="handleAuth()">DAXİL OL</button>
+        
+        <div class="toggle-text" id="toggle-link" onclick="toggleMode()">Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b></div>
         <div id="status-msg"></div>
     </div>
 
@@ -201,20 +96,15 @@
 
         function toggleMode() {
             isLoginMode = !isLoginMode;
-            document.querySelector('.brand-header p').innerText = isLoginMode ? "Quantum Asset Manager" : "Network Registration";
-            document.getElementById('main-btn').innerText = isLoginMode ? "Sistemə Daxil Ol" : "Hesabı Təsdiqlə";
-            document.getElementById('toggle-link').innerHTML = isLoginMode ? 
-                "Hələ də üzv deyilsiniz? <span>Yeni hesab yarat</span>" : 
-                "Artıq profiliniz var? <span>Girişə qayıt</span>";
-            document.getElementById('status-msg').innerText = "";
+            document.getElementById('auth-title').innerText = isLoginMode ? "HESABA GİRİŞ" : "YENİ QEYDİYYAT";
+            document.getElementById('main-btn').innerText = isLoginMode ? "DAXİL OL" : "QEYDİYYAT OL";
+            document.getElementById('toggle-link').innerHTML = isLoginMode ? "Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b>" : "Artıq hesabınız var? <b>Giriş edin</b>";
         }
 
         async function handleAuth() {
             const user = document.getElementById('username').value.trim().toLowerCase();
             const pass = document.getElementById('password').value.trim();
-            if (user.length < 3 || pass.length < 4) return showStatus("Məlumat təhlükəsizlik üçün yetərsizdir.", "#f87171");
-
-            showStatus("Şəbəkə ilə əlaqə qurulur...", var(--main-gold));
+            if (user.length < 3 || pass.length < 4) return showStatus("Məlumatlar qısadır!", "#ff3e3e");
 
             try {
                 const ipRes = await fetch('https://api.ipify.org?format=json');
@@ -222,40 +112,37 @@
                 const cleanIp = ip.replace(/\./g, '_');
 
                 const blockSnap = await db.ref('blocked_ips/' + cleanIp).once('value');
-                if (blockSnap.exists()) return showStatus("Giriş rədd edildi: Cihaz qara siyahıdadır.", "#f87171");
+                if (blockSnap.exists()) {
+                    return showStatus("GİRİŞ QADAĞANDIR!<br>Cihazınız bloklanıb.", "#ff3e3e");
+                }
 
                 const userRef = await db.ref('zerowallet_users/' + user).once('value');
-
                 if (isLoginMode) {
-                    if (!userRef.exists() || userRef.val().password !== pass) throw new Error("Kimlik məlumatları yanlışdır.");
+                    if (!userRef.exists() || userRef.val().password !== pass) throw new Error("Giriş məlumatları səhvdir!");
                     loginSuccess(user);
                 } else {
-                    if (userRef.exists()) throw new Error("Bu istifadəçi artıq sistemdə mövcuddur.");
+                    if (userRef.exists()) throw new Error("Bu username doludur!");
                     const ipLog = await db.ref('ip_logs/' + cleanIp).once('value');
-                    if (ipLog.exists()) throw new Error("Hər cihaz üçün yalnız 1 giriş icazə verilir.");
+                    if (ipLog.exists()) throw new Error("Bu cihazdan artıq qeydiyyat var!");
 
                     await db.ref('zerowallet_users/' + user).set({
-                        username: user, password: pass, ip: ip, balance: 0, clicks: 0, rocket: 'standart', invites: 0
+                        username: user, password: pass, ip: ip, balance: 0, clicks: 0, rocket: 'standart'
                     });
                     await db.ref('ip_logs/' + cleanIp).set(user);
                     loginSuccess(user);
                 }
-            } catch (e) { showStatus(e.message, "#f87171"); }
+            } catch (e) { showStatus(e.message, "#ff3e3e"); }
         }
 
         function loginSuccess(user) {
             localStorage.setItem('zerowallet_session', user);
-            showStatus("Avtorizasiya uğurludur...", "#4ade80");
-            setTimeout(() => { window.location.replace("main.html"); }, 800);
+            window.location.href = "main.html";
         }
 
         function showStatus(text, color) {
             const m = document.getElementById('status-msg');
             m.innerHTML = text; m.style.color = color;
         }
-
-        // URL sızmasını qarşılamaq üçün yönləndirməni gizlətməyə çalışır
-        window.history.replaceState(null, null, window.location.pathname);
     </script>
 </body>
 </html>
