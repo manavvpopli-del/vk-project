@@ -206,19 +206,28 @@
             if(!code) return showToast("Kod daxil edin!");
             if(code === userData.inviteCode) return showToast("Öz kodunu istifadə edə bilməzsən!");
             
+            // YENİ: İstifadəçi artıq kupon işlədibmi?
+            if(userData.usedCoupon === true) {
+                return showToast("Artıq kupon istifadə etmisiniz!");
+            }
+            
             db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
                 if(snap.exists()) {
                     const ownerId = Object.keys(snap.val())[0];
                     const ownerData = snap.val()[ownerId];
                     
-                    // Kuponu yazana pul ver
-                    db.ref('zerowallet_users/' + user).update({ balance: userData.balance + 1 });
+                    const updates = {};
+                    // Sənin balansını 1 AZN artırır və usedCoupon markerini qoyur
+                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
+                    updates['zerowallet_users/' + user + '/usedCoupon'] = true;
                     
-                    // Kod sahibinin dəvət sayını artır
-                    db.ref('zerowallet_users/' + ownerId).update({ invites: (ownerData.invites || 0) + 1 });
+                    // Dostunun dəvət sayını artırır
+                    updates['zerowallet_users/' + ownerId + '/invites'] = (ownerData.invites || 0) + 1;
                     
-                    showToast("+1.00 AZN!");
-                    document.getElementById('coupon-input').value = "";
+                    db.ref().update(updates).then(() => {
+                        showToast("+1.00 AZN!");
+                        document.getElementById('coupon-input').value = "";
+                    });
                 } else { showToast("Yanlış kod!"); }
             });
         }
