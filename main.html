@@ -72,6 +72,10 @@
 
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
+
+        /* Withdraw Overlay Style */
+        .withdraw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200000; display: none; flex-direction: column; }
+        .close-withdraw { padding: 15px; background: #f1f5f9; text-align: center; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -140,6 +144,20 @@
         </div>
     </div>
 
+    <div id="withdraw-sec" class="section">
+        <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
+        <div class="withdraw-box">
+            <div class="w-icon" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-university"></i></div>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Minimum 150 AZN balans tələb olunur.</p>
+            <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
+        </div>
+    </div>
+
+    <div id="w-overlay" class="withdraw-overlay">
+        <div class="close-withdraw" onclick="closeWithdraw()">GERİ QAYIT</div>
+        <iframe id="w-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-th-large"></i></div>
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-user-plus"></i></div>
@@ -163,7 +181,6 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        // REDUKTOR: Sürət paketlərinin dəqiq dəyərləri
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
         let userData = { balance: 0, rocket: 'standart', invites: 0 };
 
@@ -171,7 +188,7 @@
             const data = snap.val();
             if(!data) return;
             
-            // Əgər bazada nəsə çatışmırsa (məsələn yeni girmisə), onları STANDART et
+            // XƏTA DÜZƏLİŞİ: Əgər rocket boşdursa 'standart' təyin et
             userData = {
                 ...data,
                 rocket: data.rocket || 'standart',
@@ -180,24 +197,21 @@
             };
             
             if(!userData.inviteCode) {
-                const newCode = "INV-" + Math.floor(1000 + Math.random() * 9000);
+                const newCode = "INV-" + Math.floor(1000 + Math.random() * 9999);
                 db.ref('zerowallet_users/' + user).update({ inviteCode: newCode, rocket: 'standart' });
             }
             
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
-            document.getElementById('my-invite-code').innerText = userData.inviteCode || "YÜKLƏNİR...";
-            
-            // Sürət ekranını göstər (Bazadakı rocket nədirsə onu götürür)
-            const speed = VALUES[userData.rocket] || 0.0001;
-            document.getElementById('active-speed-txt').innerText = speed;
+            document.getElementById('my-invite-code').innerText = userData.inviteCode;
+            document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket];
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
-            document.getElementById('ref-count-txt').innerText = userData.invites || 0;
+            document.getElementById('ref-count-txt').innerText = userData.invites;
         });
 
         async function useCoupon() {
             const code = document.getElementById('coupon-input').value.trim().toUpperCase();
             if(!code) return showToast("Kod daxil edin!");
-            if(code === userData.inviteCode) return showToast("Öz kodunu istifadə edə bilməzsən!");
+            if(code === userData.inviteCode) return showToast("Öz kodunu yazma!");
             
             const usedCoupons = userData.usedCoupons || {};
             if(usedCoupons[code.replace("-","_")]) {
@@ -215,7 +229,7 @@
                     updates['zerowallet_users/' + ownerId + '/invites'] = (ownerData.invites || 0) + 1;
                     
                     db.ref().update(updates).then(() => {
-                        showToast("+1.00 AZN!");
+                        showToast("+1.00 AZN Qazanıldı!");
                         document.getElementById('coupon-input').value = "";
                     });
                 } else { showToast("Yanlış kod!"); }
@@ -223,12 +237,9 @@
         }
 
         function mine(e) {
-            // Əsas təhlükəsizlik: Klikləyəndə mütləq obyekt daxilindəki rocket tipinə baxır
-            const currentRocket = userData.rocket || 'standart';
-            const val = VALUES[currentRocket];
-            
-            showClickEffect(e, val);
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val });
+            const speedValue = VALUES[userData.rocket] || 0.0001;
+            showClickEffect(e, speedValue);
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + speedValue });
         }
 
         function showClickEffect(e, val) {
@@ -241,14 +252,25 @@
             setTimeout(() => text.remove(), 600);
         }
 
-        async function buyRocket(type, requiredInvites) {
-            const currentInvites = userData.invites || 0;
-            if(currentInvites < requiredInvites) {
-                return showToast(`Hələ ${requiredInvites - currentInvites} dəvət lazımdır!`);
-            }
-            
+        async function buyRocket(type, req) {
+            if(userData.invites < req) return showToast(`Sizə ${req} dəvət lazımdır!`);
             await db.ref('zerowallet_users/' + user).update({ rocket: type });
-            showToast(type.toUpperCase() + " Aktiv Edildi!");
+            showToast("Paket Aktivləşdirildi!");
+        }
+
+        function requestWithdraw() {
+            if(userData.balance < 150) return showToast("Min. 150 AZN lazımdır!");
+            
+            // Withdraw overlay-i göstər və iframe-i yüklə
+            const overlay = document.getElementById('w-overlay');
+            const iframe = document.getElementById('w-iframe');
+            iframe.src = "withdraw.html"; 
+            overlay.style.display = "flex";
+        }
+
+        function closeWithdraw() {
+            document.getElementById('w-overlay').style.display = "none";
+            document.getElementById('w-iframe').src = "";
         }
 
         function showSec(id, el) {
