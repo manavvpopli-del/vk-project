@@ -8,7 +8,6 @@
     <title>Zerowallet - Quantum Earning</title>
     
     <script src="https://pl29207770.profitablecpmratenetwork.com/a8/03/cf/a803cf6572b310c98464e8c3b1e37a29.js"></script>
-    
     <script src="https://pl29207769.profitablecpmratenetwork.com/da/bb/75/dabb756e0acbdaeb622c4d652f128351.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -58,6 +57,13 @@
         .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
+        
+        /* AD TIMER OVERLAY */
+        #ad-timer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
+        .timer-circle { width: 100px; height: 100px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .timer-val { position: absolute; font-size: 2rem; font-weight: 800; animation: none; }
+        
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
         .withdraw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200000; display: none; flex-direction: column; }
@@ -65,6 +71,15 @@
     </style>
 </head>
 <body oncontextmenu="return false;">
+
+    <div id="ad-timer-overlay">
+        <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+            <div class="timer-circle"></div>
+            <div class="timer-val" id="seconds-left">15</div>
+        </div>
+        <h2 style="margin: 10px 0;">Bonus Hesablanır...</h2>
+        <p style="padding:0 40px; color:#94a3b8; font-size: 0.9rem;">1 AZN qazanmaq üçün 15 saniyə gözləyin.</p>
+    </div>
 
     <div class="header">
         <div class="logo">ZERO.WALLET</div>
@@ -87,13 +102,8 @@
 
             <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:20px;">
                 <h4 style="margin:0; color:#c2410c; font-size:0.9rem;">🎁 GÜNLÜK BONUS</h4>
-                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı aç və 15 saniyə qal.</p>
+                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı aç və 15 saniyə taymeri gözlə.</p>
                 <button class="ref-btn" onclick="watchBonusAd()" style="background:#f97316; padding:10px; font-size:0.8rem;">REKLAM AÇ (+1.00 AZN)</button>
-            </div>
-
-            <div style="margin: 20px 0;">
-                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
-                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
 
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
@@ -105,6 +115,11 @@
             <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
                 Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
             </div>
+
+            <div style="margin: 25px 0 10px 0;">
+                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
+                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
+            </div>
         </div>
     </div>
 
@@ -113,7 +128,6 @@
         <div class="ref-card">
             <i class="fas fa-gift" style="font-size: 2.5rem; color: #10b981;"></i>
             <h4 style="margin: 15px 0 5px 0;">Kupon Daxil Et</h4>
-            <p style="font-size:0.8rem; color:#64748b;">Dostunun kodunu yaz və 1.00 AZN qazan!</p>
             <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
             <button class="ref-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
         </div>
@@ -145,8 +159,7 @@
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
-            <div class="w-icon" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"><i class="fas fa-university"></i></div>
-            <p style="font-weight: 600; color: #64748b; margin-bottom: 25px;">Minimum 150 AZN balans tələb olunur.</p>
+            <p>Minimum 150 AZN balans tələb olunur.</p>
             <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
@@ -175,7 +188,6 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
@@ -193,33 +205,42 @@
             document.getElementById('ref-count-txt').innerText = userData.invites;
         });
 
-        // ADSTERRA SMARTLINK BONUS SYSTEM
-        let adStarted = false;
-        let startTime = 0;
+        // TAYMERLİ ADSTERRA BONUS SİSTEMİ
+        let timeLeft = 15;
+        let timerInterval = null;
+        let adActive = false;
 
         function watchBonusAd() {
             const adLink = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
-            adStarted = true;
-            startTime = new Date().getTime();
-            showToast("Reklam açıldı, 15 saniyə gözləyin...");
             window.open(adLink, '_blank');
+            adActive = true;
+            timeLeft = 15;
+            document.getElementById('seconds-left').innerText = timeLeft;
+            document.getElementById('ad-timer-overlay').style.display = 'flex';
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('seconds-left').innerText = timeLeft;
+                if(timeLeft <= 0) { clearInterval(timerInterval); completeAd(); }
+            }, 1000);
+        }
+
+        function completeAd() {
+            db.ref('zerowallet_users/' + user).transaction(c => {
+                if(c) { c.balance = (c.balance || 0) + 1.0; }
+                return c;
+            }).then(() => {
+                document.getElementById('ad-timer-overlay').style.display = 'none';
+                showToast("+1.00 AZN Balansa əlavə edildi!");
+                adActive = false;
+            });
         }
 
         window.onfocus = function() {
-            if (adStarted) {
-                const duration = (new Date().getTime() - startTime) / 1000;
-                if (duration >= 15) {
-                    db.ref('zerowallet_users/' + user).transaction(c => {
-                        if(c) { c.balance = (c.balance || 0) + 1.0; }
-                        return c;
-                    }).then(() => {
-                        showToast("+1.00 AZN Balansınıza əlavə edildi!");
-                        adStarted = false;
-                    });
-                } else {
-                    showToast("Reklamda kifayət qədər qalmadınız.");
-                    adStarted = false;
-                }
+            if(adActive && timeLeft > 0) {
+                clearInterval(timerInterval);
+                document.getElementById('ad-timer-overlay').style.display = 'none';
+                showToast("Səhifəyə tez qayıtdınız!");
+                adActive = false;
             }
         };
 
@@ -240,15 +261,13 @@
         async function useCoupon() {
             const code = document.getElementById('coupon-input').value.trim().toUpperCase();
             if(!code) return showToast("Kod daxil edin!");
-            if(code === userData.inviteCode) return showToast("Öz kodunu yazma!");
             db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
                 if(snap.exists()) {
                     const ownerId = Object.keys(snap.val())[0];
                     const updates = {};
                     updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
-                    updates['zerowallet_users/' + user + '/usedCoupons/' + code.replace("-","_")] = true;
                     updates['zerowallet_users/' + ownerId + '/invites'] = (snap.val()[ownerId].invites || 0) + 1;
-                    db.ref().update(updates).then(() => { showToast("+1.00 AZN Qazanıldı!"); });
+                    db.ref().update(updates).then(() => showToast("+1.00 AZN Qazanıldı!"));
                 } else { showToast("Yanlış kod!"); }
             });
         }
@@ -260,7 +279,7 @@
         }
 
         function requestWithdraw() {
-            if(userData.balance < 150) return showToast("Min. 150 AZN lazımdır!");
+            if(userData.balance < 150) return showToast("Min. 150 AZN!");
             document.getElementById('w-iframe').src = "withdraw.html"; 
             document.getElementById('w-overlay').style.display = "flex";
         }
