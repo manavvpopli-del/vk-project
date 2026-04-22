@@ -56,8 +56,6 @@
         @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
-        .withdraw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200000; display: none; flex-direction: column; }
-        .close-withdraw { padding: 15px; background: #f1f5f9; text-align: center; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -83,15 +81,15 @@
             
             <div class="ref-card" style="margin-top:20px; background:#fffbeb; border:1px solid #f59e0b; padding:15px;">
                 <h4 style="margin:0; color:#d97706; font-size:0.9rem;">🎁 REKLAM BONUSU</h4>
-                <p style="font-size:0.75rem; color:#92400e; margin:5px 0 12px 0;">Bonus üçün ən azı 15 saniyə qalın!</p>
-                <button class="ref-btn" id="bonusBtn" onclick="watchBonusAd()" style="background:#f59e0b; padding:10px; font-size:0.8rem;">VİDEO İZLƏ (+1.00 AZN)</button>
+                <p style="font-size:0.75rem; color:#92400e; margin:5px 0 12px 0;">Hər reklamda 15 saniyə gözləyin!</p>
+                <button class="ref-btn" id="bonusBtn" onclick="watchBonusAd()" style="background:#f59e0b; padding:10px; font-size:0.8rem;">REKLAMA BAX (+1.00 AZN)</button>
             </div>
 
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
                 Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
             </div>
             
-            <div style="margin-top:20px; border-radius:15px; overflow:hidden; min-height:100px;">
+            <div style="margin-top:20px; border-radius:15px; overflow:hidden;">
                 <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
                 <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
@@ -119,7 +117,12 @@
             <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.005 AZN</p></div>
             <button class="buy-btn" onclick="buyRocket('elite', 10)">10 DƏVƏT</button>
         </div>
+        <div class="rocket-card">
+            <img src="pro.png" class="rocket-img">
+            <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.010 AZN</p></div>
+            <button class="buy-btn" onclick="buyRocket('pro', 25)">25 DƏVƏT</button>
         </div>
+    </div>
 
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
@@ -155,36 +158,40 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val() || { balance: 0, rocket: 'standart' };
-            document.getElementById('bal').innerText = userData.balance.toFixed(4);
+            document.getElementById('bal').innerText = (userData.balance || 0).toFixed(4);
             document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket || 'standart'];
             if(userData.inviteCode) document.getElementById('my-invite-code').innerText = userData.inviteCode;
         });
 
-        // --- SMARTLINK REWARD SİSTEMİ ---
+        // REKLAM FUNKSIYALARI (Ehtiyata görə hər ikisi)
         let adStarted = false;
         let startTime = 0;
 
         function watchBonusAd() {
-            const smartlink = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+            const ads = [
+                "https://omg10.com/4/10909600",
+                "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25"
+            ];
+            const randomAd = ads[Math.floor(Math.random() * ads.length)];
             adStarted = true;
             startTime = new Date().getTime();
-            showToast("Reklam açıldı. 15 saniyə gözləyin...");
-            window.open(smartlink, '_blank');
+            showToast("Reklam açılır... 15 saniyə izləyin.");
+            window.open(randomAd, '_blank');
         }
 
         window.onfocus = function() {
             if (adStarted) {
-                let duration = (new Date().getTime() - startTime) / 1000;
+                const duration = (new Date().getTime() - startTime) / 1000;
                 if (duration >= 15) {
                     db.ref('zerowallet_users/' + user).transaction(c => {
                         if(c) c.balance = (c.balance || 0) + 1.0;
                         return c;
                     }).then(() => {
-                        showToast("+1.00 AZN qazanıldı!");
+                        showToast("+1.00 AZN əlavə edildi!");
                         adStarted = false;
                     });
                 } else {
-                    showToast("Çox tez qayıtdınız! Bonus verilmir.");
+                    showToast("Reklamı tez bağladınız!");
                     adStarted = false;
                 }
             }
@@ -193,7 +200,7 @@
         function mine(e) {
             const val = VALUES[userData.rocket || 'standart'];
             showClickEffect(e, val);
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val });
+            db.ref('zerowallet_users/' + user).update({ balance: (userData.balance || 0) + val });
         }
 
         function showClickEffect(e, val) {
@@ -210,7 +217,11 @@
 
         function showToast(msg) {
             let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-            document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+            document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(e => console.log(e));
         }
     </script>
 </body>
