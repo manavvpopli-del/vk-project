@@ -56,29 +56,25 @@
         .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
         .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 100px; opacity: 1; } }
-        
-        /* AD TIMER OVERLAY */
-        #ad-timer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98); z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
-        .timer-circle { width: 100px; height: 100px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .timer-val { position: absolute; font-size: 2rem; font-weight: 800; animation: none; }
-        
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
+        
+        /* AD VIEWER SPLIT STYLE */
+        #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999999; display: none; flex-direction: column; }
+        #ad-header { height: 75px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 1.2rem; gap: 10px; border-bottom: 3px solid var(--primary); }
+        #ad-iframe { flex: 1; border: none; width: 100%; }
         .withdraw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200000; display: none; flex-direction: column; }
         .close-withdraw { padding: 15px; background: #f1f5f9; text-align: center; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="ad-timer-overlay">
-        <div style="position:relative; display:flex; align-items:center; justify-content:center;">
-            <div class="timer-circle"></div>
-            <div class="timer-val" id="seconds-left">15</div>
+    <div id="ad-viewer">
+        <div id="ad-header">
+            <i class="fas fa-stopwatch" style="color:var(--primary)"></i>
+            Gözlə: <span id="ad-sec" style="font-weight: 800;">15</span> saniyə
         </div>
-        <h2 style="margin: 10px 0;">Bonus Hesablanır...</h2>
-        <p style="padding:0 40px; color:#94a3b8; font-size: 0.9rem;">1 AZN qazanmaq üçün 15 saniyə gözləyin.</p>
+        <iframe id="ad-iframe" src=""></iframe>
     </div>
 
     <div class="header">
@@ -102,8 +98,8 @@
 
             <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:20px;">
                 <h4 style="margin:0; color:#c2410c; font-size:0.9rem;">🎁 GÜNLÜK BONUS</h4>
-                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı aç və 15 saniyə taymeri gözlə.</p>
-                <button class="ref-btn" onclick="watchBonusAd()" style="background:#f97316; padding:10px; font-size:0.8rem;">REKLAM AÇ (+1.00 AZN)</button>
+                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı burada izlə və 1.00 AZN qazan.</p>
+                <button class="ref-btn" onclick="startBonusAd()" style="background:#f97316; padding:12px; font-size:0.85rem;">REKLAM AÇ (+1.00 AZN)</button>
             </div>
 
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
@@ -116,7 +112,7 @@
                 Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
             </div>
 
-            <div style="margin: 25px 0 10px 0;">
+            <div style="margin-top: 25px;">
                 <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
                 <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
@@ -159,7 +155,8 @@
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
-            <p>Minimum 150 AZN balans tələb olunur.</p>
+            <i class="fas fa-university" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+            <p style="font-weight: 600; color: #64748b;">Minimum 150 AZN balans tələb olunur.</p>
             <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
@@ -205,44 +202,35 @@
             document.getElementById('ref-count-txt').innerText = userData.invites;
         });
 
-        // TAYMERLİ ADSTERRA BONUS SİSTEMİ
-        let timeLeft = 15;
-        let timerInterval = null;
-        let adActive = false;
+        // SPLIT REKLAM SISTEMI
+        function startBonusAd() {
+            const adUrl = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+            const viewer = document.getElementById('ad-viewer');
+            const iframe = document.getElementById('ad-iframe');
+            const timerTxt = document.getElementById('ad-sec');
+            
+            let timeLeft = 15;
+            timerTxt.innerText = timeLeft;
+            iframe.src = adUrl;
+            viewer.style.display = 'flex';
 
-        function watchBonusAd() {
-            const adLink = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
-            window.open(adLink, '_blank');
-            adActive = true;
-            timeLeft = 15;
-            document.getElementById('seconds-left').innerText = timeLeft;
-            document.getElementById('ad-timer-overlay').style.display = 'flex';
-            timerInterval = setInterval(() => {
+            const countdown = setInterval(() => {
                 timeLeft--;
-                document.getElementById('seconds-left').innerText = timeLeft;
-                if(timeLeft <= 0) { clearInterval(timerInterval); completeAd(); }
+                timerTxt.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    // Odeme Prosesi
+                    db.ref('zerowallet_users/' + user).transaction(c => {
+                        if(c) { c.balance = (c.balance || 0) + 1.0; }
+                        return c;
+                    }).then(() => {
+                        viewer.style.display = 'none';
+                        iframe.src = "";
+                        showToast("+1.00 AZN Balansa əlavə edildi!");
+                    });
+                }
             }, 1000);
         }
-
-        function completeAd() {
-            db.ref('zerowallet_users/' + user).transaction(c => {
-                if(c) { c.balance = (c.balance || 0) + 1.0; }
-                return c;
-            }).then(() => {
-                document.getElementById('ad-timer-overlay').style.display = 'none';
-                showToast("+1.00 AZN Balansa əlavə edildi!");
-                adActive = false;
-            });
-        }
-
-        window.onfocus = function() {
-            if(adActive && timeLeft > 0) {
-                clearInterval(timerInterval);
-                document.getElementById('ad-timer-overlay').style.display = 'none';
-                showToast("Səhifəyə tez qayıtdınız!");
-                adActive = false;
-            }
-        };
 
         function mine(e) {
             const speedValue = VALUES[userData.rocket] || 0.0001;
@@ -279,13 +267,14 @@
         }
 
         function requestWithdraw() {
-            if(userData.balance < 150) return showToast("Min. 150 AZN!");
+            if(userData.balance < 150) return showToast("Minimum 150 AZN!");
             document.getElementById('w-iframe').src = "withdraw.html"; 
             document.getElementById('w-overlay').style.display = "flex";
         }
 
         function closeWithdraw() {
             document.getElementById('w-overlay').style.display = "none";
+            document.getElementById('ad-viewer').style.display = "none";
             document.getElementById('w-iframe').src = "";
         }
 
