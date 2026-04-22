@@ -59,7 +59,6 @@
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
         
-        /* AD VIEWER SPLIT STYLE */
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 75px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 1.2rem; gap: 10px; border-bottom: 3px solid var(--primary); }
         #ad-iframe { flex: 1; border: none; width: 100%; }
@@ -189,20 +188,56 @@
         if(!user) location.href="index.html";
 
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', invites: 0 };
+        let userData = { balance: 0, rocket: 'standart', invites: 0, inviteUsed: false };
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
-            const data = snap.val();
+            let data = snap.val();
             if(!data) return;
-            userData = { ...data, rocket: data.rocket || 'standart', balance: data.balance || 0, invites: data.invites || 0 };
+
+            // DÜZƏLİŞ 1: Yeni profildə dəvət kodu yoxdursa yarat (Avtomatik)
+            if(!data.inviteCode) {
+                const newCode = "INV-" + Math.floor(1000 + Math.random() * 9000);
+                db.ref('zerowallet_users/' + user).update({ inviteCode: newCode });
+                data.inviteCode = newCode;
+            }
+
+            userData = { ...data, rocket: data.rocket || 'standart', balance: data.balance || 0, invites: data.invites || 0, inviteUsed: data.inviteUsed || false };
+            
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
-            document.getElementById('my-invite-code').innerText = userData.inviteCode || "...";
+            document.getElementById('my-invite-code').innerText = userData.inviteCode;
             document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket];
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
             document.getElementById('ref-count-txt').innerText = userData.invites;
         });
 
-        // SPLIT REKLAM SISTEMI
+        // DÜZƏLİŞ 2: Təhlükəsiz kupon sistemi (Hər kod 1 dəfə, öz kodunu yaza bilməz)
+        async function useCoupon() {
+            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if(!code) return showToast("Kod daxil edin!");
+            
+            if(userData.inviteUsed) return showToast("Siz artıq bir dəfə kupon istifadə etmisiniz!");
+            if(code === userData.inviteCode) return showToast("Öz dəvət kodunuzu istifadə edə bilməzsiniz!");
+
+            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
+                if(snap.exists()) {
+                    const ownerId = Object.keys(snap.val())[0];
+                    const ownerData = snap.val()[ownerId];
+
+                    const updates = {};
+                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
+                    updates['zerowallet_users/' + user + '/inviteUsed'] = true;
+                    updates['zerowallet_users/' + ownerId + '/invites'] = (ownerData.invites || 0) + 1;
+                    
+                    db.ref().update(updates).then(() => {
+                        showToast("+1.00 AZN Qazanıldı!");
+                        document.getElementById('coupon-input').value = "";
+                    });
+                } else { 
+                    showToast("Yanlış kod!"); 
+                }
+            });
+        }
+
         function startBonusAd() {
             const adUrl = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
             const viewer = document.getElementById('ad-viewer');
@@ -219,7 +254,6 @@
                 timerTxt.innerText = timeLeft;
                 if(timeLeft <= 0) {
                     clearInterval(countdown);
-                    // Odeme Prosesi
                     db.ref('zerowallet_users/' + user).transaction(c => {
                         if(c) { c.balance = (c.balance || 0) + 1.0; }
                         return c;
@@ -244,20 +278,6 @@
             text.innerText = "+" + val;
             text.style.left = e.clientX + "px"; text.style.top = e.clientY + "px";
             document.body.appendChild(text); setTimeout(() => text.remove(), 600);
-        }
-
-        async function useCoupon() {
-            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!code) return showToast("Kod daxil edin!");
-            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
-                if(snap.exists()) {
-                    const ownerId = Object.keys(snap.val())[0];
-                    const updates = {};
-                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
-                    updates['zerowallet_users/' + ownerId + '/invites'] = (snap.val()[ownerId].invites || 0) + 1;
-                    db.ref().update(updates).then(() => showToast("+1.00 AZN Qazanıldı!"));
-                } else { showToast("Yanlış kod!"); }
-            });
         }
 
         async function buyRocket(type, req) {
