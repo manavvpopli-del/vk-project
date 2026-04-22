@@ -21,21 +21,14 @@
             --nav-bg: rgba(15, 23, 42, 0.9);
         }
 
-        /* DARK MODE STYLE */
         body.dark-mode {
-            --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.8);
-            --text: #f8fafc;
+            --bg: #0f172a; --card: rgba(30, 41, 59, 0.8); --text: #f8fafc;
             --nav-bg: rgba(2, 6, 23, 0.95);
         }
-        body.dark-mode .balance-card, 
-        body.dark-mode .ref-card, 
-        body.dark-mode .rocket-card,
-        body.dark-mode .withdraw-box {
+        body.dark-mode .balance-card, body.dark-mode .ref-card, body.dark-mode .rocket-card, body.dark-mode .withdraw-box {
             background: #1e293b; color: #fff; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* THEME VARIATIONS */
         body.theme-emerald { --primary: #10b981; --grad: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); }
         body.theme-rose { --primary: #f43f5e; --grad: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%); }
 
@@ -60,10 +53,15 @@
         .section { display: none; height: calc(100vh - 180px); padding: 0 20px; overflow-y: auto; }
         .section.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
         .coin-trigger { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
+        
+        .hot-badge { position: absolute; top: 15px; right: 15px; background: #ef4444; color: #fff; padding: 5px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; animation: pulse 1s infinite; display: none; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
         .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid rgba(0,0,0,0.02); }
         .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; }
         .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; }
@@ -83,7 +81,6 @@
         .withdraw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200000; display: none; flex-direction: column; }
         .close-withdraw { padding: 15px; background: #f1f5f9; text-align: center; font-weight: 800; cursor: pointer; }
         
-        /* THEME SELECTOR STYLE */
         .theme-box { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
         .t-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     </style>
@@ -111,13 +108,25 @@
 
     <div id="mining-sec" class="section active">
         <div class="mining-container">
+            <div id="hot-tag" class="hot-badge">🔥 HOT CLICK 2X</div>
             <div id="coin-area">
                 <div class="coin-trigger" onclick="mine(event)">
                     <img src="coin.png" id="main-coin">
                 </div>
             </div>
 
-            <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:20px;">
+            <div id="bot-card" class="ref-card" style="margin-top:20px; display:flex; align-items:center; justify-content:space-between; padding:15px; background:rgba(99,102,241,0.05);">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="bot.png" style="width:40px; height:40px;">
+                    <div style="text-align:left;">
+                        <h4 style="margin:0; font-size:0.9rem;">Avto-Bot</h4>
+                        <small id="bot-status" style="color:#64748b;">10 Dəvət Lazımdır</small>
+                    </div>
+                </div>
+                <button id="bot-btn" class="buy-btn" onclick="activateBot()" style="padding:8px 15px; font-size:0.7rem;">AKTİV ET</button>
+            </div>
+
+            <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:15px;">
                 <h4 style="margin:0; color:#c2410c; font-size:0.9rem;">🎁 GÜNLÜK BONUS</h4>
                 <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı izlə və +1.00 AZN qazan.</p>
                 <button class="ref-btn" onclick="startRewardAd()" style="background:#f97316; padding:12px; font-size:0.85rem;">REKLAM İZLƏ</button>
@@ -141,12 +150,12 @@
     </div>
 
     <div id="market-sec" class="section">
-        <h2 style="margin-bottom:20px;">Dəvət Sistemi</h2>
+        <h2 style="margin-bottom:20px;">Dəvət & Promo</h2>
         <div class="ref-card">
             <i class="fas fa-gift" style="font-size: 2.5rem; color: #10b981;"></i>
-            <h4 style="margin: 15px 0 5px 0;">Kupon Daxil Et</h4>
-            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
-            <button class="ref-btn" onclick="useCoupon()">TƏSDİQLƏ</button>
+            <h4 style="margin: 15px 0 5px 0;">Kod Daxil Et</h4>
+            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000 və ya PROMO">
+            <button class="ref-btn" onclick="processCode()">TƏSDİQLƏ</button>
         </div>
         <div class="ref-card">
             <h4 style="margin: 0 0 5px 0;">Sənin Dəvət Kodun</h4>
@@ -226,7 +235,6 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        // TEMA VE DARK MODE YUKLEME
         if(localStorage.getItem('dark_mode') === 'true') document.body.classList.add('dark-mode');
         const savedTheme = localStorage.getItem('app_theme');
         if(savedTheme) document.body.classList.add('theme-' + savedTheme);
@@ -245,7 +253,14 @@
         }
 
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', invites: 0, inviteUsed: false };
+        let userData = { balance: 0, rocket: 'standart', invites: 0, inviteUsed: false, botActive: false };
+
+        // HOT CLICK SYSTEM
+        setInterval(() => {
+            const hour = new Date().getHours();
+            const isHot = (hour === 20); // 20:00 - 21:00
+            document.getElementById('hot-tag').style.display = isHot ? 'block' : 'none';
+        }, 1000);
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             let data = snap.val();
@@ -257,46 +272,66 @@
                 data.inviteCode = newCode;
             }
 
-            userData = { ...data, rocket: data.rocket || 'standart', balance: data.balance || 0, invites: data.invites || 0, inviteUsed: data.inviteUsed || false };
+            userData = { ...data, rocket: data.rocket || 'standart', balance: data.balance || 0, invites: data.invites || 0, inviteUsed: data.inviteUsed || false, botActive: data.botActive || false };
             
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
             document.getElementById('my-invite-code').innerText = userData.inviteCode;
             document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket];
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
             document.getElementById('ref-count-txt').innerText = userData.invites;
+
+            if(userData.botActive) {
+                document.getElementById('bot-status').innerText = "BOT AKTİVDİR ✅";
+                document.getElementById('bot-btn').style.display = "none";
+            } else {
+                document.getElementById('bot-status').innerText = userData.invites >= 10 ? "Aktiv etməyə hazırdır" : "10 Dəvət Lazımdır";
+            }
         });
 
-        function startRewardAd() {
-            const adUrl = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
-            const viewer = document.getElementById('ad-viewer');
-            const iframe = document.getElementById('ad-iframe');
-            const timerTxt = document.getElementById('ad-sec');
-            
-            let timeLeft = 15;
-            timerTxt.innerText = timeLeft;
-            iframe.src = adUrl;
-            viewer.style.display = 'flex';
+        // AUTO-BOT RUNNER
+        setInterval(() => {
+            if(userData.botActive) {
+                const speed = (VALUES[userData.rocket] || 0.0001) / 2; // Bot klikin yarısı qədər yığır
+                db.ref('zerowallet_users/' + user).transaction(c => {
+                    if(c) { c.balance = (c.balance || 0) + speed; }
+                    return c;
+                });
+            }
+        }, 1000);
 
-            const countdown = setInterval(() => {
-                timeLeft--;
-                timerTxt.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(countdown);
-                    db.ref('zerowallet_users/' + user).transaction(c => {
-                        if(c) { c.balance = (c.balance || 0) + 1.0; }
-                        return c;
-                    }).then(() => {
-                        viewer.style.display = 'none';
-                        iframe.src = "";
-                        showToast("+1.00 AZN Balansa əlavə edildi!");
-                    });
-                }
-            }, 1000);
+        function activateBot() {
+            if(userData.invites < 10) return showToast("Sizə 10 dəvət lazımdır!");
+            db.ref('zerowallet_users/' + user).update({ botActive: true }).then(() => {
+                showToast("Avto-Bot İşə Başladı!");
+            });
         }
 
-        async function useCoupon() {
-            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!code) return showToast("Kod daxil edin!");
+        async function processCode() {
+            const input = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if(!input) return showToast("Kod daxil edin!");
+
+            // 1. Promo Code Check (Admin Control)
+            db.ref('promocodes/' + input).once('value', snap => {
+                if(snap.exists()) {
+                    const amount = parseFloat(snap.val());
+                    const usedKey = 'promo_used_' + input;
+                    if(localStorage.getItem(usedKey)) return showToast("Bu kodu artıq işlətmisiniz!");
+
+                    db.ref('zerowallet_users/' + user).transaction(c => {
+                        if(c) { c.balance = (c.balance || 0) + amount; }
+                        return c;
+                    }).then(() => {
+                        localStorage.setItem(usedKey, "true");
+                        showToast(`+${amount} AZN Promo qazanıldı!`);
+                    });
+                } else {
+                    // 2. Referral Code Check
+                    useCoupon(input);
+                }
+            });
+        }
+
+        async function useCoupon(code) {
             if(userData.inviteUsed) return showToast("Siz artıq kupon istifadə etmisiniz!");
             if(code === userData.inviteCode) return showToast("Öz kodunuz olmaz!");
 
@@ -313,7 +348,10 @@
         }
 
         function mine(e) {
-            const speedValue = VALUES[userData.rocket] || 0.0001;
+            let speedValue = VALUES[userData.rocket] || 0.0001;
+            const hour = new Date().getHours();
+            if(hour === 20) speedValue *= 2; // Hot Click 2x
+
             showClickEffect(e, speedValue);
             db.ref('zerowallet_users/' + user).update({ balance: userData.balance + speedValue });
         }
@@ -321,7 +359,7 @@
         function showClickEffect(e, val) {
             const text = document.createElement('div');
             text.className = 'click-val-text';
-            text.innerText = "+" + val;
+            text.innerText = "+" + val.toFixed(4);
             text.style.left = e.clientX + "px"; text.style.top = e.clientY + "px";
             document.body.appendChild(text); setTimeout(() => text.remove(), 600);
         }
@@ -347,6 +385,32 @@
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active'); el.classList.add('active');
+        }
+
+        function startRewardAd() {
+            const adUrl = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+            const viewer = document.getElementById('ad-viewer');
+            const iframe = document.getElementById('ad-iframe');
+            const timerTxt = document.getElementById('ad-sec');
+            let timeLeft = 15;
+            timerTxt.innerText = timeLeft;
+            iframe.src = adUrl;
+            viewer.style.display = 'flex';
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerTxt.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    db.ref('zerowallet_users/' + user).transaction(c => {
+                        if(c) { c.balance = (c.balance || 0) + 1.0; }
+                        return c;
+                    }).then(() => {
+                        viewer.style.display = 'none';
+                        iframe.src = "";
+                        showToast("+1.00 AZN Balansa əlavə edildi!");
+                    });
+                }
+            }, 1000);
         }
 
         function showToast(msg) {
