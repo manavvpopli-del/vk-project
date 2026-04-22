@@ -44,7 +44,7 @@
         .section.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
-        .coin-trigger { width: 200px; height: 200px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
+        .coin-trigger { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
         .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid rgba(0,0,0,0.02); }
@@ -85,15 +85,15 @@
                 </div>
             </div>
 
-            <div style="margin: 20px 0;">
-                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
-                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
-            </div>
-
-            <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px;">
+            <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:20px;">
                 <h4 style="margin:0; color:#c2410c; font-size:0.9rem;">🎁 GÜNLÜK BONUS</h4>
                 <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı aç və 15 saniyə qal.</p>
                 <button class="ref-btn" onclick="watchBonusAd()" style="background:#f97316; padding:10px; font-size:0.8rem;">REKLAM AÇ (+1.00 AZN)</button>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
+                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
 
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
@@ -101,6 +101,9 @@
             </div>
             <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">
                 Aktiv Paket: <span id="active-rocket-txt">STANDART</span>
+            </div>
+            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
+                Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
             </div>
         </div>
     </div>
@@ -131,6 +134,11 @@
             <img src="pro.png" class="rocket-img">
             <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.010 AZN</p></div>
             <button class="buy-btn" onclick="buyRocket('pro', 20)">20 DƏVƏT</button>
+        </div>
+        <div class="rocket-card">
+            <img src="super.png" class="rocket-img">
+            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.040 AZN</p></div>
+            <button class="buy-btn" onclick="buyRocket('super', 30)">30 DƏVƏT</button>
         </div>
     </div>
 
@@ -182,6 +190,7 @@
             document.getElementById('my-invite-code').innerText = userData.inviteCode || "...";
             document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket];
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
+            document.getElementById('ref-count-txt').innerText = userData.invites;
         });
 
         // ADSTERRA SMARTLINK BONUS SYSTEM
@@ -226,6 +235,22 @@
             text.innerText = "+" + val;
             text.style.left = e.clientX + "px"; text.style.top = e.clientY + "px";
             document.body.appendChild(text); setTimeout(() => text.remove(), 600);
+        }
+
+        async function useCoupon() {
+            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if(!code) return showToast("Kod daxil edin!");
+            if(code === userData.inviteCode) return showToast("Öz kodunu yazma!");
+            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
+                if(snap.exists()) {
+                    const ownerId = Object.keys(snap.val())[0];
+                    const updates = {};
+                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
+                    updates['zerowallet_users/' + user + '/usedCoupons/' + code.replace("-","_")] = true;
+                    updates['zerowallet_users/' + ownerId + '/invites'] = (snap.val()[ownerId].invites || 0) + 1;
+                    db.ref().update(updates).then(() => { showToast("+1.00 AZN Qazanıldı!"); });
+                } else { showToast("Yanlış kod!"); }
+            });
         }
 
         async function buyRocket(type, req) {
