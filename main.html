@@ -7,9 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Zerowallet - Quantum Earning</title>
     
-    <script src="https://pl29207770.profitablecpmratenetwork.com/a8/03/cf/a803cf6572b310c98464e8c3b1e37a29.js"></script>
-    <script src="https://pl29207769.profitablecpmratenetwork.com/da/bb/75/dabb756e0acbdaeb622c4d652f128351.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -71,7 +68,7 @@
     <div id="ad-viewer">
         <div id="ad-header">
             <i class="fas fa-stopwatch" style="color:var(--primary)"></i>
-            Gözlə: <span id="ad-sec" style="font-weight: 800;">15</span> saniyə
+            Gözlə: <span id="ad-sec" style="font-weight: 800;">15</span> s
         </div>
         <iframe id="ad-iframe" src=""></iframe>
     </div>
@@ -97,8 +94,8 @@
 
             <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:20px;">
                 <h4 style="margin:0; color:#c2410c; font-size:0.9rem;">🎁 GÜNLÜK BONUS</h4>
-                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı burada izlə və 1.00 AZN qazan.</p>
-                <button class="ref-btn" onclick="startBonusAd()" style="background:#f97316; padding:12px; font-size:0.85rem;">REKLAM AÇ (+1.00 AZN)</button>
+                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı izlə və +1.00 AZN qazan.</p>
+                <button class="ref-btn" onclick="startRewardAd()" style="background:#f97316; padding:12px; font-size:0.85rem;">REKLAM İZLƏ</button>
             </div>
 
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
@@ -194,7 +191,6 @@
             let data = snap.val();
             if(!data) return;
 
-            // DÜZƏLİŞ 1: Yeni profildə dəvət kodu yoxdursa yarat (Avtomatik)
             if(!data.inviteCode) {
                 const newCode = "INV-" + Math.floor(1000 + Math.random() * 9000);
                 db.ref('zerowallet_users/' + user).update({ inviteCode: newCode });
@@ -210,35 +206,7 @@
             document.getElementById('ref-count-txt').innerText = userData.invites;
         });
 
-        // DÜZƏLİŞ 2: Təhlükəsiz kupon sistemi (Hər kod 1 dəfə, öz kodunu yaza bilməz)
-        async function useCoupon() {
-            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!code) return showToast("Kod daxil edin!");
-            
-            if(userData.inviteUsed) return showToast("Siz artıq bir dəfə kupon istifadə etmisiniz!");
-            if(code === userData.inviteCode) return showToast("Öz dəvət kodunuzu istifadə edə bilməzsiniz!");
-
-            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
-                if(snap.exists()) {
-                    const ownerId = Object.keys(snap.val())[0];
-                    const ownerData = snap.val()[ownerId];
-
-                    const updates = {};
-                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
-                    updates['zerowallet_users/' + user + '/inviteUsed'] = true;
-                    updates['zerowallet_users/' + ownerId + '/invites'] = (ownerData.invites || 0) + 1;
-                    
-                    db.ref().update(updates).then(() => {
-                        showToast("+1.00 AZN Qazanıldı!");
-                        document.getElementById('coupon-input').value = "";
-                    });
-                } else { 
-                    showToast("Yanlış kod!"); 
-                }
-            });
-        }
-
-        function startBonusAd() {
+        function startRewardAd() {
             const adUrl = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
             const viewer = document.getElementById('ad-viewer');
             const iframe = document.getElementById('ad-iframe');
@@ -264,6 +232,24 @@
                     });
                 }
             }, 1000);
+        }
+
+        async function useCoupon() {
+            const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if(!code) return showToast("Kod daxil edin!");
+            if(userData.inviteUsed) return showToast("Siz artıq kupon istifadə etmisiniz!");
+            if(code === userData.inviteCode) return showToast("Öz kodunuz olmaz!");
+
+            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
+                if(snap.exists()) {
+                    const ownerId = Object.keys(snap.val())[0];
+                    const updates = {};
+                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
+                    updates['zerowallet_users/' + user + '/inviteUsed'] = true;
+                    updates['zerowallet_users/' + ownerId + '/invites'] = (snap.val()[ownerId].invites || 0) + 1;
+                    db.ref().update(updates).then(() => showToast("+1.00 AZN Qazanıldı!"));
+                } else { showToast("Yanlış kod!"); }
+            });
         }
 
         function mine(e) {
@@ -294,7 +280,6 @@
 
         function closeWithdraw() {
             document.getElementById('w-overlay').style.display = "none";
-            document.getElementById('ad-viewer').style.display = "none";
             document.getElementById('w-iframe').src = "";
         }
 
