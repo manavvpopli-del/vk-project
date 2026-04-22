@@ -50,8 +50,8 @@
         .section.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .mining-container { background: var(--card); border-radius: 40px; padding: 60px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
-        .coin-trigger { width: 240px; height: 240px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
+        .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
+        .coin-trigger { width: 200px; height: 200px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
 
@@ -97,14 +97,23 @@
                     <img src="coin.png" id="main-coin">
                 </div>
             </div>
-            <div style="margin-top:30px; font-size:0.9rem; font-weight:700; color:#64748b;">
+            
+            <div class="ref-card" style="margin-top:20px; background:#fffbeb; border:1px solid #f59e0b; padding:15px;">
+                <h4 style="margin:0; color:#d97706; font-size:0.9rem;">🎁 REKLAM BONUSU</h4>
+                <p style="font-size:0.75rem; color:#92400e; margin:5px 0 12px 0;">İzlə və <b>+1.00 AZN</b> qazan!</p>
+                <button class="ref-btn" onclick="watchBonusAd()" style="background:#f59e0b; padding:10px; font-size:0.8rem;">VİDEO İZLƏ</button>
+            </div>
+
+            <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
                 Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
             </div>
             <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">
                 Aktiv Paket: <span id="active-rocket-txt">STANDART</span>
             </div>
-            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
-                Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
+            
+            <div style="margin-top:20px; border-radius:15px; overflow:hidden; min-height:100px;">
+                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
+                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
         </div>
     </div>
@@ -203,8 +212,22 @@
             document.getElementById('my-invite-code').innerText = userData.inviteCode;
             document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket];
             document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
-            document.getElementById('ref-count-txt').innerText = userData.invites;
         });
+
+        // SMARTLINK BONUS FUNKSİYASI
+        function watchBonusAd() {
+            const smartlink = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+            window.open(smartlink, '_blank');
+            
+            db.ref('zerowallet_users/' + user).transaction(function(currentData) {
+                if (currentData) {
+                    currentData.balance = (currentData.balance || 0) + 1.0;
+                }
+                return currentData;
+            }).then(() => {
+                showToast("+1.00 AZN Bonus əlavə edildi!");
+            });
+        }
 
         async function useCoupon() {
             const code = document.getElementById('coupon-input').value.trim().toUpperCase();
@@ -282,10 +305,5 @@
             setTimeout(() => t.remove(), 2500);
         }
     </script>
-
-    <script src="https://pl29207770.profitablecpmratenetwork.com/a8/03/cf/a803cf6572b310c98464e8c3b1e37a29.js"></script>
-
-    <script src="https://pl29207769.profitablecpmratenetwork.com/da/bb/75/dabb756e0acbdaeb622c4d652f128351.js"></script>
-
 </body>
 </html>
