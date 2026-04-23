@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödəniş Paneli - Zerowallet</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #1e293b; }
+        .pay-card { background: #fff; max-width: 400px; margin: 0 auto; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .card-number { background: #6366f1; color: #fff; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 1.2rem; text-align: center; margin: 20px 0; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; background: #10b981; color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="pay-card">
+    <h2 style="text-align:center">Ödəniş Et</h2>
+    <p style="font-size:0.9rem; color:#64748b">Aşağıdakı karta müvafiq məbləği göndərin və çeki yükləyin:</p>
+    
+    <div class="card-number">4449 9451 0421 0296</div>
+    
+    <input type="text" id="pay-username" placeholder="İstifadəçi adınız (Logindəki)">
+    
+    <select id="pay-rocket">
+        <option value="elite">Elite Roket - 3 AZN</option>
+        <option value="pro">Pro Roket - 5 AZN</option>
+        <option value="super">Super Roket - 8 AZN</option>
+    </select>
+    
+    <label style="font-size:0.8rem; display:block; margin-top:10px;">Çek şəkli (Screenshot):</label>
+    <input type="file" id="pay-file" accept="image/*">
+    
+    <button class="btn" onclick="submitPayment()">TƏSDİQLƏ</button>
+    <button onclick="history.back()" style="border:none; background:none; color:#6366f1; width:100%; margin-top:15px; cursor:pointer">Geri qayıt</button>
+</div>
+
+<script>
+    const firebaseConfig = { /* SƏNİN KONFİQURASİYAN BURADA OLMALIDIR */ };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    async function submitPayment() {
+        const user = document.getElementById('pay-username').value;
+        const rocket = document.getElementById('pay-rocket').value;
+        const file = document.getElementById('pay-file').files[0];
+
+        if(!user || !file) { alert("Xanaları doldurun!"); return; }
+
+        // Şəkli storage-ə yükləyirik
+        const storageRef = storage.ref('receipts/' + Date.now() + "_" + user);
+        const uploadTask = await storageRef.put(file);
+        const fileUrl = await uploadTask.ref.getDownloadURL();
+
+        // Admin panel (ww24.html) üçün verilənlər bazasına yazırıq
+        await db.ref('admin_receipts').push({
+            username: user,
+            rocketType: rocket,
+            imageUrl: fileUrl,
+            status: 'pending',
+            date: new Date().toLocaleString()
+        });
+
+        alert("Məlumatlar göndərildi! Admin tərəfindən təsdiqlənəndə roketiniz aktivləşəcək.");
+        location.href = "index.html";
+    }
+</script>
+</body>
+</html>
