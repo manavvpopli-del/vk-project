@@ -83,7 +83,6 @@
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
 
-        /* Banner Container */
         .native-banner-area { margin-top: 20px; min-height: 100px; width: 100%; overflow: hidden; border-radius: 15px; }
     </style>
 </head>
@@ -209,9 +208,7 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        // YENİ ADSTERRA DIRECT LINK
         const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
-
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
         let userData = { balance: 0, rocket: 'standart', energy: 100, invites: 0 };
 
@@ -281,12 +278,12 @@
             });
         }
 
-        // IMPROVED WHEEL LOGIC (FIXED)
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         const wheelSectors = [0.50, 1.00, 5.00, 0.20, 2.50, 0.10, 3.00, 10.00];
         const colors = ['#6366f1', '#a855f7', '#4f46e5', '#9333ea', '#4338ca', '#7e22ce', '#3730a3', '#6b21a8'];
         let currentRotation = 0;
+        let isSpinning = false;
 
         function drawWheel() {
             canvas.width = 280; canvas.height = 280;
@@ -306,18 +303,14 @@
             if(isSpinning) return;
             isSpinning = true;
             document.getElementById('wheel-win-area').style.display = 'none';
-            
             const extraDeg = Math.floor(Math.random() * 3600) + 1440;
             currentRotation += extraDeg;
             canvas.style.transform = `rotate(${currentRotation}deg)`;
-            
             setTimeout(() => {
                 isSpinning = false;
                 const actualDeg = currentRotation % 360;
-                // Ox yuxarıda (270 dərəcə) olduğu üçün hesablama:
                 const sectorIndex = Math.floor(((360 - actualDeg + 270) % 360) / 45);
                 const win = wheelSectors[sectorIndex];
-                
                 document.getElementById('win-text').innerText = win.toFixed(2) + " AZN";
                 document.getElementById('wheel-win-area').style.display = 'block';
                 document.getElementById('claim-wheel-btn').onclick = () => {
@@ -330,12 +323,36 @@
             }, 4100);
         }
 
+        // TƏLƏB OLUNAN DÜZƏLİŞ: DƏVƏT SİSTEMİ
         async function processCode() {
             const input = document.getElementById('coupon-input').value.trim();
             if(!input) { showToast("Kod daxil edin!", true); return; }
+            
+            // 1. Öz kodunu daxil etməyi əngəllə
+            if(input === userData.inviteCode) {
+                showToast("Öz dəvət kodunuzu istifadə edə bilməzsiniz!", true);
+                return;
+            }
+
+            // 2. Bu kodun daha əvvəl işlədilib-işlədilmədiyini yoxla
+            if(userData.usedCodes && userData.usedCodes[input]) {
+                showToast("Bu kodu artıq istifadə etmisiniz!", true);
+                return;
+            }
+
             const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
-            if(!snap.exists()) showToast("Daxil edilən kod səhvdir!", true);
-            else showToast("Kod uğurla təsdiqləndi!");
+            if(!snap.exists()) {
+                showToast("Daxil edilən kod səhvdir!", true);
+            } else {
+                // Kod düzdürsə bonus ver və istifadə edildi kimi qeyd et
+                let updates = {};
+                updates['balance'] = (userData.balance || 0) + 0.50; // Nümunə bonus
+                updates['usedCodes/' + input] = true;
+                
+                await db.ref('zerowallet_users/' + user).update(updates);
+                showToast("Kod təsdiqləndi! Bonus balansa yazıldı.");
+                document.getElementById('coupon-input').value = "";
+            }
         }
 
         function checkWithdrawal() {
