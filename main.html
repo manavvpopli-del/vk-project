@@ -46,8 +46,8 @@
         .balance-card img { width: 35px; height: 35px; object-fit: contain; }
         .balance-info { text-align: right; }
         .balance-card span { font-weight: 800; font-size: 1.1rem; color: var(--primary); }
-        .nav-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 450px; background: var(--nav-bg); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 15px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); z-index: 100; }
-        .nav-item { color: #64748b; font-size: 1.3rem; cursor: pointer; transition: 0.3s; position: relative; }
+        .nav-bar { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 500px; background: var(--nav-bg); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 12px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); z-index: 100; }
+        .nav-item { color: #64748b; font-size: 1.2rem; cursor: pointer; transition: 0.3s; position: relative; }
         .nav-item.active { color: #fff; transform: translateY(-5px); }
         .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: var(--primary); border-radius: 50%; }
         .section { display: none; height: calc(100vh - 180px); padding: 0 20px; overflow-y: auto; }
@@ -55,7 +55,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
-        .coin-trigger { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: 0.1s; position: relative; z-index: 10; }
+        .coin-trigger { width: 200px; height: 200px; margin: 0 auto; cursor: pointer; transition: 0.1s; position: relative; z-index: 10; }
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
         
@@ -75,9 +75,8 @@
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
         
-        /* Particle Effect */
-        .particle { position: absolute; width: 15px; height: 15px; background: gold; border-radius: 50%; pointer-events: none; animation: drop 1s ease-in forwards; z-index: 5; }
-        @keyframes drop { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(300px) rotate(360deg); opacity: 0; } }
+        .particle { position: absolute; width: 12px; height: 12px; background: gold; border-radius: 2px; pointer-events: none; animation: drop 0.8s ease-in forwards; z-index: 5; }
+        @keyframes drop { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(250px) rotate(360deg); opacity: 0; } }
 
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 75px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 1.2rem; gap: 10px; border-bottom: 3px solid var(--primary); }
@@ -118,7 +117,6 @@
                     <img src="coin.png" id="main-coin">
                 </div>
             </div>
-
             <div id="bot-card" class="ref-card" style="margin-top:20px; display:flex; align-items:center; justify-content:space-between; padding:15px; background:rgba(99,102,241,0.05);">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <img src="bot.png" style="width:40px; height:40px;">
@@ -129,24 +127,30 @@
                 </div>
                 <button id="bot-btn" class="buy-btn" onclick="activateBot()" style="padding:8px 15px; font-size:0.7rem;">AKTİV ET</button>
             </div>
-
-            <div class="ref-card" style="background:#f0f9ff; border:1px solid #0ea5e9; padding:15px; margin-top:15px;">
-                <h4 style="margin:0; color:#0369a1; font-size:0.9rem;">📅 GÜNLÜK GİRİŞ</h4>
-                <p id="daily-text" style="font-size:0.75rem; color:#075985; margin:5px 0 12px 0;">Hər gün gəl, bonusu götür!</p>
-                <button id="daily-btn" class="ref-btn" onclick="claimDaily()" style="background:#0ea5e9; padding:12px; font-size:0.85rem;">BONUSU AL</button>
-            </div>
-
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
                 Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
             </div>
             <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
                 Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
             </div>
-
             <div style="margin-top: 25px;">
                 <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
                 <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
+        </div>
+    </div>
+
+    <div id="bonus-sec" class="section">
+        <h2 style="margin-bottom:20px;">Hədiyyə Mərkəzi</h2>
+        <div class="ref-card" style="background:#f0f9ff; border:1px solid #0ea5e9;">
+            <h4 style="margin:0; color:#0369a1;">📅 GÜNLÜK BONUS</h4>
+            <p id="daily-text" style="font-size:0.8rem; color:#075985;">Hər gün gəl, artan bonus qazan!</p>
+            <button id="daily-btn" class="ref-btn" onclick="claimDaily()" style="background:#0ea5e9;">BONUSU AL</button>
+        </div>
+        <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316;">
+            <h4 style="margin:0; color:#c2410c;">🎁 REKLAM İZLƏ</h4>
+            <p style="font-size:0.8rem; color:#9a3412;">Hər reklam +1.00 AZN qazandırır.</p>
+            <button class="ref-btn" onclick="startRewardAd()" style="background:#f97316;">REKLAM İZLƏ</button>
         </div>
     </div>
 
@@ -166,55 +170,34 @@
 
     <div id="upgrade-sec" class="section">
         <h2 style="margin-bottom:20px;">Qazanc Paketləri</h2>
-        <div class="rocket-card">
-            <img src="elite.png" class="rocket-img">
-            <div class="rocket-info"><h4>Elite Rocket</h4><p>+0.005 AZN</p></div>
-            <button class="buy-btn" onclick="buyRocket('elite', 10)">10 DƏVƏT</button>
-        </div>
-        <div class="rocket-card">
-            <img src="pro.png" class="rocket-img">
-            <div class="rocket-info"><h4>Pro Rocket</h4><p>+0.010 AZN</p></div>
-            <button class="buy-btn" onclick="buyRocket('pro', 20)">20 DƏVƏT</button>
-        </div>
-        <div class="rocket-card">
-            <img src="super.png" class="rocket-img">
-            <div class="rocket-info"><h4>Super Rocket</h4><p>+0.040 AZN</p></div>
-            <button class="buy-btn" onclick="buyRocket('super', 30)">30 DƏVƏT</button>
-        </div>
+        <div class="rocket-card"><img src="elite.png" class="rocket-img"><div><h4>Elite</h4><p>+0.005</p></div><button class="buy-btn" onclick="buyRocket('elite', 10)">10 DƏVƏT</button></div>
+        <div class="rocket-card"><img src="pro.png" class="rocket-img"><div><h4>Pro</h4><p>+0.010</p></div><button class="buy-btn" onclick="buyRocket('pro', 20)">20 DƏVƏT</button></div>
+        <div class="rocket-card"><img src="super.png" class="rocket-img"><div><h4>Super</h4><p>+0.040</p></div><button class="buy-btn" onclick="buyRocket('super', 30)">30 DƏVƏT</button></div>
     </div>
 
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
             <i class="fas fa-university" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-            <p style="font-weight: 600; color: #64748b;">Minimum 150 AZN balans tələb olunur.</p>
-            <button id="withdraw-init-btn" class="w-btn" onclick="checkTelegramJoin()">TRANSFERİ BAŞLAT</button>
+            <p>Minimum 150 AZN balans tələb olunur.</p>
+            <button class="w-btn" onclick="checkTelegramJoin()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
 
     <div id="settings-sec" class="section">
         <h2 style="margin-bottom:20px;">Tənzimləmələr</h2>
-        <div class="ref-card">
-            <h4>Gecə Modu</h4>
-            <button class="ref-btn" onclick="toggleDarkMode()" style="margin-top:10px;">Aktiv et / Söndür</button>
-        </div>
-        <div class="ref-card">
-            <h4>Tətbiq Mövzusu</h4>
-            <div class="theme-box">
-                <div class="t-dot" style="background:#6366f1" onclick="setTheme('default')"></div>
-                <div class="t-dot" style="background:#10b981" onclick="setTheme('emerald')"></div>
-                <div class="t-dot" style="background:#f43f5e" onclick="setTheme('rose')"></div>
-            </div>
-        </div>
+        <div class="ref-card"><h4>Gecə Modu</h4><button class="ref-btn" onclick="toggleDarkMode()">Dəyiş</button></div>
+        <div class="ref-card"><h4>Mövzu</h4><div class="theme-box"><div class="t-dot" style="background:#6366f1" onclick="setTheme('default')"></div><div class="t-dot" style="background:#10b981" onclick="setTheme('emerald')"></div><div class="t-dot" style="background:#f43f5e" onclick="setTheme('rose')"></div></div></div>
     </div>
 
     <div id="w-overlay" class="withdraw-overlay">
         <div class="close-withdraw" onclick="closeWithdraw()">GERİ QAYIT</div>
-        <iframe id="w-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+        <iframe id="w-iframe" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
     <nav class="nav-bar">
-        <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-th-large"></i></div>
+        <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-home"></i></div>
+        <div class="nav-item" onclick="showSec('bonus-sec', this)"><i class="fas fa-star"></i></div>
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-user-plus"></i></div>
         <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
@@ -237,159 +220,135 @@
         if(!user) location.href="index.html";
 
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', invites: 0, inviteUsed: false, botActive: false, inviter: null, dailyStreak: 0, lastCheckIn: 0 };
+        let userData = { balance: 0, rocket: 'standart', invites: 0, dailyStreak: 0, lastCheckIn: 0, inviter: null };
 
-        // 1. Telegram Join Verification
+        // Telegram Link Check
         function checkTelegramJoin() {
-            if(confirm("Davam etmək üçün rəsmi Telegram kanalımıza abunə olmalısınız. Abunəsiniz?")) {
+            if(confirm("Telegram kanalımıza abunə deyilsinizsə pul çıxarışı təsdiqlənməyəcək. Abunəsiniz?")) {
                 requestWithdraw();
             } else {
                 window.open("https://t.me/SƏNİN_KANALIN", "_blank");
-                showToast("Kanala qoşulun və yenidən yoxlayın.");
+                showToast("Abunə olub yenidən yoxlayın.");
             }
         }
 
-        // 2. Daily Check-in System
+        // Daily Bonus Logic
         function updateDailyUI() {
             const now = Date.now();
-            const oneDay = 24 * 60 * 60 * 1000;
             const diff = now - (userData.lastCheckIn || 0);
-
-            if(diff < oneDay) {
-                document.getElementById('daily-btn').disabled = true;
-                document.getElementById('daily-btn').innerText = "SABAH GƏL";
-                document.getElementById('daily-text').innerText = `Hazırkı Streak: ${userData.dailyStreak} gün`;
+            const btn = document.getElementById('daily-btn');
+            if(diff < 86400000) {
+                btn.disabled = true; btn.innerText = "SABAH GƏL";
+                document.getElementById('daily-text').innerText = `Streak: ${userData.dailyStreak} gün`;
             } else {
-                document.getElementById('daily-btn').disabled = false;
-                document.getElementById('daily-btn').innerText = "BONUSU AL";
+                btn.disabled = false; btn.innerText = "BONUSU AL";
             }
         }
 
         function claimDaily() {
             const now = Date.now();
-            let newStreak = (userData.dailyStreak || 0) + 1;
-            if(newStreak > 7) newStreak = 1; 
-            
-            const bonus = newStreak * 0.10;
-            db.ref('zerowallet_users/' + user).update({
-                balance: userData.balance + bonus,
-                dailyStreak: newStreak,
-                lastCheckIn: now
-            }).then(() => showToast(`+${bonus.toFixed(2)} AZN Gündəlik Bonus!`));
+            let streak = (userData.dailyStreak || 0) + 1;
+            if(streak > 7) streak = 1;
+            const bonus = streak * 0.10;
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + bonus, dailyStreak: streak, lastCheckIn: now });
+            showToast(`+${bonus.toFixed(2)} AZN!`);
         }
 
-        // 3. Referral Commission Logic (Transaction içinde işlənir)
-        function payCommission(amount) {
+        // Referral Commission (5%)
+        function payCommission(amt) {
             if(userData.inviter) {
-                const commission = amount * 0.05; // 5%
-                db.ref('zerowallet_users/' + userData.inviter + '/balance').transaction(b => (b || 0) + commission);
+                db.ref('zerowallet_users/' + userData.inviter + '/balance').transaction(b => (b || 0) + (amt * 0.05));
             }
         }
 
-        // 4. Coin Drop Animation
+        // Coin Animation
         function dropCoins(e) {
-            for(let i=0; i<5; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = (e.clientX + (Math.random() * 40 - 20)) + 'px';
-                p.style.top = (e.clientY + (Math.random() * 40 - 20)) + 'px';
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 1000);
+            for(let i=0; i<6; i++) {
+                const p = document.createElement('div'); p.className = 'particle';
+                p.style.left = (e.clientX + Math.random()*40-20) + 'px';
+                p.style.top = (e.clientY + Math.random()*40-20) + 'px';
+                document.body.appendChild(p); setTimeout(() => p.remove(), 800);
             }
         }
 
-        // CORE DB LISTENER
         db.ref('zerowallet_users/' + user).on('value', snap => {
-            let data = snap.val();
-            if(!data) return;
-
-            userData = { ...data, balance: data.balance || 0, invites: data.invites || 0, dailyStreak: data.dailyStreak || 0 };
-            
+            let d = snap.val(); if(!d) return;
+            userData = { ...d, balance: d.balance || 0, invites: d.invites || 0 };
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
-            document.getElementById('my-invite-code').innerText = data.inviteCode || "YÜKLƏNİR...";
-            document.getElementById('active-speed-txt').innerText = VALUES[data.rocket || 'standart'];
+            document.getElementById('my-invite-code').innerText = d.inviteCode || "---";
+            document.getElementById('active-speed-txt').innerText = VALUES[d.rocket || 'standart'];
             document.getElementById('ref-count-txt').innerText = userData.invites;
-            
-            if(data.botActive) {
-                document.getElementById('bot-status').innerText = "BOT AKTİVDİR ✅";
-                document.getElementById('bot-btn').style.display = "none";
-            }
+            if(d.botActive) { document.getElementById('bot-status').innerText = "BOT AKTİVDİR ✅"; document.getElementById('bot-btn').style.display = "none"; }
             updateDailyUI();
         });
 
+        // Auto-Bot Runner
+        setInterval(() => {
+            if(userData.botActive) {
+                const speed = (VALUES[userData.rocket] || 0.0001) / 2;
+                db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + speed);
+            }
+        }, 1000);
+
         function mine(e) {
-            let speedValue = VALUES[userData.rocket] || 0.0001;
-            const hour = new Date().getHours();
-            if(hour === 20) speedValue *= 2;
-
-            dropCoins(e);
-            showClickEffect(e, speedValue);
-            
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + speedValue });
-            payCommission(speedValue);
+            let val = VALUES[userData.rocket] || 0.0001;
+            if(new Date().getHours() === 20) val *= 2;
+            dropCoins(e); showClickEffect(e, val);
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val });
+            payCommission(val);
         }
 
-        // Mövcud funksiyaların qorunması (Hec neye toxunulmadi)
+        function startRewardAd() {
+            const viewer = document.getElementById('ad-viewer');
+            const timerTxt = document.getElementById('ad-sec');
+            let time = 15;
+            document.getElementById('ad-iframe').src = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+            viewer.style.display = 'flex';
+            const count = setInterval(() => {
+                time--; timerTxt.innerText = time;
+                if(time <= 0) {
+                    clearInterval(count);
+                    db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.0);
+                    viewer.style.display = 'none'; showToast("+1.00 AZN!");
+                }
+            }, 1000);
+        }
+
+        // --- Core Functions (Do Not Change) ---
         function showClickEffect(e, val) {
-            const text = document.createElement('div');
-            text.className = 'click-val-text';
-            text.innerText = "+" + val.toFixed(4);
-            text.style.left = e.clientX + "px"; text.style.top = e.clientY + "px";
-            document.body.appendChild(text); setTimeout(() => text.remove(), 600);
+            const t = document.createElement('div'); t.className='click-val-text'; t.innerText="+"+val.toFixed(4);
+            t.style.left=e.clientX+"px"; t.style.top=e.clientY+"px"; document.body.appendChild(t); setTimeout(()=>t.remove(),600);
         }
-
         async function processCode() {
             const input = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!input) return showToast("Kod daxil edin!");
-            db.ref('promocodes/' + input).once('value', snap => {
-                if(snap.exists()) {
-                    const amount = parseFloat(snap.val());
-                    if(localStorage.getItem('promo_used_'+input)) return showToast("Artıq işlənib!");
-                    db.ref('zerowallet_users/' + user).transaction(c => { if(c) c.balance = (c.balance || 0) + amount; return c; });
-                    localStorage.setItem('promo_used_'+input, "true");
-                    showToast(`+${amount} AZN Promo!`);
+            if(!input) return;
+            db.ref('promocodes/'+input).once('value', s => {
+                if(s.exists()){
+                    if(localStorage.getItem('p_'+input)) return showToast("İşlənib!");
+                    db.ref('zerowallet_users/'+user+'/balance').transaction(b => (b||0)+parseFloat(s.val()));
+                    localStorage.setItem('p_'+input, "1"); showToast("Promo Aktiv!");
                 } else { useCoupon(input); }
             });
         }
-
-        async function useCoupon(code) {
-            if(userData.inviteUsed || code === userData.inviteCode) return showToast("Keçərsiz kod!");
-            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
-                if(snap.exists()) {
-                    const ownerId = Object.keys(snap.val())[0];
-                    db.ref('zerowallet_users/' + user).update({ balance: userData.balance + 1, inviteUsed: true, inviter: ownerId });
-                    db.ref('zerowallet_users/' + ownerId + '/invites').transaction(i => (i || 0) + 1);
-                    showToast("+1.00 AZN Qazanıldı!");
-                } else { showToast("Kod tapılmadı!"); }
+        async function useCoupon(c) {
+            if(userData.inviteUsed || c === userData.inviteCode) return showToast("Xəta!");
+            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(c).once('value', s => {
+                if(s.exists()){
+                    const oid = Object.keys(s.val())[0];
+                    db.ref('zerowallet_users/'+user).update({balance:userData.balance+1, inviteUsed:true, inviter:oid});
+                    db.ref('zerowallet_users/'+oid+'/invites').transaction(i=>(i||0)+1);
+                    showToast("+1 AZN!");
+                }
             });
         }
-
-        function activateBot() {
-            if(userData.invites < 10) return showToast("10 dəvət lazımdır!");
-            db.ref('zerowallet_users/' + user).update({ botActive: true });
-        }
-
-        function requestWithdraw() {
-            if(userData.balance < 150) return showToast("Minimum 150 AZN!");
-            document.getElementById('w-iframe').src = "withdraw.html"; 
-            document.getElementById('w-overlay').style.display = "flex";
-        }
-
-        function closeWithdraw() { document.getElementById('w-overlay').style.display = "none"; }
-        function showSec(id, el) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); el.classList.add('active');
-        }
-        function showToast(msg) {
-            let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-            document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
-        }
-        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
-        function setTheme(t) { 
-            document.body.classList.remove('theme-emerald', 'theme-rose');
-            if(t !== 'default') document.body.classList.add('theme-' + t);
-        }
+        function buyRocket(t, r){ if(userData.invites >= r) db.ref('zerowallet_users/'+user).update({rocket:t}); else showToast(r+" dəvət!"); }
+        function activateBot(){ if(userData.invites >= 10) db.ref('zerowallet_users/'+user).update({botActive:true}); }
+        function requestWithdraw(){ if(userData.balance >= 150) { document.getElementById('w-iframe').src="withdraw.html"; document.getElementById('w-overlay').style.display="flex"; } else showToast("150 AZN!"); }
+        function closeWithdraw(){ document.getElementById('w-overlay').style.display="none"; }
+        function showSec(id, el){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); }
+        function showToast(m){ let t=document.createElement('div'); t.className='toast'; t.innerText=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+        function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); }
+        function setTheme(t){ document.body.classList.remove('theme-emerald','theme-rose'); if(t!=='default') document.body.classList.add('theme-'+t); }
     </script>
 </body>
 </html>
