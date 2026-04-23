@@ -50,8 +50,7 @@
         .nav-item.active { color: #fff; transform: translateY(-5px); }
         .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: var(--primary); border-radius: 50%; }
 
-        /* SECTION STABİLLİYİ */
-        .section { display: none; height: calc(100vh - 180px); padding: 0 20px; overflow-y: auto; overflow-x: hidden; }
+        .section { display: none; height: calc(100vh - 180px); padding: 0 20px; overflow-y: auto; }
         .section.active { display: block; animation: fadeIn 0.4s ease; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -65,24 +64,22 @@
         .energy-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); width: 100%; transition: 0.3s; }
         .energy-text { font-size: 0.75rem; font-weight: 800; margin-top: 5px; color: #64748b; }
 
-        .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; border: 8px solid var(--text); border-radius: 50%; overflow: hidden; box-shadow: 0 0 20px var(--primary); }
-        #wheel { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
-        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: #ef4444; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 20; }
-        .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #fff; border-radius: 50%; z-index: 30; border: 4px solid var(--text); font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); color: #000; }
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; border: 10px solid var(--text); border-radius: 50%; overflow: hidden; box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
+        #wheel { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
+        .wheel-pointer { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 35px; height: 35px; background: #ef4444; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 40; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.3)); }
+        .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #fff; border-radius: 50%; z-index: 50; border: 5px solid var(--text); font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: #000; font-size: 0.8rem; }
 
         .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid rgba(0,0,0,0.02); }
         .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; }
-        .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
         .my-code-display { background: #f8fafc; padding: 15px; border-radius: 15px; border: 2px dashed var(--primary); font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 10px; letter-spacing: 2px; }
+        
         .rocket-card { background: #fff; border-radius: 25px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .rocket-img { width: 50px; height: 50px; object-fit: contain; }
         .buy-btn { background: var(--text); color: #fff; border: none; padding: 12px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
         
-        .withdraw-box { background: #fff; padding: 30px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
-        .w-btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--grad); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
-        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
-        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 75px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 1.2rem; gap: 10px; border-bottom: 3px solid var(--primary); }
@@ -96,7 +93,7 @@
     <div id="ad-viewer">
         <div id="ad-header">
             <i class="fas fa-stopwatch" style="color:var(--primary)"></i>
-            Gözlə: <span id="ad-sec" style="font-weight: 800;">10</span> s
+            Gözlə: <span id="ad-sec" style="font-weight: 800;">15</span> s
         </div>
         <iframe id="ad-iframe" src=""></iframe>
     </div>
@@ -114,16 +111,21 @@
 
     <div id="mining-sec" class="section active">
         <div class="mining-container">
-            <div class="energy-container">
-                <div id="energy-bar" class="energy-bar"></div>
-            </div>
+            <div class="energy-container"><div id="energy-bar" class="energy-bar"></div></div>
             <div class="energy-text"><i class="fas fa-bolt"></i> Enerji: <span id="energy-val">100</span>%</div>
 
             <div id="coin-area" style="margin-top: 15px;">
                 <div class="coin-trigger" id="coin-btn" onclick="mine(event)">
                     <img src="coin.png" id="main-coin">
                 </div>
-                <button id="extra-refill-btn" class="ref-btn" onclick="refillEnergyAd()" style="background:#f59e0b; margin-top:15px; display:none;"><i class="fas fa-play"></i> +50% Enerji (Reklam)</button>
+                
+                <button class="ref-btn" onclick="earnOneAznAd()" style="background:#10b981; margin-top:20px; font-size: 0.9rem;">
+                    <i class="fas fa-gift"></i> REKLAM İZLƏ (1.00 AZN QAZAN)
+                </button>
+
+                <button id="extra-refill-btn" class="ref-btn" onclick="refillEnergyAd()" style="background:#f59e0b; display:none;">
+                    <i class="fas fa-play"></i> +50% Enerji (Reklam)
+                </button>
             </div>
 
             <div id="bot-card" class="ref-card" style="margin-top:20px; display:flex; align-items:center; justify-content:space-between; padding:15px; background:rgba(99,102,241,0.05);">
@@ -135,9 +137,6 @@
                     </div>
                 </div>
                 <button id="bot-btn" class="buy-btn" onclick="activateBot()" style="padding:8px 15px; font-size:0.7rem;">AKTİV ET</button>
-            </div>
-            <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
-                Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
             </div>
         </div>
     </div>
@@ -152,7 +151,7 @@
             </div>
             <div id="wheel-win-area" style="display:none; margin-top:10px;">
                 <h3 id="win-text" style="margin:5px 0; color:var(--primary)">0.00 AZN</h3>
-                <button class="ref-btn" id="claim-wheel-btn">REKLAM İZLƏ VƏ AL</button>
+                <button class="ref-btn" id="claim-wheel-btn">REKLAM İZLƏ VƏ BALANSA YAZ</button>
             </div>
         </div>
     </div>
@@ -161,7 +160,7 @@
         <h2 style="margin-bottom:20px;">Dəvət & Promo</h2>
         <div class="ref-card">
             <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
-            <button class="ref-btn" onclick="processCode()">TƏSDİQLƏ</button>
+            <button class="ref-btn" onclick="processCode()">KODU TƏSDİQLƏ</button>
         </div>
         <div class="ref-card">
             <h4>Sənin Dəvət Kodun</h4>
@@ -178,14 +177,16 @@
 
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
-        <div class="withdraw-box">
-            <button class="w-btn" onclick="checkTelegramJoin()">TRANSFERİ BAŞLAT</button>
+        <div class="withdraw-box" style="background:#fff; padding:30px; border-radius:25px; text-align:center;">
+            <p>Minimum çıxarış: 50 AZN</p>
+            <button class="ref-btn" onclick="checkWithdrawal()" style="background:var(--grad)">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
 
     <div id="settings-sec" class="section">
         <h2 style="margin-bottom:20px;">Tənzimləmələr</h2>
         <div class="ref-card"><button class="ref-btn" onclick="toggleDarkMode()">Gecə Modunu Dəyiş</button></div>
+        <div class="ref-card"><button class="ref-btn" onclick="location.href='index.html'" style="background:#ef4444;">ÇIXIŞ ET</button></div>
     </div>
 
     <nav class="nav-bar">
@@ -213,27 +214,42 @@
         if(!user) location.href="index.html";
 
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', energy: 100 };
+        let userData = { balance: 0, rocket: 'standart', energy: 100, invites: 0 };
 
-        // UI SHOW/HIDE LOGIC
+        // UI SHOW
         function showSec(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
-            if(id === 'bonus-sec') drawWheel(); // Çarx görünəndə çəkilsin
+            if(id === 'bonus-sec') drawWheel();
         }
 
-        // ENERGY UPDATE
-        function updateEnergyUI() {
-            document.getElementById('energy-bar').style.width = userData.energy + '%';
-            document.getElementById('energy-val').innerText = Math.floor(userData.energy);
-            document.getElementById('extra-refill-btn').style.display = userData.energy <= 50 ? 'block' : 'none';
+        // NOTIFICATION SYSTEM
+        function showToast(m, isError = false) {
+            let t = document.createElement('div');
+            t.className = 'toast';
+            if(isError) t.style.background = "#ef4444";
+            t.innerText = m;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
 
-        // MINE FUNCTION
+        // DATABASE SYNC
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            let d = snap.val(); if(!d) return;
+            userData = d;
+            document.getElementById('bal').innerText = (d.balance || 0).toFixed(4);
+            document.getElementById('my-invite-code').innerText = d.inviteCode || "---";
+            updateEnergyUI();
+        });
+
+        // MINING
         function mine(e) {
-            if(userData.energy < 2) { showToast("Enerji bitib!"); return; }
+            if(userData.energy < 2) { 
+                showToast("Kifayət qədər enerji yoxdur!", true); 
+                return; 
+            }
             let val = VALUES[userData.rocket] || 0.0001;
             userData.energy -= 2;
             db.ref('zerowallet_users/' + user).update({ 
@@ -241,22 +257,53 @@
                 energy: userData.energy 
             });
             showClickEffect(e, val);
-            dropCoins(e);
         }
 
-        // WHEEL
+        // NEW: 1 AZN AD EARNING
+        function earnOneAznAd() {
+            startAdTask(15, () => {
+                db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.00);
+                showToast("Təbriklər! 1.00 AZN balansa əlavə edildi.");
+            });
+        }
+
+        // AD TIMER ENGINE
+        function startAdTask(seconds, callback) {
+            const viewer = document.getElementById('ad-viewer');
+            const timerSpan = document.getElementById('ad-sec');
+            let t = seconds;
+            timerSpan.innerText = t;
+            document.getElementById('ad-iframe').src = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+            viewer.style.display = 'flex';
+            
+            const inv = setInterval(() => {
+                t--;
+                timerSpan.innerText = t;
+                if(t <= 0) {
+                    clearInterval(inv);
+                    viewer.style.display = 'none';
+                    callback();
+                }
+            }, 1000);
+        }
+
+        // IMPROVED WHEEL
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
-        const wheelSectors = [0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00];
-        
+        const wheelSectors = [0.50, 1.00, 5.00, 0.20, 2.50, 0.10, 3.00, 10.00];
+        const wheelColors = ['#6366f1', '#a855f7', '#4f46e5', '#9333ea', '#4338ca', '#7e22ce', '#3730a3', '#6b21a8'];
+
         function drawWheel() {
-            canvas.width = 260; canvas.height = 260;
+            canvas.width = 280; canvas.height = 280;
             const arc = Math.PI * 2 / 8;
             wheelSectors.forEach((val, i) => {
-                ctx.beginPath(); ctx.fillStyle = i % 2 === 0 ? '#6366f1' : '#a855f7';
-                ctx.moveTo(130, 130); ctx.arc(130, 130, 130, i * arc, (i + 1) * arc);
-                ctx.fill(); ctx.save(); ctx.fillStyle = "#fff"; ctx.translate(130, 130);
-                ctx.rotate(i * arc + arc / 2); ctx.fillText(val.toFixed(2), 60, 5); ctx.restore();
+                ctx.beginPath(); ctx.fillStyle = wheelColors[i];
+                ctx.moveTo(140, 140); ctx.arc(140, 140, 140, i * arc, (i + 1) * arc);
+                ctx.fill();
+                ctx.save(); ctx.fillStyle = "#fff"; ctx.translate(140, 140);
+                ctx.rotate(i * arc + arc / 2);
+                ctx.font = "bold 14px Plus Jakarta Sans";
+                ctx.fillText(val.toFixed(2), 75, 5); ctx.restore();
             });
         }
 
@@ -264,62 +311,88 @@
         function spinWheel() {
             if(isSpinning) return;
             isSpinning = true;
-            const deg = Math.floor(Math.random() * 3600) + 720;
-            canvas.style.transform = `rotate(${deg}deg)`;
+            document.getElementById('wheel-win-area').style.display = 'none';
+            const randomDeg = Math.floor(Math.random() * 3600) + 1440;
+            canvas.style.transform = `rotate(${randomDeg}deg)`;
+            
             setTimeout(() => {
                 isSpinning = false;
-                const win = wheelSectors[Math.floor(Math.random() * 8)]; // Basit qazanc məntiqi
+                const actualDeg = randomDeg % 360;
+                const sectorIndex = Math.floor(((360 - actualDeg + 22.5) % 360) / 45);
+                const win = wheelSectors[sectorIndex % 8];
+                
                 document.getElementById('win-text').innerText = win.toFixed(2) + " AZN";
                 document.getElementById('wheel-win-area').style.display = 'block';
                 document.getElementById('claim-wheel-btn').onclick = () => {
                     startAdTask(10, () => {
                         db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + win);
                         document.getElementById('wheel-win-area').style.display = 'none';
-                        showToast("Qazandınız!");
+                        showToast(`Uğurlu! +${win.toFixed(2)} AZN balansa yazıldı.`);
                     });
                 };
             }, 4000);
         }
 
-        // AD SYSTEM
-        function startAdTask(seconds, callback) {
-            const viewer = document.getElementById('ad-viewer');
-            let t = seconds;
-            document.getElementById('ad-iframe').src = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
-            viewer.style.display = 'flex';
-            const inv = setInterval(() => {
-                t--; document.getElementById('ad-sec').innerText = t;
-                if(t <= 0) { clearInterval(inv); viewer.style.display = 'none'; callback(); }
-            }, 1000);
+        // COUPON / INVITE CODE SYSTEM (WITH ERROR HANDLING)
+        async function processCode() {
+            const input = document.getElementById('coupon-input').value.trim();
+            if(!input) {
+                showToast("Zəhmət olmasa kod daxil edin!", true);
+                return;
+            }
+
+            try {
+                const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
+                if(!snap.exists()) {
+                    showToast("Daxil edilən kod səhvdir və ya mövcud deyil!", true);
+                } else {
+                    // Kod düzdürsə məntiq bura...
+                    showToast("Kod uğurla təsdiqləndi!");
+                }
+            } catch (err) {
+                showToast("Sistem xətası baş verdi. Yenidən yoxlayın.", true);
+            }
         }
 
-        // DATABASE LISTENERS
-        db.ref('zerowallet_users/' + user).on('value', snap => {
-            let d = snap.val(); if(!d) return;
-            userData = d;
-            document.getElementById('bal').innerText = (d.balance || 0).toFixed(4);
-            document.getElementById('my-invite-code').innerText = d.inviteCode || "---";
-            document.getElementById('active-speed-txt').innerText = VALUES[d.rocket || 'standart'];
-            updateEnergyUI();
-        });
+        // ROCKET UPGRADES
+        function buyRocket(type, req) {
+            if((userData.invites || 0) < req) {
+                showToast(`Bu paket üçün ${req} dəvət lazımdır. Səndə: ${userData.invites || 0}`, true);
+            } else {
+                db.ref('zerowallet_users/' + user).update({ rocket: type });
+                showToast("Paket uğurla aktiv edildi!");
+            }
+        }
 
-        // REFILL ENERGY
-        function refillEnergyAd() {
-            startAdTask(10, () => {
-                userData.energy = Math.min(100, userData.energy + 50);
-                db.ref('zerowallet_users/' + user).update({ energy: userData.energy });
-                showToast("+50% Enerji!");
-            });
+        function checkWithdrawal() {
+            if((userData.balance || 0) < 50) {
+                showToast("Balansınızda kifayət qədər vəsait yoxdur (Min. 50 AZN)", true);
+            } else {
+                showToast("Tezliklə aktiv olacaq!");
+            }
         }
 
         // UTILS
-        function showToast(m){ let t=document.createElement('div'); t.className='toast'; t.innerText=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
-        function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); }
-        function showClickEffect(e, val) { const t=document.createElement('div'); t.className='click-val-text'; t.innerText="+"+val.toFixed(4); t.style.left=e.clientX+"px"; t.style.top=e.clientY+"px"; document.body.appendChild(t); setTimeout(()=>t.remove(),600); }
-        function dropCoins(e) { for(let i=0; i<6; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = (e.clientX + Math.random()*40-20) + 'px'; p.style.top = (e.clientY + Math.random()*40-20) + 'px'; document.body.appendChild(p); setTimeout(() => p.remove(), 800); } }
-        
-        function buyRocket(t, r){ if((userData.invites || 0) >= r) db.ref('zerowallet_users/'+user).update({rocket:t}); else showToast(r+" dəvət lazımdır!"); }
-        function checkTelegramJoin() { window.open("https://t.me/zerowallet"); showToast("Yoxlanılır..."); }
+        function updateEnergyUI() {
+            document.getElementById('energy-bar').style.width = userData.energy + '%';
+            document.getElementById('energy-val').innerText = Math.floor(userData.energy);
+            document.getElementById('extra-refill-btn').style.display = userData.energy <= 50 ? 'block' : 'none';
+        }
+        function refillEnergyAd() {
+            startAdTask(10, () => {
+                db.ref('zerowallet_users/' + user).update({ energy: 100 });
+                showToast("Enerji dolduruldu!");
+            });
+        }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+        function showClickEffect(e, val) {
+            const t = document.createElement('div');
+            t.className = 'click-val-text';
+            t.innerText = "+" + val.toFixed(4);
+            t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 600);
+        }
     </script>
 </body>
 </html>
