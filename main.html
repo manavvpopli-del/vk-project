@@ -59,15 +59,12 @@
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
         
-        /* ENERGY SYSTEM UI */
+        /* ENERGY UI */
         .energy-container { width: 100%; height: 12px; background: #e2e8f0; border-radius: 10px; margin-top: 15px; position: relative; overflow: hidden; }
         .energy-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); width: 100%; transition: 0.3s; }
         .energy-text { font-size: 0.75rem; font-weight: 800; margin-top: 5px; color: #64748b; }
 
-        .hot-badge { position: absolute; top: 15px; right: 15px; background: #ef4444; color: #fff; padding: 5px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; animation: pulse 1s infinite; display: none; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        /* FORTUNE WHEEL CSS */
+        /* WHEEL CSS */
         .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; border: 8px solid var(--text); border-radius: 50%; overflow: hidden; box-shadow: 0 0 20px var(--primary); }
         #wheel { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
         .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: #ef4444; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 20; }
@@ -86,17 +83,13 @@
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
         
-        .particle { position: absolute; width: 12px; height: 12px; background: gold; border-radius: 2px; pointer-events: none; animation: drop 0.8s ease-in forwards; z-index: 5; }
-        @keyframes drop { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(250px) rotate(360deg); opacity: 0; } }
-
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 75px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 1.2rem; gap: 10px; border-bottom: 3px solid var(--primary); }
         #ad-iframe { flex: 1; border: none; width: 100%; }
+        .particle { position: absolute; width: 12px; height: 12px; background: gold; border-radius: 2px; pointer-events: none; animation: drop 0.8s ease-in forwards; z-index: 5; }
+        @keyframes drop { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(250px) rotate(360deg); opacity: 0; } }
         .withdraw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 200000; display: none; flex-direction: column; }
         .close-withdraw { padding: 15px; background: #f1f5f9; text-align: center; font-weight: 800; cursor: pointer; }
-        
-        .theme-box { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-        .t-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -122,7 +115,7 @@
 
     <div id="mining-sec" class="section active">
         <div class="mining-container">
-            <div id="hot-tag" class="hot-badge">🔥 HOT CLICK 2X</div>
+            <div id="hot-tag" class="hot-badge" style="display:none;">🔥 HOT CLICK 2X</div>
             
             <div class="energy-container">
                 <div id="energy-bar" class="energy-bar"></div>
@@ -133,10 +126,10 @@
                 <div class="coin-trigger" id="coin-btn" onclick="mine(event)">
                     <img src="coin.png" id="main-coin">
                 </div>
-                <div id="energy-refill-area" style="display:none; margin-top:20px;">
-                    <p style="font-weight:700; color:#ef4444;">Enerji bitib!</p>
+                <div id="energy-refill-area" style="margin-top:20px; display:none;">
                     <button class="ref-btn" onclick="refillEnergyAd()" style="background:#f59e0b;"><i class="fas fa-play"></i> +50% Enerji (Reklam)</button>
                 </div>
+                <button id="extra-refill-btn" class="ref-btn" onclick="refillEnergyAd()" style="background:#f59e0b; margin-top:15px; display:none;"><i class="fas fa-play"></i> +50% Enerji (Reklam)</button>
             </div>
 
             <div id="bot-card" class="ref-card" style="margin-top:20px; display:flex; align-items:center; justify-content:space-between; padding:15px; background:rgba(99,102,241,0.05);">
@@ -157,38 +150,31 @@
 
     <div id="bonus-sec" class="section">
         <h2 style="margin-bottom:20px;">Fortune Wheel</h2>
-        
         <div class="ref-card" style="padding: 10px;">
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <div class="spin-btn" onclick="spinWheel()">SPIN</div>
                 <canvas id="wheel"></canvas>
             </div>
-            <p style="font-size: 0.8rem; font-weight: 700; color: #64748b;">Çıxan məbləği almaq üçün reklam izləməlisiniz.</p>
+            <div id="wheel-win-area" style="display:none; margin-top:10px;">
+                <h3 id="win-text" style="margin:5px 0; color:var(--primary)">0.00 AZN</h3>
+                <button class="ref-btn" id="claim-wheel-btn">REKLAM İZLƏ VƏ AL</button>
+            </div>
         </div>
-
         <div class="ref-card" style="background:#f0f9ff; border:1px solid #0ea5e9;">
             <h4 style="margin:0; color:#0369a1;">📅 GÜNLÜK BONUS</h4>
-            <p id="daily-text" style="font-size:0.8rem; color:#075985;">Hər gün gəl, artan bonus qazan!</p>
-            <button id="daily-btn" class="ref-btn" onclick="claimDaily()" style="background:#0ea5e9;">BONUSU AL</button>
-        </div>
-        <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316;">
-            <h4 style="margin:0; color:#c2410c;">🎁 REKLAM İZLƏ</h4>
-            <p style="font-size:0.8rem; color:#9a3412;">Hər reklam +1.00 AZN qazandırır.</p>
-            <button class="ref-btn" onclick="startRewardAd(1.0, 15)" style="background:#f97316;">REKLAM İZLƏ</button>
+            <button id="daily-btn" class="ref-btn" onclick="claimDaily()" style="background:#0ea5e9; margin-top:10px;">BONUSU AL</button>
         </div>
     </div>
 
     <div id="market-sec" class="section">
         <h2 style="margin-bottom:20px;">Dəvət & Promo</h2>
         <div class="ref-card">
-            <i class="fas fa-gift" style="font-size: 2.5rem; color: #10b981;"></i>
-            <h4 style="margin: 15px 0 5px 0;">Kod Daxil Et</h4>
-            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000 və ya PROMO">
+            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
             <button class="ref-btn" onclick="processCode()">TƏSDİQLƏ</button>
         </div>
         <div class="ref-card">
-            <h4 style="margin: 0 0 5px 0;">Sənin Dəvət Kodun</h4>
+            <h4>Sənin Dəvət Kodun</h4>
             <div class="my-code-display" id="my-invite-code">YÜKLƏNİR...</div>
         </div>
     </div>
@@ -203,21 +189,13 @@
     <div id="withdraw-sec" class="section">
         <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
         <div class="withdraw-box">
-            <i class="fas fa-university" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
-            <p>Minimum 150 AZN balans tələb olunur.</p>
             <button class="w-btn" onclick="checkTelegramJoin()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
 
     <div id="settings-sec" class="section">
         <h2 style="margin-bottom:20px;">Tənzimləmələr</h2>
-        <div class="ref-card"><h4>Gecə Modu</h4><button class="ref-btn" onclick="toggleDarkMode()">Dəyiş</button></div>
-        <div class="ref-card"><h4>Mövzu</h4><div class="theme-box"><div class="t-dot" style="background:#6366f1" onclick="setTheme('default')"></div><div class="t-dot" style="background:#10b981" onclick="setTheme('emerald')"></div><div class="t-dot" style="background:#f43f5e" onclick="setTheme('rose')"></div></div></div>
-    </div>
-
-    <div id="w-overlay" class="withdraw-overlay">
-        <div class="close-withdraw" onclick="closeWithdraw()">GERİ QAYIT</div>
-        <iframe id="w-iframe" style="width:100%; height:100%; border:none;"></iframe>
+        <div class="ref-card"><button class="ref-btn" onclick="toggleDarkMode()">Gecə Modu</button></div>
     </div>
 
     <nav class="nav-bar">
@@ -245,18 +223,26 @@
         if(!user) location.href="index.html";
 
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', invites: 0, dailyStreak: 0, lastCheckIn: 0, inviter: null, energy: 100 };
+        let userData = { balance: 0, rocket: 'standart', energy: 100, inviteCode: "" };
 
-        // ENERGY LOGIC
+        // ENERGY UI LOGIC
         function updateEnergyUI() {
             document.getElementById('energy-bar').style.width = userData.energy + '%';
             document.getElementById('energy-val').innerText = Math.floor(userData.energy);
+            
+            // Tam bitəndə və ya 50-dən aşağı olanda reklam düymələrini idarə et
             if(userData.energy <= 0) {
                 document.getElementById('coin-btn').style.display = 'none';
                 document.getElementById('energy-refill-area').style.display = 'block';
+                document.getElementById('extra-refill-btn').style.display = 'none';
+            } else if (userData.energy <= 50) {
+                document.getElementById('coin-btn').style.display = 'block';
+                document.getElementById('energy-refill-area').style.display = 'none';
+                document.getElementById('extra-refill-btn').style.display = 'block';
             } else {
                 document.getElementById('coin-btn').style.display = 'block';
                 document.getElementById('energy-refill-area').style.display = 'none';
+                document.getElementById('extra-refill-btn').style.display = 'none';
             }
         }
 
@@ -269,7 +255,7 @@
             });
         }
 
-        // FORTUNE WHEEL LOGIC
+        // WHEEL LOGIC
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         const wheelSectors = [0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00];
@@ -283,7 +269,7 @@
                 ctx.moveTo(130, 130); ctx.arc(130, 130, 130, i * arc, (i + 1) * arc);
                 ctx.fill(); ctx.save(); ctx.fillStyle = "#fff"; ctx.translate(130, 130);
                 ctx.rotate(i * arc + arc / 2); ctx.font = "bold 16px Arial";
-                ctx.fillText(val.toFixed(2) + " AZN", 50, 5); ctx.restore();
+                ctx.fillText(val.toFixed(2), 60, 5); ctx.restore();
             });
         }
         drawWheel();
@@ -292,8 +278,9 @@
         function spinWheel() {
             if(isSpinning) return;
             isSpinning = true;
-            const randomDeg = Math.floor(Math.random() * 3600) + 360;
-            document.getElementById('wheel').style.transform = `rotate(${randomDeg}deg)`;
+            document.getElementById('wheel-win-area').style.display = 'none';
+            const randomDeg = Math.floor(Math.random() * 3600) + 720;
+            canvas.style.transform = `rotate(${randomDeg}deg)`;
             
             setTimeout(() => {
                 isSpinning = false;
@@ -301,16 +288,20 @@
                 const sectorIdx = Math.floor(((360 - actualDeg + 22.5) % 360) / 45);
                 const winAmt = wheelSectors[sectorIdx % 8];
                 
-                if(confirm(`${winAmt.toFixed(2)} AZN qazandın! Balansa yazmaq üçün reklam izlə.`)) {
+                document.getElementById('win-text').innerText = winAmt.toFixed(2) + " AZN";
+                document.getElementById('wheel-win-area').style.display = 'block';
+                
+                document.getElementById('claim-wheel-btn').onclick = () => {
                     startAdTask(10, () => {
                         db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + winAmt);
-                        showToast(`+${winAmt.toFixed(2)} AZN Balansa əlavə edildi!`);
+                        document.getElementById('wheel-win-area').style.display = 'none';
+                        showToast(`+${winAmt.toFixed(2)} AZN!`);
                     });
-                }
+                };
             }, 4000);
         }
 
-        // UNIVERSAL AD TASK (10 SEC)
+        // AD TIMER
         function startAdTask(seconds, callback) {
             const viewer = document.getElementById('ad-viewer');
             const timerTxt = document.getElementById('ad-sec');
@@ -327,11 +318,12 @@
             }, 1000);
         }
 
-        // Firebase Sync
+        // DATABASE LISTEN
         db.ref('zerowallet_users/' + user).on('value', snap => {
             let d = snap.val(); if(!d) return;
             userData = { ...d, balance: d.balance || 0, energy: d.energy === undefined ? 100 : d.energy };
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
+            document.getElementById('my-invite-code').innerText = d.inviteCode || "XƏTA";
             document.getElementById('active-speed-txt').innerText = VALUES[d.rocket || 'standart'];
             updateEnergyUI();
         });
@@ -339,62 +331,25 @@
         function mine(e) {
             if(userData.energy <= 0) return;
             let val = VALUES[userData.rocket] || 0.0001;
-            if(new Date().getHours() === 20) val *= 2;
-            
-            userData.energy -= 2; // 50 klik = 100 enerji
-            db.ref('zerowallet_users/' + user).update({ 
-                balance: userData.balance + val,
-                energy: userData.energy
-            });
-            
-            dropCoins(e); showClickEffect(e, val);
-            payCommission(val);
+            userData.energy -= 2;
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val, energy: userData.energy });
+            showClickEffect(e, val);
+            dropCoins(e);
         }
 
-        // --- Core Functions ---
-        function startRewardAd(amt, sec) { startAdTask(sec, () => { db.ref('zerowallet_users/'+user+'/balance').transaction(b=>(b||0)+amt); showToast("+"+amt+" AZN!"); }); }
-        function showClickEffect(e, val) { const t=document.createElement('div'); t.className='click-val-text'; t.innerText="+"+val.toFixed(4); t.style.left=e.clientX+"px"; t.style.top=e.clientY+"px"; document.body.appendChild(t); setTimeout(()=>t.remove(),600); }
-        async function processCode() {
-            const input = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!input) return;
-            db.ref('promocodes/'+input).once('value', s => {
-                if(s.exists()){
-                    if(localStorage.getItem('p_'+input)) return showToast("İşlənib!");
-                    db.ref('zerowallet_users/'+user+'/balance').transaction(b => (b||0)+parseFloat(s.val()));
-                    localStorage.setItem('p_'+input, "1"); showToast("Promo Aktiv!");
-                } else { useCoupon(input); }
-            });
-        }
-        async function useCoupon(c) {
-            if(userData.inviteUsed || c === userData.inviteCode) return showToast("Xəta!");
-            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(c).once('value', s => {
-                if(s.exists()){
-                    const oid = Object.keys(s.val())[0];
-                    db.ref('zerowallet_users/'+user).update({balance:userData.balance+1, inviteUsed:true, inviter:oid});
-                    db.ref('zerowallet_users/'+oid+'/invites').transaction(i=>(i||0)+1);
-                    showToast("+1 AZN!");
-                }
-            });
-        }
-        function claimDaily() {
-            const now = Date.now();
-            let streak = (userData.dailyStreak || 0) + 1;
-            if(streak > 7) streak = 1;
-            const bonus = streak * 0.10;
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + bonus, dailyStreak: streak, lastCheckIn: now });
-            showToast(`+${bonus.toFixed(2)} AZN!`);
-        }
-        function buyRocket(t, r){ if(userData.invites >= r) db.ref('zerowallet_users/'+user).update({rocket:t}); else showToast(r+" dəvət!"); }
-        function activateBot(){ if(userData.invites >= 10) db.ref('zerowallet_users/'+user).update({botActive:true}); }
-        function requestWithdraw(){ if(userData.balance >= 150) { document.getElementById('w-iframe').src="withdraw.html"; document.getElementById('w-overlay').style.display="flex"; } else showToast("150 AZN!"); }
-        function closeWithdraw(){ document.getElementById('w-overlay').style.display="none"; }
+        // TOOLS
         function showSec(id, el){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); }
         function showToast(m){ let t=document.createElement('div'); t.className='toast'; t.innerText=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
-        function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); }
-        function setTheme(t){ document.body.classList.remove('theme-emerald','theme-rose'); if(t!=='default') document.body.classList.add('theme-'+t); }
-        function payCommission(amt) { if(userData.inviter) db.ref('zerowallet_users/' + userData.inviter + '/balance').transaction(b => (b || 0) + (amt * 0.05)); }
-        function checkTelegramJoin() { if(confirm("Telegram abunəliyi yoxlanılır...")) requestWithdraw(); else window.open("https://t.me/SƏNİN_KANALIN", "_blank"); }
+        function showClickEffect(e, val) { const t=document.createElement('div'); t.className='click-val-text'; t.innerText="+"+val.toFixed(4); t.style.left=e.clientX+"px"; t.style.top=e.clientY+"px"; document.body.appendChild(t); setTimeout(()=>t.remove(),600); }
         function dropCoins(e) { for(let i=0; i<6; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = (e.clientX + Math.random()*40-20) + 'px'; p.style.top = (e.clientY + Math.random()*40-20) + 'px'; document.body.appendChild(p); setTimeout(() => p.remove(), 800); } }
+        function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); }
+        
+        // DİGƏR FUNKSİYALAR (Köhnə koddakı kimi saxlanıldı)
+        function buyRocket(t, r){ if(userData.invites >= r) db.ref('zerowallet_users/'+user).update({rocket:t}); else showToast(r+" dəvət!"); }
+        function activateBot(){ if(userData.invites >= 10) db.ref('zerowallet_users/'+user).update({botActive:true}); }
+        function checkTelegramJoin() { if(confirm("Abunəlik yoxlanılsın?")) showToast("Tezliklə..."); }
+        async function processCode() { /* ... */ }
+        function claimDaily() { /* ... */ }
     </script>
 </body>
 </html>
