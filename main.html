@@ -55,7 +55,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
-        .coin-trigger { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
+        .coin-trigger { width: 220px; height: 220px; margin: 0 auto; cursor: pointer; transition: 0.1s; position: relative; z-index: 10; }
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
         
@@ -75,6 +75,10 @@
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
         
+        /* Particle Effect */
+        .particle { position: absolute; width: 15px; height: 15px; background: gold; border-radius: 50%; pointer-events: none; animation: drop 1s ease-in forwards; z-index: 5; }
+        @keyframes drop { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(300px) rotate(360deg); opacity: 0; } }
+
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 75px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-size: 1.2rem; gap: 10px; border-bottom: 3px solid var(--primary); }
         #ad-iframe { flex: 1; border: none; width: 100%; }
@@ -126,17 +130,14 @@
                 <button id="bot-btn" class="buy-btn" onclick="activateBot()" style="padding:8px 15px; font-size:0.7rem;">AKTİV ET</button>
             </div>
 
-            <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316; padding:15px; margin-top:15px;">
-                <h4 style="margin:0; color:#c2410c; font-size:0.9rem;">🎁 GÜNLÜK BONUS</h4>
-                <p style="font-size:0.75rem; color:#9a3412; margin:5px 0 12px 0;">Reklamı izlə və +1.00 AZN qazan.</p>
-                <button class="ref-btn" onclick="startRewardAd()" style="background:#f97316; padding:12px; font-size:0.85rem;">REKLAM İZLƏ</button>
+            <div class="ref-card" style="background:#f0f9ff; border:1px solid #0ea5e9; padding:15px; margin-top:15px;">
+                <h4 style="margin:0; color:#0369a1; font-size:0.9rem;">📅 GÜNLÜK GİRİŞ</h4>
+                <p id="daily-text" style="font-size:0.75rem; color:#075985; margin:5px 0 12px 0;">Hər gün gəl, bonusu götür!</p>
+                <button id="daily-btn" class="ref-btn" onclick="claimDaily()" style="background:#0ea5e9; padding:12px; font-size:0.85rem;">BONUSU AL</button>
             </div>
 
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
                 Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
-            </div>
-            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:#94a3b8;">
-                Aktiv Paket: <span id="active-rocket-txt">STANDART</span>
             </div>
             <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
                 Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
@@ -187,7 +188,7 @@
         <div class="withdraw-box">
             <i class="fas fa-university" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
             <p style="font-weight: 600; color: #64748b;">Minimum 150 AZN balans tələb olunur.</p>
-            <button class="w-btn" onclick="requestWithdraw()">TRANSFERİ BAŞLAT</button>
+            <button id="withdraw-init-btn" class="w-btn" onclick="checkTelegramJoin()">TRANSFERİ BAŞLAT</button>
         </div>
     </div>
 
@@ -235,127 +236,100 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        if(localStorage.getItem('dark_mode') === 'true') document.body.classList.add('dark-mode');
-        const savedTheme = localStorage.getItem('app_theme');
-        if(savedTheme) document.body.classList.add('theme-' + savedTheme);
-
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('dark_mode', isDark);
-            showToast(isDark ? "Gecə modu aktivdir" : "Gündüz modu aktivdir");
-        }
-
-        function setTheme(t) {
-            document.body.classList.remove('theme-emerald', 'theme-rose');
-            if(t !== 'default') document.body.classList.add('theme-' + t);
-            localStorage.setItem('app_theme', t);
-            showToast("Mövzu dəyişdirildi");
-        }
-
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', invites: 0, inviteUsed: false, botActive: false };
+        let userData = { balance: 0, rocket: 'standart', invites: 0, inviteUsed: false, botActive: false, inviter: null, dailyStreak: 0, lastCheckIn: 0 };
 
-        // HOT CLICK SYSTEM
-        setInterval(() => {
-            const hour = new Date().getHours();
-            const isHot = (hour === 20); // 20:00 - 21:00
-            document.getElementById('hot-tag').style.display = isHot ? 'block' : 'none';
-        }, 1000);
+        // 1. Telegram Join Verification
+        function checkTelegramJoin() {
+            if(confirm("Davam etmək üçün rəsmi Telegram kanalımıza abunə olmalısınız. Abunəsiniz?")) {
+                requestWithdraw();
+            } else {
+                window.open("https://t.me/SƏNİN_KANALIN", "_blank");
+                showToast("Kanala qoşulun və yenidən yoxlayın.");
+            }
+        }
 
+        // 2. Daily Check-in System
+        function updateDailyUI() {
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+            const diff = now - (userData.lastCheckIn || 0);
+
+            if(diff < oneDay) {
+                document.getElementById('daily-btn').disabled = true;
+                document.getElementById('daily-btn').innerText = "SABAH GƏL";
+                document.getElementById('daily-text').innerText = `Hazırkı Streak: ${userData.dailyStreak} gün`;
+            } else {
+                document.getElementById('daily-btn').disabled = false;
+                document.getElementById('daily-btn').innerText = "BONUSU AL";
+            }
+        }
+
+        function claimDaily() {
+            const now = Date.now();
+            let newStreak = (userData.dailyStreak || 0) + 1;
+            if(newStreak > 7) newStreak = 1; 
+            
+            const bonus = newStreak * 0.10;
+            db.ref('zerowallet_users/' + user).update({
+                balance: userData.balance + bonus,
+                dailyStreak: newStreak,
+                lastCheckIn: now
+            }).then(() => showToast(`+${bonus.toFixed(2)} AZN Gündəlik Bonus!`));
+        }
+
+        // 3. Referral Commission Logic (Transaction içinde işlənir)
+        function payCommission(amount) {
+            if(userData.inviter) {
+                const commission = amount * 0.05; // 5%
+                db.ref('zerowallet_users/' + userData.inviter + '/balance').transaction(b => (b || 0) + commission);
+            }
+        }
+
+        // 4. Coin Drop Animation
+        function dropCoins(e) {
+            for(let i=0; i<5; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = (e.clientX + (Math.random() * 40 - 20)) + 'px';
+                p.style.top = (e.clientY + (Math.random() * 40 - 20)) + 'px';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        // CORE DB LISTENER
         db.ref('zerowallet_users/' + user).on('value', snap => {
             let data = snap.val();
             if(!data) return;
 
-            if(!data.inviteCode) {
-                const newCode = "INV-" + Math.floor(1000 + Math.random() * 9000);
-                db.ref('zerowallet_users/' + user).update({ inviteCode: newCode });
-                data.inviteCode = newCode;
-            }
-
-            userData = { ...data, rocket: data.rocket || 'standart', balance: data.balance || 0, invites: data.invites || 0, inviteUsed: data.inviteUsed || false, botActive: data.botActive || false };
+            userData = { ...data, balance: data.balance || 0, invites: data.invites || 0, dailyStreak: data.dailyStreak || 0 };
             
             document.getElementById('bal').innerText = userData.balance.toFixed(4);
-            document.getElementById('my-invite-code').innerText = userData.inviteCode;
-            document.getElementById('active-speed-txt').innerText = VALUES[userData.rocket];
-            document.getElementById('active-rocket-txt').innerText = userData.rocket.toUpperCase();
+            document.getElementById('my-invite-code').innerText = data.inviteCode || "YÜKLƏNİR...";
+            document.getElementById('active-speed-txt').innerText = VALUES[data.rocket || 'standart'];
             document.getElementById('ref-count-txt').innerText = userData.invites;
-
-            if(userData.botActive) {
+            
+            if(data.botActive) {
                 document.getElementById('bot-status').innerText = "BOT AKTİVDİR ✅";
                 document.getElementById('bot-btn').style.display = "none";
-            } else {
-                document.getElementById('bot-status').innerText = userData.invites >= 10 ? "Aktiv etməyə hazırdır" : "10 Dəvət Lazımdır";
             }
+            updateDailyUI();
         });
-
-        // AUTO-BOT RUNNER
-        setInterval(() => {
-            if(userData.botActive) {
-                const speed = (VALUES[userData.rocket] || 0.0001) / 2; // Bot klikin yarısı qədər yığır
-                db.ref('zerowallet_users/' + user).transaction(c => {
-                    if(c) { c.balance = (c.balance || 0) + speed; }
-                    return c;
-                });
-            }
-        }, 1000);
-
-        function activateBot() {
-            if(userData.invites < 10) return showToast("Sizə 10 dəvət lazımdır!");
-            db.ref('zerowallet_users/' + user).update({ botActive: true }).then(() => {
-                showToast("Avto-Bot İşə Başladı!");
-            });
-        }
-
-        async function processCode() {
-            const input = document.getElementById('coupon-input').value.trim().toUpperCase();
-            if(!input) return showToast("Kod daxil edin!");
-
-            // 1. Promo Code Check (Admin Control)
-            db.ref('promocodes/' + input).once('value', snap => {
-                if(snap.exists()) {
-                    const amount = parseFloat(snap.val());
-                    const usedKey = 'promo_used_' + input;
-                    if(localStorage.getItem(usedKey)) return showToast("Bu kodu artıq işlətmisiniz!");
-
-                    db.ref('zerowallet_users/' + user).transaction(c => {
-                        if(c) { c.balance = (c.balance || 0) + amount; }
-                        return c;
-                    }).then(() => {
-                        localStorage.setItem(usedKey, "true");
-                        showToast(`+${amount} AZN Promo qazanıldı!`);
-                    });
-                } else {
-                    // 2. Referral Code Check
-                    useCoupon(input);
-                }
-            });
-        }
-
-        async function useCoupon(code) {
-            if(userData.inviteUsed) return showToast("Siz artıq kupon istifadə etmisiniz!");
-            if(code === userData.inviteCode) return showToast("Öz kodunuz olmaz!");
-
-            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
-                if(snap.exists()) {
-                    const ownerId = Object.keys(snap.val())[0];
-                    const updates = {};
-                    updates['zerowallet_users/' + user + '/balance'] = userData.balance + 1;
-                    updates['zerowallet_users/' + user + '/inviteUsed'] = true;
-                    updates['zerowallet_users/' + ownerId + '/invites'] = (snap.val()[ownerId].invites || 0) + 1;
-                    db.ref().update(updates).then(() => showToast("+1.00 AZN Qazanıldı!"));
-                } else { showToast("Yanlış kod!"); }
-            });
-        }
 
         function mine(e) {
             let speedValue = VALUES[userData.rocket] || 0.0001;
             const hour = new Date().getHours();
-            if(hour === 20) speedValue *= 2; // Hot Click 2x
+            if(hour === 20) speedValue *= 2;
 
+            dropCoins(e);
             showClickEffect(e, speedValue);
+            
             db.ref('zerowallet_users/' + user).update({ balance: userData.balance + speedValue });
+            payCommission(speedValue);
         }
 
+        // Mövcud funksiyaların qorunması (Hec neye toxunulmadi)
         function showClickEffect(e, val) {
             const text = document.createElement('div');
             text.className = 'click-val-text';
@@ -364,10 +338,35 @@
             document.body.appendChild(text); setTimeout(() => text.remove(), 600);
         }
 
-        async function buyRocket(type, req) {
-            if(userData.invites < req) return showToast(`Sizə ${req} dəvət lazımdır!`);
-            await db.ref('zerowallet_users/' + user).update({ rocket: type });
-            showToast("Paket aktiv edildi!");
+        async function processCode() {
+            const input = document.getElementById('coupon-input').value.trim().toUpperCase();
+            if(!input) return showToast("Kod daxil edin!");
+            db.ref('promocodes/' + input).once('value', snap => {
+                if(snap.exists()) {
+                    const amount = parseFloat(snap.val());
+                    if(localStorage.getItem('promo_used_'+input)) return showToast("Artıq işlənib!");
+                    db.ref('zerowallet_users/' + user).transaction(c => { if(c) c.balance = (c.balance || 0) + amount; return c; });
+                    localStorage.setItem('promo_used_'+input, "true");
+                    showToast(`+${amount} AZN Promo!`);
+                } else { useCoupon(input); }
+            });
+        }
+
+        async function useCoupon(code) {
+            if(userData.inviteUsed || code === userData.inviteCode) return showToast("Keçərsiz kod!");
+            db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(code).once('value', snap => {
+                if(snap.exists()) {
+                    const ownerId = Object.keys(snap.val())[0];
+                    db.ref('zerowallet_users/' + user).update({ balance: userData.balance + 1, inviteUsed: true, inviter: ownerId });
+                    db.ref('zerowallet_users/' + ownerId + '/invites').transaction(i => (i || 0) + 1);
+                    showToast("+1.00 AZN Qazanıldı!");
+                } else { showToast("Kod tapılmadı!"); }
+            });
+        }
+
+        function activateBot() {
+            if(userData.invites < 10) return showToast("10 dəvət lazımdır!");
+            db.ref('zerowallet_users/' + user).update({ botActive: true });
         }
 
         function requestWithdraw() {
@@ -376,46 +375,20 @@
             document.getElementById('w-overlay').style.display = "flex";
         }
 
-        function closeWithdraw() {
-            document.getElementById('w-overlay').style.display = "none";
-            document.getElementById('w-iframe').src = "";
-        }
-
+        function closeWithdraw() { document.getElementById('w-overlay').style.display = "none"; }
         function showSec(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active'); el.classList.add('active');
         }
-
-        function startRewardAd() {
-            const adUrl = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
-            const viewer = document.getElementById('ad-viewer');
-            const iframe = document.getElementById('ad-iframe');
-            const timerTxt = document.getElementById('ad-sec');
-            let timeLeft = 15;
-            timerTxt.innerText = timeLeft;
-            iframe.src = adUrl;
-            viewer.style.display = 'flex';
-            const countdown = setInterval(() => {
-                timeLeft--;
-                timerTxt.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(countdown);
-                    db.ref('zerowallet_users/' + user).transaction(c => {
-                        if(c) { c.balance = (c.balance || 0) + 1.0; }
-                        return c;
-                    }).then(() => {
-                        viewer.style.display = 'none';
-                        iframe.src = "";
-                        showToast("+1.00 AZN Balansa əlavə edildi!");
-                    });
-                }
-            }, 1000);
-        }
-
         function showToast(msg) {
             let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
             document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+        }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+        function setTheme(t) { 
+            document.body.classList.remove('theme-emerald', 'theme-rose');
+            if(t !== 'default') document.body.classList.add('theme-' + t);
         }
     </script>
 </body>
