@@ -1,9 +1,0 @@
-// wheel.html içindəki xüsusi loqika
-function spinWheel() {
-    if(isSpinning) return;
-    // ... Çarxın fırlanma kodu ...
-    setTimeout(() => {
-        // Qazanc əldə edildikdə Firebase-ə yazır və istifadəçini məlumatlandırır
-        db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + winAmt);
-    }, 4000);
-}
