@@ -1,0 +1,27 @@
+<div class="section-header" style="padding: 20px 20px 0;">
+    <h2>Tənzimləmələr</h2>
+</div>
+
+<div style="padding: 20px;">
+    <div class="ref-card" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+        <span style="font-weight: 700;">Gecə Modu</span>
+        <button class="buy-btn" onclick="toggleDarkMode()" style="background: var(--grad);">DƏYİŞ</button>
+    </div>
+
+    <div class="ref-card" style="padding: 20px; margin-top: 15px;">
+        <h4 style="margin-top: 0;">Hesab Bilgiləri</h4>
+        <div style="font-size: 0.8rem; color: #64748b;">
+            Sessiya: <span id="user-id-display" style="color: var(--text);">Yüklənir...</span>
+        </div>
+    </div>
+
+    <button onclick="localStorage.removeItem('zerowallet_session'); location.reload();" 
+            style="width: 100%; padding: 15px; background: #ef4444; color: #fff; border: none; border-radius: 15px; font-weight: 800; margin-top: 20px;">
+        ÇIXIŞ ET
+    </button>
+</div>
+
+<script>
+    // Bu hissə yüklənəndə istifadəçi ID-sini göstərsin
+    document.getElementById('user-id-display').innerText = localStorage.getItem('zerowallet_session').substring(0,15) + "...";
+</script>
