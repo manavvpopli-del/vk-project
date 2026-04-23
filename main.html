@@ -55,12 +55,23 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; border: 1px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.05); text-align: center; margin-top: 10px; position: relative; }
-        .coin-trigger { width: 200px; height: 200px; margin: 0 auto; cursor: pointer; transition: 0.1s; position: relative; z-index: 10; }
+        .coin-trigger { width: 180px; height: 180px; margin: 0 auto; cursor: pointer; transition: 0.1s; position: relative; z-index: 10; }
         .coin-trigger:active { transform: scale(0.92); }
         .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); pointer-events: none; }
         
+        /* ENERGY SYSTEM UI */
+        .energy-container { width: 100%; height: 12px; background: #e2e8f0; border-radius: 10px; margin-top: 15px; position: relative; overflow: hidden; }
+        .energy-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); width: 100%; transition: 0.3s; }
+        .energy-text { font-size: 0.75rem; font-weight: 800; margin-top: 5px; color: #64748b; }
+
         .hot-badge { position: absolute; top: 15px; right: 15px; background: #ef4444; color: #fff; padding: 5px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; animation: pulse 1s infinite; display: none; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* FORTUNE WHEEL CSS */
+        .wheel-container { position: relative; width: 260px; height: 260px; margin: 20px auto; border: 8px solid var(--text); border-radius: 50%; overflow: hidden; box-shadow: 0 0 20px var(--primary); }
+        #wheel { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: #ef4444; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 20; }
+        .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #fff; border-radius: 50%; z-index: 30; border: 4px solid var(--text); font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
         .ref-card { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); text-align: center; border: 1px solid rgba(0,0,0,0.02); }
         .ref-input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; font-weight: 700; outline: none; text-align: center; margin: 15px 0; font-family: 'Space Grotesk'; font-size: 1.1rem; }
@@ -93,7 +104,7 @@
     <div id="ad-viewer">
         <div id="ad-header">
             <i class="fas fa-stopwatch" style="color:var(--primary)"></i>
-            Gözlə: <span id="ad-sec" style="font-weight: 800;">15</span> s
+            Gözlə: <span id="ad-sec" style="font-weight: 800;">10</span> s
         </div>
         <iframe id="ad-iframe" src=""></iframe>
     </div>
@@ -112,11 +123,22 @@
     <div id="mining-sec" class="section active">
         <div class="mining-container">
             <div id="hot-tag" class="hot-badge">🔥 HOT CLICK 2X</div>
-            <div id="coin-area">
-                <div class="coin-trigger" onclick="mine(event)">
+            
+            <div class="energy-container">
+                <div id="energy-bar" class="energy-bar"></div>
+            </div>
+            <div class="energy-text"><i class="fas fa-bolt"></i> Enerji: <span id="energy-val">100</span>%</div>
+
+            <div id="coin-area" style="margin-top: 15px;">
+                <div class="coin-trigger" id="coin-btn" onclick="mine(event)">
                     <img src="coin.png" id="main-coin">
                 </div>
+                <div id="energy-refill-area" style="display:none; margin-top:20px;">
+                    <p style="font-weight:700; color:#ef4444;">Enerji bitib!</p>
+                    <button class="ref-btn" onclick="refillEnergyAd()" style="background:#f59e0b;"><i class="fas fa-play"></i> +50% Enerji (Reklam)</button>
+                </div>
             </div>
+
             <div id="bot-card" class="ref-card" style="margin-top:20px; display:flex; align-items:center; justify-content:space-between; padding:15px; background:rgba(99,102,241,0.05);">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <img src="bot.png" style="width:40px; height:40px;">
@@ -130,18 +152,21 @@
             <div style="margin-top:20px; font-size:0.9rem; font-weight:700; color:#64748b;">
                 Sürət: <span id="active-speed-txt" style="color:var(--primary)">0.0001</span> AZN / Klik
             </div>
-            <div style="margin-top:5px; font-size:0.75rem; font-weight:600; color:var(--primary);">
-                Dəvət Olunan Dost: <span id="ref-count-txt">0</span> nəfər
-            </div>
-            <div style="margin-top: 25px;">
-                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
-                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
-            </div>
         </div>
     </div>
 
     <div id="bonus-sec" class="section">
-        <h2 style="margin-bottom:20px;">Hədiyyə Mərkəzi</h2>
+        <h2 style="margin-bottom:20px;">Fortune Wheel</h2>
+        
+        <div class="ref-card" style="padding: 10px;">
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <div class="spin-btn" onclick="spinWheel()">SPIN</div>
+                <canvas id="wheel"></canvas>
+            </div>
+            <p style="font-size: 0.8rem; font-weight: 700; color: #64748b;">Çıxan məbləği almaq üçün reklam izləməlisiniz.</p>
+        </div>
+
         <div class="ref-card" style="background:#f0f9ff; border:1px solid #0ea5e9;">
             <h4 style="margin:0; color:#0369a1;">📅 GÜNLÜK BONUS</h4>
             <p id="daily-text" style="font-size:0.8rem; color:#075985;">Hər gün gəl, artan bonus qazan!</p>
@@ -150,7 +175,7 @@
         <div class="ref-card" style="background:#fff7ed; border:1px solid #f97316;">
             <h4 style="margin:0; color:#c2410c;">🎁 REKLAM İZLƏ</h4>
             <p style="font-size:0.8rem; color:#9a3412;">Hər reklam +1.00 AZN qazandırır.</p>
-            <button class="ref-btn" onclick="startRewardAd()" style="background:#f97316;">REKLAM İZLƏ</button>
+            <button class="ref-btn" onclick="startRewardAd(1.0, 15)" style="background:#f97316;">REKLAM İZLƏ</button>
         </div>
     </div>
 
@@ -220,105 +245,115 @@
         if(!user) location.href="index.html";
 
         const VALUES = { 'standart': 0.0001, 'elite': 0.005, 'pro': 0.010, 'super': 0.040 };
-        let userData = { balance: 0, rocket: 'standart', invites: 0, dailyStreak: 0, lastCheckIn: 0, inviter: null };
+        let userData = { balance: 0, rocket: 'standart', invites: 0, dailyStreak: 0, lastCheckIn: 0, inviter: null, energy: 100 };
 
-        // Telegram Link Check
-        function checkTelegramJoin() {
-            if(confirm("Telegram kanalımıza abunə deyilsinizsə pul çıxarışı təsdiqlənməyəcək. Abunəsiniz?")) {
-                requestWithdraw();
+        // ENERGY LOGIC
+        function updateEnergyUI() {
+            document.getElementById('energy-bar').style.width = userData.energy + '%';
+            document.getElementById('energy-val').innerText = Math.floor(userData.energy);
+            if(userData.energy <= 0) {
+                document.getElementById('coin-btn').style.display = 'none';
+                document.getElementById('energy-refill-area').style.display = 'block';
             } else {
-                window.open("https://t.me/SƏNİN_KANALIN", "_blank");
-                showToast("Abunə olub yenidən yoxlayın.");
+                document.getElementById('coin-btn').style.display = 'block';
+                document.getElementById('energy-refill-area').style.display = 'none';
             }
         }
 
-        // Daily Bonus Logic
-        function updateDailyUI() {
-            const now = Date.now();
-            const diff = now - (userData.lastCheckIn || 0);
-            const btn = document.getElementById('daily-btn');
-            if(diff < 86400000) {
-                btn.disabled = true; btn.innerText = "SABAH GƏL";
-                document.getElementById('daily-text').innerText = `Streak: ${userData.dailyStreak} gün`;
-            } else {
-                btn.disabled = false; btn.innerText = "BONUSU AL";
-            }
+        function refillEnergyAd() {
+            startAdTask(10, () => {
+                userData.energy = Math.min(100, userData.energy + 50);
+                db.ref('zerowallet_users/' + user).update({ energy: userData.energy });
+                showToast("+50% Enerji!");
+                updateEnergyUI();
+            });
         }
 
-        function claimDaily() {
-            const now = Date.now();
-            let streak = (userData.dailyStreak || 0) + 1;
-            if(streak > 7) streak = 1;
-            const bonus = streak * 0.10;
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + bonus, dailyStreak: streak, lastCheckIn: now });
-            showToast(`+${bonus.toFixed(2)} AZN!`);
+        // FORTUNE WHEEL LOGIC
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const wheelSectors = [0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00];
+        const colors = ['#6366f1', '#a855f7', '#6366f1', '#a855f7', '#6366f1', '#a855f7', '#6366f1', '#a855f7'];
+        
+        function drawWheel() {
+            canvas.width = 260; canvas.height = 260;
+            const arc = Math.PI * 2 / wheelSectors.length;
+            wheelSectors.forEach((val, i) => {
+                ctx.beginPath(); ctx.fillStyle = colors[i];
+                ctx.moveTo(130, 130); ctx.arc(130, 130, 130, i * arc, (i + 1) * arc);
+                ctx.fill(); ctx.save(); ctx.fillStyle = "#fff"; ctx.translate(130, 130);
+                ctx.rotate(i * arc + arc / 2); ctx.font = "bold 16px Arial";
+                ctx.fillText(val.toFixed(2) + " AZN", 50, 5); ctx.restore();
+            });
+        }
+        drawWheel();
+
+        let isSpinning = false;
+        function spinWheel() {
+            if(isSpinning) return;
+            isSpinning = true;
+            const randomDeg = Math.floor(Math.random() * 3600) + 360;
+            document.getElementById('wheel').style.transform = `rotate(${randomDeg}deg)`;
+            
+            setTimeout(() => {
+                isSpinning = false;
+                const actualDeg = randomDeg % 360;
+                const sectorIdx = Math.floor(((360 - actualDeg + 22.5) % 360) / 45);
+                const winAmt = wheelSectors[sectorIdx % 8];
+                
+                if(confirm(`${winAmt.toFixed(2)} AZN qazandın! Balansa yazmaq üçün reklam izlə.`)) {
+                    startAdTask(10, () => {
+                        db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + winAmt);
+                        showToast(`+${winAmt.toFixed(2)} AZN Balansa əlavə edildi!`);
+                    });
+                }
+            }, 4000);
         }
 
-        // Referral Commission (5%)
-        function payCommission(amt) {
-            if(userData.inviter) {
-                db.ref('zerowallet_users/' + userData.inviter + '/balance').transaction(b => (b || 0) + (amt * 0.05));
-            }
-        }
-
-        // Coin Animation
-        function dropCoins(e) {
-            for(let i=0; i<6; i++) {
-                const p = document.createElement('div'); p.className = 'particle';
-                p.style.left = (e.clientX + Math.random()*40-20) + 'px';
-                p.style.top = (e.clientY + Math.random()*40-20) + 'px';
-                document.body.appendChild(p); setTimeout(() => p.remove(), 800);
-            }
-        }
-
-        db.ref('zerowallet_users/' + user).on('value', snap => {
-            let d = snap.val(); if(!d) return;
-            userData = { ...d, balance: d.balance || 0, invites: d.invites || 0 };
-            document.getElementById('bal').innerText = userData.balance.toFixed(4);
-            document.getElementById('my-invite-code').innerText = d.inviteCode || "---";
-            document.getElementById('active-speed-txt').innerText = VALUES[d.rocket || 'standart'];
-            document.getElementById('ref-count-txt').innerText = userData.invites;
-            if(d.botActive) { document.getElementById('bot-status').innerText = "BOT AKTİVDİR ✅"; document.getElementById('bot-btn').style.display = "none"; }
-            updateDailyUI();
-        });
-
-        // Auto-Bot Runner
-        setInterval(() => {
-            if(userData.botActive) {
-                const speed = (VALUES[userData.rocket] || 0.0001) / 2;
-                db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + speed);
-            }
-        }, 1000);
-
-        function mine(e) {
-            let val = VALUES[userData.rocket] || 0.0001;
-            if(new Date().getHours() === 20) val *= 2;
-            dropCoins(e); showClickEffect(e, val);
-            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + val });
-            payCommission(val);
-        }
-
-        function startRewardAd() {
+        // UNIVERSAL AD TASK (10 SEC)
+        function startAdTask(seconds, callback) {
             const viewer = document.getElementById('ad-viewer');
             const timerTxt = document.getElementById('ad-sec');
-            let time = 15;
+            let time = seconds;
             document.getElementById('ad-iframe').src = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
             viewer.style.display = 'flex';
             const count = setInterval(() => {
                 time--; timerTxt.innerText = time;
                 if(time <= 0) {
                     clearInterval(count);
-                    db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.0);
-                    viewer.style.display = 'none'; showToast("+1.00 AZN!");
+                    viewer.style.display = 'none';
+                    callback();
                 }
             }, 1000);
         }
 
-        // --- Core Functions (Do Not Change) ---
-        function showClickEffect(e, val) {
-            const t = document.createElement('div'); t.className='click-val-text'; t.innerText="+"+val.toFixed(4);
-            t.style.left=e.clientX+"px"; t.style.top=e.clientY+"px"; document.body.appendChild(t); setTimeout(()=>t.remove(),600);
+        // Firebase Sync
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            let d = snap.val(); if(!d) return;
+            userData = { ...d, balance: d.balance || 0, energy: d.energy === undefined ? 100 : d.energy };
+            document.getElementById('bal').innerText = userData.balance.toFixed(4);
+            document.getElementById('active-speed-txt').innerText = VALUES[d.rocket || 'standart'];
+            updateEnergyUI();
+        });
+
+        function mine(e) {
+            if(userData.energy <= 0) return;
+            let val = VALUES[userData.rocket] || 0.0001;
+            if(new Date().getHours() === 20) val *= 2;
+            
+            userData.energy -= 2; // 50 klik = 100 enerji
+            db.ref('zerowallet_users/' + user).update({ 
+                balance: userData.balance + val,
+                energy: userData.energy
+            });
+            
+            dropCoins(e); showClickEffect(e, val);
+            payCommission(val);
         }
+
+        // --- Core Functions ---
+        function startRewardAd(amt, sec) { startAdTask(sec, () => { db.ref('zerowallet_users/'+user+'/balance').transaction(b=>(b||0)+amt); showToast("+"+amt+" AZN!"); }); }
+        function showClickEffect(e, val) { const t=document.createElement('div'); t.className='click-val-text'; t.innerText="+"+val.toFixed(4); t.style.left=e.clientX+"px"; t.style.top=e.clientY+"px"; document.body.appendChild(t); setTimeout(()=>t.remove(),600); }
         async function processCode() {
             const input = document.getElementById('coupon-input').value.trim().toUpperCase();
             if(!input) return;
@@ -341,6 +376,14 @@
                 }
             });
         }
+        function claimDaily() {
+            const now = Date.now();
+            let streak = (userData.dailyStreak || 0) + 1;
+            if(streak > 7) streak = 1;
+            const bonus = streak * 0.10;
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance + bonus, dailyStreak: streak, lastCheckIn: now });
+            showToast(`+${bonus.toFixed(2)} AZN!`);
+        }
         function buyRocket(t, r){ if(userData.invites >= r) db.ref('zerowallet_users/'+user).update({rocket:t}); else showToast(r+" dəvət!"); }
         function activateBot(){ if(userData.invites >= 10) db.ref('zerowallet_users/'+user).update({botActive:true}); }
         function requestWithdraw(){ if(userData.balance >= 150) { document.getElementById('w-iframe').src="withdraw.html"; document.getElementById('w-overlay').style.display="flex"; } else showToast("150 AZN!"); }
@@ -349,6 +392,9 @@
         function showToast(m){ let t=document.createElement('div'); t.className='toast'; t.innerText=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
         function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); }
         function setTheme(t){ document.body.classList.remove('theme-emerald','theme-rose'); if(t!=='default') document.body.classList.add('theme-'+t); }
+        function payCommission(amt) { if(userData.inviter) db.ref('zerowallet_users/' + userData.inviter + '/balance').transaction(b => (b || 0) + (amt * 0.05)); }
+        function checkTelegramJoin() { if(confirm("Telegram abunəliyi yoxlanılır...")) requestWithdraw(); else window.open("https://t.me/SƏNİN_KANALIN", "_blank"); }
+        function dropCoins(e) { for(let i=0; i<6; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = (e.clientX + Math.random()*40-20) + 'px'; p.style.top = (e.clientY + Math.random()*40-20) + 'px'; document.body.appendChild(p); setTimeout(() => p.remove(), 800); } }
     </script>
 </body>
 </html>
