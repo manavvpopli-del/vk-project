@@ -1,47 +1,156 @@
-<div class="header">
-    <div class="logo">ZERO.WALLET</div>
-    <div class="balance-card">
-        <img src="wallet.png">
-        <div class="balance-info">
-            <small>BALANS</small><br>
-            <span id="bal">0.0000</span> AZN
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zerowallet - Quantum Earning</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1; --secondary: #a855f7; --bg: #f8fafc;
+            --card: rgba(255, 255, 255, 0.9); --text: #0f172a;
+            --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --nav-bg: rgba(15, 23, 42, 0.9);
+        }
+        body.dark-mode { --bg: #0f172a; --card: rgba(30, 41, 59, 0.8); --text: #f8fafc; --nav-bg: rgba(2, 6, 23, 0.95); }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; 
+        }
+        
+        .header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Space Grotesk'; font-size: 1.5rem; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-card { background: var(--card); padding: 8px 15px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px; }
+        .balance-card span { font-weight: 800; font-size: 1.1rem; color: var(--primary); }
+
+        #main-display { height: calc(100vh - 180px); overflow-y: auto; padding: 0 20px; }
+        
+        .mining-container { background: var(--card); border-radius: 40px; padding: 30px 20px; text-align: center; margin-top: 10px; }
+        .coin-trigger { width: 180px; height: 180px; margin: 0 auto; cursor: pointer; transition: 0.1s; }
+        .coin-trigger:active { transform: scale(0.92); }
+        .coin-trigger img { width: 100%; filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3)); }
+
+        .energy-container { width: 100%; height: 12px; background: #e2e8f0; border-radius: 10px; margin-top: 15px; overflow: hidden; }
+        .energy-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); width: 100%; transition: 0.3s; }
+
+        .nav-bar { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 95%; background: var(--nav-bg); display: flex; justify-content: space-around; padding: 12px; border-radius: 25px; z-index: 100; }
+        .nav-item { color: #64748b; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: #fff; transform: translateY(-5px); }
+        
+        .ref-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px; border-radius: 15px; font-weight: 800; margin-top: 10px; cursor: pointer; }
+        
+        #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999; display: none; flex-direction: column; }
+        #ad-header { height: 60px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        #ad-iframe { flex: 1; border: none; }
+    </style>
+</head>
+<body>
+
+    <div id="ad-viewer">
+        <div id="ad-header">REKLAM BİTİR: <span id="ad-sec">10</span>s</div>
+        <iframe id="ad-iframe" src=""></iframe>
+    </div>
+
+    <div class="header">
+        <div class="logo">ZERO.WALLET</div>
+        <div class="balance-card">
+            <div class="balance-info"><small>BALANS</small><br><span id="bal">0.0000</span> AZN</div>
         </div>
     </div>
-</div>
 
-<div id="mining-sec" class="section active">
-    <div class="mining-container">
-        <div class="energy-container">
-            <div id="energy-bar" class="energy-bar"></div>
-        </div>
-        <div class="energy-text"><i class="fas fa-bolt"></i> <span id="energy-val">100</span>%</div>
-
-        <div id="coin-area" style="margin-top: 20px;">
-            <div class="coin-trigger" id="coin-btn" onclick="mine(event)">
-                <img src="coin.png" id="main-coin">
+    <div id="main-display">
+        <div class="mining-container">
+            <div class="energy-container"><div id="energy-bar" class="energy-bar"></div></div>
+            <p><i class="fas fa-bolt"></i> Enerji: <span id="energy-val">100</span>%</p>
+            
+            <div class="coin-trigger" onclick="mine(event)">
+                <img src="coin.png">
             </div>
+
+            <button class="ref-btn" onclick="earnAdBalance()" style="background:#10b981; margin-top:30px;">
+                <i class="fas fa-play"></i> REKLAM İZLƏ (+0.005 AZN)
+            </button>
         </div>
-
-        <button class="ref-btn" onclick="earnByAd()" style="background:#10b981; margin-top:20px;">
-            <i class="fas fa-video"></i> REKLAM İZLƏ (0.005 AZN)
-        </button>
     </div>
-</div>
 
-<nav class="nav-bar">
-    <a href="main.html" class="nav-item active"><i class="fas fa-home"></i></a>
-    <a href="wheel.html" class="nav-item"><i class="fas fa-star"></i></a>
-    <a href="referal.html" class="nav-item"><i class="fas fa-user-plus"></i></a>
-    <a href="rocket.html" class="nav-item"><i class="fas fa-rocket"></i></a>
-    <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i></a>
-</nav>
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="loadModule('mining', this)"><i class="fas fa-home"></i></div>
+        <div class="nav-item" onclick="loadModule('wheel', this)"><i class="fas fa-star"></i></div>
+        <div class="nav-item" onclick="loadModule('referal', this)"><i class="fas fa-user-plus"></i></div>
+        <div class="nav-item" onclick="loadModule('rocket', this)"><i class="fas fa-rocket"></i></div>
+        <div class="nav-item" onclick="loadModule('settings', this)"><i class="fas fa-cog"></i></div>
+    </nav>
 
-<script>
-    // Firebase və mining loqikası bura gəlir (əvvəlki kodundakı mine funksiyası)
-    function earnByAd() {
-        startAdTask(15, () => {
-            db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 0.0050);
-            showToast("+0.0050 AZN qazanıldı!");
+    <script>
+        // FIREBASE & DATA (Sənin konfiqurasiyanı bura daxil et)
+        const firebaseConfig = { /* ... */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
+
+        let userData = { balance: 0, energy: 100, rocket: 'standart' };
+
+        // MODUL YÜKLƏYİCİ (Əsas məntiq budur)
+        async function loadModule(name, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+
+            if(name === 'mining') {
+                location.reload(); // Mining ana ekran olduğu üçün reload ən təmizidir
+                return;
+            }
+
+            const res = await fetch(name + '.html');
+            const html = await res.text();
+            document.getElementById('main-display').innerHTML = html;
+        }
+
+        // MINING LOQİKASI
+        function mine(e) {
+            if(userData.energy <= 0) return;
+            let gain = (userData.rocket == 'super') ? 0.040 : 0.0001; // Sadə nümunə
+            userData.balance += gain;
+            userData.energy -= 1;
+            updateDB();
+        }
+
+        function earnAdBalance() {
+            startAd(15, () => {
+                userData.balance += 0.005;
+                updateDB();
+            });
+        }
+
+        function startAd(sec, callback) {
+            const v = document.getElementById('ad-viewer');
+            const s = document.getElementById('ad-sec');
+            document.getElementById('ad-iframe').src = "REKLAM_LINKIN";
+            v.style.display = 'flex';
+            let t = sec;
+            let inv = setInterval(() => {
+                t--; s.innerText = t;
+                if(t <= 0) { clearInterval(inv); v.style.display = 'none'; callback(); }
+            }, 1000);
+        }
+
+        function updateDB() {
+            db.ref('zerowallet_users/' + user).update({ balance: userData.balance, energy: userData.energy });
+            document.getElementById('bal').innerText = userData.balance.toFixed(4);
+            document.getElementById('energy-bar').style.width = userData.energy + '%';
+        }
+
+        // Data Dinləmə
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            userData = snap.val();
+            document.getElementById('bal').innerText = userData.balance.toFixed(4);
         });
-    }
-</script>
+    </script>
+</body>
+</html>
