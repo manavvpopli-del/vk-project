@@ -82,6 +82,8 @@
         #ad-iframe { flex: 1; border: none; width: 100%; }
         .click-val-text { position: absolute; font-weight: 800; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
+
+        .native-banner-area { margin-top: 20px; min-height: 100px; width: 100%; overflow: hidden; border-radius: 15px; }
     </style>
 </head>
 <body>
@@ -115,22 +117,83 @@
                     <img src="coin.png" id="main-coin">
                 </div>
                 
-                <div id="session-info" style="margin-top:10px; font-weight:800; color:var(--primary); display:none;">
-                    Bu sessiya: <span id="session-amt">0.000</span> AZN
+                <div id="session-box" style="margin-top:15px; font-weight:800; color:var(--primary); display:none;">
+                    Toplanan: <span id="session-amt">0.000</span> AZN
                 </div>
 
-                <button id="claim-session-btn" class="ref-btn" onclick="claimToBalance()" style="background:#10b981; margin-top:20px; display:none;">
-                    <i class="fas fa-wallet"></i> BALANSA KÖÇÜR (REKLAM İZLƏ)
+                <button id="claim-btn" class="ref-btn" onclick="claimSession()" style="background:#10b981; margin-top:20px; display:none;">
+                    <i class="fas fa-gift"></i> BALANSA KÖÇÜR (REKLAM)
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="bonus-sec" class="section">...</div>
-    <div id="market-sec" class="section">...</div>
-    <div id="upgrade-sec" class="section">...</div>
-    <div id="withdraw-sec" class="section">...</div>
-    <div id="settings-sec" class="section">...</div>
+    <div id="bonus-sec" class="section">
+        <h2 style="margin-bottom:20px;">Fortune Wheel</h2>
+        <div class="ref-card" style="padding: 10px;">
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <div class="spin-btn" onclick="spinWheel()">SPIN</div>
+                <canvas id="wheel"></canvas>
+            </div>
+            <div id="wheel-win-area" style="display:none; margin-top:10px;">
+                <h3 id="win-text" style="margin:5px 0; color:var(--primary)">0.00 AZN</h3>
+                <button class="ref-btn" id="claim-wheel-btn">REKLAM İZLƏ VƏ BALANSA YAZ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="market-sec" class="section">
+        <h2 style="margin-bottom:20px;">Dəvət & Promo</h2>
+        <div class="ref-card">
+            <input type="text" id="coupon-input" class="ref-input" placeholder="INV-0000">
+            <button class="ref-btn" onclick="processCode()">KODU TƏSDİQLƏ</button>
+        </div>
+        <div class="ref-card">
+            <h4>Sənin Dəvət Kodun</h4>
+            <div class="my-code-display" id="my-invite-code">...</div>
+        </div>
+    </div>
+
+    <div id="upgrade-sec" class="section">
+        <h2 style="margin-bottom:20px;">Qazanc Paketləri</h2>
+        <div class="rocket-card" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:15px; border-radius:20px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="elite.png" style="width:40px;">
+                <div><h4 style="margin:0">Elite</h4><small>+0.005 / Klik</small></div>
+            </div>
+            <button class="ref-btn" style="width:auto; padding:10px 20px;" onclick="location.href='pay.html?amount=3.00'">3 AZN</button>
+        </div>
+        <div class="rocket-card" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:15px; border-radius:20px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="pro.png" style="width:40px;">
+                <div><h4 style="margin:0">Pro</h4><small>+0.010 / Klik</small></div>
+            </div>
+            <button class="ref-btn" style="width:auto; padding:10px 20px;" onclick="location.href='pay.html?amount=5.00'">5 AZN</button>
+        </div>
+        <div class="rocket-card" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:15px; border-radius:20px; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="super.png" style="width:40px;">
+                <div><h4 style="margin:0">Super</h4><small>+0.040 / Klik</small></div>
+            </div>
+            <button class="ref-btn" style="width:auto; padding:10px 20px;" onclick="location.href='pay.html?amount=8.00'">8 AZN</button>
+        </div>
+    </div>
+
+    <div id="withdraw-sec" class="section">
+        <h2 style="margin-bottom:20px;">Vəsait Çıxarışı</h2>
+        <div class="ref-card">
+            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">
+                Şərtlər: 150 AZN balans, Telegram kanalına abunə və ən az Elite roket.
+            </p>
+            <button class="ref-btn" onclick="checkWithdrawal()" style="background:var(--grad)">TRANSFERİ BAŞLAT</button>
+        </div>
+    </div>
+
+    <div id="settings-sec" class="section">
+        <h2 style="margin-bottom:20px;">Tənzimləmələr</h2>
+        <div class="ref-card"><button class="ref-btn" onclick="toggleDarkMode()">Gecə Modunu Dəyiş</button></div>
+    </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-home"></i></div>
@@ -158,60 +221,68 @@
 
         const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
         
-        let userData = { balance: 0 };
+        let userData = { balance: 0, rocket: 'standart' };
         let sessionBalance = 0;
-        let clicks = 30; // Başlanğıc enerji
+        let clicksRemaining = 30;
 
         function showSec(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
+            if(id === 'bonus-sec') drawWheel();
+        }
+
+        function showToast(m, isError = false) {
+            let t = document.createElement('div');
+            t.className = 'toast';
+            if(isError) t.style.background = "#ef4444";
+            t.innerText = m;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             let d = snap.val(); if(!d) return;
             userData = d;
             document.getElementById('bal').innerText = (d.balance || 0).toFixed(4);
+            document.getElementById('my-invite-code').innerText = d.inviteCode || "---";
         });
 
         function mine(e) {
-            if(clicks <= 0) return;
+            if(clicksRemaining <= 0) return;
 
-            // 0.005 və 0.040 arası random məbləğ
-            let randomAmt = (Math.random() * (0.040 - 0.005) + 0.005);
-            sessionBalance += randomAmt;
-            clicks--;
+            let randVal = (Math.random() * (0.040 - 0.005) + 0.005);
+            sessionBalance += randVal;
+            clicksRemaining--;
 
             updateMiningUI();
-            showClickEffect(e, randomAmt);
+            showClickEffect(e, randVal);
 
-            if(clicks <= 0) {
+            if(clicksRemaining === 0) {
                 document.getElementById('coin-btn').style.opacity = "0.3";
                 document.getElementById('coin-btn').style.pointerEvents = "none";
-                document.getElementById('claim-session-btn').style.display = "block";
+                document.getElementById('claim-btn').style.display = "block";
             }
         }
 
         function updateMiningUI() {
-            let perc = (clicks / 30) * 100;
+            let perc = (clicksRemaining / 30) * 100;
             document.getElementById('energy-bar').style.width = perc + "%";
-            document.getElementById('energy-val').innerText = clicks;
-            document.getElementById('session-info').style.display = "block";
+            document.getElementById('energy-val').innerText = clicksRemaining;
+            document.getElementById('session-box').style.display = "block";
             document.getElementById('session-amt').innerText = sessionBalance.toFixed(3);
         }
 
-        function claimToBalance() {
+        function claimSession() {
             startAdTask(15, () => {
                 db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + sessionBalance);
-                
-                // Sıfırlama
                 sessionBalance = 0;
-                clicks = 30;
+                clicksRemaining = 30;
                 document.getElementById('coin-btn').style.opacity = "1";
                 document.getElementById('coin-btn').style.pointerEvents = "auto";
-                document.getElementById('claim-session-btn').style.display = "none";
-                document.getElementById('session-info').style.display = "none";
+                document.getElementById('claim-btn').style.display = "none";
+                document.getElementById('session-box').style.display = "none";
                 updateMiningUI();
                 showToast("Məbləğ balansa köçürüldü!");
             });
@@ -236,6 +307,73 @@
             }, 1000);
         }
 
+        // FORTUNE WHEEL FUNCTIONS
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const wheelSectors = [0.50, 1.00, 5.00, 0.20, 2.50, 0.10, 3.00, 10.00];
+        const colors = ['#6366f1', '#a855f7', '#4f46e5', '#9333ea', '#4338ca', '#7e22ce', '#3730a3', '#6b21a8'];
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        function drawWheel() {
+            canvas.width = 280; canvas.height = 280;
+            const arc = Math.PI * 2 / 8;
+            wheelSectors.forEach((val, i) => {
+                ctx.beginPath(); ctx.fillStyle = colors[i];
+                ctx.moveTo(140, 140); ctx.arc(140, 140, 140, i * arc, (i + 1) * arc);
+                ctx.fill();
+                ctx.save(); ctx.fillStyle = "#fff"; ctx.translate(140, 140);
+                ctx.rotate(i * arc + arc / 2);
+                ctx.font = "bold 14px sans-serif";
+                ctx.fillText(val.toFixed(2), 75, 5); ctx.restore();
+            });
+        }
+
+        function spinWheel() {
+            if(isSpinning) return;
+            isSpinning = true;
+            document.getElementById('wheel-win-area').style.display = 'none';
+            const extraDeg = Math.floor(Math.random() * 3600) + 1440;
+            currentRotation += extraDeg;
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+            setTimeout(() => {
+                isSpinning = false;
+                const actualDeg = currentRotation % 360;
+                const sectorIndex = Math.floor(((360 - actualDeg + 270) % 360) / 45);
+                const win = wheelSectors[sectorIndex];
+                document.getElementById('win-text').innerText = win.toFixed(2) + " AZN";
+                document.getElementById('wheel-win-area').style.display = 'block';
+                document.getElementById('claim-wheel-btn').onclick = () => {
+                    startAdTask(12, () => {
+                        db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + win);
+                        document.getElementById('wheel-win-area').style.display = 'none';
+                        showToast(`+${win.toFixed(2)} AZN balansa yazıldı.`);
+                    });
+                };
+            }, 4100);
+        }
+
+        async function processCode() {
+            const input = document.getElementById('coupon-input').value.trim();
+            if(!input) { showToast("Kod daxil edin!", true); return; }
+            const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
+            if(!snap.exists()) {
+                showToast("Daxil edilən kod səhvdir!", true);
+            } else {
+                db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 0.50);
+                showToast("Kod təsdiqləndi! Bonus balansa yazıldı.");
+                document.getElementById('coupon-input').value = "";
+            }
+        }
+
+        function checkWithdrawal() {
+            if(userData.balance < 150) { showToast("Minimum 150 AZN balans lazımdır!", true); return; }
+            if(userData.rocket === 'standart') { showToast("Ən az Elite roket almalısınız!", true); return; }
+            showToast("Tələbiniz göndərildi.");
+        }
+
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
         function showClickEffect(e, val) {
             const t = document.createElement('div');
             t.className = 'click-val-text';
@@ -243,14 +381,6 @@
             t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
             document.body.appendChild(t);
             setTimeout(() => t.remove(), 600);
-        }
-
-        function showToast(m) {
-            let t = document.createElement('div');
-            t.className = 'toast';
-            t.innerText = m;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
         }
     </script>
 </body>
