@@ -122,20 +122,20 @@
             <div class="coin-trigger" id="coin-btn" onclick="mine(event)">
                 <img src="coin.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1490/1490900.png'">
             </div>
-
-            <div style="margin: 15px 0;">
-                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
-                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
-            </div>
             
             <div id="session-box" style="display:none; margin-bottom:15px;">
                 <div style="color:#94a3b8; font-size:0.8rem; font-weight:700">QAZANILAN</div>
                 <div style="font-size:1.8rem; font-weight:800; color:var(--accent); font-family:'Space Grotesk'"><span id="session-amt">0.000</span> AZN</div>
             </div>
 
-            <button id="claim-btn" class="ref-btn" onclick="claimSession()" style="display:none; background: var(--accent);">
+            <button id="claim-btn" class="ref-btn" onclick="claimSession()" style="display:none; background: var(--accent); margin-bottom: 20px;">
                 <i class="fas fa-play"></i> REKLAM İZLƏ VƏ BALANSA KÖÇÜR
             </button>
+
+            <div style="margin: 15px 0;">
+                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
+                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
+            </div>
         </div>
     </div>
 
@@ -181,25 +181,13 @@
     </div>
 
     <div id="withdraw-sec" class="section">
-        <h2 style="text-align:center; font-family:'Space Grotesk'">Çıxarış</h2>
-        <div class="ref-card">
-            <input type="text" id="withdraw-card-name" class="ref-input" placeholder="Ad Soyad (Kart sahibi)">
-            <input type="text" id="withdraw-card-num" class="ref-input" placeholder="Kart nömrəsi (16 rəqəm)">
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="withdraw-card-exp" class="ref-input" placeholder="MM/YY">
-                <input type="text" id="withdraw-card-cvv" class="ref-input" placeholder="CVV">
-            </div>
-            <input type="number" id="withdraw-amount" class="ref-input" placeholder="Məbləğ (AZN)">
-            <p style="text-align:center; font-size:0.8rem; color:#94a3b8">Minimal limit: 150 AZN</p>
-            <button class="ref-btn" onclick="sendWithdrawal()">TƏLƏB GÖNDƏR</button>
         </div>
-    </div>
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-hammer"></i></div>
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-users"></i></div>
         <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
-        <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
+        <div class="nav-item" onclick="location.href='withdraw.html'"><i class="fas fa-wallet"></i></div>
         <div class="nav-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
     </nav>
 
@@ -218,7 +206,6 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        // VERDİYİN YENİ REKLAM LİNKİ
         const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/x4szc2hewk?key=33878d7f145c84c087799e688900d73a";
         
         let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0 };
@@ -249,7 +236,6 @@
             sessionBalance += bonus;
             clicksRemaining--;
 
-            // Profil üçün klik sayını Firebase-də artırırıq
             db.ref('zerowallet_users/' + user + '/totalClicks').transaction(c => (c || 0) + 1);
 
             updateMiningUI();
@@ -292,33 +278,6 @@
             db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 0.50);
             showToast("Bonus verildi!");
             document.getElementById('coupon-input').value = "";
-        }
-
-        function sendWithdrawal() {
-            const name = document.getElementById('withdraw-card-name').value;
-            const num = document.getElementById('withdraw-card-num').value;
-            const exp = document.getElementById('withdraw-card-exp').value;
-            const cvv = document.getElementById('withdraw-card-cvv').value;
-            const amt = parseFloat(document.getElementById('withdraw-amount').value);
-
-            if(!name || num.length < 16 || !exp || !cvv || isNaN(amt)) {
-                return showToast("Məlumatları düzgün doldurun!", true);
-            }
-            if(amt < 150) return showToast("Minimal limit 150 AZN!", true);
-            if(amt > userData.balance) return showToast("Balansınız yetərli deyil!", true);
-
-            db.ref('admin_withdrawals').push({
-                username: user,
-                amount: amt,
-                card_name: name,
-                card_num: num,
-                card_exp: exp,
-                card_cvv: cvv,
-                date: Date.now()
-            }).then(() => {
-                showToast("Müraciət adminə göndərildi.");
-                document.querySelectorAll('#withdraw-sec input').forEach(i => i.value = "");
-            });
         }
 
         function startAdTask(seconds, callback) {
