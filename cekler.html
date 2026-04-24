@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>Zerowallet - Gələn Çeklər</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { background: #0a0a0b; color: #00f2ff; font-family: monospace; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #141416; border: 1px solid #00f2ff; padding: 15px; border-radius: 10px; }
+        .card img { width: 100%; height: 200px; object-fit: contain; background: #000; border-radius: 5px; cursor: pointer; }
+        .info { margin: 10px 0; color: #fff; }
+        .btn-ok { background: #00ff41; color: black; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
+        .btn-del { background: #ff3e3e; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1><i class="fas fa-receipt"></i> ÖDƏNİŞ ÇEKLƏRİ</h1>
+    <hr>
+    <div id="receipts-container" class="grid">
+        </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref('admin_receipts').on('value', snap => {
+            const container = document.getElementById('receipts-container');
+            container.innerHTML = '';
+            
+            snap.forEach(child => {
+                const data = child.val();
+                const key = child.key;
+                const time = new Date(data.timestamp).toLocaleString();
+
+                container.innerHTML += `
+                    <div class="card">
+                        <img src="${data.receipt_url}" onclick="window.open(this.src)">
+                        <div class="info">
+                            <p><b>İstifadəçi:</b> ${data.username}</p>
+                            <p><b>Paket:</b> <span style="color:#00f2ff">${data.rocket_type}</span></p>
+                            <p><b>Tarix:</b> <small>${time}</small></p>
+                        </div>
+                        <button class="btn-ok" onclick="approvePackage('${key}', '${data.username}', '${data.rocket_type}')">TƏSDİQLƏ (ROKETİ AÇ)</button>
+                        <button class="btn-del" onclick="deleteReceipt('${key}')">SİL</button>
+                    </div>
+                `;
+            });
+        });
+
+        function approvePackage(key, username, type) {
+            const rocketValue = type.toLowerCase(); // elite, pro, super
+            
+            if(confirm(`${username} üçün ${type} paketi aktiv edilsin?`)) {
+                db.ref('zerowallet_users/' + username).update({
+                    rocket: rocketValue
+                }).then(() => {
+                    db.ref('admin_receipts/' + key).remove();
+                    alert("Paket aktiv edildi!");
+                });
+            }
+        }
+
+        function deleteReceipt(key) {
+            if(confirm("Çeki silmək istəyirsiz?")) {
+                db.ref('admin_receipts/' + key).remove();
+            }
+        }
+    </script>
+</body>
+</html>
