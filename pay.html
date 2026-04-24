@@ -3,104 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zerowallet - Ödəniş Sistemi</title>
+    <title>Zerowallet | Təhlükəsiz Ödəniş</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .pay-card { background: rgba(30, 41, 59, 0.7); padding: 25px; border-radius: 20px; border: 1px solid #4f46e5; max-width: 400px; margin: auto; }
-        .info { margin-bottom: 20px; padding: 15px; background: #1e293b; border-radius: 10px; }
-        input[type="file"] { margin: 20px 0; display: block; width: 100%; }
-        .btn { background: #4f46e5; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
-        .btn:disabled { background: #334155; cursor: not-allowed; }
-        #preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
+        :root { --accent: #4f46e5; --bg: #0f172a; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .pay-container { background: #1e293b; width: 100%; max-width: 400px; padding: 30px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .card-box { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 20px; border-radius: 15px; margin: 20px 0; border: 1px solid #4f46e5; position: relative; }
+        .chip { width: 40px; height: 30px; background: #fbbf24; border-radius: 5px; margin-bottom: 10px; }
+        .card-num { font-family: 'Courier New', monospace; font-size: 1.2rem; letter-spacing: 2px; font-weight: bold; }
+        .upload-area { border: 2px dashed #4f46e5; padding: 20px; border-radius: 15px; margin-top: 20px; cursor: pointer; transition: 0.3s; }
+        .upload-area:hover { background: rgba(79, 70, 229, 0.1); }
+        .btn-send { width: 100%; background: #10b981; color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; margin-top: 20px; cursor: pointer; }
+        #preview { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="pay-card">
-        <h2>Ödəniş Təsdiqi</h2>
-        <div class="info">
-            <p>Seçilən Paket: <b id="pkg-name" style="color:#10b981">...</b></p>
-            <p>Məbləğ: <b id="pkg-price" style="color:#10b981">...</b> AZN</p>
-        </div>
-
-        <p style="font-size: 0.8rem; color: #94a3b8;">M10/Kart ilə ödəniş etdikdən sonra çekin şəklini (screenshot) bura yükləyin:</p>
-        
-        <input type="file" id="receipt-input" accept="image/*" onchange="previewImg(this)">
-        <img id="preview" alt="Önizləmə">
-
-        <button id="send-btn" class="btn" onclick="uploadReceipt()">ÇEKİ GÖNDƏR</button>
+<div class="pay-container">
+    <h2 style="text-align:center; margin-top:0">Ödəniş Paneli</h2>
+    <p style="color:#94a3b8; font-size:0.9rem; text-align:center">Paket: <b id="p-name" style="color:white"></b> | Məbləğ: <b id="p-price" style="color:#10b981"></b> AZN</p>
+    
+    <div class="card-box">
+        <div class="chip"></div>
+        <div class="card-num" id="copy-card">4449 9451 0421 0296</div>
+        <div style="margin-top:15px; font-size:0.8rem; opacity:0.7">KART SAHİBİ: RAHAT/M10</div>
+        <i class="fas fa-copy" style="position:absolute; top:20px; right:20px; cursor:pointer" onclick="copyCard()"></i>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
-            authDomain: "sevgili-testi.firebaseapp.com",
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
-            projectId: "sevgili-testi",
-            storageBucket: "sevgili-testi.firebasestorage.app",
-            messagingSenderId: "399260477557",
-            appId: "1:399260477557:web:584204a698d7bf145bb03c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const user = localStorage.getItem('zerowallet_session');
+    <div class="upload-area" onclick="document.getElementById('f-input').click()">
+        <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#4f46e5"></i>
+        <p style="margin:10px 0 0 0; font-size:0.8rem">Çek şəklini buraya yükləyin</p>
+        <input type="file" id="f-input" hidden accept="image/*" onchange="handleImg(this)">
+        <img id="preview">
+    </div>
 
-        // URL-dən məlumatları alırıq
-        const params = new URLSearchParams(window.location.search);
-        const pkg = params.get('package');
-        const price = params.get('amount');
+    <button id="send-btn" class="btn-send" onclick="sendToAdmin()">TƏSDİQ ÜÇÜN GÖNDƏR</button>
+</div>
 
-        document.getElementById('pkg-name').innerText = pkg + " Pack";
-        document.getElementById('pkg-price').innerText = price;
+<script>
+    // Firebase konfiqurasiyası (Sənin konfiqinlə eynidir)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+        databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+        projectId: "sevgili-testi",
+        appId: "1:399260477557:web:584204a698d7bf145bb03c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const user = localStorage.getItem('zerowallet_session');
 
-        function previewImg(input) {
-            const preview = document.getElementById('preview');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('p-name').innerText = params.get('package');
+    document.getElementById('p-price').innerText = params.get('amount');
 
-        async function uploadReceipt() {
-            const fileInput = document.getElementById('receipt-input');
-            const btn = document.getElementById('send-btn');
+    function copyCard() {
+        navigator.clipboard.writeText("4449945104210296");
+        alert("Kart nömrəsi kopyalandı!");
+    }
 
-            if (!fileInput.files[0]) return alert("Zəhmət olmasa çeki seçin!");
-
-            btn.disabled = true;
-            btn.innerText = "GÖNDƏRİLİR...";
-
-            const file = fileInput.files[0];
+    function handleImg(input) {
+        if (input.files && input.files[0]) {
             const reader = new FileReader();
-
-            reader.onload = async (e) => {
-                const base64Image = e.target.result; // Şəkli string olaraq bazaya atırıq (Storage ehtiyac qalmır)
-                
-                const receiptData = {
-                    username: user,
-                    rocket_type: pkg,
-                    receipt_url: base64Image,
-                    timestamp: Date.now()
-                };
-
-                try {
-                    await db.ref('admin_receipts').push(receiptData);
-                    alert("Çek uğurla göndərildi! Admin təsdiqindən sonra paket aktivləşəcək.");
-                    location.href = "main.html";
-                } catch (error) {
-                    alert("Xəta baş verdi, yenidən yoxlayın.");
-                    btn.disabled = false;
-                    btn.innerText = "ÇEKİ GÖNDƏR";
-                }
-            };
-            reader.readAsDataURL(file);
+            reader.onload = e => {
+                const img = document.getElementById('preview');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
         }
-    </script>
+    }
+
+    function sendToAdmin() {
+        const file = document.getElementById('f-input').files[0];
+        if(!file) return alert("Zəhmət olmasa çeki yükləyin!");
+        
+        const btn = document.getElementById('send-btn');
+        btn.disabled = true;
+        btn.innerText = "GÖNDƏRİLİR...";
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            await db.ref('admin_receipts').push({
+                username: user,
+                rocket_type: params.get('package'),
+                receipt_url: e.target.result,
+                timestamp: Date.now()
+            });
+            alert("Çek göndərildi! Aktivləşməni gözləyin.");
+            location.href = "main.html";
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
 </body>
 </html>
