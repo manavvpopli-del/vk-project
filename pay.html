@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Payment Gateway | Zerowallet</title>
+    <title>Secure Payment Gateway | ZeroWallet®</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,16 +37,13 @@
             margin: 15px;
         }
 
-        /* Üst Header */
         .gateway-header {
             background: var(--bank-blue);
             color: white;
             padding: 20px;
             text-align: center;
-            position: relative;
         }
 
-        .gateway-header img { width: 40px; margin-bottom: 5px; }
         .gateway-header h2 { margin: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
         
         .secure-tag {
@@ -60,7 +57,6 @@
 
         .main-content { padding: 25px; }
 
-        /* Kart Sahəsi */
         .payment-details {
             border: 1px solid #e0e0e0;
             border-radius: 10px;
@@ -98,7 +94,6 @@
             color: var(--bank-gold);
         }
 
-        /* Yükləmə Sahəsi */
         .upload-zone {
             position: relative;
             border: 2px dashed #b0bec5;
@@ -109,10 +104,7 @@
             justify-content: center;
             align-items: center;
             transition: 0.3s;
-            cursor: pointer;
         }
-
-        .upload-zone:hover { border-color: var(--bank-blue); background: #f0f4f8; }
 
         #file-input {
             position: absolute; top:0; left:0; width:100%; height:100%;
@@ -124,7 +116,6 @@
             object-fit: contain; background: white; display: none; z-index: 4;
         }
 
-        /* Düymə və Xəta */
         .btn-pay {
             width: 100%;
             background: var(--bank-blue);
@@ -136,11 +127,9 @@
             font-size: 1rem;
             margin-top: 20px;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .btn-pay:hover { background: #0d1440; }
-        .btn-pay:disabled { background: #9e9e9e; cursor: not-allowed; }
+        .btn-pay:disabled { background: #9e9e9e; }
 
         .error-msg {
             color: var(--error);
@@ -151,22 +140,33 @@
             font-weight: 600;
         }
 
-        .footer-logos {
-            display: flex;
+        /* Uğur Mesajı Overlay */
+        #success-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
             justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            opacity: 0.5;
-            font-size: 1.2rem;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
+<div id="success-overlay">
+    <i class="fas fa-check-circle" style="font-size: 5rem; color: var(--success); margin-bottom: 20px;"></i>
+    <h1 style="color: var(--bank-blue);">Çek uğurla gönderildi!</h1>
+    <p style="font-size: 1.1rem; color: #555;">Roket bir qədər sonra aktivləşəcək. <br> Zəhmət olmasa gözləyin...</p>
+</div>
+
 <div class="checkout-wrapper">
     <div class="gateway-header">
         <i class="fas fa-university" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-        <h2>Zerowallet Payment System</h2>
+        <h2>ZeroWallet® Payment Gateway</h2>
         <div class="secure-tag"><i class="fas fa-lock"></i> 256-bit SSL Təhlükəsizlik</div>
     </div>
 
@@ -174,11 +174,11 @@
         <div class="payment-details">
             <div class="info-row">
                 <span class="label">Məbləğ:</span>
-                <span class="value" style="font-size: 1.1rem; color: var(--success);">3.00 AZN</span>
+                <span class="value" id="dynamic-amount" style="font-size: 1.1rem; color: var(--success);">Yüklənir...</span>
             </div>
             <div class="info-row">
                 <span class="label">Mağaza:</span>
-                <span class="value">ZEROWALLET_TOPUP</span>
+                <span class="value">ZeroWallet®</span>
             </div>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
             <span class="label" style="font-size: 0.75rem;">QƏBULEDİCİ KART NÖMRƏSİ:</span>
@@ -190,7 +190,7 @@
 
         <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ödəniş qəbzini (çekini) buraya yükləyin:</p>
         
-        <div class="upload-zone" id="drop-area">
+        <div class="upload-zone">
             <input type="file" id="file-input" accept="image/*" onchange="previewFile(this)">
             <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #b0bec5;"></i>
             <span id="upload-status" style="font-size: 0.85rem; color: #78909c; margin-top: 5px;">Fayl seçin</span>
@@ -200,18 +200,10 @@
         <div id="err-text" class="error-msg">Zəhmət olmasa, çeki əlavə edin!</div>
 
         <button class="btn-pay" id="confirm-btn" onclick="submitPayment()">ÖDƏNİŞİ TAMAMLA</button>
-
-        <div class="footer-logos">
-            <i class="fab fa-cc-visa"></i>
-            <i class="fab fa-cc-mastercard"></i>
-            <i class="fas fa-shield-alt"></i>
-        </div>
-        <p style="text-align:center; font-size: 0.65rem; color: #999; margin-top: 15px;">© 2026 Zerowallet Security. Bütün hüquqlar qorunur.</p>
     </div>
 </div>
 
 <script>
-    // Firebase Başlatma
     const firebaseConfig = {
         apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
         authDomain: "sevgili-testi.firebaseapp.com",
@@ -225,7 +217,11 @@
     const db = firebase.database();
     const user = localStorage.getItem('zerowallet_session');
 
-    // Kart məlumatı
+    // Məbləği URL-dən və ya LocalStorage-dən götürürük
+    const urlParams = new URLSearchParams(window.location.search);
+    let amount = urlParams.get('amount') || localStorage.getItem('selected_rocket_price') || "3.00";
+    document.getElementById('dynamic-amount').innerText = amount + " AZN";
+
     const CARD_ID = "4127 1234 5678 9012";
     document.getElementById('card-num').innerText = CARD_ID;
 
@@ -236,9 +232,8 @@
 
     function previewFile(input) {
         const file = input.files[0];
-        const err = document.getElementById('err-text');
         if (file) {
-            err.style.display = 'none';
+            document.getElementById('err-text').style.display = 'none';
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.getElementById('preview-img');
@@ -252,41 +247,39 @@
 
     async function submitPayment() {
         const fileInput = document.getElementById('file-input');
-        const err = document.getElementById('err-text');
-        const btn = document.getElementById('confirm-btn');
-
-        // Şəkil yüklənməyibsə xəta ver
         if (!fileInput.files[0]) {
-            err.style.display = 'block';
+            document.getElementById('err-text').style.display = 'block';
             return;
         }
 
+        const btn = document.getElementById('confirm-btn');
         btn.disabled = true;
-        btn.innerText = "SİSTEMƏ GÖNDƏRİLİR...";
+        btn.innerText = "GÖNDƏRİLİR...";
 
         const reader = new FileReader();
         reader.onload = async function(e) {
-            const base64Data = e.target.result;
-            
             try {
-                const newRef = db.ref('admin_withdrawals').push();
-                await newRef.set({
+                await db.ref('admin_withdrawals').push({
                     username: user || "Qonaq",
-                    check: base64Data,
+                    check: e.target.result,
+                    amount: amount,
                     date: new Date().toLocaleString(),
-                    status: 'pending',
-                    type: 'deposit'
+                    status: 'pending'
                 });
                 
-                alert("Məlumatlar uğurla sistemə daxil edildi. Admin təsdiqi gözlənilir.");
-                window.location.href = "main.html";
+                // Məlumatlandırma Mesajı
+                document.getElementById('success-overlay').style.display = 'flex';
+                
+                setTimeout(() => {
+                    window.location.href = "main.html";
+                }, 4000); // 4 saniyə sonra yönləndir
+
             } catch (error) {
-                alert("Bağlantı xətası: " + error.message);
+                alert("Xəta: " + error.message);
                 btn.disabled = false;
                 btn.innerText = "ÖDƏNİŞİ TAMAMLA";
             }
         };
-
         reader.readAsDataURL(fileInput.files[0]);
     }
 </script>
