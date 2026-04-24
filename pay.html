@@ -3,180 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zerowallet | Premium Checkout</title>
+    <title>Secure Payment Gateway | Zerowallet</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.05);
-            --neon: #00f2ff;
-            --grad: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --bank-blue: #1a237e;
+            --bank-gold: #c5a059;
+            --success: #2e7d32;
+            --error: #d32f2f;
+            --text: #333;
         }
 
         body {
-            background-color: #05070a;
-            color: white;
-            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #f4f7f6;
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .pay-container {
+        .checkout-wrapper {
             width: 100%;
-            max-width: 400px;
-            perspective: 1000px;
-        }
-
-        /* PREMIUM CARD DESIGN */
-        .premium-card {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-            border-radius: 24px;
-            padding: 25px;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 30px;
+            max-width: 450px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             overflow: hidden;
+            margin: 15px;
         }
 
-        .premium-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-            transform: rotate(30deg);
-        }
-
-        .chip {
-            width: 50px; height: 38px;
-            background: linear-gradient(135deg, #d4af37, #f9e076);
-            border-radius: 8px;
-            margin-bottom: 30px;
+        /* Üst Header */
+        .gateway-header {
+            background: var(--bank-blue);
+            color: white;
+            padding: 20px;
+            text-align: center;
             position: relative;
         }
 
-        .card-number {
-            font-size: 1.4rem;
-            letter-spacing: 4px;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            display: block;
-            margin-bottom: 20px;
-        }
-
-        .card-holder {
-            display: flex; justify-content: space-between;
-            align-items: flex-end;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            color: #94a3b8;
-        }
-
-        .copy-badge {
-            background: var(--neon);
-            color: black;
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-weight: 900;
-            cursor: pointer;
+        .gateway-header img { width: 40px; margin-bottom: 5px; }
+        .gateway-header h2 { margin: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .secure-tag {
             font-size: 0.7rem;
-            transition: 0.3s;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 8px;
         }
 
-        /* UPLOAD SECTION */
-        .upload-section {
-            background: var(--glass);
-            border: 2px dashed rgba(255,255,255,0.1);
-            border-radius: 20px;
-            height: 180px;
+        .main-content { padding: 25px; }
+
+        /* Kart Sahəsi */
+        .payment-details {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .label { color: #757575; }
+        .value { font-weight: 700; color: #1a237e; }
+
+        .card-display {
+            background: #222;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
             position: relative;
+            background: linear-gradient(135deg, #333 0%, #000 100%);
+        }
+
+        .copy-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--bank-gold);
+        }
+
+        /* Yükləmə Sahəsi */
+        .upload-zone {
+            position: relative;
+            border: 2px dashed #b0bec5;
+            border-radius: 10px;
+            height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             transition: 0.3s;
+            cursor: pointer;
         }
 
-        .upload-section i { font-size: 3rem; color: #475569; margin-bottom: 10px; }
-        
+        .upload-zone:hover { border-color: var(--bank-blue); background: #f0f4f8; }
+
         #file-input {
             position: absolute; top:0; left:0; width:100%; height:100%;
-            opacity:0; z-index: 100; cursor: pointer;
+            opacity:0; z-index: 5; cursor: pointer;
         }
 
         #preview-img {
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            object-fit: cover; border-radius: 18px; display: none; z-index: 10;
+            position: absolute; width: 100%; height: 100%;
+            object-fit: contain; background: white; display: none; z-index: 4;
         }
 
-        /* BUTTONS */
+        /* Düymə və Xəta */
         .btn-pay {
             width: 100%;
-            background: white;
-            color: black;
+            background: var(--bank-blue);
+            color: white;
             border: none;
-            padding: 18px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            margin-top: 25px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 20px;
             cursor: pointer;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: 0.3s;
         }
 
-        .btn-pay:active { transform: scale(0.95); }
-        .btn-pay:disabled { background: #475569; cursor: not-allowed; }
+        .btn-pay:hover { background: #0d1440; }
+        .btn-pay:disabled { background: #9e9e9e; cursor: not-allowed; }
 
-        #error-box {
-            color: #ff4d4d;
+        .error-msg {
+            color: var(--error);
             font-size: 0.8rem;
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
             display: none;
-            font-weight: bold;
+            font-weight: 600;
+        }
+
+        .footer-logos {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            opacity: 0.5;
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
 
-<div class="pay-container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="margin:0; font-size: 1.5rem;">ÖDƏNİŞ</h1>
-        <p style="color: #64748b; font-size: 0.9rem;">Köçürməni edin və çeki yükləyin</p>
+<div class="checkout-wrapper">
+    <div class="gateway-header">
+        <i class="fas fa-university" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+        <h2>Zerowallet Payment System</h2>
+        <div class="secure-tag"><i class="fas fa-lock"></i> 256-bit SSL Təhlükəsizlik</div>
     </div>
 
-    <div class="premium-card">
-        <div class="chip"></div>
-        <span class="card-number" id="card-text">4127 0000 0000 0000</span>
-        <div class="card-holder">
-            <div>
-                <div style="font-size: 0.6rem; margin-bottom: 4px;">KART SAHİBİ</div>
-                <div style="color: white;">ZEROWALLET LTD</div>
+    <div class="main-content">
+        <div class="payment-details">
+            <div class="info-row">
+                <span class="label">Məbləğ:</span>
+                <span class="value" style="font-size: 1.1rem; color: var(--success);">3.00 AZN</span>
             </div>
-            <div class="copy-badge" onclick="copyCard()">KOPYALA</div>
+            <div class="info-row">
+                <span class="label">Mağaza:</span>
+                <span class="value">ZEROWALLET_TOPUP</span>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+            <span class="label" style="font-size: 0.75rem;">QƏBULEDİCİ KART NÖMRƏSİ:</span>
+            <div class="card-display">
+                <span id="card-num" style="letter-spacing: 2px;">4127 0000 0000 0000</span>
+                <i class="fas fa-copy copy-icon" onclick="copyCard()"></i>
+            </div>
         </div>
-    </div>
 
-    <div class="upload-section" id="upload-box">
-        <input type="file" id="file-input" accept="image/*" onchange="preview(this)">
-        <i class="fas fa-receipt" id="icon-ui"></i>
-        <span id="text-ui">Çeki bura əlavə et</span>
-        <img id="preview-img">
-    </div>
-    
-    <div id="error-box"><i class="fas fa-times-circle"></i> XƏTA: ÇEK YÜKLƏNMƏYİB!</div>
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ödəniş qəbzini (çekini) buraya yükləyin:</p>
+        
+        <div class="upload-zone" id="drop-area">
+            <input type="file" id="file-input" accept="image/*" onchange="previewFile(this)">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #b0bec5;"></i>
+            <span id="upload-status" style="font-size: 0.85rem; color: #78909c; margin-top: 5px;">Fayl seçin</span>
+            <img id="preview-img">
+        </div>
 
-    <button class="btn-pay" id="send-btn" onclick="processPayment()">
-        TƏSDİQLƏ
-    </button>
+        <div id="err-text" class="error-msg">Zəhmət olmasa, çeki əlavə edin!</div>
+
+        <button class="btn-pay" id="confirm-btn" onclick="submitPayment()">ÖDƏNİŞİ TAMAMLA</button>
+
+        <div class="footer-logos">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <p style="text-align:center; font-size: 0.65rem; color: #999; margin-top: 15px;">© 2026 Zerowallet Security. Bütün hüquqlar qorunur.</p>
+    </div>
 </div>
 
 <script>
+    // Firebase Başlatma
     const firebaseConfig = {
         apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
         authDomain: "sevgili-testi.firebaseapp.com",
@@ -190,76 +225,71 @@
     const db = firebase.database();
     const user = localStorage.getItem('zerowallet_session');
 
-    const MY_CARD = "4127 9999 8888 7777"; // Bura öz kartını yaz
-    document.getElementById('card-text').innerText = MY_CARD;
+    // Kart məlumatı
+    const CARD_ID = "4127 1234 5678 9012";
+    document.getElementById('card-num').innerText = CARD_ID;
 
     function copyCard() {
-        navigator.clipboard.writeText(MY_CARD.replace(/\s/g, ''));
+        navigator.clipboard.writeText(CARD_ID.replace(/\s/g, ''));
         alert("Kart nömrəsi kopyalandı!");
     }
 
-    function preview(input) {
+    function previewFile(input) {
         const file = input.files[0];
-        const errorBox = document.getElementById('error-box');
+        const err = document.getElementById('err-text');
         if (file) {
-            errorBox.style.display = 'none';
+            err.style.display = 'none';
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.getElementById('preview-img');
                 img.src = e.target.result;
                 img.style.display = 'block';
-                document.getElementById('icon-ui').style.display = 'none';
-                document.getElementById('text-ui').innerText = "Dəyişmək üçün toxun";
+                document.getElementById('upload-status').innerText = "Dəyişmək üçün toxun";
             }
             reader.readAsDataURL(file);
         }
     }
 
-    async function processPayment() {
+    async function submitPayment() {
         const fileInput = document.getElementById('file-input');
-        const errorBox = document.getElementById('error-box');
-        const btn = document.getElementById('send-btn');
+        const err = document.getElementById('err-text');
+        const btn = document.getElementById('confirm-btn');
 
-        // Şəkil yüklənməyibsə dayandır
+        // Şəkil yüklənməyibsə xəta ver
         if (!fileInput.files[0]) {
-            errorBox.style.display = 'block';
+            err.style.display = 'block';
             return;
         }
 
         btn.disabled = true;
-        btn.innerText = "GÖNDƏRİLİR...";
+        btn.innerText = "SİSTEMƏ GÖNDƏRİLİR...";
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             const base64Data = e.target.result;
             
-            // Firebase-ə göndərmə
-            const newRef = db.ref('admin_withdrawals').push();
-            newRef.set({
-                username: user || "Qonaq",
-                check: base64Data,
-                date: new Date().toLocaleString(),
-                status: 'pending',
-                id: newRef.key
-            }).then(() => {
-                alert("Ödəniş çeki uğurla göndərildi!");
+            try {
+                const newRef = db.ref('admin_withdrawals').push();
+                await newRef.set({
+                    username: user || "Qonaq",
+                    check: base64Data,
+                    date: new Date().toLocaleString(),
+                    status: 'pending',
+                    type: 'deposit'
+                });
+                
+                alert("Məlumatlar uğurla sistemə daxil edildi. Admin təsdiqi gözlənilir.");
                 window.location.href = "main.html";
-            }).catch((err) => {
-                alert("Firebase Xətası: " + err.message);
+            } catch (error) {
+                alert("Bağlantı xətası: " + error.message);
                 btn.disabled = false;
-                btn.innerText = "TƏSDİQLƏ";
-            });
+                btn.innerText = "ÖDƏNİŞİ TAMAMLA";
+            }
         };
 
-        // Faylı oxumağa başla
-        try {
-            reader.readAsDataURL(fileInput.files[0]);
-        } catch (e) {
-            alert("Fayl oxunarkən xəta: " + e.message);
-            btn.disabled = false;
-            btn.innerText = "TƏSDİQLƏ";
-        }
+        reader.readAsDataURL(fileInput.files[0]);
     }
 </script>
+
 </body>
 </html>
