@@ -14,22 +14,21 @@
         body { 
             background: var(--bg); color: white; font-family: 'Space Grotesk', sans-serif; 
             display: flex; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; padding: 20px; 
+            min-height: 100vh; margin: 0; padding: 20px; overflow: hidden;
         }
         
         .pay-container { 
             background: #1e293b; width: 100%; max-width: 400px; padding: 25px; 
             border-radius: 28px; border: 1px solid rgba(255,255,255,0.05); 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;
         }
         
-        /* Kartın görünüşü */
+        /* Kart Dizaynı */
         .card-box { 
             background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); 
             padding: 25px; border-radius: 20px; margin: 20px 0; 
             border: 1px solid rgba(255,255,255,0.1); position: relative;
             overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            transition: 0.3s;
         }
         
         .bank-logo { width: 110px; margin-bottom: 15px; position: relative; z-index: 1; filter: brightness(1.2); }
@@ -42,19 +41,16 @@
             position: relative; z-index: 1;
         }
 
-        /* Yükləmə sahəsi */
+        /* Yükləmə Sahəsi */
         .upload-area { 
             border: 2px dashed rgba(255,255,255,0.1); padding: 30px 20px; 
             border-radius: 20px; margin-top: 25px; cursor: pointer; 
             transition: 0.3s; text-align: center; background: rgba(0,0,0,0.2);
         }
-        .upload-area:hover { border-color: var(--accent); background: rgba(79, 70, 229, 0.05); }
         
-        /* Xəta olduqda titrəmə effekti */
         .error-shake {
             animation: shake 0.4s ease-in-out;
             border-color: #ef4444 !important;
-            background: rgba(239, 68, 68, 0.05) !important;
         }
 
         @keyframes shake {
@@ -68,47 +64,60 @@
             width: 100%; background: #10b981; color: white; border: none; 
             padding: 18px; border-radius: 16px; font-weight: 800; font-size: 1rem;
             margin-top: 25px; cursor: pointer; transition: 0.3s; 
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
-        .btn-send:active { transform: scale(0.98); }
-        
-        #preview { width: 100%; height: auto; max-height: 180px; object-fit: contain; border-radius: 12px; margin-top: 15px; display: none; }
-        .status-badge { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+
+        #preview { width: 100%; height: auto; max-height: 150px; object-fit: contain; border-radius: 12px; margin-top: 10px; display: none; }
+
+        /* Toast Bildirişi */
+        #toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+        #toast.show { bottom: 30px; }
     </style>
 </head>
 <body>
 
 <div class="pay-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h3 style="margin:0">Ödəniş Paneli</h3>
-        <div class="status-badge">TƏHLÜKƏSİZ</div>
-    </div>
-    
-    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom: 20px;">
+    <h3 style="margin-top:0">Ödəniş Təsdiqi</h3>
+    <p style="color:#94a3b8; font-size:0.9rem;">
         <span id="p-name" style="color:white; font-weight:bold;">Paket</span> seçildi. <b id="p-price" style="color:#10b981">0</b> <b>AZN</b> ödənişi karta göndərin:
     </p>
     
     <div class="card-box">
-        <img src="pasha.png" class="bank-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/PASHA_Bank_logo.svg/2560px-PASHA_Bank_logo.svg.png'">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/PASHA_Bank_logo.svg/2560px-PASHA_Bank_logo.svg.png" class="bank-logo">
         <div class="chip"></div>
         <div class="card-num">
-            <span id="copy-card">4449 9451 0421 0296</span>
-            <i class="fas fa-copy" style="cursor:pointer; font-size: 1.1rem; color: #94a3b8;" onclick="copyCard()"></i>
+            <span>4449 9451 0421 0296</span>
+            <i class="fas fa-copy" style="cursor:pointer; color:#94a3b8;" onclick="copyCard()"></i>
         </div>
     </div>
 
     <div class="upload-area" id="drop-zone" onclick="document.getElementById('f-input').click()">
-        <i class="fas fa-file-invoice-dollar" style="font-size:2.5rem; color:var(--accent); margin-bottom: 10px;"></i>
-        <p style="margin:5px 0; font-weight: 700;">Çeki Yükləyin</p>
-        <p style="margin:0; font-size:0.75rem; color:#64748b">Toxunaraq şəkli seçin</p>
+        <i class="fas fa-file-invoice-dollar" style="font-size:2rem; color:var(--accent); margin-bottom:10px;"></i>
+        <p id="up-text" style="margin:0; font-weight:700;">Çeki Yükləyin</p>
         <input type="file" id="f-input" hidden accept="image/*" onchange="handleImg(this)">
         <img id="preview">
     </div>
 
-    <button id="send-btn" class="btn-send" onclick="sendToAdmin()">
-        <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> TƏSDİQ ÜÇÜN GÖNDƏR
-    </button>
+    <button id="send-btn" class="btn-send" onclick="sendToAdmin()">TƏSDİQ ÜÇÜN GÖNDƏR</button>
 </div>
+
+<div id="toast"><i class="fas fa-info-circle"></i> <span id="toast-msg"></span></div>
 
 <script>
     const firebaseConfig = {
@@ -121,18 +130,21 @@
     const db = firebase.database();
     const user = localStorage.getItem('zerowallet_session');
 
-    // Dinamik məlumatları URL-dən götürürük
     const params = new URLSearchParams(window.location.search);
-    const packageName = params.get('package') || "Standart";
-    const amount = params.get('amount') || "0.00";
-    
-    document.getElementById('p-name').innerText = packageName + " Paket";
-    document.getElementById('p-price').innerText = amount;
+    document.getElementById('p-name').innerText = (params.get('package') || "Standart") + " Paket";
+    document.getElementById('p-price').innerText = params.get('amount') || "0.00";
+
+    function showToast(msg, color = "#ef4444") {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-msg').innerText = msg;
+        toast.style.background = color;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
     function copyCard() {
-        const num = "4449945104210296";
-        navigator.clipboard.writeText(num);
-        alert("Kart nömrəsi kopyalandı!");
+        navigator.clipboard.writeText("4449945104210296");
+        showToast("Kart nömrəsi kopyalandı!", "#4f46e5");
     }
 
     function handleImg(input) {
@@ -142,11 +154,8 @@
                 const img = document.getElementById('preview');
                 img.src = e.target.result;
                 img.style.display = 'block';
-                // Yazıları və ikonları gizlət
+                document.getElementById('up-text').style.display = 'none';
                 document.querySelector('.fa-file-invoice-dollar').style.display = 'none';
-                document.querySelectorAll('.upload-area p').forEach(p => p.style.display = 'none');
-                // Əgər əvvəl xəta veribsə, xəta rəngini təmizlə
-                document.getElementById('drop-zone').classList.remove('error-shake');
             }
             reader.readAsDataURL(input.files[0]);
         }
@@ -154,38 +163,32 @@
 
     async function sendToAdmin() {
         const file = document.getElementById('f-input').files[0];
-        const uploadArea = document.getElementById('drop-zone');
-        
-        // ÇEK YÜKLƏNMƏYİBSƏ XƏTA GÖSTƏR
         if(!file) {
-            uploadArea.classList.add('error-shake');
-            alert("⚠️ Xahiş olunur, əvvəlcə ödəniş çekini yükləyin!");
-            setTimeout(() => {
-                uploadArea.classList.remove('error-shake');
-            }, 400);
+            document.getElementById('drop-zone').classList.add('error-shake');
+            showToast("Zəhmət olmasa əvvəlcə çeki yükləyin!");
+            setTimeout(() => document.getElementById('drop-zone').classList.remove('error-shake'), 400);
             return;
         }
         
         const btn = document.getElementById('send-btn');
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GÖNDƏRİLİR...';
+        btn.innerText = "GÖNDƏRİLİR...";
 
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
                 await db.ref('admin_receipts').push({
                     username: user || "Naməlum",
-                    rocket_type: packageName,
-                    amount: amount,
+                    rocket_type: params.get('package'),
+                    amount: params.get('amount'),
                     receipt_url: e.target.result,
                     timestamp: Date.now()
                 });
-                alert("✅ Çek göndərildi! Paketiniz tezliklə aktiv ediləcək.");
-                location.href = "main.html";
-            } catch (error) {
-                alert("❌ Xəta: Göndərmək mümkün olmadı.");
+                showToast("Çek göndərildi! Aktivasiya gözlənilir.", "#10b981");
+                setTimeout(() => location.href = "main.html", 2000);
+            } catch (err) {
+                showToast("Xəta baş verdi!");
                 btn.disabled = false;
-                btn.innerText = "TƏSDİQ ÜÇÜN GÖNDƏR";
             }
         };
         reader.readAsDataURL(file);
