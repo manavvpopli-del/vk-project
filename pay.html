@@ -31,7 +31,7 @@
             overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
         
-        .bank-logo { width: 110px; margin-bottom: 15px; position: relative; z-index: 1; filter: brightness(1.2); }
+        .bank-logo { width: 130px; margin-bottom: 15px; position: relative; z-index: 1; filter: brightness(1.1); }
         .chip { width: 45px; height: 35px; background: linear-gradient(135deg, #fcd34d, #b45309); border-radius: 6px; margin-bottom: 20px; position: relative; z-index: 1; }
         
         .card-num { 
@@ -99,7 +99,7 @@
     </p>
     
     <div class="card-box">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/PASHA_Bank_logo.svg/2560px-PASHA_Bank_logo.svg.png" class="bank-logo">
+        <img src="pasha.png" class="bank-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/PASHA_Bank_logo.svg/1024px-PASHA_Bank_logo.svg.png'">
         <div class="chip"></div>
         <div class="card-num">
             <span>4449 9451 0421 0296</span>
@@ -136,14 +136,20 @@
 
     function showToast(msg, color = "#ef4444") {
         const toast = document.getElementById('toast');
-        document.getElementById('toast-msg').innerText = msg;
+        const text = document.getElementById('toast-msg');
+        text.innerText = msg;
         toast.style.background = color;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function copyCard() {
-        navigator.clipboard.writeText("4449945104210296");
+        const el = document.createElement('textarea');
+        el.value = "4449945104210296";
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
         showToast("Kart nömrəsi kopyalandı!", "#4f46e5");
     }
 
@@ -156,6 +162,7 @@
                 img.style.display = 'block';
                 document.getElementById('up-text').style.display = 'none';
                 document.querySelector('.fa-file-invoice-dollar').style.display = 'none';
+                document.getElementById('drop-zone').classList.remove('error-shake');
             }
             reader.readAsDataURL(input.files[0]);
         }
@@ -189,6 +196,7 @@
             } catch (err) {
                 showToast("Xəta baş verdi!");
                 btn.disabled = false;
+                btn.innerText = "TƏSDİQ ÜÇÜN GÖNDƏR";
             }
         };
         reader.readAsDataURL(file);
