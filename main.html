@@ -153,25 +153,25 @@
         <div class="rocket-card">
             <div class="rocket-info">
                 <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Elite Pack</h4><small style="color:var(--accent)">+0.005 / Klik</small></div>
+                <div><h4 style="margin:0">Elite Pack</h4><small style="color:var(--accent)">+0.05 / Klik</small></div>
             </div>
-            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?package=Elite&amount=3.00'">3 AZN</button>
+            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?package=Elite&amount=4.00'">4 AZN</button>
         </div>
 
         <div class="rocket-card">
             <div class="rocket-info">
                 <img src="pro.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Pro Pack</h4><small style="color:var(--accent)">+0.010 / Klik</small></div>
+                <div><h4 style="margin:0">Pro Pack</h4><small style="color:var(--accent)">+0.10 / Klik</small></div>
             </div>
-            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?package=Pro&amount=5.00'">5 AZN</button>
+            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?package=Pro&amount=8.00'">8 AZN</button>
         </div>
 
         <div class="rocket-card">
             <div class="rocket-info">
                 <img src="super.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Super Pack</h4><small style="color:var(--accent)">+0.040 / Klik</small></div>
+                <div><h4 style="margin:0">Super Pack</h4><small style="color:var(--accent)">+0.17 / Klik</small></div>
             </div>
-            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?package=Super&amount=8.00'">8 AZN</button>
+            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?package=Super&amount=11.00'">11 AZN</button>
         </div>
     </div>
 
@@ -234,17 +234,16 @@
         function mine(e) {
             if(clicksRemaining <= 0) return;
             
-            // Roket tipinə görə qazanc hesabı
-            let bonus = 0.005;
-            if(userData.rocket === "elite") bonus = 0.005;
-            if(userData.rocket === "pro") bonus = 0.010;
-            if(userData.rocket === "super") bonus = 0.040;
+            // Yeni qazanc dərəcələri (Qəpik hesabı)
+            let bonus = 0.01; // Default: +1 qəpik
+            if(userData.rocket === "elite") bonus = 0.05; // +5 qəpik
+            if(userData.rocket === "pro") bonus = 0.10;   // +10 qəpik
+            if(userData.rocket === "super") bonus = 0.17; // +17 qəpik
             
-            let randVal = (Math.random() * (bonus * 1.5 - bonus) + bonus);
-            sessionBalance += randVal;
+            sessionBalance += bonus;
             clicksRemaining--;
             updateMiningUI();
-            showClickEffect(e, randVal);
+            showClickEffect(e, bonus);
             if(clicksRemaining === 0) {
                 document.getElementById('coin-btn').style.opacity = "0.3";
                 document.getElementById('claim-btn').style.display = "block";
@@ -255,7 +254,7 @@
             document.getElementById('energy-bar').style.width = (clicksRemaining / 30 * 100) + "%";
             document.getElementById('energy-val').innerText = clicksRemaining;
             document.getElementById('session-box').style.display = "block";
-            document.getElementById('session-amt').innerText = sessionBalance.toFixed(3);
+            document.getElementById('session-amt').innerText = sessionBalance.toFixed(2);
         }
 
         function claimSession() {
@@ -338,7 +337,7 @@
 
         function showClickEffect(e, val) {
             const t = document.createElement('div');
-            t.innerText = "+" + val.toFixed(3);
+            t.innerText = "+" + val.toFixed(2);
             t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
             t.style.position = 'fixed'; t.style.color = 'var(--accent)'; t.style.fontWeight = '800';
             t.style.animation = 'floatUp 0.6s forwards'; document.body.appendChild(t);
