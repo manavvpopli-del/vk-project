@@ -67,7 +67,7 @@
         }
 
         .coin-trigger { 
-            width: 180px; height: 180px; margin: 20px auto; cursor: pointer; 
+            width: 210px; height: 210px; margin: 30px auto; cursor: pointer; 
             transition: 0.15s; position: relative; display: flex; align-items: center; justify-content: center;
         }
         .coin-trigger img { width: 90%; z-index: 2; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5)); }
@@ -89,8 +89,6 @@
         
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 70px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Space Grotesk'; }
-
-        .native-ad-box { margin: 15px 0; min-height: 50px; width: 100%; }
 
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
@@ -125,7 +123,7 @@
                 <img src="coin.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1490/1490900.png'">
             </div>
 
-            <div class="native-ad-box">
+            <div style="margin: 15px 0;">
                 <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
                 <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
@@ -202,6 +200,7 @@
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-users"></i></div>
         <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
+        <div class="nav-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
     </nav>
 
     <script>
@@ -219,10 +218,10 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        // YENİ SMARTLINK REKLAM KODU
+        // VERDİYİN YENİ REKLAM LİNKİ
         const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/x4szc2hewk?key=33878d7f145c84c087799e688900d73a";
         
-        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default" };
+        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0 };
         let sessionBalance = 0;
         let clicksRemaining = 30;
 
@@ -249,6 +248,10 @@
             
             sessionBalance += bonus;
             clicksRemaining--;
+
+            // Profil üçün klik sayını Firebase-də artırırıq
+            db.ref('zerowallet_users/' + user + '/totalClicks').transaction(c => (c || 0) + 1);
+
             updateMiningUI();
             showClickEffect(e, bonus);
             if(clicksRemaining === 0) {
