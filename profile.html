@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profil - Zerowallet</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.15) 0%, transparent 50%);
+        }
+
+        .container { padding: 25px; max-width: 500px; margin: 0 auto; }
+        
+        .back-btn { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 10px 15px; border-radius: 12px; cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 20px;
+        }
+
+        .profile-card {
+            background: var(--card); border-radius: 30px; padding: 30px 20px;
+            border: 1px solid rgba(255,255,255,0.05); text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .avatar {
+            width: 100px; height: 100px; background: var(--grad); border-radius: 50%;
+            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 800; border: 4px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .username { font-family: 'Space Grotesk'; font-size: 1.5rem; margin: 0; }
+        .join-date { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px 10px; border-radius: 20px; transition: 0.3s;
+        }
+
+        .stat-box i { font-size: 1.2rem; color: var(--primary); margin-bottom: 10px; }
+        .stat-box span { display: block; font-size: 1.4rem; font-weight: 800; font-family: 'Space Grotesk'; }
+        .stat-box label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        .logout-btn {
+            margin-top: 30px; width: 100%; padding: 15px; border-radius: 15px;
+            background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
+            font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Geri
+        </a>
+
+        <div class="profile-card">
+            <div class="avatar" id="avatar">?</div>
+            <h2 class="username" id="username">Yüklənir...</h2>
+            <div class="join-date" id="joined">Qoşulma tarixi: --.--.----</div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <span id="clicks">0</span>
+                    <label>Ümumi Klik</label>
+                </div>
+                <div class="stat-box">
+                    <i class="fas fa-users"></i>
+                    <span id="refs">0</span>
+                    <label>Referallar</label>
+                </div>
+                <div class="stat-box" style="grid-column: span 2;">
+                    <i class="fas fa-rocket"></i>
+                    <span id="rank" style="text-transform: capitalize;">Default</span>
+                    <label>Aktiv Paket</label>
+                </div>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> ÇIXIŞ ET
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
+
+        if(!user) location.href="index.html";
+
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            const data = snap.val() || {};
+            
+            document.getElementById('username').innerText = user;
+            document.getElementById('avatar').innerText = user.charAt(0).toUpperCase();
+            document.getElementById('clicks').innerText = data.totalClicks || 0;
+            document.getElementById('rank').innerText = data.rocket || "Default";
+            
+            // Referal sayını hesabla (usedCodes daxilindəki kodlar qədər)
+            const refCount = data.usedCodes ? Object.keys(data.usedCodes).length : 0;
+            document.getElementById('refs').innerText = refCount;
+
+            // Qoşulma tarixini formatla
+            if(data.createdAt) {
+                const date = new Date(data.createdAt);
+                document.getElementById('joined').innerText = "Qoşulma tarixi: " + date.toLocaleDateString('az-AZ');
+            } else {
+                // Əgər tarix yoxdursa, indi yarat (ilk dəfə girənlər üçün)
+                db.ref('zerowallet_users/' + user + '/createdAt').set(Date.now());
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('zerowallet_session');
+            location.href="index.html";
+        }
+    </script>
+</body>
+</html>
