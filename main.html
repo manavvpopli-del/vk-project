@@ -67,7 +67,7 @@
         }
 
         .coin-trigger { 
-            width: 210px; height: 210px; margin: 30px auto; cursor: pointer; 
+            width: 180px; height: 180px; margin: 20px auto; cursor: pointer; 
             transition: 0.15s; position: relative; display: flex; align-items: center; justify-content: center;
         }
         .coin-trigger img { width: 90%; z-index: 2; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5)); }
@@ -89,6 +89,8 @@
         
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 70px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Space Grotesk'; }
+
+        .native-ad-box { margin: 15px 0; min-height: 50px; width: 100%; }
 
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
@@ -121,6 +123,11 @@
 
             <div class="coin-trigger" id="coin-btn" onclick="mine(event)">
                 <img src="coin.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1490/1490900.png'">
+            </div>
+
+            <div class="native-ad-box">
+                <script async="async" data-cfasync="false" src="https://pl29218826.profitablecpmratenetwork.com/fed47239501b78c24a02682c538a18a6/invoke.js"></script>
+                <div id="container-fed47239501b78c24a02682c538a18a6"></div>
             </div>
             
             <div id="session-box" style="display:none; margin-bottom:15px;">
@@ -212,7 +219,8 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/r6w2jtq0n?key=62ea4c652382983e5bb5135c0b56aa25";
+        // YENİ SMARTLINK REKLAM KODU
+        const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/x4szc2hewk?key=33878d7f145c84c087799e688900d73a";
         
         let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default" };
         let sessionBalance = 0;
@@ -234,11 +242,10 @@
         function mine(e) {
             if(clicksRemaining <= 0) return;
             
-            // Yeni qazanc dərəcələri (Qəpik hesabı)
-            let bonus = 0.01; // Default: +1 qəpik
-            if(userData.rocket === "elite") bonus = 0.05; // +5 qəpik
-            if(userData.rocket === "pro") bonus = 0.10;   // +10 qəpik
-            if(userData.rocket === "super") bonus = 0.17; // +17 qəpik
+            let bonus = 0.01;
+            if(userData.rocket === "elite") bonus = 0.05;
+            if(userData.rocket === "pro") bonus = 0.10;
+            if(userData.rocket === "super") bonus = 0.17;
             
             sessionBalance += bonus;
             clicksRemaining--;
