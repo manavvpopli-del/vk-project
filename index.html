@@ -92,6 +92,14 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        // --- BU HISSE ƏLAVƏ OLUNDU ---
+        const activeUser = localStorage.getItem('zerowallet_session');
+        if (activeUser) {
+            window.location.href = "main.html";
+        }
+        // -----------------------------
+
         let isLoginMode = true;
 
         function toggleMode() {
