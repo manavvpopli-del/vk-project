@@ -56,34 +56,40 @@
         .nav-item { color: #64748b; font-size: 1.3rem; cursor: pointer; transition: 0.4s; }
         .nav-item.active { color: var(--primary); transform: translateY(-8px) scale(1.2); }
 
-        .section { display: none; height: calc(100vh - 170px); padding: 15px 20px; overflow-y: auto; }
+        .section { display: none; height: calc(100vh - 170px); padding: 15px 20px; overflow-y: auto; scrollbar-width: none; }
         .section.active { display: block; animation: sectionFade 0.5s ease; }
-        
+        @keyframes sectionFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
         .mining-container { 
             background: var(--card); border-radius: 32px; padding: 30px 20px; 
-            border: 1px solid rgba(255,255,255,0.05); text-align: center; margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center; margin-top: 10px;
         }
 
-        .coin-trigger { width: 210px; height: 210px; margin: 30px auto; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; transition: 0.1s; }
+        .coin-trigger { 
+            width: 210px; height: 210px; margin: 30px auto; cursor: pointer; 
+            transition: 0.15s; position: relative; display: flex; align-items: center; justify-content: center;
+        }
         .coin-trigger img { width: 90%; z-index: 2; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5)); }
-        .coin-trigger:active { transform: scale(0.92); }
+        .coin-trigger:active { transform: scale(0.9); }
 
-        .energy-container { width: 100%; height: 10px; background: rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; margin-top: 20px; }
-        .energy-bar { height: 100%; background: var(--grad); width: 100%; transition: 0.4s; }
-        .energy-text { font-size: 0.8rem; font-weight: 700; margin-top: 10px; color: #94a3b8; text-align: center; }
+        .energy-container { width: 100%; height: 10px; background: rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .energy-bar { height: 100%; background: var(--grad); width: 100%; transition: 0.4s; box-shadow: 0 0 15px var(--primary); }
+        .energy-text { font-size: 0.8rem; font-weight: 700; margin-top: 10px; color: #94a3b8; display: flex; justify-content: center; align-items: center; gap: 6px; }
 
         .ref-card { background: rgba(255, 255, 255, 0.03); border-radius: 24px; padding: 20px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); }
-        .ref-btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 18px; font-weight: 800; cursor: pointer; font-family: 'Space Grotesk'; transition: 0.3s; }
+        .ref-btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 18px; font-weight: 800; font-size: 1rem; cursor: pointer; font-family: 'Space Grotesk'; transition: 0.3s; }
         .ref-input { width: 100%; padding: 16px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; color: #fff; text-align: center; margin-bottom: 15px; outline: none; }
 
-        .rocket-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .rocket-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 18px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         .rocket-info { display: flex; align-items: center; gap: 15px; }
-        .rocket-info img { width: 45px; height: 45px; object-fit: contain; }
+        .rocket-info img { width: 45px; height: 45px; }
 
         .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--grad); color: #fff; padding: 14px 28px; border-radius: 16px; font-weight: 700; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
-        #ad-header { height: 70px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; }
         
+        #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
+        #ad-header { height: 70px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-family: 'Space Grotesk'; }
+
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
@@ -118,12 +124,26 @@
             </div>
             
             <div id="session-box" style="display:none; margin-bottom:15px;">
+                <div style="color:#94a3b8; font-size:0.8rem; font-weight:700">QAZANILAN</div>
                 <div style="font-size:1.8rem; font-weight:800; color:var(--accent); font-family:'Space Grotesk'"><span id="session-amt">0.000</span> AZN</div>
             </div>
 
             <button id="claim-btn" class="ref-btn" onclick="claimSession()" style="display:none; background: var(--accent);">
-                <i class="fas fa-play"></i> REKLAM İZLƏ VƏ KÖÇÜR
+                <i class="fas fa-play"></i> REKLAM İZLƏ VƏ BALANSA KÖÇÜR
             </button>
+        </div>
+    </div>
+
+    <div id="market-sec" class="section">
+        <h2 style="text-align:center; font-family:'Space Grotesk'">Referal Sistemi</h2>
+        <div class="ref-card">
+            <p style="color:#94a3b8; text-align:center; font-size:0.9rem">Dostunun kodunu daxil et və +0.50 AZN qazan.</p>
+            <input type="text" id="coupon-input" class="ref-input" placeholder="KODU YAZ">
+            <button class="ref-btn" onclick="processCode()">BONUSU AKTİVLƏŞDİR</button>
+        </div>
+        <div class="ref-card" style="text-align:center;">
+            <small style="color:#64748b">SƏNİN KODUN</small>
+            <div id="my-invite-code" style="margin-top:10px; font-size:1.5rem; color:var(--primary); font-family:'Space Grotesk'; font-weight:900">...</div>
         </div>
     </div>
 
@@ -133,37 +153,25 @@
         <div class="rocket-card">
             <div class="rocket-info">
                 <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Elite</h4><small style="color:var(--accent)">+0.005 / Klik</small></div>
+                <div><h4 style="margin:0">Elite Pack</h4><small style="color:var(--accent)">+0.005 / Klik</small></div>
             </div>
-            <button class="ref-btn" style="width:auto; padding:10px 20px;" onclick="location.href='pay.html?amount=3.00'">3 AZN</button>
+            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?amount=3.00'">3 AZN</button>
         </div>
 
         <div class="rocket-card">
             <div class="rocket-info">
                 <img src="pro.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Pro</h4><small style="color:var(--accent)">+0.010 / Klik</small></div>
+                <div><h4 style="margin:0">Pro Pack</h4><small style="color:var(--accent)">+0.010 / Klik</small></div>
             </div>
-            <button class="ref-btn" style="width:auto; padding:10px 20px;" onclick="location.href='pay.html?amount=5.00'">5 AZN</button>
+            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?amount=5.00'">5 AZN</button>
         </div>
 
         <div class="rocket-card">
             <div class="rocket-info">
                 <img src="super.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Super</h4><small style="color:var(--accent)">+0.040 / Klik</small></div>
+                <div><h4 style="margin:0">Super Pack</h4><small style="color:var(--accent)">+0.040 / Klik</small></div>
             </div>
-            <button class="ref-btn" style="width:auto; padding:10px 20px;" onclick="location.href='pay.html?amount=8.00'">8 AZN</button>
-        </div>
-    </div>
-
-    <div id="market-sec" class="section">
-        <h2 style="text-align:center; font-family:'Space Grotesk'">Dostunu Dəvət Et</h2>
-        <div class="ref-card">
-            <input type="text" id="coupon-input" class="ref-input" placeholder="DƏVƏT KODUNU YAZ">
-            <button class="ref-btn" onclick="processCode()">BONUSU AKTİVLƏŞDİR</button>
-        </div>
-        <div class="ref-card" style="text-align:center;">
-            <small style="color:#64748b">SƏNİN KODUN</small>
-            <div id="my-invite-code" style="margin-top:10px; font-size:1.5rem; color:var(--primary); font-family:'Space Grotesk'; font-weight:900">...</div>
+            <button class="ref-btn" style="width:auto; padding:8px 15px;" onclick="location.href='pay.html?amount=8.00'">8 AZN</button>
         </div>
     </div>
 
@@ -250,9 +258,9 @@
 
         async function processCode() {
             const input = document.getElementById('coupon-input').value.trim();
-            if(!input) return showToast("Kodu daxil edin!", true);
-            if(input === userData.inviteCode) return showToast("Öz kodunuz olmaz!", true);
-            if(userData.usedCodes && userData.usedCodes[input]) return showToast("Bu koddan artıq istifadə olunub!", true);
+            if(!input) return showToast("Kod daxil edin!", true);
+            if(input === userData.inviteCode) return showToast("Öz kodunu yazmaq olmaz!", true);
+            if(userData.usedCodes && userData.usedCodes[input]) return showToast("Bu kod artıq istifadə olunub!", true);
 
             const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
             if(!snap.exists()) return showToast("Səhv kod!", true);
@@ -298,7 +306,7 @@
 
         function checkWithdrawal() {
             if(userData.balance < 150) showToast("Limit 150 AZN!", true);
-            else showToast("Müraciət göndərildi");
+            else showToast("Müraciət göndərildi.");
         }
     </script>
 </body>
