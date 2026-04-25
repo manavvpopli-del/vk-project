@@ -21,16 +21,19 @@ body {
     background: url('stadium.png') center/cover no-repeat;
 }
 
-/* GOAL (DAHA BÖYÜK + AŞAĞIDA) */
+/* SIMPLE GOAL FRAME (qapi.png SİLİNDİ) */
 #goal {
     position: absolute;
     top: 18%;
     left: 50%;
     transform: translateX(-50%);
     width: 85%;
+    height: 25%;
+    border: 5px solid white;
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
 }
 
-/* KEEPER (BÖYÜK) */
+/* KEEPER */
 #keeper {
     position: absolute;
     top: 50%;
@@ -40,7 +43,7 @@ body {
     transition: 0.4s;
 }
 
-/* BALL (BÖYÜK) */
+/* BALL */
 #ball {
     position: absolute;
     bottom: 15%;
@@ -67,7 +70,8 @@ body {
 
 <div id="game">
 
-    <img id="goal" src="qapi.png">
+    <div id="goal"></div>
+
     <img id="keeper" src="keeper.png">
     <img id="ball" src="ball.png">
 
@@ -78,10 +82,9 @@ body {
 
 </div>
 
-<!-- SOUNDS -->
-<audio id="kick" src="https://www.soundjay.com/sports/soccer-kick.mp3"></audio>
-<audio id="goalSound" src="https://www.soundjay.com/crowd/crowd-cheer.mp3"></audio>
-<audio id="saveSound" src="https://www.soundjay.com/button/button-10.mp3"></audio>
+<!-- 🔊 SOUNDS (YENİ) -->
+<audio id="shootSound" src="shoot.ogg"></audio>
+<audio id="goalSound" src="goal.ogg"></audio>
 
 <script>
 let startX=0, startY=0;
@@ -91,6 +94,9 @@ const ball = document.getElementById("ball");
 const keeper = document.getElementById("keeper");
 const result = document.getElementById("result");
 const score = document.getElementById("score");
+
+const shootSound = document.getElementById("shootSound");
+const goalSound = document.getElementById("goalSound");
 
 document.addEventListener("touchstart", e=>{
     startX=e.touches[0].clientX;
@@ -110,7 +116,9 @@ function shoot(dx,dy){
 
     shots++;
 
-    document.getElementById("kick").play();
+    // 🔊 VURUŞ SƏSİ
+    shootSound.currentTime = 0;
+    shootSound.play();
 
     let power = Math.min(Math.max(dy/150,0.3),1);
 
@@ -141,20 +149,21 @@ function shoot(dx,dy){
     ball.style.transform =
         `translateX(-50%) scale(${1-power*0.4}) rotate(${curve*720}deg)`;
 
-    // result
     setTimeout(()=>{
+
         if(dir===keeperChoice){
             result.innerText="🧤 SAVE!";
-            document.getElementById("saveSound").play();
         } else {
             result.innerText="⚽ GOAL!";
             goals++;
-            document.getElementById("goalSound").play();
+
+            // 🔊 QOL SƏSİ
+            goalSound.currentTime = 0;
+            goalSound.play();
         }
 
         score.innerText = goals + " / " + shots;
 
-        // reset
         setTimeout(()=>{
             ball.style.left="50%";
             ball.style.bottom="15%";
