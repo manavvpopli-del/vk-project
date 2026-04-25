@@ -22,7 +22,6 @@
             --text: #f1f5f9;
             --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             --accent: #22c55e;
-            --danger: #ef4444;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
@@ -41,7 +40,7 @@
         
         .balance-box { 
             background: var(--card-bg); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--card-border);
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 8px;
         }
         .balance-box span { font-weight: 800; font-size: 1.1rem; color: #fff; font-family: 'Space Grotesk'; }
 
@@ -66,7 +65,7 @@
         .energy-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .energy-fill { height: 100%; background: var(--grad); width: 100%; transition: 0.3s; }
 
-        .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 1rem; cursor: pointer; font-family: 'Space Grotesk'; }
+        .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 0.9rem; cursor: pointer; font-family: 'Space Grotesk'; text-transform: uppercase; }
         .btn:disabled { opacity: 0.5; }
 
         .input-field { width: 100%; padding: 15px; background: #0f172a; border: 1px solid var(--card-border); border-radius: 14px; color: #fff; text-align: center; margin-bottom: 12px; outline: none; font-size: 1rem; }
@@ -86,15 +85,14 @@
 <body>
 
     <div id="ad-viewer">
-        <div id="ad-header">Yoxlanış gedir: <span id="ad-sec" style="margin-left:5px">15</span>s</div>
+        <div id="ad-header">REKLAM BİTMƏLİDİR: <span id="ad-sec" style="margin-left:5px">15</span>s</div>
         <iframe id="ad-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
     <div class="header">
         <div class="logo">ZEROWALLET</div>
         <div class="balance-box">
-            <img src="https://cdn-icons-png.flaticon.com/512/2489/2489756.png" width="20">
-            <span id="bal">0.0000</span>
+            <span id="bal">0.00</span> <span>AZN</span>
         </div>
     </div>
 
@@ -115,7 +113,7 @@
             </div>
 
             <button id="claim-btn" class="btn" onclick="claimSession()" style="display:none; background: var(--accent);">
-                Pulu Balansa Köçür
+                REKLAM İZLƏ VƏ BALANSA KÖÇÜR
             </button>
         </div>
     </div>
@@ -123,9 +121,9 @@
     <div id="market-sec" class="section">
         <h3 style="text-align:center;">Dostlarını Dəvət Et</h3>
         <div class="card">
-            <p style="color:#94a3b8; text-align:center; font-size:0.9rem; margin-bottom:15px;">Dostunun kodunu yaz və +1 AZN qazan.</p>
+            <p style="color:#94a3b8; text-align:center; font-size:0.9rem; margin-bottom:15px;">Dostunun kodunu yaz və +1.00 AZN qazan.</p>
             <input type="text" id="coupon-input" class="input-field" placeholder="KODU BURAYA YAZ">
-            <button class="btn" onclick="processCode()">Kodu Aktiv Et</button>
+            <button class="btn" onclick="processCode()">Kodu Təsdiqlə</button>
         </div>
         <div class="card" style="text-align:center;">
             <small style="color:#64748b; font-weight:700">SƏNİN KODUN</small>
@@ -134,11 +132,11 @@
     </div>
 
     <div id="upgrade-sec" class="section">
-        <h3 style="text-align:center;">Sürətli Qazanc</h3>
+        <h3 style="text-align:center;">Qazancı Artır</h3>
         
         <div class="item-row">
             <div class="item-info">
-                <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
+                <img src="elit.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
                 <div><h4 style="margin:0">Elit Paket</h4><small style="color:var(--accent)">+0.05 AZN / Klik</small></div>
             </div>
             <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Elite&amount=4.00'">4 AZN</button>
@@ -162,10 +160,10 @@
     </div>
 
     <div id="withdraw-sec" class="section">
-        <h3 style="text-align:center;">Pulu Çıxarmaq Üçün</h3>
+        <h3 style="text-align:center;">Pulu Çıxar</h3>
         <div class="card">
             <div id="req-balance" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">Balans 150 AZN</h4><small id="cur-balance">0 / 150</small></div></div>
+                <div class="item-info"><div><h4 style="margin:0">Balans 150 AZN</h4><small id="cur-balance">0.00 / 150</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
             </div>
 
@@ -180,7 +178,7 @@
             </div>
 
             <div id="req-rocket" class="item-row" style="margin-bottom: 20px;">
-                <div class="item-info"><div><h4 style="margin:0">Hər hansı bir paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
+                <div class="item-info"><div><h4 style="margin:0">Aktiv Paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
             </div>
 
@@ -219,7 +217,7 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val() || {};
-            document.getElementById('bal').innerText = (userData.balance || 0).toFixed(4);
+            document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
             document.getElementById('my-invite-code').innerText = userData.inviteCode || "---";
             updateWithdrawUI();
         });
@@ -269,7 +267,7 @@
                 const stat = el.querySelector('.status-icon');
                 const cur = document.getElementById(curId);
                 const met = isBool ? val : val >= target;
-                cur.innerText = isBool ? (val ? "Aktivdir" : "Yoxdur") : `${val} / ${target}`;
+                cur.innerText = isBool ? (val ? "Aktivdir" : "Yoxdur") : (typeof val === 'number' && !isBool && target === 150 ? `${val.toFixed(2)} / ${target}` : `${val} / ${target}`);
                 stat.className = met ? "fas fa-check-circle" : "fas fa-clock";
                 stat.style.color = met ? "var(--accent)" : "#475569";
                 return met;
@@ -291,24 +289,24 @@
                 document.getElementById('claim-btn').style.display = "none";
                 document.getElementById('session-box').style.display = "none";
                 updateMiningUI();
-                showToast("Balans artırıldı!");
+                showToast("Balansa köçürüldü!");
             });
         }
 
         async function processCode() {
             const input = document.getElementById('coupon-input').value.trim();
-            if(!input) return showToast("Kod yazın!");
+            if(!input) return showToast("Kodu yazın!");
             if(input === userData.inviteCode) return showToast("Öz kodun olmaz!");
             if(userData.usedCodes && userData.usedCodes[input]) return showToast("Bu kodu artıq işlətmisən!");
 
             const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
-            if(!snap.exists()) return showToast("Belə kod yoxdur!");
+            if(!snap.exists()) return showToast("Yanlış kod!");
 
             const refUid = Object.keys(snap.val())[0];
             await db.ref('zerowallet_users/' + user + '/usedCodes/' + input).set(true);
-            db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.00); // 1 AZN Bonus
+            db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.00);
             db.ref('zerowallet_users/' + refUid + '/referralCount').transaction(rc => (rc || 0) + 1);
-            showToast("+1 AZN qazandın!");
+            showToast("+1.00 AZN qazandın!");
             document.getElementById('coupon-input').value = "";
         }
 
