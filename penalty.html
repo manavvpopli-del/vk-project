@@ -35,7 +35,7 @@ body {
     position: absolute;
     top: 28%;
     left: 50%;
-    width: 170px;
+    width: 190px;
     transform: translateX(-50%);
     transition: 0.4s;
 }
@@ -45,7 +45,7 @@ body {
     position: absolute;
     bottom: 15%;
     left: 50%;
-    width: 55px;
+    width: 80px;
     transform: translateX(-50%);
     transition: all 0.9s cubic-bezier(.2,.8,.2,1);
 }
@@ -137,7 +137,7 @@ function shoot(dx,dy){
     if(dir==="sağ") targetX=75;
 
     ball.style.left=targetX+"%";
-    ball.style.bottom=(50 + power*30)+"%";
+    ball.style.bottom=(35 + power*15)+"%";
     ball.style.transform =
         `translateX(-50%) scale(${1-power*0.4}) rotate(${curve*720}deg)`;
 
