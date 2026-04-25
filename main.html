@@ -210,7 +210,7 @@
             <div id="req-rocket" class="rocket-card" style="background: rgba(0,0,0,0.2); margin-bottom: 20px;">
                 <div class="rocket-info">
                     <i class="fas fa-rocket" style="color:#f59e0b; font-size: 1.2rem;"></i>
-                    <div><h4 style="margin:0">Elite Paket</h4><small id="cur-rocket">Yoxdur</small></div>
+                    <div><h4 style="margin:0">Hər hansı Paket</h4><small id="cur-rocket">Yoxdur</small></div>
                 </div>
                 <i class="fas fa-times-circle status-icon" style="color:#ef4444"></i>
             </div>
@@ -296,7 +296,9 @@
             const b = userData.balance || 0;
             const c = userData.totalClicks || 0;
             const r = userData.referralCount || 0;
-            const p = (userData.rocket && userData.rocket !== "default");
+            
+            // "default" olmayan hər hansı bir dəyər paket alındığını göstərir
+            const p = (userData.rocket && userData.rocket !== "default" && userData.rocket !== "");
 
             const check = (id, curId, val, target, isBool = false) => {
                 const el = document.getElementById(id);
@@ -304,7 +306,7 @@
                 const cur = document.getElementById(curId);
                 const met = isBool ? val : val >= target;
 
-                cur.innerText = isBool ? (val ? "Aktivdir" : "Yoxdur") : `${val} / ${target}`;
+                cur.innerText = isBool ? (val ? "Paket Aktivdir" : "Yoxdur") : `${val} / ${target}`;
                 if(met) {
                     stat.className = "fas fa-check-circle status-icon";
                     stat.style.color = "#10b981";
@@ -324,9 +326,11 @@
             if(m1 && m2 && m3 && m4) {
                 btn.disabled = false;
                 btn.style.background = "var(--accent)";
+                btn.style.opacity = "1";
             } else {
                 btn.disabled = true;
                 btn.style.background = "var(--grad)";
+                btn.style.opacity = "0.5";
             }
         }
 
