@@ -1,167 +1,128 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Penalty Real Assets</title>
-
-<style>
-body {
-    margin: 0;
-    overflow: hidden;
-    font-family: Arial;
-}
-
-/* STADIUM */
-#game {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background: url('stadium.png') center/cover no-repeat;
-}
-
-/* SIMPLE GOAL FRAME (qapi.png SİLİNDİ) */
-#goal {
-    position: absolute;
-    top: 18%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    height: 25%;
-    border: 5px solid white;
-    box-shadow: 0 0 20px rgba(255,255,255,0.4);
-}
-
-/* KEEPER */
-#keeper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 340px;
-    transform: translateX(-50%);
-    transition: 0.4s;
-}
-
-/* BALL */
-#ball {
-    position: absolute;
-    bottom: 15%;
-    left: 50%;
-    width: 100px;
-    transform: translateX(-50%);
-    transition: all 0.9s cubic-bezier(.2,.8,.2,1);
-}
-
-/* UI */
-#ui {
-    position: absolute;
-    top: 5%;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-size: 22px;
-    text-shadow: 0 0 10px black;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vur Qazan!</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial; background: #000; }
+        #game { position: relative; width: 100%; height: 100vh; background: url('stadium.png') center/cover no-repeat; }
+        #goal { position: absolute; top: 18%; left: 50%; transform: translateX(-50%); width: 85%; height: 25%; border: 5px solid white; box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+        #keeper { position: absolute; top: 50%; left: 50%; width: 340px; transform: translateX(-50%); transition: 0.4s; z-index: 2; }
+        #ball { position: absolute; bottom: 15%; left: 50%; width: 100px; transform: translateX(-50%); transition: all 0.9s cubic-bezier(.2,.8,.2,1); z-index: 3; }
+        #ui { position: absolute; top: 5%; width: 100%; text-align: center; color: white; font-size: 22px; text-shadow: 0 0 10px black; z-index: 10; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; text-align: center; padding: 20px; }
+        .btn { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: #fff; border: none; padding: 16px 30px; border-radius: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
+    </style>
 </head>
-
 <body>
 
-<div id="game">
+<div id="payment-overlay" class="overlay">
+    <h2>Vur Qazan!</h2>
+    <p>Oynamaq üçün 5 AZN giriş haqqı tələb olunur.<br>5 qol vursan 25 AZN qazanacaqsan!</p>
+    <button class="btn" onclick="location.href='pay.html?package=Penalty&amount=5.00'">5 AZN ÖDƏ VƏ OYNA</button>
+    <button style="background:none; border:none; color:#94a3b8; margin-top:15px;" onclick="location.href='main.html'">Geri Qayıt</button>
+</div>
 
+<div id="game" style="display:none;">
     <div id="goal"></div>
-
     <img id="keeper" src="keeper.png">
     <img id="ball" src="ball.png">
-
     <div id="ui">
         <div id="result"></div>
         <div id="score">0 / 5</div>
     </div>
-
 </div>
 
-<!-- 🔊 SOUNDS (YENİ) -->
 <audio id="shootSound" src="shoot.ogg"></audio>
 <audio id="goalSound" src="goal.ogg"></audio>
 
 <script>
+// Firebase Konfiqurasiyası (main.html ilə eyni olmalıdır)
+const firebaseConfig = {
+    apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+    authDomain: "sevgili-testi.firebaseapp.com",
+    databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+    projectId: "sevgili-testi",
+    storageBucket: "sevgili-testi.firebasestorage.app",
+    messagingSenderId: "399260477557",
+    appId: "1:399260477557:web:584204a698d7bf145bb03c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const user = localStorage.getItem('zerowallet_session');
+
+let canPlay = false;
 let startX=0, startY=0;
 let shots=0, goals=0;
+
+// Ödəniş yoxlanışı (Verilənlər bazasından paket yoxlanışı və ya session məntiqi)
+// Bu hissəni sənin pay.html sisteminə uyğunlaşdırırıq:
+db.ref('zerowallet_users/' + user).once('value', snap => {
+    const data = snap.val();
+    if(data && data.hasPaidPenalty) { // Pay.html-dən qayıdan istifadəçi üçün bu dəyəri True edəcəksən
+        document.getElementById('payment-overlay').style.display = 'none';
+        document.getElementById('game').style.display = 'block';
+        canPlay = true;
+    }
+});
 
 const ball = document.getElementById("ball");
 const keeper = document.getElementById("keeper");
 const result = document.getElementById("result");
 const score = document.getElementById("score");
-
 const shootSound = document.getElementById("shootSound");
 const goalSound = document.getElementById("goalSound");
 
 document.addEventListener("touchstart", e=>{
+    if(!canPlay) return;
     startX=e.touches[0].clientX;
     startY=e.touches[0].clientY;
 });
 
 document.addEventListener("touchend", e=>{
+    if(!canPlay) return;
     let dx=e.changedTouches[0].clientX - startX;
     let dy=startY - e.changedTouches[0].clientY;
-
     shoot(dx,dy);
 });
 
 function shoot(dx,dy){
-
-    if(shots>=5) return;
-
+    if(shots>=5 || !canPlay) return;
     shots++;
 
-    // 🔊 VURUŞ SƏSİ
     shootSound.currentTime = 0;
     shootSound.play();
 
     let power = Math.min(Math.max(dy/150,0.3),1);
-
     let dir = dx>40?"sağ":dx<-40?"sol":"orta";
-
     let curve = dx/100;
 
-    // AI keeper
-    let keeperChoice;
-    if(Math.random()<0.6){
-        keeperChoice=dir;
-    } else {
-        keeperChoice=["sol","orta","sağ"][Math.floor(Math.random()*3)];
-    }
+    let keeperChoice = (Math.random() < 0.6) ? dir : ["sol","orta","sağ"][Math.floor(Math.random()*3)];
 
-    // keeper move
     if(keeperChoice==="sol") keeper.style.left="25%";
     if(keeperChoice==="sağ") keeper.style.left="75%";
     if(keeperChoice==="orta") keeper.style.left="50%";
 
-    // ball move
     let targetX = 50;
     if(dir==="sol") targetX=25;
     if(dir==="sağ") targetX=75;
 
     ball.style.left=targetX+"%";
     ball.style.bottom=(35 + power*15)+"%";
-    ball.style.transform =
-        `translateX(-50%) scale(${1-power*0.4}) rotate(${curve*720}deg)`;
+    ball.style.transform = `translateX(-50%) scale(${1-power*0.4}) rotate(${curve*720}deg)`;
 
     setTimeout(()=>{
-
         if(dir===keeperChoice){
             result.innerText="🧤 SAVE!";
         } else {
             result.innerText="⚽ GOAL!";
             goals++;
-
-            // 🔊 QOL SƏSİ
             goalSound.currentTime = 0;
             goalSound.play();
         }
-
         score.innerText = goals + " / " + shots;
 
         setTimeout(()=>{
@@ -172,19 +133,25 @@ function shoot(dx,dy){
             result.innerText="";
 
             if(shots===5){
-                setTimeout(()=>{
-                    alert("Oyun bitdi! Qol: "+goals+"/5");
-                    shots=0;
-                    goals=0;
-                    score.innerText="0 / 5";
-                },300);
+                finishGame();
             }
-
         },1200);
-
     },900);
 }
-</script>
 
+function finishGame() {
+    canPlay = false;
+    // Oynadıqdan sonra statusu sıfırlayırıq ki, yenidən pul ödəsin
+    db.ref('zerowallet_users/' + user + '/hasPaidPenalty').set(false);
+
+    if(goals === 5) {
+        alert("MÜKƏMMƏL! 5 qol vurdun və 25 AZN qazandın!");
+        db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 25.00);
+    } else {
+        alert("Oyun bitdi! Qol: " + goals + "/5. Təəssüf ki, mükafat üçün 5 qol vurmalı idin.");
+    }
+    location.href = 'main.html';
+}
+</script>
 </body>
 </html>
