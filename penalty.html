@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Penalty Real Assets</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial;
+}
+
+/* STADIUM */
+#game {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: url('stadium.png') center/cover no-repeat;
+}
+
+/* GOAL */
+#goal {
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    transform: translateX(-50%) rotateX(15deg);
+    width: 70%;
+}
+
+/* KEEPER */
+#keeper {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    width: 120px;
+    transform: translateX(-50%);
+    transition: 0.4s;
+}
+
+/* BALL */
+#ball {
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    width: 40px;
+    transform: translateX(-50%);
+    transition: all 0.9s cubic-bezier(.2,.8,.2,1);
+}
+
+/* UI */
+#ui {
+    position: absolute;
+    top: 5%;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 22px;
+    text-shadow: 0 0 10px black;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <img id="goal" src="qapi.png">
+    <img id="keeper" src="keeper.png">
+    <img id="ball" src="ball.png">
+
+    <div id="ui">
+        <div id="result"></div>
+        <div id="score">0 / 5</div>
+    </div>
+
+</div>
+
+<!-- SOUND -->
+<audio id="kick" src="https://www.soundjay.com/sports/soccer-kick.mp3"></audio>
+<audio id="goalSound" src="https://www.soundjay.com/crowd/crowd-cheer.mp3"></audio>
+<audio id="saveSound" src="https://www.soundjay.com/button/button-10.mp3"></audio>
+
+<script>
+let startX=0, startY=0;
+let shots=0, goals=0;
+
+const ball = document.getElementById("ball");
+const keeper = document.getElementById("keeper");
+const result = document.getElementById("result");
+const score = document.getElementById("score");
+
+document.addEventListener("touchstart", e=>{
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+});
+
+document.addEventListener("touchend", e=>{
+    let dx=e.changedTouches[0].clientX - startX;
+    let dy=startY - e.changedTouches[0].clientY;
+
+    shoot(dx,dy);
+});
+
+function shoot(dx,dy){
+
+    if(shots>=5) return;
+
+    shots++;
+
+    document.getElementById("kick").play();
+
+    let power = Math.min(Math.max(dy/150,0.3),1);
+
+    let dir = dx>40?"sağ":dx<-40?"sol":"orta";
+
+    let curve = dx/100;
+
+    // AI keeper
+    let keeperChoice;
+    if(Math.random()<0.6){
+        keeperChoice=dir;
+    } else {
+        keeperChoice=["sol","orta","sağ"][Math.floor(Math.random()*3)];
+    }
+
+    // Keeper movement
+    if(keeperChoice==="sol") keeper.style.left="25%";
+    if(keeperChoice==="sağ") keeper.style.left="75%";
+    if(keeperChoice==="orta") keeper.style.left="50%";
+
+    // Ball movement
+    let targetX = 50;
+    if(dir==="sol") targetX=25;
+    if(dir==="sağ") targetX=75;
+
+    ball.style.left=targetX+"%";
+    ball.style.bottom=(50 + power*30)+"%";
+    ball.style.transform =
+        `translateX(-50%) scale(${1-power*0.4}) rotate(${curve*720}deg)`;
+
+    // Result
+    setTimeout(()=>{
+        if(dir===keeperChoice){
+            result.innerText="🧤 SAVE!";
+            document.getElementById("saveSound").play();
+        } else {
+            result.innerText="⚽ GOAL!";
+            goals++;
+            document.getElementById("goalSound").play();
+        }
+
+        score.innerText = goals + " / " + shots;
+
+        // Reset
+        setTimeout(()=>{
+            ball.style.left="50%";
+            ball.style.bottom="15%";
+            ball.style.transform="translateX(-50%) scale(1)";
+            keeper.style.left="50%";
+            result.innerText="";
+
+            if(shots===5){
+                setTimeout(()=>{
+                    alert("Oyun bitdi! Qol: "+goals+"/5");
+                    shots=0;
+                    goals=0;
+                    score.innerText="0 / 5";
+                },300);
+            }
+
+        },1200);
+
+    },900);
+}
+</script>
+
+</body>
+</html>
