@@ -18,6 +18,9 @@
             --card: rgba(30, 41, 59, 0.7);
             --text: #f8fafc;
             --grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --silver: #cbd5e1;
+            --gold: #fbbf24;
+            --diamond: #22d3ee;
         }
 
         body { 
@@ -40,12 +43,22 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
+        .avatar-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
+        
         .avatar {
-            width: 100px; height: 100px; background: var(--grad); border-radius: 50%;
-            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%; background: var(--grad); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             font-size: 2.5rem; font-weight: 800; border: 4px solid rgba(255,255,255,0.1);
             box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
         }
+
+        .rank-badge {
+            position: absolute; bottom: -5px; right: -5px;
+            width: 35px; height: 35px; border-radius: 50%;
+            background: #1e293b; border: 2px solid #fff;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .rank-badge img { width: 80%; height: 80%; object-fit: contain; }
 
         .username { font-family: 'Space Grotesk'; font-size: 1.5rem; margin: 0; }
         .join-date { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; }
@@ -60,6 +73,15 @@
         .stat-box i { font-size: 1.2rem; color: var(--primary); margin-bottom: 10px; }
         .stat-box span { display: block; font-size: 1.4rem; font-weight: 800; font-family: 'Space Grotesk'; }
         .stat-box label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Rütbe Vizual */
+        #user-rank-name { font-weight: 800; }
+        .rank-bronze { color: #cd7f32; }
+        .rank-silver { color: var(--silver); text-shadow: 0 0 10px rgba(203, 213, 225, 0.3); }
+        .rank-gold { color: var(--gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
+        .rank-diamond { color: var(--diamond); text-shadow: 0 0 15px rgba(34, 211, 238, 0.5); animation: shine 2s infinite; }
+        
+        @keyframes shine { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
         .logout-btn {
             margin-top: 30px; width: 100%; padding: 15px; border-radius: 15px;
@@ -76,8 +98,15 @@
         </a>
 
         <div class="profile-card">
-            <div class="avatar" id="avatar">?</div>
+            <div class="avatar-wrapper">
+                <div class="avatar" id="avatar">?</div>
+                <div class="rank-badge" id="rank-icon-box">
+                    <img id="rank-img" src="" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625393.png'">
+                </div>
+            </div>
+            
             <h2 class="username" id="username">Yüklənir...</h2>
+            <div id="user-rank-name" style="font-size: 0.9rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">YÜKLƏNİR</div>
             <div class="join-date" id="joined">Qoşulma tarixi: --.--.----</div>
 
             <div class="stats-grid">
@@ -122,22 +151,46 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             const data = snap.val() || {};
+            const totalClicks = data.totalClicks || 0;
             
             document.getElementById('username').innerText = user;
             document.getElementById('avatar').innerText = user.charAt(0).toUpperCase();
-            document.getElementById('clicks').innerText = data.totalClicks || 0;
+            document.getElementById('clicks').innerText = totalClicks;
             document.getElementById('rank').innerText = data.rocket || "Default";
             
-            // Referal sayını hesabla (usedCodes daxilindəki kodlar qədər)
+            // Rütbe Hesablama Sistemi
+            let rankTitle = "Bürünc";
+            let rankClass = "rank-bronze";
+            let rankImg = "https://cdn-icons-png.flaticon.com/512/625/625393.png"; // Default bürünc
+
+            if(totalClicks >= 50000) {
+                rankTitle = "Almaz";
+                rankClass = "rank-diamond";
+                rankImg = "almaz.png";
+            } else if(totalClicks >= 15000) {
+                rankTitle = "Qızıl";
+                rankClass = "rank-gold";
+                rankImg = "qizil.png";
+            } else if(totalClicks >= 5000) {
+                rankTitle = "Gümüş";
+                rankClass = "rank-silver";
+                rankImg = "gumus.png";
+            }
+
+            const rankEl = document.getElementById('user-rank-name');
+            rankEl.innerText = rankTitle + " Rütbəsi";
+            rankEl.className = rankClass;
+            document.getElementById('rank-img').src = rankImg;
+            
+            // Referal sayını hesabla
             const refCount = data.usedCodes ? Object.keys(data.usedCodes).length : 0;
             document.getElementById('refs').innerText = refCount;
 
-            // Qoşulma tarixini formatla
+            // Qoşulma tarixi
             if(data.createdAt) {
                 const date = new Date(data.createdAt);
                 document.getElementById('joined').innerText = "Qoşulma tarixi: " + date.toLocaleDateString('az-AZ');
             } else {
-                // Əgər tarix yoxdursa, indi yarat (ilk dəfə girənlər üçün)
                 db.ref('zerowallet_users/' + user + '/createdAt').set(Date.now());
             }
         });
