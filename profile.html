@@ -13,122 +13,152 @@
     
     <style>
         :root {
-            --primary: #4f46e5;
-            --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.7);
+            --primary: #6366f1;
+            --bg: #020617;
+            --card: rgba(15, 23, 42, 0.8);
             --text: #f8fafc;
-            --grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            --silver: #cbd5e1;
-            --gold: #fbbf24;
-            --diamond: #22d3ee;
+            /* Rütbə Rəngləri */
+            --bronz-clr: #cd7f32;
+            --gumus-clr: #cbd5e1;
+            --qizil-clr: #fbbf24;
+            --almaz-clr: #22d3ee;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
             margin: 0; background: var(--bg); color: var(--text); 
             font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
-            background-image: radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.15) 0%, transparent 50%);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
+            overflow-x: hidden;
         }
 
-        .container { padding: 25px; max-width: 500px; margin: 0 auto; }
-        
+        .container { padding: 20px; max-width: 450px; margin: 0 auto; animation: fadeIn 0.8s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .back-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 10px 15px; border-radius: 12px; cursor: pointer; text-decoration: none;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            color: #94a3b8; padding: 12px 18px; border-radius: 16px; cursor: pointer; text-decoration: none;
             display: inline-flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 20px;
+            transition: 0.3s;
         }
+        .back-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.07); }
 
         .profile-card {
-            background: var(--card); border-radius: 30px; padding: 30px 20px;
+            background: var(--card); border-radius: 35px; padding: 40px 20px;
             border: 1px solid rgba(255,255,255,0.05); text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .avatar-wrapper { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
+        /* Avatar & Rank Style */
+        .avatar-container { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
         
+        .avatar-glow {
+            position: absolute; inset: -5px; border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, var(--primary), transparent);
+            animation: rotate 4s linear infinite; opacity: 0.5;
+        }
+
         .avatar {
-            width: 100%; height: 100%; background: var(--grad); border-radius: 50%;
+            position: relative; width: 100%; height: 100%; 
+            background: #0f172a; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; font-weight: 800; border: 4px solid rgba(255,255,255,0.1);
-            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+            font-size: 3rem; font-weight: 800; border: 3px solid rgba(255,255,255,0.1);
+            z-index: 2; color: #fff; font-family: 'Space Grotesk';
         }
 
-        .rank-badge {
-            position: absolute; bottom: -5px; right: -5px;
-            width: 35px; height: 35px; border-radius: 50%;
-            background: #1e293b; border: 2px solid #fff;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        .rank-badge-img {
+            position: absolute; bottom: 0; right: 0;
+            width: 42px; height: 42px; z-index: 5;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            animation: bounce 2s infinite ease-in-out;
         }
-        .rank-badge img { width: 80%; height: 80%; object-fit: contain; }
 
-        .username { font-family: 'Space Grotesk'; font-size: 1.5rem; margin: 0; }
-        .join-date { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+        .username { font-family: 'Space Grotesk'; font-size: 1.8rem; margin: 10px 0 5px; letter-spacing: -0.5px; }
+        
+        .rank-label {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Stats Design */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
         
         .stat-box {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            padding: 20px 10px; border-radius: 20px; transition: 0.3s;
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            padding: 18px 10px; border-radius: 24px; transition: 0.3s ease;
         }
+        .stat-box:active { background: rgba(255,255,255,0.05); }
 
-        .stat-box i { font-size: 1.2rem; color: var(--primary); margin-bottom: 10px; }
-        .stat-box span { display: block; font-size: 1.4rem; font-weight: 800; font-family: 'Space Grotesk'; }
-        .stat-box label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-box i { font-size: 1.1rem; margin-bottom: 8px; opacity: 0.8; }
+        .stat-box span { display: block; font-size: 1.3rem; font-weight: 800; font-family: 'Space Grotesk'; color: #fff; }
+        .stat-box label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
 
-        /* Rütbe Vizual */
-        #user-rank-name { font-weight: 800; }
-        .rank-bronze { color: #cd7f32; }
-        .rank-silver { color: var(--silver); text-shadow: 0 0 10px rgba(203, 213, 225, 0.3); }
-        .rank-gold { color: var(--gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
-        .rank-diamond { color: var(--diamond); text-shadow: 0 0 15px rgba(34, 211, 238, 0.5); animation: shine 2s infinite; }
-        
-        @keyframes shine { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+        .joined-info { color: #475569; font-size: 0.75rem; margin-top: 25px; font-weight: 600; }
 
         .logout-btn {
-            margin-top: 30px; width: 100%; padding: 15px; border-radius: 15px;
-            background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
-            font-weight: 700; cursor: pointer; transition: 0.3s;
+            margin-top: 30px; width: 100%; padding: 18px; border-radius: 20px;
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);
+            font-weight: 800; cursor: pointer; transition: 0.3s;
+            font-family: 'Space Grotesk'; letter-spacing: 1px;
         }
+        .logout-btn:active { transform: scale(0.98); background: rgba(239, 68, 68, 0.15); }
+
+        /* Dinamik Rütbe Stilləri */
+        .bronz { color: var(--bronz-clr); box-shadow: 0 0 15px rgba(205, 127, 50, 0.2); }
+        .gumus { color: var(--gumus-clr); box-shadow: 0 0 15px rgba(203, 213, 225, 0.2); }
+        .qizil { color: var(--qizil-clr); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+        .almaz { color: var(--almaz-clr); box-shadow: 0 0 20px rgba(34, 211, 238, 0.3); }
     </style>
 </head>
 <body>
 
     <div class="container">
         <a href="javascript:history.back()" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Geri
+            <i class="fas fa-chevron-left"></i> GERİ QAYIT
         </a>
 
         <div class="profile-card">
-            <div class="avatar-wrapper">
+            <div class="avatar-container">
+                <div class="avatar-glow" id="glow"></div>
                 <div class="avatar" id="avatar">?</div>
-                <div class="rank-badge" id="rank-icon-box">
-                    <img id="rank-img" src="" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625393.png'">
-                </div>
+                <img id="rank-icon" class="rank-badge-img" src="bronz.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625393.png'">
             </div>
             
-            <h2 class="username" id="username">Yüklənir...</h2>
-            <div id="user-rank-name" style="font-size: 0.9rem; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;">YÜKLƏNİR</div>
-            <div class="join-date" id="joined">Qoşulma tarixi: --.--.----</div>
+            <h2 class="username" id="username">...</h2>
+            <div id="rank-label" class="rank-label bronz">BÜRÜNC RÜTBƏSİ</div>
 
             <div class="stats-grid">
                 <div class="stat-box">
-                    <i class="fas fa-mouse-pointer"></i>
+                    <i class="fas fa-fingerprint" style="color: #6366f1;"></i>
                     <span id="clicks">0</span>
-                    <label>Ümumi Klik</label>
+                    <label>Toplam Klik</label>
                 </div>
                 <div class="stat-box">
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-share-nodes" style="color: #22c55e;"></i>
                     <span id="refs">0</span>
                     <label>Referallar</label>
                 </div>
                 <div class="stat-box" style="grid-column: span 2;">
-                    <i class="fas fa-rocket"></i>
-                    <span id="rank" style="text-transform: capitalize;">Default</span>
-                    <label>Aktiv Paket</label>
+                    <i class="fas fa-bolt" style="color: #fbbf24;"></i>
+                    <span id="rocket-type" style="text-transform: uppercase; font-size: 1.1rem;">---</span>
+                    <label>Aktiv Mədən Paketi</label>
                 </div>
             </div>
 
+            <div class="joined-info" id="joined">QOŞULMA: --.--.----</div>
+
             <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> ÇIXIŞ ET
+                <i class="fas fa-power-off"></i> SİSTEMDƏN ÇIX
             </button>
         </div>
     </div>
@@ -151,45 +181,50 @@
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             const data = snap.val() || {};
-            const totalClicks = data.totalClicks || 0;
+            const clicks = data.totalClicks || 0;
             
             document.getElementById('username').innerText = user;
             document.getElementById('avatar').innerText = user.charAt(0).toUpperCase();
-            document.getElementById('clicks').innerText = totalClicks;
-            document.getElementById('rank').innerText = data.rocket || "Default";
+            document.getElementById('clicks').innerText = clicks.toLocaleString();
+            document.getElementById('rocket-type').innerText = data.rocket || "Default";
             
-            // Rütbe Hesablama Sistemi
-            let rankTitle = "Bürünc";
-            let rankClass = "rank-bronze";
-            let rankImg = "https://cdn-icons-png.flaticon.com/512/625/625393.png"; // Default bürünc
+            // Təkmilləşdirilmiş Rütbe Sistemi
+            let rName = "BÜRÜNC";
+            let rClass = "bronz";
+            let rImg = "bronz.png";
+            let glowClr = "#cd7f32";
 
-            if(totalClicks >= 50000) {
-                rankTitle = "Almaz";
-                rankClass = "rank-diamond";
-                rankImg = "almaz.png";
-            } else if(totalClicks >= 15000) {
-                rankTitle = "Qızıl";
-                rankClass = "rank-gold";
-                rankImg = "qizil.png";
-            } else if(totalClicks >= 5000) {
-                rankTitle = "Gümüş";
-                rankClass = "rank-silver";
-                rankImg = "gumus.png";
+            if(clicks >= 50000) {
+                rName = "ALMAZ";
+                rClass = "almaz";
+                rImg = "almaz.png";
+                glowClr = "#22d3ee";
+            } else if(clicks >= 15000) {
+                rName = "QIZIL";
+                rClass = "qizil";
+                rImg = "qizil.png";
+                glowClr = "#fbbf24";
+            } else if(clicks >= 5000) {
+                rName = "GÜMÜŞ";
+                rClass = "gumus";
+                rImg = "gumus.png";
+                glowClr = "#cbd5e1";
             }
 
-            const rankEl = document.getElementById('user-rank-name');
-            rankEl.innerText = rankTitle + " Rütbəsi";
-            rankEl.className = rankClass;
-            document.getElementById('rank-img').src = rankImg;
+            const label = document.getElementById('rank-label');
+            label.innerText = rName + " RÜTBƏSİ";
+            label.className = "rank-label " + rClass;
+            document.getElementById('rank-icon').src = rImg;
+            document.getElementById('glow').style.background = `conic-gradient(from 0deg, transparent, ${glowClr}, transparent)`;
             
-            // Referal sayını hesabla
+            // Referallar
             const refCount = data.usedCodes ? Object.keys(data.usedCodes).length : 0;
             document.getElementById('refs').innerText = refCount;
 
-            // Qoşulma tarixi
+            // Tarix
             if(data.createdAt) {
                 const date = new Date(data.createdAt);
-                document.getElementById('joined').innerText = "Qoşulma tarixi: " + date.toLocaleDateString('az-AZ');
+                document.getElementById('joined').innerText = "SİSTEMƏ QOŞULMA: " + date.toLocaleDateString('az-AZ');
             } else {
                 db.ref('zerowallet_users/' + user + '/createdAt').set(Date.now());
             }
