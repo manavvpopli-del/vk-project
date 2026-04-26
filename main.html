@@ -22,6 +22,7 @@
             --text: #f1f5f9;
             --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             --accent: #22c55e;
+            --vip-grad: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
@@ -49,6 +50,7 @@
             background: var(--card-bg); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--card-border);
             display: flex; align-items: center; gap: 8px;
         }
+        .balance-box img { width: 20px; height: 20px; }
         .balance-box span { font-weight: 800; font-size: 1.1rem; color: #fff; font-family: 'Space Grotesk'; }
 
         .nav-bar { 
@@ -86,6 +88,8 @@
         #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
         #ad-header { height: 60px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; border-bottom: 1px solid var(--card-border); }
 
+        .vip-badge { background: var(--vip-grad); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; color: #fff; margin-left: 5px; vertical-align: middle; }
+
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
     </style>
 </head>
@@ -98,13 +102,14 @@
 
     <div class="header">
         <div class="logo-container">
-            <div class="logo">ZEROWALLET</div>
+            <div class="logo">ZEROWALLET <span id="vip-status-header"></span></div>
             <div class="stats-sub">
                 <div class="stat-badge"><i class="fas fa-users" style="font-size:0.6rem"></i> 1350+</div>
                 <div class="stat-badge"><span class="online-dot"></span> <span id="online-counter">--</span> Onlayn</div>
             </div>
         </div>
         <div class="balance-box">
+            <img src="wallet.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625599.png'">
             <span id="bal">0.00</span> <span>AZN</span>
         </div>
     </div>
@@ -122,16 +127,39 @@
             </div>
             
             <div id="session-box" style="display:none; margin-bottom:15px;">
-                <div style="font-size:1.5rem; font-weight:800; color:var(--accent); font-family:'Space Grotesk'"><span id="session-amt">0.00</span> AZN</div>
+                <div style="font-size:1.5rem; font-weight:800; color:var(--accent); font-family:'Space Grotesk'"><span id="session-amt">0.0000</span> AZN</div>
             </div>
 
             <button id="claim-btn" class="btn" onclick="claimSession()" style="display:none; background: var(--accent);">
                 REKLAM İZLƏ VƏ BALANSA KÖÇÜR
             </button>
+            <div id="autobot-info" style="display:none; margin-top:10px; font-size:0.7rem; color:var(--accent); font-weight:700;">
+                <i class="fas fa-robot"></i> VIP AVTO-BOT AKTİVDİR
+            </div>
         </div>
     </div>
 
     <div id="market-sec" class="section">
+        <div id="vip-buy-card" class="card" style="border: 2px solid #f59e0b; background: linear-gradient(to bottom, rgba(245,158,11,0.1), var(--card-bg));">
+            <div style="text-align:center; margin-bottom:15px;">
+                <i class="fas fa-crown" style="color:#f59e0b; font-size:2rem;"></i>
+                <h3 style="margin:10px 0 5px 0;">VİP ÜYELİK</h3>
+                <div style="font-size:0.8rem; color:#94a3b8;">Limitləri və Şərtləri Endirin!</div>
+            </div>
+            <ul style="font-size:0.75rem; color:#f1f5f9; padding-left:20px; line-height:1.6;">
+                <li>Çıxarış Limiti: <del>150 AZN</del> → <b>70 AZN</b></li>
+                <li>Dəvət Şərti: <del>10 Dost</del> → <b>3 Dost</b></li>
+                <li>Rütbə Şərti: <del>Almaz</del> → <b>Gümüş</b></li>
+                <li><b>Roket tələbi ləğv edilir!</b></li>
+                <li><b>VIP Avto-Bot aktivləşir!</b></li>
+            </ul>
+            <div style="text-align:center; margin:15px 0;">
+                <span style="color:#ef4444; text-decoration:line-through; font-size:0.9rem;">16 AZN</span>
+                <span style="color:var(--accent); font-size:1.4rem; font-weight:800; margin-left:10px;">9 AZN</span>
+            </div>
+            <button class="btn" style="background:var(--vip-grad)" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP OL</button>
+        </div>
+
         <h3 style="text-align:center;">Dostlarını Dəvət Et</h3>
         <div class="card">
             <p style="color:#94a3b8; text-align:center; font-size:0.9rem; margin-bottom:15px;">Dostunun kodunu yaz və +1.00 AZN qazan.</p>
@@ -149,21 +177,21 @@
         <div class="item-row">
             <div class="item-info">
                 <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Elit Paket</h4><small style="color:var(--accent)">+0.05 AZN / Klik</small></div>
+                <div><h4 style="margin:0">Elit Paket</h4><small style="color:var(--accent)">+0.0005 AZN / Klik</small></div>
             </div>
             <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Elite&amount=4.00'">4 AZN</button>
         </div>
         <div class="item-row">
             <div class="item-info">
                 <img src="pro.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Pro Paket</h4><small style="color:var(--accent)">+0.10 AZN / Klik</small></div>
+                <div><h4 style="margin:0">Pro Paket</h4><small style="color:var(--accent)">+0.0008 AZN / Klik</small></div>
             </div>
             <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Pro&amount=8.00'">8 AZN</button>
         </div>
         <div class="item-row">
             <div class="item-info">
                 <img src="super.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Super Paket</h4><small style="color:var(--accent)">+0.17 AZN / Klik</small></div>
+                <div><h4 style="margin:0">Super Paket</h4><small style="color:var(--accent)">+0.0010 AZN / Klik</small></div>
             </div>
             <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Super&amount=11.00'">11 AZN</button>
         </div>
@@ -173,19 +201,19 @@
         <h3 style="text-align:center;">Pulu Çıxar</h3>
         <div class="card">
             <div id="req-balance" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">Balans 150 AZN</h4><small id="cur-balance">0.00 / 150</small></div></div>
+                <div class="item-info"><div><h4 style="margin:0" id="req-bal-text">Balans 150 AZN</h4><small id="cur-balance">0.00 / 150</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
             </div>
-            <div id="req-clicks" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">2500 Klik</h4><small id="cur-clicks">0 / 2500</small></div></div>
+            <div id="req-rank" class="item-row">
+                <div class="item-info"><div><h4 style="margin:0" id="req-rank-text">Almaz Rütbə</h4><small id="cur-rank">Yoxdur</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
             </div>
             <div id="req-refs" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">5 Dost Dəvəti</h4><small id="cur-refs">0 / 5</small></div></div>
+                <div class="item-info"><div><h4 style="margin:0" id="req-ref-text">10 Dost Dəvəti</h4><small id="cur-refs">0 / 10</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
             </div>
             <div id="req-rocket" class="item-row" style="margin-bottom: 20px;">
-                <div class="item-info"><div><h4 style="margin:0">Aktiv Paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
+                <div class="item-info"><div><h4 style="margin:0" id="req-rocket-text">Aktiv Paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
             </div>
             <button id="withdraw-final-btn" class="btn" onclick="location.href='withdraw.html'" disabled>Pulu Çıxar</button>
@@ -194,7 +222,7 @@
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-hammer"></i></div>
-        <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-users"></i></div>
+        <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-crown"></i></div>
         <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
         <div class="nav-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
@@ -232,6 +260,13 @@
             userData = snap.val() || {};
             document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
             document.getElementById('my-invite-code').innerText = userData.inviteCode || "---";
+            
+            if(userData.isVip) {
+                document.getElementById('vip-status-header').innerHTML = '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>';
+                document.getElementById('vip-buy-card').style.display = 'none';
+                document.getElementById('autobot-info').style.display = 'block';
+            }
+
             updateWithdrawUI();
         });
 
@@ -244,18 +279,28 @@
 
         function mine(e) {
             if(clicksRemaining <= 0) return;
-            let bonus = 0.01;
-            if(userData.rocket === "elite") bonus = 0.05;
-            if(userData.rocket === "pro") bonus = 0.10;
-            if(userData.rocket === "super") bonus = 0.17;
+            
+            let bonus = 0.0001;
+            if(userData.rocket === "elite") bonus = 0.0005;
+            if(userData.rocket === "pro") bonus = 0.0008;
+            if(userData.rocket === "super") bonus = 0.0010;
+            
             sessionBalance += bonus;
             clicksRemaining--;
             db.ref('zerowallet_users/' + user + '/totalClicks').transaction(c => (c || 0) + 1);
             updateMiningUI();
-            showClickEffect(e, bonus);
+            if(e) showClickEffect(e, bonus);
+            
             if(clicksRemaining === 0) {
-                document.getElementById('coin-btn').style.opacity = "0.2";
-                document.getElementById('claim-btn').style.display = "block";
+                if(userData.isVip) {
+                    // VIP Avto-Bot: Reklamsız birbaşa balansa köçürür
+                    db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + sessionBalance);
+                    sessionBalance = 0; clicksRemaining = 30;
+                    setTimeout(updateMiningUI, 1000);
+                } else {
+                    document.getElementById('coin-btn').style.opacity = "0.2";
+                    document.getElementById('claim-btn').style.display = "block";
+                }
             }
         }
 
@@ -263,28 +308,72 @@
             document.getElementById('energy-bar').style.width = (clicksRemaining / 30 * 100) + "%";
             document.getElementById('energy-val').innerText = clicksRemaining + " / 30";
             document.getElementById('session-box').style.display = "block";
-            document.getElementById('session-amt').innerText = sessionBalance.toFixed(2);
+            document.getElementById('session-amt').innerText = sessionBalance.toFixed(4);
+            document.getElementById('coin-btn').style.opacity = (clicksRemaining === 0 && !userData.isVip) ? "0.2" : "1";
+        }
+
+        function getRank(clicks) {
+            if(clicks >= 50000) return "Almaz";
+            if(clicks >= 15000) return "Qızıl";
+            if(clicks >= 5000) return "Gümüş";
+            return "Bürünc";
         }
 
         function updateWithdrawUI() {
+            const isVip = userData.isVip || false;
             const b = userData.balance || 0;
             const c = userData.totalClicks || 0;
             const r = userData.referralCount || 0;
-            const p = (userData.rocket && userData.rocket !== "default" && userData.rocket !== "");
-            const check = (id, curId, val, target, isBool = false) => {
+            const rocket = (userData.rocket && userData.rocket !== "default" && userData.rocket !== "");
+            const currentRank = getRank(c);
+
+            // Dinamik Limitlər
+            const targetBal = isVip ? 70 : 150;
+            const targetRefs = isVip ? 3 : 10;
+            const targetRank = isVip ? "Gümüş" : "Almaz";
+
+            // UI Mətnləri
+            document.getElementById('req-bal-text').innerText = `Balans ${targetBal} AZN`;
+            document.getElementById('req-ref-text').innerText = `${targetRefs} Dost Dəvəti`;
+            document.getElementById('req-rank-text').innerText = `${targetRank} Rütbə`;
+            if(isVip) document.getElementById('req-rocket-text').innerText = "Paket Tələbi (Ləğv)";
+
+            const check = (id, curId, val, target, type) => {
                 const el = document.getElementById(id);
                 const stat = el.querySelector('.status-icon');
                 const cur = document.getElementById(curId);
-                const met = isBool ? val : val >= target;
-                cur.innerText = isBool ? (val ? "Aktivdir" : "Yoxdur") : (typeof val === 'number' && !isBool && target === 150 ? `${val.toFixed(2)} / ${target}` : `${val} / ${target}`);
+                let met = false;
+
+                if(type === 'bal') {
+                    cur.innerText = `${val.toFixed(2)} / ${target}`;
+                    met = val >= target;
+                } else if(type === 'ref') {
+                    cur.innerText = `${val} / ${target}`;
+                    met = val >= target;
+                } else if(type === 'rank') {
+                    cur.innerText = val;
+                    const ranks = ["Bürünc", "Gümüş", "Qızıl", "Almaz"];
+                    met = ranks.indexOf(val) >= ranks.indexOf(target);
+                } else if(type === 'rocket') {
+                    if(isVip) {
+                        cur.innerText = "VIP Ləğv etdi";
+                        met = true;
+                    } else {
+                        cur.innerText = val ? "Aktivdir" : "Yoxdur";
+                        met = val;
+                    }
+                }
+
                 stat.className = met ? "fas fa-check-circle" : "fas fa-clock";
                 stat.style.color = met ? "var(--accent)" : "#475569";
                 return met;
             };
-            const m1 = check('req-balance', 'cur-balance', b, 150);
-            const m2 = check('req-clicks', 'cur-clicks', c, 2500);
-            const m3 = check('req-refs', 'cur-refs', r, 5);
-            const m4 = check('req-rocket', 'cur-rocket', p, null, true);
+
+            const m1 = check('req-balance', 'cur-balance', b, targetBal, 'bal');
+            const m2 = check('req-rank', 'cur-rank', currentRank, targetRank, 'rank');
+            const m3 = check('req-refs', 'cur-refs', r, targetRefs, 'ref');
+            const m4 = check('req-rocket', 'cur-rocket', rocket, null, 'rocket');
+
             document.getElementById('withdraw-final-btn').disabled = !(m1 && m2 && m3 && m4);
         }
 
@@ -292,7 +381,6 @@
             startAdTask(15, () => {
                 db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + sessionBalance);
                 sessionBalance = 0; clicksRemaining = 30;
-                document.getElementById('coin-btn').style.opacity = "1";
                 document.getElementById('claim-btn').style.display = "none";
                 document.getElementById('session-box').style.display = "none";
                 updateMiningUI();
@@ -336,7 +424,7 @@
 
         function showClickEffect(e, val) {
             const t = document.createElement('div');
-            t.innerText = "+" + val.toFixed(2);
+            t.innerText = "+" + val.toFixed(4);
             t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
             t.style.position = 'fixed'; t.style.color = 'var(--accent)'; t.style.fontWeight = '800';
             t.style.animation = 'float 0.6s forwards'; t.style.pointerEvents = 'none';
