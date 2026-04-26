@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Profil - Zerowallet</title>
+    <title>Profil - Zerowallet Roadmap</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -15,9 +15,8 @@
         :root {
             --primary: #6366f1;
             --bg: #020617;
-            --card: rgba(15, 23, 42, 0.8);
+            --card: rgba(15, 23, 42, 0.9);
             --text: #f8fafc;
-            /* Rütbə Rəngləri */
             --bronz-clr: #cd7f32;
             --gumus-clr: #cbd5e1;
             --qizil-clr: #fbbf24;
@@ -25,7 +24,6 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body { 
             margin: 0; background: var(--bg); color: var(--text); 
             font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
@@ -33,133 +31,148 @@
             overflow-x: hidden;
         }
 
-        .container { padding: 20px; max-width: 450px; margin: 0 auto; animation: fadeIn 0.8s ease-out; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .container { padding: 20px; max-width: 480px; margin: 0 auto; animation: slideUp 0.6s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
         .back-btn { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
             color: #94a3b8; padding: 12px 18px; border-radius: 16px; cursor: pointer; text-decoration: none;
             display: inline-flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 20px;
-            transition: 0.3s;
         }
-        .back-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.07); }
 
         .profile-card {
-            background: var(--card); border-radius: 35px; padding: 40px 20px;
+            background: var(--card); border-radius: 35px; padding: 30px 20px;
             border: 1px solid rgba(255,255,255,0.05); text-align: center;
-            position: relative; overflow: hidden;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px); box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        /* Avatar & Rank Style */
-        .avatar-container { position: relative; width: 120px; height: 120px; margin: 0 auto 20px; }
-        
-        .avatar-glow {
-            position: absolute; inset: -5px; border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent, var(--primary), transparent);
-            animation: rotate 4s linear infinite; opacity: 0.5;
-        }
-
+        /* Avatar Zone */
+        .avatar-box { position: relative; width: 110px; height: 110px; margin: 0 auto 15px; }
         .avatar {
-            position: relative; width: 100%; height: 100%; 
-            background: #0f172a; border-radius: 50%;
+            width: 100%; height: 100%; background: #0f172a; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; font-weight: 800; border: 3px solid rgba(255,255,255,0.1);
-            z-index: 2; color: #fff; font-family: 'Space Grotesk';
+            font-size: 2.8rem; font-weight: 800; border: 3px solid rgba(255,255,255,0.1);
+            color: #fff; font-family: 'Space Grotesk'; z-index: 2; position: relative;
+        }
+        .rank-glow {
+            position: absolute; inset: -3px; border-radius: 50%;
+            background: var(--primary); opacity: 0.3; filter: blur(10px);
         }
 
-        .rank-badge-img {
-            position: absolute; bottom: 0; right: 0;
-            width: 42px; height: 42px; z-index: 5;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-            animation: bounce 2s infinite ease-in-out;
+        /* Roadmap (Xəritə) */
+        .roadmap-container {
+            margin-top: 35px; background: rgba(0,0,0,0.2); padding: 25px 15px;
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.03);
+            position: relative;
+        }
+        .roadmap-title { font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 20px; letter-spacing: 2px; }
+
+        .levels-track {
+            position: relative; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 10px; margin-bottom: 10px;
+        }
+        .track-line {
+            position: absolute; top: 15px; left: 10%; right: 10%;
+            height: 4px; background: #1e293b; z-index: 1; border-radius: 2px;
+        }
+        .track-progress {
+            position: absolute; top: 15px; left: 10%; width: 0%;
+            height: 4px; background: var(--primary); z-index: 2; border-radius: 2px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--primary);
         }
 
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-
-        .username { font-family: 'Space Grotesk'; font-size: 1.8rem; margin: 10px 0 5px; letter-spacing: -0.5px; }
-        
-        .rank-label {
-            display: inline-block; padding: 6px 16px; border-radius: 20px;
-            font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1.5px; margin-bottom: 15px;
-            background: rgba(255,255,255,0.05);
+        .level-step {
+            position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
+        .step-circle {
+            width: 30px; height: 30px; border-radius: 50%; background: #0f172a;
+            border: 3px solid #1e293b; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; transition: 0.5s;
+        }
+        .level-step.active .step-circle { border-color: var(--primary); background: var(--primary); color: #fff; box-shadow: 0 0 15px var(--primary); }
+        .step-img { width: 22px; height: 22px; object-fit: contain; }
+        .step-label { font-size: 0.6rem; font-weight: 700; color: #475569; }
+        .level-step.active .step-label { color: #fff; }
 
-        /* Stats Design */
+        .click-needed { font-size: 0.7rem; color: #94a3b8; margin-top: 15px; font-weight: 600; }
+
+        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
-        
         .stat-box {
             background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-            padding: 18px 10px; border-radius: 24px; transition: 0.3s ease;
+            padding: 15px; border-radius: 20px;
         }
-        .stat-box:active { background: rgba(255,255,255,0.05); }
-
-        .stat-box i { font-size: 1.1rem; margin-bottom: 8px; opacity: 0.8; }
-        .stat-box span { display: block; font-size: 1.3rem; font-weight: 800; font-family: 'Space Grotesk'; color: #fff; }
-        .stat-box label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-
-        .joined-info { color: #475569; font-size: 0.75rem; margin-top: 25px; font-weight: 600; }
+        .stat-box i { font-size: 1rem; margin-bottom: 5px; color: var(--primary); }
+        .stat-box span { display: block; font-size: 1.2rem; font-weight: 800; font-family: 'Space Grotesk'; }
+        .stat-box label { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
 
         .logout-btn {
             margin-top: 30px; width: 100%; padding: 18px; border-radius: 20px;
-            background: linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-            color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.1);
             font-weight: 800; cursor: pointer; transition: 0.3s;
-            font-family: 'Space Grotesk'; letter-spacing: 1px;
         }
-        .logout-btn:active { transform: scale(0.98); background: rgba(239, 68, 68, 0.15); }
-
-        /* Dinamik Rütbe Stilləri */
-        .bronz { color: var(--bronz-clr); box-shadow: 0 0 15px rgba(205, 127, 50, 0.2); }
-        .gumus { color: var(--gumus-clr); box-shadow: 0 0 15px rgba(203, 213, 225, 0.2); }
-        .qizil { color: var(--qizil-clr); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
-        .almaz { color: var(--almaz-clr); box-shadow: 0 0 20px rgba(34, 211, 238, 0.3); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <a href="javascript:history.back()" class="back-btn">
-            <i class="fas fa-chevron-left"></i> GERİ QAYIT
-        </a>
+        <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i> GERİ</a>
 
         <div class="profile-card">
-            <div class="avatar-container">
-                <div class="avatar-glow" id="glow"></div>
+            <div class="avatar-box">
+                <div class="rank-glow" id="avatar-glow"></div>
                 <div class="avatar" id="avatar">?</div>
-                <img id="rank-icon" class="rank-badge-img" src="bronz.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625393.png'">
             </div>
             
             <h2 class="username" id="username">...</h2>
-            <div id="rank-label" class="rank-label bronz">BÜRÜNC RÜTBƏSİ</div>
+            <div id="rank-display" style="font-weight:800; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase;">Yüklənir</div>
+
+            <div class="roadmap-container">
+                <div class="roadmap-title">RÜTBƏ YOL XƏRİTƏSİ</div>
+                
+                <div class="levels-track">
+                    <div class="track-line"></div>
+                    <div id="progress-bar" class="track-progress"></div>
+
+                    <div class="level-step" id="step-0">
+                        <div class="step-circle"><img src="bronz.png" class="step-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625393.png'"></div>
+                        <span class="step-label">Bürünc</span>
+                    </div>
+
+                    <div class="level-step" id="step-5000">
+                        <div class="step-circle"><img src="gumus.png" class="step-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/179/179251.png'"></div>
+                        <span class="step-label">Gümüş</span>
+                    </div>
+
+                    <div class="level-step" id="step-15000">
+                        <div class="step-circle"><img src="qizil.png" class="step-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/179/179249.png'"></div>
+                        <span class="step-label">Qızıl</span>
+                    </div>
+
+                    <div class="level-step" id="step-50000">
+                        <div class="step-circle"><img src="almaz.png" class="step-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1042/1042657.png'"></div>
+                        <span class="step-label">Almaz</span>
+                    </div>
+                </div>
+
+                <div id="next-rank-info" class="click-needed">Növbəti rütbə üçün məlumat toplanır...</div>
+            </div>
 
             <div class="stats-grid">
                 <div class="stat-box">
-                    <i class="fas fa-fingerprint" style="color: #6366f1;"></i>
+                    <i class="fas fa-mouse"></i>
                     <span id="clicks">0</span>
                     <label>Toplam Klik</label>
                 </div>
                 <div class="stat-box">
-                    <i class="fas fa-share-nodes" style="color: #22c55e;"></i>
+                    <i class="fas fa-user-plus"></i>
                     <span id="refs">0</span>
                     <label>Referallar</label>
                 </div>
-                <div class="stat-box" style="grid-column: span 2;">
-                    <i class="fas fa-bolt" style="color: #fbbf24;"></i>
-                    <span id="rocket-type" style="text-transform: uppercase; font-size: 1.1rem;">---</span>
-                    <label>Aktiv Mədən Paketi</label>
-                </div>
             </div>
 
-            <div class="joined-info" id="joined">QOŞULMA: --.--.----</div>
-
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-power-off"></i> SİSTEMDƏN ÇIX
-            </button>
+            <button class="logout-btn" onclick="logout()">ÇIXIŞ ET</button>
         </div>
     </div>
 
@@ -186,49 +199,59 @@
             document.getElementById('username').innerText = user;
             document.getElementById('avatar').innerText = user.charAt(0).toUpperCase();
             document.getElementById('clicks').innerText = clicks.toLocaleString();
-            document.getElementById('rocket-type').innerText = data.rocket || "Default";
             
-            // Təkmilləşdirilmiş Rütbe Sistemi
-            let rName = "BÜRÜNC";
-            let rClass = "bronz";
-            let rImg = "bronz.png";
-            let glowClr = "#cd7f32";
-
-            if(clicks >= 50000) {
-                rName = "ALMAZ";
-                rClass = "almaz";
-                rImg = "almaz.png";
-                glowClr = "#22d3ee";
-            } else if(clicks >= 15000) {
-                rName = "QIZIL";
-                rClass = "qizil";
-                rImg = "qizil.png";
-                glowClr = "#fbbf24";
-            } else if(clicks >= 5000) {
-                rName = "GÜMÜŞ";
-                rClass = "gumus";
-                rImg = "gumus.png";
-                glowClr = "#cbd5e1";
-            }
-
-            const label = document.getElementById('rank-label');
-            label.innerText = rName + " RÜTBƏSİ";
-            label.className = "rank-label " + rClass;
-            document.getElementById('rank-icon').src = rImg;
-            document.getElementById('glow').style.background = `conic-gradient(from 0deg, transparent, ${glowClr}, transparent)`;
+            // Xəritə Məntiqi
+            updateRoadmap(clicks);
             
-            // Referallar
             const refCount = data.usedCodes ? Object.keys(data.usedCodes).length : 0;
             document.getElementById('refs').innerText = refCount;
-
-            // Tarix
-            if(data.createdAt) {
-                const date = new Date(data.createdAt);
-                document.getElementById('joined').innerText = "SİSTEMƏ QOŞULMA: " + date.toLocaleDateString('az-AZ');
-            } else {
-                db.ref('zerowallet_users/' + user + '/createdAt').set(Date.now());
-            }
         });
+
+        function updateRoadmap(clicks) {
+            const steps = [
+                { id: "step-0", limit: 0, name: "Bürünc", color: "#cd7f32" },
+                { id: "step-5000", limit: 5000, name: "Gümüş", color: "#cbd5e1" },
+                { id: "step-15000", limit: 15000, name: "Qızıl", color: "#fbbf24" },
+                { id: "step-50000", limit: 50000, name: "Almaz", color: "#22d3ee" }
+            ];
+
+            let currentIdx = 0;
+            steps.forEach((step, index) => {
+                const el = document.getElementById(step.id);
+                if (clicks >= step.limit) {
+                    el.classList.add('active');
+                    currentIdx = index;
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+
+            // Progress Bar Hesablanması
+            let progress = 0;
+            if (currentIdx === 0) progress = (clicks / 5000) * 33.3;
+            else if (currentIdx === 1) progress = 33.3 + ((clicks - 5000) / 10000) * 33.3;
+            else if (currentIdx === 2) progress = 66.6 + ((clicks - 15000) / 35000) * 33.3;
+            else progress = 100;
+
+            document.getElementById('progress-bar').style.width = Math.min(progress, 100) + "%";
+            
+            // Üst yazı və rəng
+            const currentRank = steps[currentIdx];
+            const rankDisplay = document.getElementById('rank-display');
+            rankDisplay.innerText = currentRank.name + " RÜTBƏSİ";
+            rankDisplay.style.color = currentRank.color;
+            document.getElementById('avatar-glow').style.background = currentRank.color;
+
+            // Növbəti rütbə üçün məlumat
+            const infoBox = document.getElementById('next-rank-info');
+            if (currentIdx < 3) {
+                const nextRank = steps[currentIdx + 1];
+                const diff = nextRank.limit - clicks;
+                infoBox.innerHTML = `Növbəti rütbə (${nextRank.name}) üçün <b>${diff.toLocaleString()}</b> klik qaldı!`;
+            } else {
+                infoBox.innerHTML = "Təbriklər! Maksimum rütbəyə çatdın! 🔥";
+            }
+        }
 
         function logout() {
             localStorage.removeItem('zerowallet_session');
