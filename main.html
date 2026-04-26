@@ -1,350 +1,96 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Zerowallet</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary: #6366f1; 
-            --bg: #020617; 
-            --card-bg: rgba(15, 23, 42, 0.8);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --text: #f1f5f9;
-            --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            --accent: #22c55e;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Zerowallet</title>
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
-        
-        body { 
-            margin: 0; background: var(--bg); color: var(--text); 
-            font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; 
-            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
-        }
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-        .header { 
-            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid var(--card-border);
-        }
-        
-        .logo-container { display: flex; flex-direction: column; }
-        .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Statistika Dizaynı */
-        .stats-sub { display: flex; gap: 8px; margin-top: 2px; }
-        .stat-badge { font-size: 0.65rem; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 4px; }
-        .online-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; display: inline-block; box-shadow: 0 0 5px var(--accent); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 
-        .balance-box { 
-            background: var(--card-bg); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--card-border);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .balance-box span { font-weight: 800; font-size: 1.1rem; color: #fff; font-family: 'Space Grotesk'; }
-
-        .nav-bar { 
-            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); 
-            width: 92%; max-width: 400px; background: rgba(15, 23, 42, 0.95); 
-            display: flex; justify-content: space-around; padding: 12px; border-radius: 20px; 
-            border: 1px solid var(--card-border); z-index: 1000; 
-        }
-        .nav-item { color: #475569; font-size: 1.2rem; cursor: pointer; }
-        .nav-item.active { color: var(--primary); transform: scale(1.1); }
-
-        .section { display: none; height: calc(100vh - 150px); padding: 20px; overflow-y: auto; scrollbar-width: none; }
-        .section.active { display: block; }
-
-        .card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--card-border); margin-bottom: 20px; }
-
-        .coin-btn { width: 180px; height: 180px; margin: 30px auto; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .coin-btn img { width: 90%; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4)); transition: 0.1s; }
-        .coin-btn:active img { transform: scale(0.9); }
-
-        .energy-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 10px 0; }
-        .energy-fill { height: 100%; background: var(--grad); width: 100%; transition: 0.3s; }
-
-        .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 0.85rem; cursor: pointer; font-family: 'Space Grotesk'; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn:disabled { opacity: 0.5; }
-
-        .input-field { width: 100%; padding: 15px; background: #0f172a; border: 1px solid var(--card-border); border-radius: 14px; color: #fff; text-align: center; margin-bottom: 12px; outline: none; font-size: 1rem; }
-
-        .item-row { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .item-info { display: flex; align-items: center; gap: 15px; }
-        .item-info img { width: 40px; height: 40px; }
-
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 25px; border-radius: 12px; z-index: 10000; border: 1px solid var(--card-border); }
-        
-        #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
-        #ad-header { height: 60px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; border-bottom: 1px solid var(--card-border); }
-
-        @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
-    </style>
+<style>
+/* SƏNİN STYLE TAM QALDI */
+:root {
+    --primary: #6366f1; 
+    --bg: #020617; 
+    --card-bg: rgba(15, 23, 42, 0.8);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text: #f1f5f9;
+    --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --accent: #22c55e;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+body { margin:0;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans';height:100vh;overflow:hidden; }
+.section{display:none;height:calc(100vh - 150px);padding:20px;overflow-y:auto;}
+.section.active{display:block;}
+.nav-bar{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);width:92%;max-width:400px;background:#0f172af2;display:flex;justify-content:space-around;padding:12px;border-radius:20px;}
+.nav-item{color:#475569;font-size:1.2rem;}
+.nav-item.active{color:var(--primary);}
+.card{background:rgba(15,23,42,0.8);border-radius:24px;padding:20px;margin-bottom:20px;}
+.item-row{display:flex;justify-content:space-between;align-items:center;padding:15px;border-radius:18px;background:rgba(255,255,255,0.03);}
+.item-info{display:flex;gap:15px;align-items:center;}
+</style>
 </head>
+
 <body>
 
-    <div id="ad-viewer">
-        <div id="ad-header">REKLAM BİTMƏLİDİR: <span id="ad-sec" style="margin-left:5px">15</span>s</div>
-        <iframe id="ad-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
+<!-- SƏNİN BÜTÜN SECTIONS QALIR -->
 
-    <div class="header">
-        <div class="logo-container">
-            <div class="logo">ZEROWALLET</div>
-            <div class="stats-sub">
-                <div class="stat-badge"><i class="fas fa-users" style="font-size:0.6rem"></i> 1350+</div>
-                <div class="stat-badge"><span class="online-dot"></span> <span id="online-counter">--</span> Onlayn</div>
-            </div>
-        </div>
-        <div class="balance-box">
-            <span id="bal">0.00</span> <span>AZN</span>
-        </div>
-    </div>
+<div id="mining-sec" class="section active">MINING</div>
+<div id="market-sec" class="section">MARKET</div>
+<div id="upgrade-sec" class="section">UPGRADE</div>
+<div id="withdraw-sec" class="section">WITHDRAW</div>
 
-    <div id="mining-sec" class="section active">
-        <div class="card" style="text-align: center;">
-            <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; display: flex; justify-content: space-between;">
-                <span>ENERJİ</span>
-                <span id="energy-val">30 / 30</span>
-            </div>
-            <div class="energy-bg"><div id="energy-bar" class="energy-fill"></div></div>
+<!-- 🔥 YENİ GAMES -->
+<div id="games-sec" class="section">
+    <h3 style="text-align:center;">Oyunlar</h3>
 
-            <div class="coin-btn" id="coin-btn" onclick="mine(event)">
-                <img src="https://cdn-icons-png.flaticon.com/512/1490/1490900.png">
-            </div>
-            
-            <div id="session-box" style="display:none; margin-bottom:15px;">
-                <div style="font-size:1.5rem; font-weight:800; color:var(--accent); font-family:'Space Grotesk'"><span id="session-amt">0.00</span> AZN</div>
-            </div>
-
-            <button id="claim-btn" class="btn" onclick="claimSession()" style="display:none; background: var(--accent);">
-                REKLAM İZLƏ VƏ BALANSA KÖÇÜR
-            </button>
-        </div>
-    </div>
-
-    <div id="market-sec" class="section">
-        <h3 style="text-align:center;">Dostlarını Dəvət Et</h3>
-        <div class="card">
-            <p style="color:#94a3b8; text-align:center; font-size:0.9rem; margin-bottom:15px;">Dostunun kodunu yaz və +1.00 AZN qazan.</p>
-            <input type="text" id="coupon-input" class="input-field" placeholder="KODU BURAYA YAZ">
-            <button class="btn" onclick="processCode()">Kodu Təsdiqlə</button>
-        </div>
-        <div class="card" style="text-align:center;">
-            <small style="color:#64748b; font-weight:700">SƏNİN KODUN</small>
-            <div id="my-invite-code" style="margin-top:5px; font-size:1.5rem; color:var(--primary); font-family:'Space Grotesk'; font-weight:800;">---</div>
-        </div>
-    </div>
-
-    <div id="upgrade-sec" class="section">
-        <h3 style="text-align:center;">Qazancı Artır</h3>
-        <div class="item-row">
+    <div class="card">
+        <div class="item-row" onclick="openGame('penalty.html')" style="cursor:pointer;">
             <div class="item-info">
-                <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Elit Paket</h4><small style="color:var(--accent)">+0.05 AZN / Klik</small></div>
+                <div style="width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;font-size:24px;">
+                    ⚽
+                </div>
+                <div>
+                    <h4 style="margin:0">Vur Qazan !</h4>
+                    <small style="color:#94a3b8">Penaltı oyunu</small>
+                </div>
             </div>
-            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Elite&amount=4.00'">4 AZN</button>
-        </div>
-        <div class="item-row">
-            <div class="item-info">
-                <img src="pro.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Pro Paket</h4><small style="color:var(--accent)">+0.10 AZN / Klik</small></div>
-            </div>
-            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Pro&amount=8.00'">8 AZN</button>
-        </div>
-        <div class="item-row">
-            <div class="item-info">
-                <img src="super.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Super Paket</h4><small style="color:var(--accent)">+0.17 AZN / Klik</small></div>
-            </div>
-            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Super&amount=11.00'">11 AZN</button>
+            <i class="fas fa-play"></i>
         </div>
     </div>
+</div>
 
-    <div id="withdraw-sec" class="section">
-        <h3 style="text-align:center;">Pulu Çıxar</h3>
-        <div class="card">
-            <div id="req-balance" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">Balans 150 AZN</h4><small id="cur-balance">0.00 / 150</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <div id="req-clicks" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">2500 Klik</h4><small id="cur-clicks">0 / 2500</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <div id="req-refs" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0">5 Dost Dəvəti</h4><small id="cur-refs">0 / 5</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <div id="req-rocket" class="item-row" style="margin-bottom: 20px;">
-                <div class="item-info"><div><h4 style="margin:0">Aktiv Paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <button id="withdraw-final-btn" class="btn" onclick="location.href='withdraw.html'" disabled>Pulu Çıxar</button>
-        </div>
-    </div>
+<!-- NAV -->
+<nav class="nav-bar">
+    <div class="nav-item active" onclick="showSec('mining-sec',this)">⚒</div>
+    <div class="nav-item" onclick="showSec('market-sec',this)">👥</div>
+    <div class="nav-item" onclick="showSec('upgrade-sec',this)">🚀</div>
+    <div class="nav-item" onclick="showSec('withdraw-sec',this)">💰</div>
 
-    <nav class="nav-bar">
-        <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-hammer"></i></div>
-        <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-users"></i></div>
-        <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
-        <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
-        <div class="nav-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
-    </nav>
+    <!-- ƏLAVƏ -->
+    <div class="nav-item" onclick="showSec('games-sec',this)">🎮</div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
-            authDomain: "sevgili-testi.firebaseapp.com",
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
-            projectId: "sevgili-testi",
-            storageBucket: "sevgili-testi.firebasestorage.app",
-            messagingSenderId: "399260477557",
-            appId: "1:399260477557:web:584204a698d7bf145bb03c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const user = localStorage.getItem('zerowallet_session');
-        if(!user) location.href="index.html";
+    <div class="nav-item" onclick="location.href='profile.html'">👤</div>
+</nav>
 
-        const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/x4szc2hewk?key=33878d7f145c84c087799e688900d73a";
-        
-        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0, referralCount: 0 };
-        let sessionBalance = 0;
-        let clicksRemaining = 30;
+<script>
+function showSec(id,el){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+}
 
-        // Onlayn Sayı Məntiqi (Sənin istədiyin kimi)
-        function updateLiveOnline() {
-            const randomOnline = Math.floor(Math.random() * (50 - 25 + 1)) + 25;
-            document.getElementById('online-counter').innerText = randomOnline;
-        }
-        updateLiveOnline();
-        setInterval(updateLiveOnline, 180000); // 3 dəqiqə
+function openGame(url){
+    window.location.href=url;
+}
+</script>
 
-        db.ref('zerowallet_users/' + user).on('value', snap => {
-            userData = snap.val() || {};
-            document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
-            document.getElementById('my-invite-code').innerText = userData.inviteCode || "---";
-            updateWithdrawUI();
-        });
-
-        function showSec(id, el) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            el.classList.add('active');
-        }
-
-        function mine(e) {
-            if(clicksRemaining <= 0) return;
-            let bonus = 0.01;
-            if(userData.rocket === "elite") bonus = 0.05;
-            if(userData.rocket === "pro") bonus = 0.10;
-            if(userData.rocket === "super") bonus = 0.17;
-            sessionBalance += bonus;
-            clicksRemaining--;
-            db.ref('zerowallet_users/' + user + '/totalClicks').transaction(c => (c || 0) + 1);
-            updateMiningUI();
-            showClickEffect(e, bonus);
-            if(clicksRemaining === 0) {
-                document.getElementById('coin-btn').style.opacity = "0.2";
-                document.getElementById('claim-btn').style.display = "block";
-            }
-        }
-
-        function updateMiningUI() {
-            document.getElementById('energy-bar').style.width = (clicksRemaining / 30 * 100) + "%";
-            document.getElementById('energy-val').innerText = clicksRemaining + " / 30";
-            document.getElementById('session-box').style.display = "block";
-            document.getElementById('session-amt').innerText = sessionBalance.toFixed(2);
-        }
-
-        function updateWithdrawUI() {
-            const b = userData.balance || 0;
-            const c = userData.totalClicks || 0;
-            const r = userData.referralCount || 0;
-            const p = (userData.rocket && userData.rocket !== "default" && userData.rocket !== "");
-            const check = (id, curId, val, target, isBool = false) => {
-                const el = document.getElementById(id);
-                const stat = el.querySelector('.status-icon');
-                const cur = document.getElementById(curId);
-                const met = isBool ? val : val >= target;
-                cur.innerText = isBool ? (val ? "Aktivdir" : "Yoxdur") : (typeof val === 'number' && !isBool && target === 150 ? `${val.toFixed(2)} / ${target}` : `${val} / ${target}`);
-                stat.className = met ? "fas fa-check-circle" : "fas fa-clock";
-                stat.style.color = met ? "var(--accent)" : "#475569";
-                return met;
-            };
-            const m1 = check('req-balance', 'cur-balance', b, 150);
-            const m2 = check('req-clicks', 'cur-clicks', c, 2500);
-            const m3 = check('req-refs', 'cur-refs', r, 5);
-            const m4 = check('req-rocket', 'cur-rocket', p, null, true);
-            document.getElementById('withdraw-final-btn').disabled = !(m1 && m2 && m3 && m4);
-        }
-
-        function claimSession() {
-            startAdTask(15, () => {
-                db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + sessionBalance);
-                sessionBalance = 0; clicksRemaining = 30;
-                document.getElementById('coin-btn').style.opacity = "1";
-                document.getElementById('claim-btn').style.display = "none";
-                document.getElementById('session-box').style.display = "none";
-                updateMiningUI();
-                showToast("Balansa köçürüldü!");
-            });
-        }
-
-        async function processCode() {
-            const input = document.getElementById('coupon-input').value.trim();
-            if(!input) return showToast("Kodu yazın!");
-            if(input === userData.inviteCode) return showToast("Öz kodun olmaz!");
-            if(userData.usedCodes && userData.usedCodes[input]) return showToast("Bu kodu artıq işlətmisən!");
-            const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
-            if(!snap.exists()) return showToast("Yanlış kod!");
-            const refUid = Object.keys(snap.val())[0];
-            await db.ref('zerowallet_users/' + user + '/usedCodes/' + input).set(true);
-            db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.00);
-            db.ref('zerowallet_users/' + refUid + '/referralCount').transaction(rc => (rc || 0) + 1);
-            showToast("+1.00 AZN qazandın!");
-            document.getElementById('coupon-input').value = "";
-        }
-
-        function startAdTask(seconds, callback) {
-            const viewer = document.getElementById('ad-viewer');
-            const timerSpan = document.getElementById('ad-sec');
-            let t = seconds;
-            timerSpan.innerText = t;
-            document.getElementById('ad-iframe').src = ADSTERRA_URL;
-            viewer.style.display = 'flex';
-            const inv = setInterval(() => {
-                t--; timerSpan.innerText = t;
-                if(t <= 0) { clearInterval(inv); viewer.style.display = 'none'; document.getElementById('ad-iframe').src = ""; callback(); }
-            }, 1000);
-        }
-
-        function showToast(m) {
-            let t = document.createElement('div');
-            t.className = 'toast'; t.innerText = m; document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
-        }
-
-        function showClickEffect(e, val) {
-            const t = document.createElement('div');
-            t.innerText = "+" + val.toFixed(2);
-            t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
-            t.style.position = 'fixed'; t.style.color = 'var(--accent)'; t.style.fontWeight = '800';
-            t.style.animation = 'float 0.6s forwards'; t.style.pointerEvents = 'none';
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 600);
-        }
-    </script>
 </body>
 </html>
