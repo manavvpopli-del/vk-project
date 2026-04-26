@@ -109,6 +109,27 @@
         </div>
     </div>
 
+    <div id="games-sec" class="section">
+        <h3 style="text-align:center;">Vur Qazan!</h3>
+        <div id="vip-gate" class="card" style="text-align:center;">
+            <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i>
+            <h4>VİP Giriş Tələb Olunur</h4>
+            <p style="color:#94a3b8; font-size:0.85rem;">Oyunlar bölməsinə daxil olmaq üçün VİP abunəliyiniz olmalıdır.</p>
+            <div style="margin:15px 0;">
+                <span style="text-decoration:line-through; color:#64748b; font-size:1rem;">16 AZN</span>
+                <span style="color:var(--accent); font-size:1.5rem; font-weight:800; margin-left:10px;">9 AZN</span>
+            </div>
+            <button class="btn" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP ABUNƏ OL</button>
+        </div>
+        
+        <div id="games-list" class="card" style="display:none; text-align:center;">
+             <img src="https://cdn-icons-png.flaticon.com/512/33/33736.png" style="width:60px; margin-bottom:10px;">
+             <h4>Penalty: Vur Qazan!</h4>
+             <p style="color:#94a3b8; font-size:0.85rem;">Hər 5 qola 5 qat qazanc.</p>
+             <button class="btn" onclick="location.href='penalty.html'">OYNA</button>
+        </div>
+    </div>
+
     <div id="mining-sec" class="section active">
         <div class="card" style="text-align: center;">
             <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; display: flex; justify-content: space-between;">
@@ -194,7 +215,7 @@
 
     <nav class="nav-bar">
         <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-hammer"></i></div>
-        <div class="nav-item" onclick="location.href='games.html'"><i class="fas fa-gamepad"></i></div>
+        <div class="nav-item" onclick="showSec('games-sec', this)"><i class="fas fa-gamepad"></i></div>
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-users"></i></div>
         <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
@@ -218,7 +239,7 @@
 
         const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/x4szc2hewk?key=33878d7f145c84c087799e688900d73a";
         
-        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0, referralCount: 0 };
+        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0, referralCount: 0, isVip: false };
         let sessionBalance = 0;
         let clicksRemaining = 30;
 
@@ -233,6 +254,13 @@
             userData = snap.val() || {};
             document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
             document.getElementById('my-invite-code').innerText = userData.inviteCode || "---";
+            
+            // VİP Yoxlanışı
+            if(userData.isVip === true) {
+                document.getElementById('vip-gate').style.display = 'none';
+                document.getElementById('games-list').style.display = 'block';
+            }
+
             updateWithdrawUI();
         });
 
