@@ -1,143 +1,241 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vur Qazan!</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* Sənin mövcud CSS kodların bura gəlir */
-        body { margin: 0; background: #020617; color: #fff; font-family: sans-serif; text-align: center; overflow: hidden; }
-        .game-header { padding: 20px; display: flex; justify-content: space-between; font-family: 'Space Grotesk'; }
-        .pitch { position: relative; height: 60vh; background: linear-gradient(to bottom, #064e3b, #065f46); margin: 20px; border-radius: 20px; border: 4px solid #059669; }
-        .goal { width: 150px; height: 80px; border: 4px solid #fff; border-bottom: none; margin: 0 auto; position: relative; }
-        .ball { width: 45px; cursor: pointer; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); }
-        
-        .btn-claim { 
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
-            color: #fff; border: none; padding: 18px 35px; border-radius: 18px; 
-            font-weight: 800; display: none; margin: 20px auto; cursor: pointer;
-            font-family: 'Space Grotesk'; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        /* VİP MODAL CSS - YENİ ƏLAVƏ */
-        .modal { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(2, 6, 23, 0.95); display: none; align-items: center; 
-            justify-content: center; z-index: 10000; backdrop-filter: blur(8px);
-        }
-        .modal-card { 
-            background: #0f172a; padding: 30px; border-radius: 32px; width: 88%; 
-            max-width: 400px; border: 1px solid rgba(255,255,255,0.1); text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        .vip-icon { font-size: 4rem; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
-    </style>
+<title>Penalty Real Assets</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial;
+}
+
+/* STADIUM */
+#game {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: url('stadium.png') center/cover no-repeat;
+}
+
+/* SIMPLE GOAL FRAME */
+#goal {
+    position: absolute;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: 25%;
+    border: 5px solid white;
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+/* KEEPER */
+#keeper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 340px;
+    transform: translateX(-50%);
+    transition: 0.4s;
+}
+
+/* BALL */
+#ball {
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    width: 100px;
+    transform: translateX(-50%);
+    transition: all 0.9s cubic-bezier(.2,.8,.2,1);
+}
+
+/* UI */
+#ui {
+    position: absolute;
+    top: 5%;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 22px;
+    text-shadow: 0 0 10px black;
+}
+
+/* 🏆 VİP MODAL STYLES (YENİ) */
+.vip-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.92); display: none; align-items: center;
+    justify-content: center; z-index: 1000; backdrop-filter: blur(5px);
+}
+.modal-content {
+    background: #0f172a; padding: 30px; border-radius: 30px;
+    width: 85%; max-width: 400px; text-align: center; border: 1px solid #1e293b; color: white;
+}
+.modal-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: white; border: none; padding: 15px; width: 100%;
+    border-radius: 15px; font-weight: bold; font-size: 16px; margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="game-header">
-        <div>TOP: <span id="ball-count">0</span> / 5</div>
-        <div style="color: #22c55e;">QAZANC: <span id="temp-win">0.00</span> AZN</div>
+<div id="game">
+    <div id="goal"></div>
+    <img id="keeper" src="keeper.png">
+    <img id="ball" src="ball.png">
+
+    <div id="ui">
+        <div id="result"></div>
+        <div id="score">0 / 5</div>
+        <div id="temp-money" style="color:#22c55e; font-weight:bold; margin-top:5px;">0.00 AZN</div>
     </div>
+</div>
 
-    <div class="pitch" id="pitch">
-        <div class="goal"></div>
-        <img src="https://cdn-icons-png.flaticon.com/512/33/33736.png" class="ball" id="ball" onclick="shoot()">
+<div id="vipModal" class="vip-modal">
+    <div class="modal-content">
+        <i class="fas fa-crown" style="font-size:3rem; color:#6366f1; margin-bottom:15px;"></i>
+        <h2 style="margin:0;">Qazanc Hazırdır!</h2>
+        <p style="color:#94a3b8;">Topladığınız <b><span id="final-amount">0.00</span> AZN</b> məbləği balansa köçürmək üçün VİP statusu lazımdır.</p>
+        <div style="font-size:1.5rem; color:#22c55e; font-weight:800; margin:15px 0;">Qiymət: 9 AZN</div>
+        <button class="modal-btn" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP-İ AKTİV ET</button>
+        <p onclick="location.href='games.html'" style="color:#475569; margin-top:15px; font-size:13px; text-decoration:underline;">İmtina et</p>
     </div>
+</div>
 
-    <button id="claim-btn" class="btn-claim" onclick="checkVipToClaim()">BALANSA KÖÇÜR</button>
+<audio id="shootSound" src="shoot.ogg"></audio>
+<audio id="goalSound" src="goal.ogg"></audio>
 
-    <div id="vip-modal" class="modal">
-        <div class="modal-card">
-            <i class="fas fa-crown vip-icon"></i>
-            <h2 style="font-family: 'Space Grotesk'; margin-bottom: 10px;">VİP Statusu Lazımdır</h2>
-            <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">Oyunlardan qazandığınız məbləği (<b><span id="modal-amount">0.00</span> AZN</b>) əsas balansa köçürmək üçün VİP abunəlik aktiv olmalıdır.</p>
+<script>
+// --- FİREBASE BAŞLAT ---
+const firebaseConfig = {
+    apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+    authDomain: "sevgili-testi.firebaseapp.com",
+    databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+    projectId: "sevgili-testi",
+    storageBucket: "sevgili-testi.firebasestorage.app",
+    messagingSenderId: "399260477557",
+    appId: "1:399260477557:web:584204a698d7bf145bb03c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const user = localStorage.getItem('zerowallet_session');
+
+let startX=0, startY=0;
+let shots=0, goals=0;
+let totalGain = 0; // Müvəqqəti qazanc
+let isUserVip = false;
+
+// VİP statusunu yoxla
+if(user) {
+    db.ref('zerowallet_users/' + user + '/isVip').on('value', snap => {
+        isUserVip = snap.val() === true;
+    });
+}
+
+const ball = document.getElementById("ball");
+const keeper = document.getElementById("keeper");
+const result = document.getElementById("result");
+const score = document.getElementById("score");
+const tempMoneyTxt = document.getElementById("temp-money");
+
+const shootSound = document.getElementById("shootSound");
+const goalSound = document.getElementById("goalSound");
+
+document.addEventListener("touchstart", e=>{
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+});
+
+document.addEventListener("touchend", e=>{
+    let dx=e.changedTouches[0].clientX - startX;
+    let dy=startY - e.changedTouches[0].clientY;
+    shoot(dx,dy);
+});
+
+function shoot(dx,dy){
+    if(shots>=5) return;
+
+    shots++;
+    shootSound.currentTime = 0;
+    shootSound.play();
+
+    let power = Math.min(Math.max(dy/150,0.3),1);
+    let dir = dx>40?"sağ":dx<-40?"sol":"orta";
+    let curve = dx/100;
+
+    let keeperChoice;
+    if(Math.random()<0.6){
+        keeperChoice=dir;
+    } else {
+        keeperChoice=["sol","orta","sağ"][Math.floor(Math.random()*3)];
+    }
+
+    if(keeperChoice==="sol") keeper.style.left="25%";
+    if(keeperChoice==="sağ") keeper.style.left="75%";
+    if(keeperChoice==="orta") keeper.style.left="50%";
+
+    let targetX = 50;
+    if(dir==="sol") targetX=25;
+    if(dir==="sağ") targetX=75;
+
+    ball.style.left=targetX+"%";
+    ball.style.bottom=(35 + power*15)+"%";
+    ball.style.transform = `translateX(-50%) scale(${1-power*0.4}) rotate(${curve*720}deg)`;
+
+    setTimeout(()=>{
+        if(dir===keeperChoice){
+            result.innerText="🧤 SAVE!";
+        } else {
+            result.innerText="⚽ GOAL!";
+            goals++;
             
-            <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 16px; margin: 20px 0;">
-                <span style="color: #22c55e; font-weight: 800; font-size: 1.4rem; font-family: 'Space Grotesk';">Qiymət: 9 AZN</span>
-            </div>
-            
-            <button onclick="location.href='pay.html?package=VIP&amount=9.00'" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color:#fff; border:none; padding:18px; width:100%; border-radius:18px; font-weight:800; cursor:pointer; font-family: 'Space Grotesk';">VİP-İ AKTİV ET</button>
-            
-            <div onclick="location.href='games.html'" style="margin-top: 20px; color: #64748b; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">İmtina et və qazancı sil</div>
-        </div>
-    </div>
+            // QAZANC HESABLA (1-9 AZN)
+            let gain = (Math.random() * (9 - 1) + 1);
+            totalGain += gain;
+            tempMoneyTxt.innerText = totalGain.toFixed(2) + " AZN";
 
-    <script>
-        // FİREBASE KONFİQURASİYAN
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
-            authDomain: "sevgili-testi.firebaseapp.com",
-            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
-            projectId: "sevgili-testi",
-            storageBucket: "sevgili-testi.firebasestorage.app",
-            messagingSenderId: "399260477557",
-            appId: "1:399260477557:web:584204a698d7bf145bb03c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const user = localStorage.getItem('zerowallet_session');
-
-        let balls = 0;
-        let totalWin = 0;
-        let isUserVip = false;
-
-        // VİP STATUSUNU YOXLAYIRIQ
-        if(user) {
-            db.ref('zerowallet_users/' + user + '/isVip').on('value', snap => {
-                isUserVip = (snap.val() === true);
-            });
+            goalSound.currentTime = 0;
+            goalSound.play();
         }
 
-        function shoot() {
-            if(balls >= 5) return;
+        score.innerText = goals + " / " + shots;
 
-            const ball = document.getElementById('ball');
-            // 1 ilə 9 arasında təsadüfi qazanc (Sənin istəyinlə)
-            let gain = (Math.random() * (9 - 1) + 1).toFixed(2);
-            
-            // Topun hərəkəti (Sadə animasiya)
-            const randomX = Math.floor(Math.random() * 120) - 60;
-            ball.style.transform = `translate(calc(-50% + ${randomX}px), -350px) scale(0.6)`;
-            
-            setTimeout(() => {
-                balls++;
-                totalWin += parseFloat(gain);
-                
-                document.getElementById('ball-count').innerText = balls;
-                document.getElementById('temp-win').innerText = totalWin.toFixed(2);
-                
-                if(balls < 5) {
-                    ball.style.transform = `translateX(-50%) scale(1)`;
-                } else {
-                    ball.style.display = 'none';
-                    document.getElementById('claim-btn').style.display = 'block';
-                }
-            }, 500);
-        }
+        setTimeout(()=>{
+            ball.style.left="50%";
+            ball.style.bottom="15%";
+            ball.style.transform="translateX(-50%) scale(1)";
+            keeper.style.left="50%";
+            result.innerText="";
 
-        function checkVipToClaim() {
-            if(isUserVip) {
-                // Əgər VİP-dirsə birbaşa balansa əlavə et
-                db.ref('zerowallet_users/' + user + '/balance').transaction(currentBalance => {
-                    return (currentBalance || 0) + totalWin;
-                }).then(() => {
-                    alert("Təbriklər! " + totalWin.toFixed(2) + " AZN balansa əlavə edildi.");
-                    location.href = 'main.html';
-                });
-            } else {
-                // VİP deyilse modalı aç və qazancı göstər
-                document.getElementById('modal-amount').innerText = totalWin.toFixed(2);
-                document.getElementById('vip-modal').style.display = 'flex';
+            if(shots===5){
+                finishGame();
             }
-        }
-    </script>
+        },1200);
+    },900);
+}
+
+function finishGame(){
+    if(isUserVip && totalGain > 0) {
+        // VİP-dirsə balansa köçür
+        db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + totalGain);
+        alert("Təbriklər! " + totalGain.toFixed(2) + " AZN balansa köçürüldü.");
+        location.href = 'main.html';
+    } else {
+        // VİP deyilsə modalı göstər
+        document.getElementById("final-amount").innerText = totalGain.toFixed(2);
+        document.getElementById("vipModal").style.display = "flex";
+    }
+}
+</script>
+
 </body>
 </html>
