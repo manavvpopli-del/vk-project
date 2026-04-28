@@ -85,20 +85,12 @@
 
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 25px; border-radius: 12px; z-index: 10000; border: 1px solid var(--card-border); }
         
-        #ad-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; display: none; flex-direction: column; }
-        #ad-header { height: 60px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; border-bottom: 1px solid var(--card-border); }
-
         .vip-badge { background: var(--vip-grad); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; color: #fff; margin-left: 5px; vertical-align: middle; }
 
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
     </style>
 </head>
 <body>
-
-    <div id="ad-viewer">
-        <div id="ad-header">REKLAM BİTMƏLİDİR: <span id="ad-sec" style="margin-left:5px">15</span>s</div>
-        <iframe id="ad-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
 
     <div class="header">
         <div class="logo-container">
@@ -118,7 +110,7 @@
         <div class="card" style="text-align: center;">
             <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; display: flex; justify-content: space-between;">
                 <span>ENERJİ</span>
-                <span id="energy-val">30 / 30</span>
+                <span id="energy-val">100 / 100</span>
             </div>
             <div class="energy-bg"><div id="energy-bar" class="energy-fill"></div></div>
 
@@ -126,16 +118,11 @@
                 <img src="https://cdn-icons-png.flaticon.com/512/1490/1490900.png">
             </div>
             
-            <div id="session-box" style="display:none; margin-bottom:15px;">
-                <div style="font-size:1.5rem; font-weight:800; color:var(--accent); font-family:'Space Grotesk'"><span id="session-amt">0.0000</span> AZN</div>
+            <div id="limit-info" style="display:none; color:#ef4444; font-weight:800; margin-top:15px;">
+                <i class="fas fa-clock"></i> LİMİT DOLDU! <br> 
+                <span id="timer-display">08:00:00</span> QALIB
             </div>
-
-            <button id="claim-btn" class="btn" onclick="claimSession()" style="display:none; background: var(--accent);">
-                REKLAM İZLƏ VƏ BALANSA KÖÇÜR
-            </button>
-            <div id="autobot-info" style="display:none; margin-top:10px; font-size:0.7rem; color:var(--accent); font-weight:700;">
-                <i class="fas fa-robot"></i> VIP AVTO-BOT AKTİVDİR
-            </div>
+            <button id="vip-skip-btn" class="btn" style="display:none; margin-top:10px; background:var(--vip-grad)" onclick="showSec('market-sec', document.querySelector('.fa-crown').parentElement)">VİP OL VƏ GÖZLƏMƏ</button>
         </div>
     </div>
 
@@ -150,7 +137,7 @@
                 <li>Çıxarış Limiti: <del>150 AZN</del> → <b>70 AZN</b></li>
                 <li>Dəvət Şərti: <del>10 Dost</del> → <b>3 Dost</b></li>
                 <li>Rütbə Şərti: <del>Almaz</del> → <b>Gümüş</b></li>
-                <li><b>Roket tələbi ləğv edilir!</b></li>
+                <li><b>8 Saatlıq Limit Ləğv Edilir!</b></li>
                 <li><b>VIP Avto-Bot aktivləşir!</b></li>
             </ul>
             <div style="text-align:center; margin:15px 0;">
@@ -243,11 +230,8 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        const ADSTERRA_URL = "https://www.profitablecpmratenetwork.com/x4szc2hewk?key=33878d7f145c84c087799e688900d73a";
-        
-        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0, referralCount: 0, isVip: false };
-        let sessionBalance = 0;
-        let clicksRemaining = 30;
+        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0, referralCount: 0, isVip: false, lastBatchTime: 0, batchClicks: 0 };
+        let clicksRemaining = 100;
 
         function updateLiveOnline() {
             const randomOnline = Math.floor(Math.random() * (50 - 25 + 1)) + 25;
@@ -264,10 +248,11 @@
             if(userData.isVip) {
                 document.getElementById('vip-status-header').innerHTML = '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>';
                 document.getElementById('vip-buy-card').style.display = 'none';
-                document.getElementById('autobot-info').style.display = 'block';
             }
 
+            checkLimit();
             updateWithdrawUI();
+            updateMiningUI();
         });
 
         function showSec(id, el) {
@@ -277,39 +262,82 @@
             el.classList.add('active');
         }
 
+        function checkLimit() {
+            if(userData.isVip) return false;
+            if(!userData.lastBatchTime) return false;
+
+            const now = Date.now();
+            const eightHours = 8 * 60 * 60 * 1000;
+            const diff = now - userData.lastBatchTime;
+
+            if(userData.batchClicks >= 250 && diff < eightHours) {
+                startTimer(eightHours - diff);
+                return true;
+            }
+            
+            // Limit bitibsə sıfırla
+            if(userData.batchClicks >= 250 && diff >= eightHours) {
+                db.ref('zerowallet_users/' + user).update({ batchClicks: 0, lastBatchTime: 0 });
+            }
+            return false;
+        }
+
+        function startTimer(duration) {
+            document.getElementById('coin-btn').style.opacity = "0.1";
+            document.getElementById('coin-btn').style.pointerEvents = "none";
+            document.getElementById('limit-info').style.display = "block";
+            document.getElementById('vip-skip-btn').style.display = "block";
+
+            const timerDisplay = document.getElementById('timer-display');
+            const interval = setInterval(() => {
+                const hours = Math.floor(duration / (1000 * 60 * 60));
+                const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+
+                timerDisplay.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                duration -= 1000;
+
+                if (duration < 0) {
+                    clearInterval(interval);
+                    location.reload();
+                }
+            }, 1000);
+        }
+
         function mine(e) {
-            if(clicksRemaining <= 0) return;
+            if(checkLimit()) return;
+            if(clicksRemaining <= 0) {
+                clicksRemaining = 100; // Enerji dolması simulyasiyası
+                updateMiningUI();
+                return;
+            }
             
             let bonus = 0.0001;
             if(userData.rocket === "elite") bonus = 0.0005;
             if(userData.rocket === "pro") bonus = 0.0008;
             if(userData.rocket === "super") bonus = 0.0010;
             
-            sessionBalance += bonus;
             clicksRemaining--;
-            db.ref('zerowallet_users/' + user + '/totalClicks').transaction(c => (c || 0) + 1);
-            updateMiningUI();
-            if(e) showClickEffect(e, bonus);
             
-            if(clicksRemaining === 0) {
-                if(userData.isVip) {
-                    // VIP Avto-Bot: Reklamsız birbaşa balansa köçürür
-                    db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + sessionBalance);
-                    sessionBalance = 0; clicksRemaining = 30;
-                    setTimeout(updateMiningUI, 1000);
-                } else {
-                    document.getElementById('coin-btn').style.opacity = "0.2";
-                    document.getElementById('claim-btn').style.display = "block";
-                }
+            const newBatchClicks = (userData.batchClicks || 0) + 1;
+            const updates = {
+                balance: (userData.balance || 0) + bonus,
+                totalClicks: (userData.totalClicks || 0) + 1,
+                batchClicks: newBatchClicks
+            };
+
+            if(newBatchClicks >= 250 && !userData.isVip) {
+                updates.lastBatchTime = Date.now();
             }
+
+            db.ref('zerowallet_users/' + user).update(updates);
+            if(e) showClickEffect(e, bonus);
+            updateMiningUI();
         }
 
         function updateMiningUI() {
-            document.getElementById('energy-bar').style.width = (clicksRemaining / 30 * 100) + "%";
-            document.getElementById('energy-val').innerText = clicksRemaining + " / 30";
-            document.getElementById('session-box').style.display = "block";
-            document.getElementById('session-amt').innerText = sessionBalance.toFixed(4);
-            document.getElementById('coin-btn').style.opacity = (clicksRemaining === 0 && !userData.isVip) ? "0.2" : "1";
+            document.getElementById('energy-bar').style.width = (clicksRemaining / 100 * 100) + "%";
+            document.getElementById('energy-val').innerText = clicksRemaining + " / 100";
         }
 
         function getRank(clicks) {
@@ -327,12 +355,10 @@
             const rocket = (userData.rocket && userData.rocket !== "default" && userData.rocket !== "");
             const currentRank = getRank(c);
 
-            // Dinamik Limitlər
             const targetBal = isVip ? 70 : 150;
             const targetRefs = isVip ? 3 : 10;
             const targetRank = isVip ? "Gümüş" : "Almaz";
 
-            // UI Mətnləri
             document.getElementById('req-bal-text').innerText = `Balans ${targetBal} AZN`;
             document.getElementById('req-ref-text').innerText = `${targetRefs} Dost Dəvəti`;
             document.getElementById('req-rank-text').innerText = `${targetRank} Rütbə`;
@@ -377,17 +403,6 @@
             document.getElementById('withdraw-final-btn').disabled = !(m1 && m2 && m3 && m4);
         }
 
-        function claimSession() {
-            startAdTask(15, () => {
-                db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + sessionBalance);
-                sessionBalance = 0; clicksRemaining = 30;
-                document.getElementById('claim-btn').style.display = "none";
-                document.getElementById('session-box').style.display = "none";
-                updateMiningUI();
-                showToast("Balansa köçürüldü!");
-            });
-        }
-
         async function processCode() {
             const input = document.getElementById('coupon-input').value.trim();
             if(!input) return showToast("Kodu yazın!");
@@ -401,19 +416,6 @@
             db.ref('zerowallet_users/' + refUid + '/referralCount').transaction(rc => (rc || 0) + 1);
             showToast("+1.00 AZN qazandın!");
             document.getElementById('coupon-input').value = "";
-        }
-
-        function startAdTask(seconds, callback) {
-            const viewer = document.getElementById('ad-viewer');
-            const timerSpan = document.getElementById('ad-sec');
-            let t = seconds;
-            timerSpan.innerText = t;
-            document.getElementById('ad-iframe').src = ADSTERRA_URL;
-            viewer.style.display = 'flex';
-            const inv = setInterval(() => {
-                t--; timerSpan.innerText = t;
-                if(t <= 0) { clearInterval(inv); viewer.style.display = 'none'; document.getElementById('ad-iframe').src = ""; callback(); }
-            }, 1000);
         }
 
         function showToast(m) {
