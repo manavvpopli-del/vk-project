@@ -222,16 +222,23 @@
         db.ref('zerowallet_users/' + uname).update({ isVip: status });
     }
 
-    function toggleBlock(ip, status) {
-        if(!ip) return;
-        const cleanIp = ip.replace(/\./g, '_');
-        if (status) db.ref('blocked_ips/' + cleanIp).set({ ip: ip, date: Date.now() });
-        else db.ref('blocked_ips/' + cleanIp).remove();
+function toggleBlock(uname, ip, status) {
+    if(!ip || !uname) return;
+    const cleanIp = ip.replace(/\./g, '_');
+    
+    if (status) {
+        // Həm IP-ni blokla, həm də istifadəçini işarələ
+        db.ref('blocked_ips/' + cleanIp).set({ ip: ip, username: uname, date: Date.now() });
+        db.ref('zerowallet_users/' + uname).update({ isBlocked: true });
+    } else {
+        db.ref('blocked_ips/' + cleanIp).remove();
+        db.ref('zerowallet_users/' + uname).update({ isBlocked: false });
     }
+}
 
-    function removeData(path) {
-        if(confirm("Məlumat silinsin?")) db.ref(path).remove();
-    }
+// İstifadəçi siyahısı hissəsində düyməni belə çağır:
+// <button class="btn ${u.isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${uname}', '${u.ip}', ${!u.isBlocked})">${u.isBlocked ? 'AÇ' : 'BLOKLA'}</button>
+
 </script>
 </body>
 </html>
