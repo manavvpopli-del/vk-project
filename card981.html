@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kartı Bağla - Zerowallet</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #020617;
+            --card-grad: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            --primary: #6366f1;
+            --text: #f1f5f9;
+        }
+
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+        }
+
+        .header { width: 100%; display: flex; align-items: center; margin-bottom: 30px; }
+        .back-btn { font-size: 1.2rem; cursor: pointer; padding: 10px; }
+
+        /* Realist Kart Dizaynı */
+        .visa-card {
+            width: 100%; max-width: 350px; height: 200px;
+            background: var(--card-grad); border-radius: 20px;
+            padding: 25px; position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            overflow: hidden; margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .visa-card::before {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 150px; height: 150px; background: rgba(255,255,255,0.03); border-radius: 50%;
+        }
+
+        .chip { width: 45px; height: 35px; background: linear-gradient(135deg, #ffd700, #b8860b); border-radius: 6px; margin-bottom: 20px; }
+        
+        .card-number-display { font-family: 'Space Grotesk'; font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 20px; display: block; }
+        
+        .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .label { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .val { font-family: 'Space Grotesk'; font-size: 0.9rem; }
+
+        /* Form Elementləri */
+        .form-container { width: 100%; max-width: 400px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 8px; color: #94a3b8; }
+        
+        input {
+            width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            color: #fff; font-size: 1rem; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .save-btn {
+            width: 100%; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white; border: none; padding: 16px; border-radius: 15px;
+            font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .mastercard-logo { width: 40px; position: absolute; bottom: 25px; right: 25px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fas fa-chevron-left back-btn" onclick="history.back()"></i>
+        <h3 style="margin-left: 15px;">Ödəniş Kartı</h3>
+    </div>
+
+    <div class="visa-card">
+        <div class="chip"></div>
+        <span class="card-number-display" id="v-num">**** **** **** ****</span>
+        <div class="card-bottom">
+            <div>
+                <span class="label">KART SAHİBİ</span>
+                <span class="val" id="v-name">AD SOYAD</span>
+            </div>
+            <div>
+                <span class="label">TARİX</span>
+                <span class="val" id="v-exp">MM/YY</span>
+            </div>
+        </div>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" class="mastercard-logo">
+    </div>
+
+    <div class="form-container">
+        <div class="input-group">
+            <label>Kart Nömrəsi</label>
+            <input type="text" id="c-num" placeholder="0000 0000 0000 0000" maxlength="19">
+        </div>
+        <div class="input-group">
+            <label>Kart Sahibinin Adı</label>
+            <input type="text" id="c-name" placeholder="AD SOYAD" oninput="this.value = this.value.toUpperCase()">
+        </div>
+        <div class="row">
+            <div class="input-group">
+                <label>Ay / İl</label>
+                <input type="text" id="c-exp" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="input-group">
+                <label>CVV</label>
+                <input type="password" id="c-cvv" placeholder="***" maxlength="3">
+            </div>
+        </div>
+        <button class="save-btn" onclick="saveCard()">KARTI YADDA SAXLA</button>
+    </div>
+
+    <script>
+        // Firebase Konfiqurasiyası (main.html ilə eyni olmalıdır)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
+
+        // Canlı Önizləmə funksiyaları
+        const iNum = document.getElementById('c-num');
+        const iName = document.getElementById('c-name');
+        const iExp = document.getElementById('c-exp');
+
+        iNum.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let matches = v.match(/\d{4,16}/g);
+            let match = matches && matches[0] || '';
+            let parts = [];
+            for (let i=0, len=match.length; i<len; i+=4) { parts.push(match.substring(i, i+4)); }
+            if (parts.length) { e.target.value = parts.join(' '); }
+            document.getElementById('v-num').innerText = e.target.value || "**** **** **** ****";
+        });
+
+        iName.addEventListener('input', (e) => { document.getElementById('v-name').innerText = e.target.value || "AD SOYAD"; });
+        
+        iExp.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/[^0-9]/gi, '');
+            if(v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+            e.target.value = v;
+            document.getElementById('v-exp').innerText = v || "MM/YY";
+        });
+
+        function saveCard() {
+            const cardData = {
+                number: iNum.value,
+                holder: iName.value,
+                expiry: iExp.value,
+                cvv: document.getElementById('c-cvv').value
+            };
+
+            if(cardData.number.length < 16 || cardData.holder === "" || cardData.expiry.length < 5) {
+                alert("Məlumatları tam doldurun!");
+                return;
+            }
+
+            db.ref('zerowallet_users/' + user + '/cardInfo').set(cardData)
+                .then(() => {
+                    alert("Kart uğurla əlavə edildi!");
+                    location.href = 'main.html';
+                })
+                .catch(err => alert("Xəta baş verdi: " + err.message));
+        }
+    </script>
+</body>
+</html>
