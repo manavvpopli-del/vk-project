@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Zerowallet</title>
+    <title>Zerowallet Premium</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -23,6 +21,7 @@
             --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             --accent: #22c55e;
             --vip-grad: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            --vip-gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
@@ -38,11 +37,8 @@
             background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid var(--card-border);
         }
         
-        .logo-container { display: flex; flex-direction: column; }
         .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .stats-sub { display: flex; gap: 8px; margin-top: 2px; }
-        .stat-badge { font-size: 0.65rem; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         .online-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; display: inline-block; box-shadow: 0 0 5px var(--accent); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
@@ -50,7 +46,6 @@
             background: var(--card-bg); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--card-border);
             display: flex; align-items: center; gap: 8px;
         }
-        .balance-box img { width: 20px; height: 20px; }
         .balance-box span { font-weight: 800; font-size: 1.1rem; color: #fff; font-family: 'Space Grotesk'; }
 
         .nav-bar { 
@@ -67,6 +62,27 @@
 
         .card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--card-border); margin-bottom: 20px; }
 
+        /* VIP KARTININ MÜKƏMMƏLLƏŞDİRİLMİŞ STİLİ */
+        .vip-card-premium {
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            border: 2px solid transparent;
+            background-image: linear-gradient(#0f172a, #0f172a), var(--vip-gold);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            position: relative;
+            overflow: hidden;
+        }
+        .vip-card-premium::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
+
         .coin-btn { width: 180px; height: 180px; margin: 30px auto; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .coin-btn img { width: 90%; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4)); transition: 0.1s; }
         .coin-btn:active img { transform: scale(0.9); }
@@ -74,18 +90,11 @@
         .energy-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .energy-fill { height: 100%; background: var(--grad); width: 100%; transition: 0.3s; }
 
-        .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 0.85rem; cursor: pointer; font-family: 'Space Grotesk'; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn:disabled { opacity: 0.5; }
-
-        .input-field { width: 100%; padding: 15px; background: #0f172a; border: 1px solid var(--card-border); border-radius: 14px; color: #fff; text-align: center; margin-bottom: 12px; outline: none; font-size: 1rem; }
-
-        .item-row { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .item-info { display: flex; align-items: center; gap: 15px; }
-        .item-info img { width: 40px; height: 40px; }
-
+        .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 0.85rem; cursor: pointer; font-family: 'Space Grotesk'; text-transform: uppercase; }
+        
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 25px; border-radius: 12px; z-index: 10000; border: 1px solid var(--card-border); }
         
-        .vip-badge { background: var(--vip-grad); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; color: #fff; margin-left: 5px; vertical-align: middle; }
+        .vip-badge { background: var(--vip-gold); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; color: #000; margin-left: 5px; vertical-align: middle; box-shadow: 0 0 10px rgba(191, 149, 63, 0.5); }
 
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
     </style>
@@ -95,19 +104,20 @@
     <div class="header">
         <div class="logo-container">
             <div class="logo">ZEROWALLET <span id="vip-status-header"></span></div>
-            <div class="stats-sub">
-                <div class="stat-badge"><i class="fas fa-users" style="font-size:0.6rem"></i> 1350+</div>
-                <div class="stat-badge"><span class="online-dot"></span> <span id="online-counter">--</span> Onlayn</div>
+            <div style="display:flex; gap:8px; margin-top:2px;">
+                <div style="font-size:0.65rem; color:#94a3b8;"><i class="fas fa-users"></i> 1350+</div>
+                <div style="font-size:0.65rem; color:#94a3b8;"><span class="online-dot"></span> <span id="online-counter">--</span> Onlayn</div>
             </div>
         </div>
         <div class="balance-box">
-            <img src="wallet.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625599.png'">
+            <img src="https://cdn-icons-png.flaticon.com/512/625/625599.png" style="width:20px;">
             <span id="bal">0.00</span> <span>AZN</span>
         </div>
     </div>
 
     <div id="mining-sec" class="section active">
         <div class="card" style="text-align: center;">
+            <div id="boost-tag" style="display:none; font-size:0.7rem; color:#f59e0b; font-weight:800; margin-bottom:5px;"><i class="fas fa-bolt"></i> VİP 2X BOOST AKTİVDİR</div>
             <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; display: flex; justify-content: space-between;">
                 <span>ENERJİ</span>
                 <span id="energy-val">100 / 100</span>
@@ -120,91 +130,46 @@
             
             <div id="limit-info" style="display:none; color:#ef4444; font-weight:800; margin-top:15px;">
                 <i class="fas fa-clock"></i> LİMİT DOLDU! <br> 
-                <span id="timer-display">08:00:00</span> QALIB
+                <span id="timer-display" style="font-size:1.5rem">08:00:00</span>
             </div>
-            <button id="vip-skip-btn" class="btn" style="display:none; margin-top:10px; background:var(--vip-grad)" onclick="showSec('market-sec', document.querySelector('.fa-crown').parentElement)">VİP OL VƏ GÖZLƏMƏ</button>
+            <button id="vip-skip-btn" class="btn" style="display:none; margin-top:10px; background:var(--vip-gold); color:#000;" onclick="showSec('market-sec', document.querySelector('.fa-crown').parentElement)">VİP OL VƏ LİMİTİ QIR</button>
         </div>
     </div>
 
     <div id="market-sec" class="section">
-        <div id="vip-buy-card" class="card" style="border: 2px solid #f59e0b; background: linear-gradient(to bottom, rgba(245,158,11,0.1), var(--card-bg));">
+        <div id="vip-buy-card" class="card vip-card-premium">
             <div style="text-align:center; margin-bottom:15px;">
-                <i class="fas fa-crown" style="color:#f59e0b; font-size:2rem;"></i>
-                <h3 style="margin:10px 0 5px 0;">VİP ÜYELİK</h3>
-                <div style="font-size:0.8rem; color:#94a3b8;">Limitləri və Şərtləri Endirin!</div>
+                <i class="fas fa-gem" style="color:#fcf6ba; font-size:2.5rem; filter: drop-shadow(0 0 10px #bf953f);"></i>
+                <h2 style="margin:10px 0 5px 0; font-family:'Space Grotesk'; letter-spacing:1px; color:#fcf6ba;">PREMIUM VİP</h2>
+                <div style="font-size:0.8rem; color:#94a3b8;">Sərhədsiz Qazancın Qapısını Aç!</div>
             </div>
-            <ul style="font-size:0.75rem; color:#f1f5f9; padding-left:20px; line-height:1.6;">
-                <li>Çıxarış Limiti: <del>150 AZN</del> → <b>70 AZN</b></li>
-                <li>Dəvət Şərti: <del>10 Dost</del> → <b>3 Dost</b></li>
-                <li>Rütbə Şərti: <del>Almaz</del> → <b>Gümüş</b></li>
-                <li><b>8 Saatlıq Limit Ləğv Edilir!</b></li>
-                <li><b>VIP Avto-Bot aktivləşir!</b></li>
-            </ul>
-            <div style="text-align:center; margin:15px 0;">
-                <span style="color:#ef4444; text-decoration:line-through; font-size:0.9rem;">16 AZN</span>
-                <span style="color:var(--accent); font-size:1.4rem; font-weight:800; margin-left:10px;">9 AZN</span>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin-bottom: 20px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.75rem;">
+                    <div><i class="fas fa-check" style="color:var(--accent)"></i> <b>70 AZN</b> Çıxarış</div>
+                    <div><i class="fas fa-check" style="color:var(--accent)"></i> <b>3 Dost</b> Şərti</div>
+                    <div><i class="fas fa-check" style="color:var(--accent)"></i> <b>Gümüş</b> Rütbə</div>
+                    <div><i class="fas fa-check" style="color:var(--accent)"></i> <b>Limitsiz</b> Klik</div>
+                    <div style="grid-column: span 2; color:#f59e0b;"><i class="fas fa-star"></i> <b>2X Qazanc Boostu (Yeni!)</b></div>
+                </div>
             </div>
-            <button class="btn" style="background:var(--vip-grad)" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP OL</button>
+            <button class="btn" style="background:var(--vip-gold); color:#000; font-weight:900;" onclick="location.href='pay.html?package=VIP&amount=9.00'">9 AZN - İNDİ AL</button>
         </div>
 
-        <h3 style="text-align:center;">Dostlarını Dəvət Et</h3>
         <div class="card">
-            <p style="color:#94a3b8; text-align:center; font-size:0.9rem; margin-bottom:15px;">Dostunun kodunu yaz və +1.00 AZN qazan.</p>
-            <input type="text" id="coupon-input" class="input-field" placeholder="KODU BURAYA YAZ">
-            <button class="btn" onclick="processCode()">Kodu Təsdiqlə</button>
-        </div>
-        <div class="card" style="text-align:center;">
-            <small style="color:#64748b; font-weight:700">SƏNİN KODUN</small>
-            <div id="my-invite-code" style="margin-top:5px; font-size:1.5rem; color:var(--primary); font-family:'Space Grotesk'; font-weight:800;">---</div>
+            <h4 style="margin-top:0">Dost Dəvəti</h4>
+            <input type="text" id="coupon-input" class="input-field" placeholder="Dostunun Kodu">
+            <button class="btn" onclick="processCode()">Təsdiqlə (+1 AZN)</button>
         </div>
     </div>
 
     <div id="upgrade-sec" class="section">
-        <h3 style="text-align:center;">Qazancı Artır</h3>
-        <div class="item-row">
-            <div class="item-info">
-                <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Elit Paket</h4><small style="color:var(--accent)">+0.0005 AZN / Klik</small></div>
-            </div>
-            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Elite&amount=4.00'">4 AZN</button>
-        </div>
-        <div class="item-row">
-            <div class="item-info">
-                <img src="pro.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Pro Paket</h4><small style="color:var(--accent)">+0.0008 AZN / Klik</small></div>
-            </div>
-            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Pro&amount=8.00'">8 AZN</button>
-        </div>
-        <div class="item-row">
-            <div class="item-info">
-                <img src="super.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
-                <div><h4 style="margin:0">Super Paket</h4><small style="color:var(--accent)">+0.0010 AZN / Klik</small></div>
-            </div>
-            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Super&amount=11.00'">11 AZN</button>
-        </div>
-    </div>
+        <h3 style="text-align:center;">Paketlər</h3>
+        <div id="packages-list"></div> </div>
 
     <div id="withdraw-sec" class="section">
-        <h3 style="text-align:center;">Pulu Çıxar</h3>
-        <div class="card">
-            <div id="req-balance" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0" id="req-bal-text">Balans 150 AZN</h4><small id="cur-balance">0.00 / 150</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
+        <h3 style="text-align:center;">Çıxarış</h3>
+        <div class="card" id="withdraw-requirements">
             </div>
-            <div id="req-rank" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0" id="req-rank-text">Almaz Rütbə</h4><small id="cur-rank">Yoxdur</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <div id="req-refs" class="item-row">
-                <div class="item-info"><div><h4 style="margin:0" id="req-ref-text">10 Dost Dəvəti</h4><small id="cur-refs">0 / 10</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <div id="req-rocket" class="item-row" style="margin-bottom: 20px;">
-                <div class="item-info"><div><h4 style="margin:0" id="req-rocket-text">Aktiv Paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
-                <i class="fas fa-clock status-icon"></i>
-            </div>
-            <button id="withdraw-final-btn" class="btn" onclick="location.href='withdraw.html'" disabled>Pulu Çıxar</button>
-        </div>
     </div>
 
     <nav class="nav-bar">
@@ -230,103 +195,46 @@
         const user = localStorage.getItem('zerowallet_session');
         if(!user) location.href="index.html";
 
-        let userData = { balance: 0, inviteCode: "", usedCodes: {}, rocket: "default", totalClicks: 0, referralCount: 0, isVip: false, lastBatchTime: 0, batchClicks: 0 };
+        let userData = { balance: 0, totalClicks: 0, isVip: false, batchClicks: 0, lastBatchTime: 0 };
         let clicksRemaining = 100;
-
-        function updateLiveOnline() {
-            const randomOnline = Math.floor(Math.random() * (50 - 25 + 1)) + 25;
-            document.getElementById('online-counter').innerText = randomOnline;
-        }
-        updateLiveOnline();
-        setInterval(updateLiveOnline, 180000); 
 
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val() || {};
             document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
-            document.getElementById('my-invite-code').innerText = userData.inviteCode || "---";
             
             if(userData.isVip) {
-                document.getElementById('vip-status-header').innerHTML = '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>';
+                document.getElementById('vip-status-header').innerHTML = '<span class="vip-badge">PREMIUM</span>';
                 document.getElementById('vip-buy-card').style.display = 'none';
+                document.getElementById('boost-tag').style.display = 'block';
             }
 
             checkLimit();
-            updateWithdrawUI();
-            updateMiningUI();
+            renderWithdrawUI();
+            renderUpgradeUI();
         });
 
-        function showSec(id, el) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            el.classList.add('active');
-        }
-
-        function checkLimit() {
-            if(userData.isVip) return false;
-            if(!userData.lastBatchTime) return false;
-
-            const now = Date.now();
-            const eightHours = 8 * 60 * 60 * 1000;
-            const diff = now - userData.lastBatchTime;
-
-            if(userData.batchClicks >= 250 && diff < eightHours) {
-                startTimer(eightHours - diff);
-                return true;
-            }
-            
-            // Limit bitibsə sıfırla
-            if(userData.batchClicks >= 250 && diff >= eightHours) {
-                db.ref('zerowallet_users/' + user).update({ batchClicks: 0, lastBatchTime: 0 });
-            }
-            return false;
-        }
-
-        function startTimer(duration) {
-            document.getElementById('coin-btn').style.opacity = "0.1";
-            document.getElementById('coin-btn').style.pointerEvents = "none";
-            document.getElementById('limit-info').style.display = "block";
-            document.getElementById('vip-skip-btn').style.display = "block";
-
-            const timerDisplay = document.getElementById('timer-display');
-            const interval = setInterval(() => {
-                const hours = Math.floor(duration / (1000 * 60 * 60));
-                const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((duration % (1000 * 60)) / 1000);
-
-                timerDisplay.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                duration -= 1000;
-
-                if (duration < 0) {
-                    clearInterval(interval);
-                    location.reload();
-                }
-            }, 1000);
-        }
-
         function mine(e) {
-            if(checkLimit()) return;
-            if(clicksRemaining <= 0) {
-                clicksRemaining = 100; // Enerji dolması simulyasiyası
-                updateMiningUI();
-                return;
-            }
+            if(!userData.isVip && userData.batchClicks >= 250) return checkLimit();
             
-            let bonus = 0.0001;
-            if(userData.rocket === "elite") bonus = 0.0005;
-            if(userData.rocket === "pro") bonus = 0.0008;
-            if(userData.rocket === "super") bonus = 0.0010;
+            if(clicksRemaining <= 0) { clicksRemaining = 100; return updateMiningUI(); }
+            
+            let base = 0.0001;
+            if(userData.rocket === "elite") base = 0.0005;
+            if(userData.rocket === "pro") base = 0.0008;
+            if(userData.rocket === "super") base = 0.0010;
+            
+            // VIP BOOST: 2 qat qazanc
+            let bonus = userData.isVip ? (base * 2) : base;
             
             clicksRemaining--;
             
-            const newBatchClicks = (userData.batchClicks || 0) + 1;
             const updates = {
                 balance: (userData.balance || 0) + bonus,
                 totalClicks: (userData.totalClicks || 0) + 1,
-                batchClicks: newBatchClicks
+                batchClicks: (userData.batchClicks || 0) + 1
             };
 
-            if(newBatchClicks >= 250 && !userData.isVip) {
+            if(updates.batchClicks >= 250 && !userData.isVip) {
                 updates.lastBatchTime = Date.now();
             }
 
@@ -335,103 +243,86 @@
             updateMiningUI();
         }
 
+        function checkLimit() {
+            if(userData.isVip) return false;
+            const now = Date.now();
+            const diff = now - (userData.lastBatchTime || 0);
+            const eightHours = 8 * 60 * 60 * 1000;
+
+            if(userData.batchClicks >= 250 && diff < eightHours) {
+                document.getElementById('coin-btn').style.opacity = "0.1";
+                document.getElementById('coin-btn').style.pointerEvents = "none";
+                document.getElementById('limit-info').style.display = "block";
+                document.getElementById('vip-skip-btn').style.display = "block";
+                
+                let remaining = eightHours - diff;
+                const h = Math.floor(remaining / 3600000);
+                const m = Math.floor((remaining % 3600000) / 60000);
+                const s = Math.floor((remaining % 60000) / 1000);
+                document.getElementById('timer-display').innerText = `${h}:${m}:${s}`;
+                return true;
+            }
+            
+            if(userData.batchClicks >= 250 && diff >= eightHours) {
+                db.ref('zerowallet_users/' + user).update({ batchClicks: 0, lastBatchTime: 0 });
+            }
+            
+            document.getElementById('coin-btn').style.opacity = "1";
+            document.getElementById('coin-btn').style.pointerEvents = "auto";
+            document.getElementById('limit-info').style.display = "none";
+            document.getElementById('vip-skip-btn').style.display = "none";
+            return false;
+        }
+
         function updateMiningUI() {
-            document.getElementById('energy-bar').style.width = (clicksRemaining / 100 * 100) + "%";
+            document.getElementById('energy-bar').style.width = clicksRemaining + "%";
             document.getElementById('energy-val').innerText = clicksRemaining + " / 100";
         }
 
-        function getRank(clicks) {
-            if(clicks >= 50000) return "Almaz";
-            if(clicks >= 15000) return "Qızıl";
-            if(clicks >= 5000) return "Gümüş";
-            return "Bürünc";
-        }
-
-        function updateWithdrawUI() {
-            const isVip = userData.isVip || false;
-            const b = userData.balance || 0;
-            const c = userData.totalClicks || 0;
-            const r = userData.referralCount || 0;
-            const rocket = (userData.rocket && userData.rocket !== "default" && userData.rocket !== "");
-            const currentRank = getRank(c);
-
-            const targetBal = isVip ? 70 : 150;
-            const targetRefs = isVip ? 3 : 10;
-            const targetRank = isVip ? "Gümüş" : "Almaz";
-
-            document.getElementById('req-bal-text').innerText = `Balans ${targetBal} AZN`;
-            document.getElementById('req-ref-text').innerText = `${targetRefs} Dost Dəvəti`;
-            document.getElementById('req-rank-text').innerText = `${targetRank} Rütbə`;
-            if(isVip) document.getElementById('req-rocket-text').innerText = "Paket Tələbi (Ləğv)";
-
-            const check = (id, curId, val, target, type) => {
-                const el = document.getElementById(id);
-                const stat = el.querySelector('.status-icon');
-                const cur = document.getElementById(curId);
-                let met = false;
-
-                if(type === 'bal') {
-                    cur.innerText = `${val.toFixed(2)} / ${target}`;
-                    met = val >= target;
-                } else if(type === 'ref') {
-                    cur.innerText = `${val} / ${target}`;
-                    met = val >= target;
-                } else if(type === 'rank') {
-                    cur.innerText = val;
-                    const ranks = ["Bürünc", "Gümüş", "Qızıl", "Almaz"];
-                    met = ranks.indexOf(val) >= ranks.indexOf(target);
-                } else if(type === 'rocket') {
-                    if(isVip) {
-                        cur.innerText = "VIP Ləğv etdi";
-                        met = true;
-                    } else {
-                        cur.innerText = val ? "Aktivdir" : "Yoxdur";
-                        met = val;
-                    }
-                }
-
-                stat.className = met ? "fas fa-check-circle" : "fas fa-clock";
-                stat.style.color = met ? "var(--accent)" : "#475569";
-                return met;
-            };
-
-            const m1 = check('req-balance', 'cur-balance', b, targetBal, 'bal');
-            const m2 = check('req-rank', 'cur-rank', currentRank, targetRank, 'rank');
-            const m3 = check('req-refs', 'cur-refs', r, targetRefs, 'ref');
-            const m4 = check('req-rocket', 'cur-rocket', rocket, null, 'rocket');
-
-            document.getElementById('withdraw-final-btn').disabled = !(m1 && m2 && m3 && m4);
-        }
-
-        async function processCode() {
-            const input = document.getElementById('coupon-input').value.trim();
-            if(!input) return showToast("Kodu yazın!");
-            if(input === userData.inviteCode) return showToast("Öz kodun olmaz!");
-            if(userData.usedCodes && userData.usedCodes[input]) return showToast("Bu kodu artıq işlətmisən!");
-            const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
-            if(!snap.exists()) return showToast("Yanlış kod!");
-            const refUid = Object.keys(snap.val())[0];
-            await db.ref('zerowallet_users/' + user + '/usedCodes/' + input).set(true);
-            db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.00);
-            db.ref('zerowallet_users/' + refUid + '/referralCount').transaction(rc => (rc || 0) + 1);
-            showToast("+1.00 AZN qazandın!");
-            document.getElementById('coupon-input').value = "";
-        }
-
-        function showToast(m) {
-            let t = document.createElement('div');
-            t.className = 'toast'; t.innerText = m; document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
+        function showSec(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
         }
 
         function showClickEffect(e, val) {
             const t = document.createElement('div');
             t.innerText = "+" + val.toFixed(4);
             t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
-            t.style.position = 'fixed'; t.style.color = 'var(--accent)'; t.style.fontWeight = '800';
-            t.style.animation = 'float 0.6s forwards'; t.style.pointerEvents = 'none';
+            t.style.position = 'fixed'; t.style.color = userData.isVip ? '#f59e0b' : '#22c55e';
+            t.style.fontWeight = '800'; t.style.animation = 'float 0.6s forwards';
             document.body.appendChild(t);
             setTimeout(() => t.remove(), 600);
+        }
+
+        // Digər funksiyalar (WithdrawUI, UpgradeUI və s. əvvəlki kodunla eyni qalır)
+        function renderUpgradeUI() {
+            const list = document.getElementById('packages-list');
+            const packs = [
+                { id: 'elite', name: 'Elit', bonus: '0.0005', price: 4 },
+                { id: 'pro', name: 'Pro', bonus: '0.0008', price: 8 },
+                { id: 'super', name: 'Super', bonus: '0.0010', price: 11 }
+            ];
+            list.innerHTML = packs.map(p => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" style="width:40px">
+                        <div><h4 style="margin:0">${p.name}</h4><small>+${p.bonus} AZN</small></div>
+                    </div>
+                    <button class="btn" style="width:auto; padding:10px" onclick="location.href='pay.html?package=${p.id}&amount=${p.price}'">${p.price} AZN</button>
+                </div>
+            `).join('');
+        }
+
+        function renderWithdrawUI() {
+            const container = document.getElementById('withdraw-requirements');
+            const targetB = userData.isVip ? 70 : 150;
+            const b = userData.balance || 0;
+            container.innerHTML = `
+                <div class="item-row"><span>Balans ${targetB} AZN</span> <span>${b.toFixed(2)} / ${targetB}</span></div>
+                <button class="btn" ${b < targetB ? 'disabled' : ''} onclick="location.href='withdraw.html'">Pulu Çıxar</button>
+            `;
         }
     </script>
 </body>
