@@ -88,6 +88,15 @@
         .vip-badge { background: var(--vip-grad); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; color: #fff; margin-left: 5px; vertical-align: middle; }
 
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
+
+        /* Yeni Əlavə Edilən Kart Düyməsi Stili */
+        .card-add-btn { 
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+            border: 1px dashed var(--primary); 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            margin-bottom: 15px; transition: 0.3s;
+        }
+        .card-add-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -184,6 +193,10 @@
     <div id="withdraw-sec" class="section">
         <h3 style="text-align:center;">Pulu Çıxar</h3>
         <div class="card">
+            <button class="btn card-add-btn" onclick="location.href='card981.html'">
+                <i class="fas fa-credit-card"></i> KART ƏLAVƏ ET
+            </button>
+
             <div id="req-balance" class="item-row">
                 <div class="item-info"><div><h4 style="margin:0" id="req-bal-text">Balans 150 AZN</h4><small id="cur-balance">0.00 / 150</small></div></div>
                 <i class="fas fa-clock status-icon"></i>
