@@ -38,6 +38,36 @@
             background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid var(--card-border);
         }
         
+        /* CANLI BİLDİRİŞ LENTİ */
+        .live-ticker {
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid var(--card-border);
+            padding: 8px 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-item {
+            position: absolute;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-item.active { transform: translateY(0); opacity: 1; }
+        .ticker-item.exit { transform: translateY(-30px); opacity: 0; }
+        .ticker-item i { color: var(--accent); }
+
         .logo-container { display: flex; flex-direction: column; }
         .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
@@ -62,7 +92,7 @@
         .nav-item { color: #475569; font-size: 1.2rem; cursor: pointer; }
         .nav-item.active { color: var(--primary); transform: scale(1.1); }
 
-        .section { display: none; height: calc(100vh - 150px); padding: 20px; overflow-y: auto; scrollbar-width: none; }
+        .section { display: none; height: calc(100vh - 185px); padding: 20px; overflow-y: auto; scrollbar-width: none; }
         .section.active { display: block; }
 
         .card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--card-border); margin-bottom: 20px; }
@@ -89,7 +119,6 @@
 
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
 
-        /* Yeni Əlavə Edilən Kart Düyməsi Stili */
         .card-add-btn { 
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
             border: 1px dashed var(--primary); 
@@ -112,6 +141,12 @@
         <div class="balance-box">
             <img src="wallet.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625599.png'">
             <span id="bal">0.00</span> <span>AZN</span>
+        </div>
+    </div>
+
+    <div class="live-ticker" id="live-ticker">
+        <div class="ticker-item active">
+            <i class="fas fa-bolt"></i> <span>Sistem aktivdir. Qazanmağa başla!</span>
         </div>
     </div>
 
@@ -255,6 +290,40 @@
             updateWithdrawUI();
             checkWaitLimit();
         });
+
+        // CANLI BİLDİRİŞ SİSTEMİ SKRİPTİ
+        const tickerData = [
+            "İstifadəçi a***r Elite Paket aldı!",
+            "İstifadəçi r***l VIP status əldə etdi!",
+            "İstifadəçi e***r Super Paket aldı!",
+            "İstifadəçi s***n Pro Paket aldı!",
+            "İstifadəçi m***d 150.00 AZN çıxarış etdi!",
+            "İstifadəçi t***l rütbəsini Gümüşə qaldırdı!",
+            "İstifadəçi k***n 1 dostunu dəvət etdi!"
+        ];
+
+        function updateTicker() {
+            const ticker = document.getElementById('live-ticker');
+            const current = ticker.querySelector('.ticker-item');
+            const nextText = tickerData[Math.floor(Math.random() * tickerData.length)];
+            
+            current.classList.add('exit');
+            
+            setTimeout(() => {
+                ticker.innerHTML = `
+                    <div class="ticker-item">
+                        <i class="fas fa-check-circle"></i> <span>${nextText}</span>
+                    </div>
+                `;
+                const nextItem = ticker.querySelector('.ticker-item');
+                setTimeout(() => nextItem.classList.add('active'), 50);
+            }, 500);
+        }
+
+        // Hər 2.5 dəqiqədən bir (150.000 ms) yenilənsin
+        setInterval(updateTicker, 150000);
+        // İlk işə düşmə (biraz tez olsun deyə)
+        setTimeout(updateTicker, 5000);
 
         function checkWaitLimit() {
             if (userData.isVip) return false;
