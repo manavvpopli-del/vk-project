@@ -12,15 +12,16 @@
         .card img { width: 100%; height: 200px; object-fit: contain; background: #000; border-radius: 5px; cursor: pointer; }
         .info { margin: 10px 0; color: #fff; }
         .btn-ok { background: #00ff41; color: black; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
+        .btn-stop { background: #ff9900; color: black; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
         .btn-del { background: #ff3e3e; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
+        .vip-tag { background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <h1><i class="fas fa-receipt"></i> ÖDƏNİŞ ÇEKLƏRİ</h1>
+    <h1><i class="fas fa-receipt"></i> ÖDƏNİŞ ÇEKLƏRİ & İDARƏETMƏ</h1>
     <hr>
-    <div id="receipts-container" class="grid">
-        </div>
+    <div id="receipts-container" class="grid"></div>
 
     <script>
         const firebaseConfig = {
@@ -43,37 +44,66 @@
                 const data = child.val();
                 const key = child.key;
                 const time = new Date(data.timestamp).toLocaleString();
+                const isVipRequest = (data.rocket_type === "VIP");
 
                 container.innerHTML += `
                     <div class="card">
                         <img src="${data.receipt_url}" onclick="window.open(this.src)">
                         <div class="info">
                             <p><b>İstifadəçi:</b> ${data.username}</p>
-                            <p><b>Paket:</b> <span style="color:#00f2ff">${data.rocket_type}</span></p>
+                            <p><b>Növ:</b> <span style="color:#00f2ff">${isVipRequest ? '<span class="vip-tag">VIP STATUS</span>' : data.rocket_type}</span></p>
                             <p><b>Tarix:</b> <small>${time}</small></p>
                         </div>
-                        <button class="btn-ok" onclick="approvePackage('${key}', '${data.username}', '${data.rocket_type}')">TƏSDİQLƏ (ROKETİ AÇ)</button>
-                        <button class="btn-del" onclick="deleteReceipt('${key}')">SİL</button>
+                        <button class="btn-ok" onclick="approveRequest('${key}', '${data.username}', '${data.rocket_type}')">
+                            TƏSDİQLƏ (AKTİV ET)
+                        </button>
+                        <button class="btn-stop" onclick="deactivateRequest('${data.username}', '${data.rocket_type}')">
+                            LƏĞV ET (BAĞLA)
+                        </button>
+                        <button class="btn-del" onclick="deleteReceipt('${key}')">ÇEKİ SİL</button>
                     </div>
                 `;
             });
         });
 
-        function approvePackage(key, username, type) {
-            const rocketValue = type.toLowerCase(); // elite, pro, super
+        function approveRequest(key, username, type) {
+            let updateData = {};
             
-            if(confirm(`${username} üçün ${type} paketi aktiv edilsin?`)) {
-                db.ref('zerowallet_users/' + username).update({
-                    rocket: rocketValue
-                }).then(() => {
+            if(type === "VIP") {
+                updateData = { isVip: true };
+            } else {
+                updateData = { rocket: type.toLowerCase() };
+            }
+            
+            if(confirm(`${username} üçün ${type} aktiv edilsin?`)) {
+                db.ref('zerowallet_users/' + username).update(updateData).then(() => {
                     db.ref('admin_receipts/' + key).remove();
-                    alert("Paket aktiv edildi!");
+                    alert(`${type} uğurla aktiv edildi!`);
+                }).catch(err => alert("Xəta: " + err.message));
+            }
+        }
+
+        function deactivateRequest(username, type) {
+            let updateData = {};
+            let msg = "";
+
+            if(type === "VIP") {
+                updateData = { isVip: false };
+                msg = "VIP statusu ləğv edilsin?";
+            } else {
+                updateData = { rocket: "default" };
+                msg = `${type} paketi bağlansın?`;
+            }
+
+            if(confirm(username + " üçün " + msg)) {
+                db.ref('zerowallet_users/' + username).update(updateData).then(() => {
+                    alert("Status ləğv edildi.");
                 });
             }
         }
 
         function deleteReceipt(key) {
-            if(confirm("Çeki silmək istəyirsiz?")) {
+            if(confirm("Bu çeki bazadan silmək istəyirsiz? (İstifadəçiyə təsir etmir)")) {
                 db.ref('admin_receipts/' + key).remove();
             }
         }
