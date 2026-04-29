@@ -70,6 +70,7 @@
 
         .logo-container { display: flex; flex-direction: column; }
         .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 5px; }
+        .logo img { height: 24px; width: auto; object-fit: contain; }
         
         .stats-sub { display: flex; gap: 8px; margin-top: 2px; }
         .stat-badge { font-size: 0.65rem; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 4px; }
@@ -98,7 +99,7 @@
         .card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--card-border); margin-bottom: 20px; }
 
         .coin-btn { width: 180px; height: 180px; margin: 30px auto 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .coin-btn img { width: 90%; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4)); transition: 0.1s; }
+        .coin-btn img { width: 90%; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4)); transition: 0.1s; object-fit: contain; }
         .coin-btn:active img { transform: scale(0.9); }
 
         .energy-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 10px 0; }
@@ -132,7 +133,6 @@
             display: none;
         }
 
-        /* AUTO BOT STYLES */
         .auto-bot-card {
             background: rgba(34, 211, 238, 0.05);
             border: 1px solid rgba(34, 211, 238, 0.2);
@@ -143,20 +143,13 @@
             align-items: center;
             justify-content: space-between;
         }
-        .bot-status-tag {
-            font-size: 0.6rem;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="logo-container">
-            <div class="logo">ZEROWALLET <span id="vip-status-header"></span></div>
+            <div class="logo" id="main-logo-area">ZEROWALLET</div>
             <div class="stats-sub">
                 <div class="stat-badge"><i class="fas fa-users" style="font-size:0.6rem"></i> 1350+</div>
                 <div class="stat-badge"><span class="online-dot"></span> <span id="online-counter">--</span> Onlayn</div>
@@ -183,7 +176,7 @@
             <div class="energy-bg"><div id="energy-bar" class="energy-fill"></div></div>
 
             <div class="coin-btn" id="coin-btn" onclick="mine(event)">
-                <img src="https://cdn-icons-png.flaticon.com/512/1490/1490900.png">
+                <img src="coin.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1490/1490900.png'">
             </div>
 
             <div class="auto-bot-card">
@@ -315,7 +308,8 @@
             document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
             
             if(userData.isVip) {
-                document.getElementById('vip-status-header').innerHTML = '<img src="vip.png" class="vip-img-status" alt="VIP">';
+                // Logo dəyişdirilməsi
+                document.getElementById('main-logo-area').innerHTML = '<img src="zerowallet.png" alt="Zerowallet VIP">';
                 document.getElementById('vip-status-text-market').innerText = "VİP Statusunuz Aktivdir!";
                 document.getElementById('vip-status-text-market').style.color = "var(--accent)";
                 document.getElementById('vip-price-tag').style.display = 'none';
@@ -323,9 +317,10 @@
                 btn.innerText = "AKTİVDİR";
                 btn.disabled = true;
                 btn.style.background = "rgba(255,255,255,0.1)";
+            } else {
+                document.getElementById('main-logo-area').innerText = "ZEROWALLET";
             }
 
-            // Auto Bot Durum Kontrolü
             const botBtn = document.getElementById('bot-btn');
             const botText = document.getElementById('bot-status-text');
             if(userData.autoBotUntil && userData.autoBotUntil > Date.now()) {
@@ -342,16 +337,15 @@
         });
 
         function startAutoBotCalculation() {
-            // Auto Bot arkada yığım məntiqi
             if(window.botInterval) clearInterval(window.botInterval);
             window.botInterval = setInterval(() => {
                 if(userData.autoBotUntil > Date.now()) {
-                    let hourlyEarning = 0.75 / 3600; // Saatda ortalama 0.75 AZN
+                    let hourlyEarning = 0.75 / 3600; 
                     db.ref('zerowallet_users/' + user + '/balance').set(firebase.database.ServerValue.increment(hourlyEarning));
                 } else {
                     clearInterval(window.botInterval);
                 }
-            }, 5000); // Hər 5 saniyədən bir balansı yenilə
+            }, 5000); 
         }
 
         const tickerData = [
@@ -382,9 +376,7 @@
                 document.getElementById('wait-timer').style.display = "none";
                 return false;
             }
-            
             if (!userData.lastBatchTime) return false;
-            
             const now = Date.now();
             const waitTime = 8 * 60 * 60 * 1000;
             const diff = now - userData.lastBatchTime;
@@ -399,7 +391,6 @@
             } else if (userData.batchClicks >= 250 && diff >= waitTime) {
                 db.ref('zerowallet_users/' + user).update({ batchClicks: 0, lastBatchTime: 0 });
             }
-            
             document.getElementById('coin-btn').style.opacity = "1";
             document.getElementById('coin-btn').style.pointerEvents = "auto";
             document.getElementById('wait-timer').style.display = "none";
@@ -420,11 +411,8 @@
                 const now = Date.now();
                 const waitTime = 8 * 60 * 60 * 1000;
                 const diff = now - userData.lastBatchTime;
-                if (diff < waitTime) {
-                    updateTimerDisplay(waitTime - diff);
-                } else {
-                    checkWaitLimit();
-                }
+                if (diff < waitTime) updateTimerDisplay(waitTime - diff);
+                else checkWaitLimit();
             }
         }, 1000);
 
@@ -442,9 +430,7 @@
                 totalClicks: (userData.totalClicks || 0) + 1,
                 batchClicks: newBatch
             };
-            if (newBatch >= 250 && !userData.isVip) {
-                updates.lastBatchTime = Date.now();
-            }
+            if (newBatch >= 250 && !userData.isVip) updates.lastBatchTime = Date.now();
             db.ref('zerowallet_users/' + user).update(updates);
             updateMiningUI();
             if(e) showClickEffect(e, bonus);
