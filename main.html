@@ -38,7 +38,6 @@
             background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid var(--card-border);
         }
         
-        /* CANLI BİLDİRİŞ LENTİ */
         .live-ticker {
             background: rgba(99, 102, 241, 0.1);
             border-bottom: 1px solid var(--card-border);
@@ -85,7 +84,7 @@
 
         .nav-bar { 
             position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); 
-            width: 92%; max-width: 400px; background: rgba(15, 23, 42, 0.95); 
+            width: 95%; max-width: 450px; background: rgba(15, 23, 42, 0.95); 
             display: flex; justify-content: space-around; padding: 12px; border-radius: 20px; 
             border: 1px solid var(--card-border); z-index: 1000; 
         }
@@ -257,6 +256,7 @@
         <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-crown"></i></div>
         <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
         <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
+        <div class="nav-item" onclick="location.href='shareeeee.html'"><i class="fas fa-share-alt"></i></div>
         <div class="nav-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
     </nav>
 
@@ -291,7 +291,6 @@
             checkWaitLimit();
         });
 
-        // CANLI BİLDİRİŞ SİSTEMİ SKRİPTİ
         const tickerData = [
             "İstifadəçi a***r Elite Paket aldı!",
             "İstifadəçi r***l VIP status əldə etdi!",
@@ -305,6 +304,7 @@
         function updateTicker() {
             const ticker = document.getElementById('live-ticker');
             const current = ticker.querySelector('.ticker-item');
+            if(!current) return;
             const nextText = tickerData[Math.floor(Math.random() * tickerData.length)];
             
             current.classList.add('exit');
@@ -320,9 +320,7 @@
             }, 500);
         }
 
-        // Hər 2.5 dəqiqədən bir (150.000 ms) yenilənsin
         setInterval(updateTicker, 150000);
-        // İlk işə düşmə (biraz tez olsun deyə)
         setTimeout(updateTicker, 5000);
 
         function checkWaitLimit() {
@@ -428,6 +426,7 @@
 
             const check = (id, curId, val, target, type) => {
                 const el = document.getElementById(id);
+                if(!el) return false;
                 const stat = el.querySelector('.status-icon');
                 const cur = document.getElementById(curId);
                 let met = false;
