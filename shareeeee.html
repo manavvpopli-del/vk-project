@@ -2,61 +2,187 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paylaş və Qazan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dostlarını Dəvət Et | ZeroWallet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #020617; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .card { background: rgba(15, 23, 42, 0.8); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); margin-top: 50px; }
-        .share-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; margin-bottom: 10px; font-weight: bold; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
-        .whatsapp { background: #25D366; }
-        .instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
+        :root {
+            --primary: #6366f1;
+            --accent: #f59e0b;
+            --bg: #020617;
+            --card: rgba(15, 23, 42, 0.8);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            margin: 0; background: var(--bg); color: white; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; padding: 20px;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
+        }
+
+        .back-btn { 
+            position: absolute; top: 25px; left: 20px; font-size: 1.2rem; 
+            color: #94a3b8; cursor: pointer; transition: 0.3s;
+            background: var(--card); width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; border: 1px solid var(--border);
+        }
+
+        .container { width: 100%; max-width: 400px; margin-top: 80px; }
+
+        .header-text { text-align: center; margin-bottom: 30px; }
+        .header-text h1 { font-weight: 800; font-size: 1.8rem; margin: 0; }
+        .header-text p { color: #94a3b8; font-size: 0.9rem; margin-top: 8px; }
+
+        .promo-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 28px; padding: 25px; text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .reward-badge {
+            background: rgba(245, 158, 11, 0.1); color: var(--accent);
+            padding: 8px 16px; border-radius: 100px; font-weight: 800;
+            font-size: 0.75rem; display: inline-block; margin-bottom: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .code-section {
+            background: #0f172a; border: 2px dashed var(--primary);
+            padding: 20px; border-radius: 20px; margin: 20px 0;
+            position: relative; cursor: pointer; transition: 0.3s;
+        }
+        .code-section:active { transform: scale(0.98); background: #1e1b4b; }
+        .code-label { font-size: 0.65rem; color: #64748b; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .invite-code { font-size: 2rem; font-weight: 800; color: white; letter-spacing: 4px; }
+        .copy-hint { font-size: 0.7rem; color: var(--primary); margin-top: 8px; font-weight: 600; }
+
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
+        .social-btn {
+            border: none; border-radius: 18px; padding: 15px; color: white;
+            font-weight: 700; font-size: 0.85rem; display: flex; align-items: center;
+            justify-content: center; gap: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .social-btn:active { transform: scale(0.95); }
+        
+        .whatsapp { background: #25d366; }
         .telegram { background: #0088cc; }
-        .tiktok { background: #000000; border: 1px solid #fff; }
-        .back-btn { position: absolute; top: 20px; left: 20px; color: #6366f1; font-size: 1.5rem; }
+        .copy-all { background: #334155; grid-column: span 2; }
+
+        .steps { margin-top: 40px; width: 100%; }
+        .step-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+        .step-num { 
+            min-width: 35px; height: 35px; background: rgba(99, 102, 241, 0.1); 
+            color: var(--primary); border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;
+        }
+        .step-text { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; }
+
+        .toast {
+            position: fixed; bottom: 30px; background: var(--primary); color: white;
+            padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: none; z-index: 1000;
+        }
     </style>
 </head>
 <body>
-    <i class="fas fa-arrow-left back-btn" onclick="location.href='main.html'"></i>
-    
-    <div class="card">
-        <i class="fas fa-gift" style="font-size: 3rem; color: #f59e0b;"></i>
-        <h2>Dostlarını Dəvət Et</h2>
-        <p style="color: #94a3b8;">Hər dəvət üçün 1.00 AZN qazan!</p>
-        
-        <div id="user-code" style="font-size: 2rem; font-weight: 800; color: #6366f1; margin: 20px 0;">YÜKLƏNİR...</div>
 
-        <button class="share-btn whatsapp" onclick="share('wa')"><i class="fab fa-whatsapp"></i> WhatsApp-da Paylaş</button>
-        <button class="share-btn telegram" onclick="share('tg')"><i class="fab fa-telegram"></i> Telegram-da Paylaş</button>
-        <button class="share-btn instagram" onclick="share('ig')"><i class="fab fa-instagram"></i> Instagram Story</button>
-        <button class="share-btn tiktok" onclick="share('tk')"><i class="fab fa-tiktok"></i> TikTok-da Paylaş</button>
+    <div class="back-btn" onclick="location.href='main.html'"><i class="fas fa-arrow-left"></i></div>
+
+    <div class="container">
+        <div class="header-text">
+            <h1>Dostlarını Dəvət Et</h1>
+            <p>Hər kəs qazansın!</p>
+        </div>
+
+        <div class="promo-card">
+            <div class="reward-badge">HƏR DƏVƏTƏ +2.00 AZN</div>
+            
+            <div class="code-section" onclick="copyToClipboard('code')">
+                <span class="code-label">Sənin Referal Kodun</span>
+                <div class="invite-code" id="display-code">------</div>
+                <div class="copy-hint"><i class="far fa-copy"></i> Kopyalamaq üçün toxun</div>
+            </div>
+
+            <div class="social-grid">
+                <button class="social-btn whatsapp" onclick="share('wa')">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="social-btn telegram" onclick="share('tg')">
+                    <i class="fab fa-telegram-plane"></i> Telegram
+                </button>
+                <button class="social-btn copy-all" onclick="copyToClipboard('full')">
+                    <i class="fas fa-link"></i> Paylaşım mətni kopyala
+                </button>
+            </div>
+        </div>
+
+        <div class="steps">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-text">Referal kodunu dostunla paylaş.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-text">Dostun qeydiyyatda sənin kodunu daxil etsin.</div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-text"><b>Sən 2 AZN</b>, <b>Dostun 1 AZN</b> qazansın!</div>
+            </div>
+        </div>
     </div>
+
+    <div id="toast" class="toast">Kopyalandı!</div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-        // Eyni Firebase konfiqurasiyanı bura da qoy
-        const firebaseConfig = { /* Sənin Config Kodun */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
         firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
         const user = localStorage.getItem('zerowallet_session');
-        let myCode = "";
 
-        firebase.database().ref('zerowallet_users/' + user).once('value', snap => {
-            myCode = snap.val().inviteCode;
-            document.getElementById('user-code').innerText = myCode;
+        let inviteCode = "";
+
+        // Kodları Firebase-dən çəkirik
+        db.ref('zerowallet_users/' + user).once('value', snap => {
+            if(snap.exists()) {
+                inviteCode = snap.val().inviteCode || "YOK";
+                document.getElementById('display-code').innerText = inviteCode;
+            }
         });
 
-        function share(platform) {
-            const text = `ZeroWallet tətbiqini yüklə və kodumla qeydiyyatdan keç ! Birlikdə qazanmağa başlayaq ❤️ \n\n👉🏻 KODUM : ${myCode}\n\nProgramın yükləmə linki isə telegram kanalındadı: https://t.me/+beyCilVJgPU2NDAy`;
-            const encodedText = encodeURIComponent(text);
+        function getShareText() {
+            return `ZeroWallet ilə pul qazanmağa başla! 🚀\n\nQeydiyyat zamanı mənim kodumu yaz, həm sən 1 AZN qazan, həm mən 2 AZN qazanım. \n\n👉 KODUM: ${inviteCode}\n\nTətbiqi yükləmək üçün Telegram kanalımıza bax: https://t.me/+beyCilVJgPU2NDAy`;
+        }
 
-            if(platform === 'wa') window.open(`https://wa.me/?text=${encodedText}`);
-            else if(platform === 'tg') window.open(`https://t.me/share/url?url=https://t.me/+beyCilVJgPU2NDAy&text=${encodedText}`);
-            else {
-                // Instagram və TikTok üçün mətni kopyalayırıq, çünki birbaşa API yoxdur
-                navigator.clipboard.writeText(text);
-                alert("Mesaj kopyalandı! İndi tətbiqə keçib paylaşa bilərsən.");
-            }
+        function share(platform) {
+            const text = encodeURIComponent(getShareText());
+            if(platform === 'wa') window.open(`https://wa.me/?text=${text}`);
+            if(platform === 'tg') window.open(`https://t.me/share/url?url=https://t.me/+beyCilVJgPU2NDAy&text=${text}`);
+        }
+
+        function copyToClipboard(type) {
+            const text = type === 'code' ? inviteCode : getShareText();
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+            });
         }
     </script>
 </body>
