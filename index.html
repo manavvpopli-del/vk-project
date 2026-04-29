@@ -50,6 +50,10 @@
         }
         .auth-input:focus { border-color: var(--main-gold); box-shadow: 0 0 15px var(--border-glow); }
 
+        /* Referal sahəsi başlanğıcda gizli olur */
+        #referral-container { display: none; margin-top: 5px; }
+        .ref-label { font-size: 0.65rem; color: #666; margin-bottom: 5px; display: block; text-align: center; }
+
         .action-btn { 
             width: 100%; padding: 16px; border-radius: 12px; border: none; 
             background: var(--main-gold); color: #000; font-family: 'Outfit'; 
@@ -59,7 +63,7 @@
 
         .toggle-text { margin-top: 20px; font-size: 0.8rem; color: #666; cursor: pointer; }
         .toggle-text b { color: #fff; border-bottom: 1px solid var(--main-gold); }
-        #status-msg { margin-top: 15px; font-size: 0.75rem; min-height: 1rem; line-height: 1.4; }
+        #status-msg { margin-top: 15px; font-size: 0.75rem; min-height: 1rem; line-height: 1.4; padding: 0 10px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -73,6 +77,11 @@
 
         <input type="text" id="username" class="auth-input" placeholder="USERNAME" maxlength="12">
         <input type="password" id="password" class="auth-input" placeholder="PASSWORD">
+        
+        <div id="referral-container">
+            <span class="ref-label">VARSINIZSA REFERAL KODU DAXİL EDİN</span>
+            <input type="text" id="referral-code" class="auth-input" placeholder="REFERRAL CODE (OPSİONAL)">
+        </div>
         
         <button class="action-btn" id="main-btn" onclick="handleAuth()">DAXİL OL</button>
         
@@ -93,12 +102,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- BU HISSE ƏLAVƏ OLUNDU ---
         const activeUser = localStorage.getItem('zerowallet_session');
         if (activeUser) {
             window.location.href = "main.html";
         }
-        // -----------------------------
 
         let isLoginMode = true;
 
@@ -107,11 +114,16 @@
             document.getElementById('auth-title').innerText = isLoginMode ? "HESABA GİRİŞ" : "YENİ QEYDİYYAT";
             document.getElementById('main-btn').innerText = isLoginMode ? "DAXİL OL" : "QEYDİYYAT OL";
             document.getElementById('toggle-link').innerHTML = isLoginMode ? "Hesabınız yoxdur? <b>Qeydiyyatdan keçin</b>" : "Artıq hesabınız var? <b>Giriş edin</b>";
+            
+            // Qeydiyyat modundadırsa referal sahəsini göstər
+            document.getElementById('referral-container').style.display = isLoginMode ? "none" : "block";
         }
 
         async function handleAuth() {
             const user = document.getElementById('username').value.trim().toLowerCase();
             const pass = document.getElementById('password').value.trim();
+            const refCode = document.getElementById('referral-code').value.trim();
+
             if (user.length < 3 || pass.length < 4) return showStatus("Məlumatlar qısadır!", "#ff3e3e");
 
             try {
@@ -125,17 +137,62 @@
                 }
 
                 const userRef = await db.ref('zerowallet_users/' + user).once('value');
+
                 if (isLoginMode) {
                     if (!userRef.exists() || userRef.val().password !== pass) throw new Error("Giriş məlumatları səhvdir!");
                     loginSuccess(user);
                 } else {
                     if (userRef.exists()) throw new Error("Bu username doludur!");
+                    
                     const ipLog = await db.ref('ip_logs/' + cleanIp).once('value');
                     if (ipLog.exists()) throw new Error("Bu cihazdan artıq qeydiyyat var!");
 
+                    // Yeni istifadəçi datası
+                    const newUserCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    let startBalance = 0;
+
+                    // REFERAL YOXLAMA SİSTEMİ
+                    if (refCode !== "") {
+                        const allUsers = await db.ref('zerowallet_users').once('value');
+                        let referrerUid = null;
+                        
+                        allUsers.forEach(child => {
+                            if (child.val().inviteCode === refCode) {
+                                referrerUid = child.key;
+                            }
+                        });
+
+                        if (referrerUid) {
+                            // 1. Dəvət edənə 2 AZN ver
+                            await db.ref('zerowallet_users/' + referrerUid).transaction(data => {
+                                if (data) {
+                                    data.balance = (data.balance || 0) + 2.00;
+                                    data.referralCount = (data.referralCount || 0) + 1;
+                                }
+                                return data;
+                            });
+                            // 2. Yeni gələnə 1 AZN ver
+                            startBalance = 1.00;
+                        } else {
+                            throw new Error("Yanlış referal kodu!");
+                        }
+                    }
+
+                    // İstifadəçini bazaya yaz
                     await db.ref('zerowallet_users/' + user).set({
-                        username: user, password: pass, ip: ip, balance: 0, clicks: 0, rocket: 'standart'
+                        username: user,
+                        password: pass,
+                        ip: ip,
+                        balance: startBalance,
+                        totalClicks: 0,
+                        batchClicks: 0,
+                        lastBatchTime: 0,
+                        rocket: 'default',
+                        inviteCode: newUserCode,
+                        referralCount: 0,
+                        isVip: false
                     });
+
                     await db.ref('ip_logs/' + cleanIp).set(user);
                     loginSuccess(user);
                 }
