@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paylaş və Qazan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #020617; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .card { background: rgba(15, 23, 42, 0.8); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); margin-top: 50px; }
+        .share-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; margin-bottom: 10px; font-weight: bold; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
+        .whatsapp { background: #25D366; }
+        .instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
+        .telegram { background: #0088cc; }
+        .tiktok { background: #000000; border: 1px solid #fff; }
+        .back-btn { position: absolute; top: 20px; left: 20px; color: #6366f1; font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+    <i class="fas fa-arrow-left back-btn" onclick="location.href='main.html'"></i>
+    
+    <div class="card">
+        <i class="fas fa-gift" style="font-size: 3rem; color: #f59e0b;"></i>
+        <h2>Dostlarını Dəvət Et</h2>
+        <p style="color: #94a3b8;">Hər dəvət üçün 1.00 AZN qazan!</p>
+        
+        <div id="user-code" style="font-size: 2rem; font-weight: 800; color: #6366f1; margin: 20px 0;">YÜKLƏNİR...</div>
+
+        <button class="share-btn whatsapp" onclick="share('wa')"><i class="fab fa-whatsapp"></i> WhatsApp-da Paylaş</button>
+        <button class="share-btn telegram" onclick="share('tg')"><i class="fab fa-telegram"></i> Telegram-da Paylaş</button>
+        <button class="share-btn instagram" onclick="share('ig')"><i class="fab fa-instagram"></i> Instagram Story</button>
+        <button class="share-btn tiktok" onclick="share('tk')"><i class="fab fa-tiktok"></i> TikTok-da Paylaş</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        // Eyni Firebase konfiqurasiyanı bura da qoy
+        const firebaseConfig = { /* Sənin Config Kodun */ };
+        firebase.initializeApp(firebaseConfig);
+        const user = localStorage.getItem('zerowallet_session');
+        let myCode = "";
+
+        firebase.database().ref('zerowallet_users/' + user).once('value', snap => {
+            myCode = snap.val().inviteCode;
+            document.getElementById('user-code').innerText = myCode;
+        });
+
+        function share(platform) {
+            const text = `ZeroWallet tətbiqini yüklə və kodumla qeydiyyatdan keç ! Birlikdə qazanmağa başlayaq ❤️ \n\n👉🏻 KODUM : ${myCode}\n\nProgramın yükləmə linki isə telegram kanalındadı: https://t.me/+beyCilVJgPU2NDAy`;
+            const encodedText = encodeURIComponent(text);
+
+            if(platform === 'wa') window.open(`https://wa.me/?text=${encodedText}`);
+            else if(platform === 'tg') window.open(`https://t.me/share/url?url=https://t.me/+beyCilVJgPU2NDAy&text=${encodedText}`);
+            else {
+                // Instagram və TikTok üçün mətni kopyalayırıq, çünki birbaşa API yoxdur
+                navigator.clipboard.writeText(text);
+                alert("Mesaj kopyalandı! İndi tətbiqə keçib paylaşa bilərsən.");
+            }
+        }
+    </script>
+</body>
+</html>
