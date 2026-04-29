@@ -68,7 +68,7 @@
         .ticker-item i { color: var(--accent); }
 
         .logo-container { display: flex; flex-direction: column; }
-        .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 5px; }
         
         .stats-sub { display: flex; gap: 8px; margin-top: 2px; }
         .stat-badge { font-size: 0.65rem; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 4px; }
@@ -106,15 +106,11 @@
         .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 0.85rem; cursor: pointer; font-family: 'Space Grotesk'; text-transform: uppercase; letter-spacing: 0.5px; }
         .btn:disabled { opacity: 0.5; }
 
-        .input-field { width: 100%; padding: 15px; background: #0f172a; border: 1px solid var(--card-border); border-radius: 14px; color: #fff; text-align: center; margin-bottom: 12px; outline: none; font-size: 1rem; }
-
         .item-row { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         .item-info { display: flex; align-items: center; gap: 15px; }
         .item-info img { width: 40px; height: 40px; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 25px; border-radius: 12px; z-index: 10000; border: 1px solid var(--card-border); }
-        
-        .vip-badge { background: var(--vip-grad); padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; color: #fff; margin-left: 5px; vertical-align: middle; }
+        .vip-img-status { width: 20px; height: 20px; vertical-align: middle; }
 
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
 
@@ -168,11 +164,12 @@
     </div>
 
     <div id="market-sec" class="section">
+        <h3 style="text-align:center;">VİP ABUNƏLİK</h3>
         <div id="vip-buy-card" class="card" style="border: 2px solid #f59e0b; background: linear-gradient(to bottom, rgba(245,158,11,0.1), var(--card-bg));">
             <div style="text-align:center; margin-bottom:15px;">
-                <i class="fas fa-crown" style="color:#f59e0b; font-size:2rem;"></i>
-                <h3 style="margin:10px 0 5px 0;">VİP ÜYELİK</h3>
-                <div style="font-size:0.8rem; color:#94a3b8;">Limitləri və Şərtləri Endirin!</div>
+                <i class="fas fa-crown" style="color:#f59e0b; font-size:2.5rem;"></i>
+                <h3 style="margin:10px 0 5px 0;">VİP STATUS</h3>
+                <div id="vip-status-text" style="font-size:0.8rem; color:#94a3b8;">Limitləri və Şərtləri Endirin!</div>
             </div>
             <ul style="font-size:0.75rem; color:#f1f5f9; padding-left:20px; line-height:1.6;">
                 <li>Çıxarış Limiti: <del>150 AZN</del> → <b>70 AZN</b></li>
@@ -180,22 +177,11 @@
                 <li>Rütbə Şərti: <del>Almaz</del> → <b>Gümüş</b></li>
                 <li><b>8 saatlıq limit ləğv edilir!</b></li>
             </ul>
-            <div style="text-align:center; margin:15px 0;">
+            <div id="vip-price-tag" style="text-align:center; margin:15px 0;">
                 <span style="color:#ef4444; text-decoration:line-through; font-size:0.9rem;">16 AZN</span>
                 <span style="color:var(--accent); font-size:1.4rem; font-weight:800; margin-left:10px;">9 AZN</span>
             </div>
-            <button class="btn" style="background:var(--vip-grad)" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP OL</button>
-        </div>
-
-        <h3 style="text-align:center;">Dostlarını Dəvət Et</h3>
-        <div class="card">
-            <p style="color:#94a3b8; text-align:center; font-size:0.9rem; margin-bottom:15px;">Dostunun kodunu yaz və +1.00 AZN qazan.</p>
-            <input type="text" id="coupon-input" class="input-field" placeholder="KODU BURAYA YAZ">
-            <button class="btn" onclick="processCode()">Kodu Təsdiqlə</button>
-        </div>
-        <div class="card" style="text-align:center;">
-            <small style="color:#64748b; font-weight:700">SƏNİN KODUN</small>
-            <div id="my-invite-code" style="margin-top:5px; font-size:1.5rem; color:var(--primary); font-family:'Space Grotesk'; font-weight:800;">---</div>
+            <button id="vip-action-btn" class="btn" style="background:var(--vip-grad)" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP OL</button>
         </div>
     </div>
 
@@ -281,24 +267,30 @@
         db.ref('zerowallet_users/' + user).on('value', snap => {
             userData = snap.val() || {};
             document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
-            document.getElementById('my-invite-code').innerText = userData.inviteCode || "---";
             
             if(userData.isVip) {
-                document.getElementById('vip-status-header').innerHTML = '<span class="vip-badge"><i class="fas fa-crown"></i> VIP</span>';
-                document.getElementById('vip-buy-card').style.display = 'none';
+                // Header VIP status
+                document.getElementById('vip-status-header').innerHTML = '<img src="vip.png" class="vip-img-status" alt="VIP">';
+                
+                // Market VIP status
+                document.getElementById('vip-status-text').innerText = "VİP Statusunuz Aktivdir!";
+                document.getElementById('vip-status-text').style.color = "var(--accent)";
+                document.getElementById('vip-price-tag').style.display = 'none';
+                const btn = document.getElementById('vip-action-btn');
+                btn.innerText = "AKTİVDİR";
+                btn.disabled = true;
+                btn.style.background = "rgba(255,255,255,0.1)";
             }
             updateWithdrawUI();
             checkWaitLimit();
         });
 
+        // Ticker məlumatları
         const tickerData = [
             "İstifadəçi a***r Elite Paket aldı!",
             "İstifadəçi r***l VIP status əldə etdi!",
-            "İstifadəçi e***r Super Paket aldı!",
-            "İstifadəçi s***n Pro Paket aldı!",
             "İstifadəçi m***d 150.00 AZN çıxarış etdi!",
-            "İstifadəçi t***l rütbəsini Gümüşə qaldırdı!",
-            "İstifadəçi k***n 1 dostunu dəvət etdi!"
+            "İstifadəçi t***l rütbəsini Gümüşə qaldırdı!"
         ];
 
         function updateTicker() {
@@ -306,31 +298,26 @@
             const current = ticker.querySelector('.ticker-item');
             if(!current) return;
             const nextText = tickerData[Math.floor(Math.random() * tickerData.length)];
-            
             current.classList.add('exit');
-            
             setTimeout(() => {
-                ticker.innerHTML = `
-                    <div class="ticker-item">
-                        <i class="fas fa-check-circle"></i> <span>${nextText}</span>
-                    </div>
-                `;
+                ticker.innerHTML = `<div class="ticker-item"><i class="fas fa-check-circle"></i> <span>${nextText}</span></div>`;
                 const nextItem = ticker.querySelector('.ticker-item');
                 setTimeout(() => nextItem.classList.add('active'), 50);
             }, 500);
         }
-
         setInterval(updateTicker, 150000);
-        setTimeout(updateTicker, 5000);
 
         function checkWaitLimit() {
-            if (userData.isVip) return false;
+            if (userData.isVip) {
+                document.getElementById('coin-btn').style.opacity = "1";
+                document.getElementById('coin-btn').style.pointerEvents = "auto";
+                document.getElementById('wait-timer').style.display = "none";
+                return false;
+            }
             if (!userData.lastBatchTime) return false;
-
             const now = Date.now();
             const waitTime = 8 * 60 * 60 * 1000;
             const diff = now - userData.lastBatchTime;
-
             if (userData.batchClicks >= 250 && diff < waitTime) {
                 document.getElementById('coin-btn').style.opacity = "0.2";
                 document.getElementById('coin-btn').style.pointerEvents = "none";
@@ -340,7 +327,6 @@
             } else if (userData.batchClicks >= 250 && diff >= waitTime) {
                 db.ref('zerowallet_users/' + user).update({ batchClicks: 0, lastBatchTime: 0 });
             }
-
             document.getElementById('coin-btn').style.opacity = "1";
             document.getElementById('coin-btn').style.pointerEvents = "auto";
             document.getElementById('wait-timer').style.display = "none";
@@ -354,24 +340,13 @@
             document.getElementById('timer-val').innerText = `${h}:${m}:${s}`;
         }
 
-        setInterval(() => {
-            if (document.getElementById('wait-timer').style.display === "block") {
-                const diff = Date.now() - userData.lastBatchTime;
-                const remaining = (8 * 60 * 60 * 1000) - diff;
-                if (remaining <= 0) location.reload();
-                else updateTimerDisplay(remaining);
-            }
-        }, 1000);
-
         function mine(e) {
             if (checkWaitLimit()) return;
             if (energy <= 0) { energy = 100; updateMiningUI(); return; }
-
             let bonus = 0.0001;
             if(userData.rocket === "elite") bonus = 0.0005;
             if(userData.rocket === "pro") bonus = 0.0008;
             if(userData.rocket === "super") bonus = 0.0010;
-
             energy--;
             let newBatch = (userData.batchClicks || 0) + 1;
             let updates = {
@@ -379,11 +354,9 @@
                 totalClicks: (userData.totalClicks || 0) + 1,
                 batchClicks: newBatch
             };
-
             if (newBatch >= 250 && !userData.isVip) {
                 updates.lastBatchTime = Date.now();
             }
-
             db.ref('zerowallet_users/' + user).update(updates);
             updateMiningUI();
             if(e) showClickEffect(e, bonus);
@@ -415,7 +388,6 @@
             const r = userData.referralCount || 0;
             const rocket = (userData.rocket && userData.rocket !== "default");
             const currentRank = getRank(c);
-
             const targetBal = isVip ? 70 : 150;
             const targetRefs = isVip ? 3 : 10;
             const targetRank = isVip ? "Gümüş" : "Almaz";
@@ -430,7 +402,6 @@
                 const stat = el.querySelector('.status-icon');
                 const cur = document.getElementById(curId);
                 let met = false;
-
                 if(type === 'bal') {
                     cur.innerText = `${val.toFixed(2)} / ${target}`;
                     met = val >= target;
@@ -445,7 +416,6 @@
                     if(isVip) { cur.innerText = "VIP Ləğv etdi"; met = true; }
                     else { cur.innerText = val ? "Aktivdir" : "Yoxdur"; met = val; }
                 }
-
                 stat.className = met ? "fas fa-check-circle" : "fas fa-clock";
                 stat.style.color = met ? "var(--accent)" : "#475569";
                 return met;
@@ -455,29 +425,7 @@
             const m2 = check('req-rank', 'cur-rank', currentRank, targetRank, 'rank');
             const m3 = check('req-refs', 'cur-refs', r, targetRefs, 'ref');
             const m4 = check('req-rocket', 'cur-rocket', rocket, null, 'rocket');
-
             document.getElementById('withdraw-final-btn').disabled = !(m1 && m2 && m3 && m4);
-        }
-
-        async function processCode() {
-            const input = document.getElementById('coupon-input').value.trim();
-            if(!input) return showToast("Kodu yazın!");
-            if(input === userData.inviteCode) return showToast("Öz kodun olmaz!");
-            if(userData.usedCodes && userData.usedCodes[input]) return showToast("Bu kodu artıq işlətmisən!");
-            const snap = await db.ref('zerowallet_users').orderByChild('inviteCode').equalTo(input).once('value');
-            if(!snap.exists()) return showToast("Yanlış kod!");
-            const refUid = Object.keys(snap.val())[0];
-            await db.ref('zerowallet_users/' + user + '/usedCodes/' + input).set(true);
-            db.ref('zerowallet_users/' + user + '/balance').transaction(b => (b || 0) + 1.00);
-            db.ref('zerowallet_users/' + refUid + '/referralCount').transaction(rc => (rc || 0) + 1);
-            showToast("+1.00 AZN qazandın!");
-            document.getElementById('coupon-input').value = "";
-        }
-
-        function showToast(m) {
-            let t = document.createElement('div');
-            t.className = 'toast'; t.innerText = m; document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
         }
 
         function showClickEffect(e, val) {
