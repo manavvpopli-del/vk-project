@@ -2,194 +2,472 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Münsif AI - Gizli İntellekt</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Zerowallet</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .hidden { display: none; }
-        .input-style { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; transition: all 0.3s; }
-        .input-style:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        :root {
+            --primary: #6366f1; 
+            --bg: #020617; 
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text: #f1f5f9;
+            --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --accent: #22c55e;
+            --vip-grad: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+        
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; 
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
+        }
+
+        .header { 
+            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(2, 6, 23, 0.9); border-bottom: 1px solid var(--card-border);
+        }
+        
+        .live-ticker {
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid var(--card-border);
+            padding: 8px 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-item {
+            position: absolute;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-item.active { transform: translateY(0); opacity: 1; }
+        .ticker-item.exit { transform: translateY(-30px); opacity: 0; }
+        .ticker-item i { color: var(--accent); }
+
+        .logo-container { display: flex; flex-direction: column; }
+        .logo { font-family: 'Space Grotesk'; font-size: 1.3rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 5px; }
+        .logo img { height: 24px; width: auto; object-fit: contain; }
+        
+        .stats-sub { display: flex; gap: 8px; margin-top: 2px; }
+        .stat-badge { font-size: 0.65rem; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .online-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; display: inline-block; box-shadow: 0 0 5px var(--accent); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        .balance-box { 
+            background: var(--card-bg); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--card-border);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .balance-box img { width: 20px; height: 20px; }
+        .balance-box span { font-weight: 800; font-size: 1.1rem; color: #fff; font-family: 'Space Grotesk'; }
+
+        .nav-bar { 
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); 
+            width: 95%; max-width: 450px; background: rgba(15, 23, 42, 0.95); 
+            display: flex; justify-content: space-around; padding: 12px; border-radius: 20px; 
+            border: 1px solid var(--card-border); z-index: 1000; 
+        }
+        .nav-item { color: #475569; font-size: 1.2rem; cursor: pointer; }
+        .nav-item.active { color: var(--primary); transform: scale(1.1); }
+
+        .section { display: none; height: calc(100vh - 185px); padding: 20px; overflow-y: auto; scrollbar-width: none; }
+        .section.active { display: block; }
+
+        .card { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--card-border); margin-bottom: 20px; }
+
+        .coin-btn { width: 180px; height: 180px; margin: 30px auto 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .coin-btn img { width: 90%; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4)); transition: 0.1s; object-fit: contain; }
+        .coin-btn:active img { transform: scale(0.9); }
+
+        .energy-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .energy-fill { height: 100%; background: var(--grad); width: 100%; transition: 0.3s; }
+
+        .btn { width: 100%; background: var(--grad); color: #fff; border: none; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 0.85rem; cursor: pointer; font-family: 'Space Grotesk'; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn:disabled { opacity: 0.5; }
+
+        .item-row { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 15px; border-radius: 18px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .item-info { display: flex; align-items: center; gap: 15px; }
+        .item-info img { width: 40px; height: 40px; }
+
+        @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
+
+        .card-add-btn { 
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+            border: 1px dashed var(--primary); 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            margin-bottom: 15px; transition: 0.3s;
+        }
+        .card-add-btn:active { transform: scale(0.98); }
+
+        #limit-vip-offer {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 16px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            display: none;
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div id="screen-main" class="w-full max-w-md glass p-10 rounded-[2.5rem] text-center shadow-2xl">
-        <div class="w-20 h-20 bg-blue-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 text-4xl">⚖️</div>
-        <h1 class="text-3xl font-black mb-2 tracking-tight">Münsif AI</h1>
-        <p class="text-slate-400 mb-10 text-sm">Obyektiv analiz və ədalətli qərar</p>
-        <button onclick="showScreen('screen-create')" class="w-full bg-blue-600 py-4 rounded-2xl font-bold mb-4 hover:bg-blue-700 transition">Otaq Yarat</button>
-        <button onclick="showScreen('screen-join')" class="w-full bg-slate-800 py-4 rounded-2xl font-bold hover:bg-slate-700 transition">Otağa Qoşul</button>
-    </div>
-
-    <div id="screen-create" class="w-full max-w-md glass p-10 rounded-[2.5rem] hidden">
-        <h2 class="text-2xl font-bold mb-6 italic">Otaq Ayarları</h2>
-        <input id="c-name" type="text" placeholder="Sizin Adınız" class="w-full p-4 input-style rounded-2xl mb-4 outline-none">
-        <input id="c-room-id" type="text" placeholder="Otaq Kodu (məs: 777)" class="w-full p-4 input-style rounded-2xl mb-4 outline-none">
-        <input id="c-room-pass" type="text" placeholder="Otağa Xüsusi Ad Verin" class="w-full p-4 input-style rounded-2xl mb-8 outline-none border-dashed border-blue-500/50">
-        <button onclick="createRoom()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold">Otağı Başlat</button>
-    </div>
-
-    <div id="screen-join" class="w-full max-w-md glass p-10 rounded-[2.5rem] hidden">
-        <h2 class="text-2xl font-bold mb-6 text-emerald-400 italic text-center">Giriş</h2>
-        <input id="j-name" type="text" placeholder="Sizin Adınız" class="w-full p-4 input-style rounded-2xl mb-4 outline-none">
-        <input id="j-room-id" type="text" placeholder="Otaq Kodu" class="w-full p-4 input-style rounded-2xl mb-4 outline-none">
-        <input id="j-room-pass" type="text" placeholder="Otağın Adını Yazın" class="w-full p-4 input-style rounded-2xl mb-8 outline-none">
-        <button onclick="joinRoom()" class="w-full bg-emerald-600 py-4 rounded-2xl font-bold">Daxil Ol</button>
-    </div>
-
-    <div id="screen-story" class="w-full max-w-2xl glass p-10 rounded-[2.5rem] hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold italic text-blue-400">Hekayəniz</h2>
-            <span id="display-room" class="text-[10px] bg-blue-500/10 px-3 py-1 rounded-full text-blue-400 uppercase font-black tracking-widest"></span>
+    <div class="header">
+        <div class="logo-container">
+            <div class="logo" id="main-logo-area">ZEROWALLET</div>
+            <div class="stats-sub">
+                <div class="stat-badge"><i class="fas fa-users" style="font-size:0.6rem"></i> 1350+</div>
+                <div class="stat-badge"><span class="online-dot"></span> <span id="online-counter">--</span> Onlayn</div>
+            </div>
         </div>
-        <textarea id="story-input" class="w-full h-64 p-6 bg-slate-900/50 border border-slate-800 rounded-3xl mb-6 outline-none focus:border-blue-500 transition resize-none leading-relaxed" placeholder="Nə baş verib? Ətraflı yaz..."></textarea>
-        <button id="send-btn" onclick="saveStory()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold">Məlumatı Göndər</button>
-        <div id="wait-msg" class="mt-6 p-4 bg-blue-900/10 border border-blue-500/10 rounded-2xl text-blue-400 text-center hidden italic animate-pulse">
-            Qarşı tərəfin hekayəsini bitirməsi gözlənilir...
+        <div class="balance-box">
+            <img src="wallet.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/625/625599.png'">
+            <span id="bal">0.00</span> <span>AZN</span>
         </div>
     </div>
 
-    <div id="screen-verify" class="w-full max-w-5xl glass p-10 rounded-[2.5rem] hidden text-center">
-        <h2 class="text-2xl font-bold mb-8">Son Baxış</h2>
-        <div class="grid md:grid-cols-2 gap-8 mb-10 text-left">
-            <div class="p-8 bg-slate-900/50 rounded-3xl border border-slate-800 shadow-inner"><p id="v-u1" class="text-slate-300"></p></div>
-            <div class="p-8 bg-slate-900/50 rounded-3xl border border-slate-800 shadow-inner"><p id="v-u2" class="text-slate-300"></p></div>
+    <div class="live-ticker" id="live-ticker">
+        <div class="ticker-item active">
+            <i class="fas fa-bolt"></i> <span>Sistem aktivdir. Qazanmağa başla!</span>
         </div>
-        <button id="conf-btn" onclick="confirmFinal()" class="w-full max-w-md mx-auto bg-white text-black py-4 rounded-2xl font-black text-lg hover:bg-slate-200 transition">ANALİZİ BAŞLAT</button>
     </div>
 
-    <div id="screen-result" class="w-full max-w-2xl glass p-10 rounded-[2.5rem] hidden shadow-2xl">
-        <h2 class="text-3xl font-black text-center text-red-500 mb-8 border-b border-slate-800 pb-4 italic tracking-tighter">HAKİM QƏRARI</h2>
-        <div id="ai-loading" class="text-center py-10">
-            <div class="inline-block w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 text-slate-500 text-sm">Süni İntellekt arqumentləri ölçüb-biçir...</p>
+    <div id="mining-sec" class="section active">
+        <div class="card" style="text-align: center;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; display: flex; justify-content: space-between;">
+                <span>ENERJİ</span>
+                <span id="energy-val">100 / 100</span>
+            </div>
+            <div class="energy-bg"><div id="energy-bar" class="energy-fill"></div></div>
+
+            <div class="coin-btn" id="coin-btn" onclick="mine(event)">
+                <img src="coin.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1490/1490900.png'">
+            </div>
+
+            <div id="wait-timer" style="display:none; margin-top:10px;">
+                <div style="color:#ef4444; font-weight:800; font-size: 0.9rem; margin-bottom: 5px;">
+                    LİMİT DOLUB: <span id="timer-val">08:00:00</span>
+                </div>
+                <div id="limit-vip-offer">
+                    <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 10px 0;">Gözləmək istəmirsən? VİP alaraq limitləri sonsuz et!</p>
+                    <button class="btn" style="background:var(--vip-grad); padding: 10px; font-size: 0.7rem;" onclick="showSec('market-sec', document.querySelector('.nav-item:nth-child(2)'))">VİP-Ə KEÇ VƏ LİMİTİ QALDIR</button>
+                </div>
+            </div>
         </div>
-        <div id="ai-output" class="text-left text-slate-200 leading-relaxed text-lg bg-slate-950/50 p-8 rounded-3xl border border-slate-800 hidden"></div>
-        <button onclick="location.reload()" class="mt-10 w-full text-slate-600 hover:text-white transition underline text-sm">Yeni Analiz</button>
     </div>
+
+    <div id="market-sec" class="section">
+        <h3 style="text-align:center;">VİP ABUNƏLİK</h3>
+        <div id="vip-buy-card" class="card" style="border: 2px solid #f59e0b; background: linear-gradient(to bottom, rgba(245,158,11,0.1), var(--card-bg));">
+            <div style="text-align:center; margin-bottom:15px;">
+                <i class="fas fa-crown" style="color:#f59e0b; font-size:2.5rem;"></i>
+                <h3 style="margin:10px 0 5px 0;">VİP STATUS</h3>
+                <div id="vip-status-text-market" style="font-size:0.8rem; color:#94a3b8;">Limitləri və Şərtləri Endirin!</div>
+            </div>
+            <ul style="font-size:0.75rem; color:#f1f5f9; padding-left:20px; line-height:1.6;">
+                <li>Çıxarış Limiti: <del>180 AZN</del> → <b>90 AZN</b></li>
+                <li>Dəvət Şərti: <del>10 Dost</del> → <b>3 Dost</b></li>
+                <li>Rütbə Şərti: <del>Almaz</del> → <b>Gümüş</b></li>
+                <li><b>8 saatlıq limit ləğv edilir!</b></li>
+            </ul>
+            <div id="vip-price-tag" style="text-align:center; margin:15px 0;">
+                <span style="color:#ef4444; text-decoration:line-through; font-size:0.9rem;">16 AZN</span>
+                <span style="color:var(--accent); font-size:1.4rem; font-weight:800; margin-left:10px;">9 AZN</span>
+            </div>
+            <button id="vip-action-btn" class="btn" style="background:var(--vip-grad)" onclick="location.href='pay.html?package=VIP&amount=9.00'">VİP OL</button>
+        </div>
+    </div>
+
+    <div id="upgrade-sec" class="section">
+        <h3 style="text-align:center;">Qazancı Artır</h3>
+        <div class="item-row">
+            <div class="item-info">
+                <img src="elite.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
+                <div><h4 style="margin:0">Elit Paket</h4><small style="color:var(--accent)">+0.0005 AZN / Klik</small></div>
+            </div>
+            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Elite&amount=4.00'">4 AZN</button>
+        </div>
+        <div class="item-row">
+            <div class="item-info">
+                <img src="pro.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
+                <div><h4 style="margin:0">Pro Paket</h4><small style="color:var(--accent)">+0.0008 AZN / Klik</small></div>
+            </div>
+            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Pro&amount=8.00'">8 AZN</button>
+        </div>
+        <div class="item-row">
+            <div class="item-info">
+                <img src="super.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1356/1356479.png'">
+                <div><h4 style="margin:0">Super Paket</h4><small style="color:var(--accent)">+0.0010 AZN / Klik</small></div>
+            </div>
+            <button class="btn" style="width:auto; padding:10px 15px;" onclick="location.href='pay.html?package=Super&amount=11.00'">11 AZN</button>
+        </div>
+    </div>
+
+    <div id="withdraw-sec" class="section">
+        <h3 style="text-align:center;">Pulu Çıxar</h3>
+        <div class="card">
+            <button class="btn card-add-btn" onclick="location.href='coor.html'">
+                <i class="fas fa-credit-card"></i> KART ƏLAVƏ ET
+            </button>
+
+            <div id="req-balance" class="item-row">
+                <div class="item-info"><div><h4 style="margin:0" id="req-bal-text">Balans 180 AZN</h4><small id="cur-balance">0.00 / 180</small></div></div>
+                <i class="fas fa-clock status-icon"></i>
+            </div>
+            <div id="req-rank" class="item-row">
+                <div class="item-info"><div><h4 style="margin:0" id="req-rank-text">Almaz Rütbə</h4><small id="cur-rank">Yoxdur</small></div></div>
+                <i class="fas fa-clock status-icon"></i>
+            </div>
+            <div id="req-refs" class="item-row">
+                <div class="item-info"><div><h4 style="margin:0" id="req-ref-text">10 Dost Dəvəti</h4><small id="cur-refs">0 / 10</small></div></div>
+                <i class="fas fa-clock status-icon"></i>
+            </div>
+            <div id="req-rocket" class="item-row" style="margin-bottom: 20px;">
+                <div class="item-info"><div><h4 style="margin:0" id="req-rocket-text">Aktiv Paket</h4><small id="cur-rocket">Yoxdur</small></div></div>
+                <i class="fas fa-clock status-icon"></i>
+            </div>
+            <button id="withdraw-final-btn" class="btn" onclick="location.href='withdraw.html'" disabled>Pulu Çıxar</button>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="showSec('mining-sec', this)"><i class="fas fa-hammer"></i></div>
+        <div class="nav-item" onclick="showSec('market-sec', this)"><i class="fas fa-crown"></i></div>
+        <div class="nav-item" onclick="showSec('upgrade-sec', this)"><i class="fas fa-rocket"></i></div>
+        <div class="nav-item" onclick="showSec('withdraw-sec', this)"><i class="fas fa-wallet"></i></div>
+        <div class="nav-item" onclick="location.href='shareeeee.html'"><i class="fas fa-share-alt"></i></div>
+        <div class="nav-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i></div>
+    </nav>
 
     <script>
-        // Sənin API kodun gizli olaraq buradadır
-        const GIZLI_INTELLEKT_KODU = "AIzaSyDOyh7fzbVlyJTl_lKaYM0WMJLVt-S4C1o";
-
         const firebaseConfig = {
             apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
             authDomain: "sevgili-testi.firebaseapp.com",
             databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
             projectId: "sevgili-testi",
             storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
             appId: "1:399260477557:web:584204a698d7bf145bb03c"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const user = localStorage.getItem('zerowallet_session');
+        if(!user) location.href="index.html";
 
-        let roomID = "";
-        let myRole = "";
+        let userData = { balance: 0, totalClicks: 0, batchClicks: 0, lastBatchTime: 0, isVip: false };
+        let energy = 100;
 
-        function showScreen(id) {
-            document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+        db.ref('zerowallet_users/' + user).on('value', snap => {
+            userData = snap.val() || {};
+            document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
+            
+            if(userData.isVip) {
+                document.getElementById('main-logo-area').innerHTML = '<img src="zerowallet.png" alt="Zerowallet VIP">';
+                document.getElementById('vip-status-text-market').innerText = "VİP Statusunuz Aktivdir!";
+                document.getElementById('vip-status-text-market').style.color = "var(--accent)";
+                document.getElementById('vip-price-tag').style.display = 'none';
+                const btn = document.getElementById('vip-action-btn');
+                btn.innerText = "AKTİVDİR";
+                btn.disabled = true;
+                btn.style.background = "rgba(255,255,255,0.1)";
+            } else {
+                document.getElementById('main-logo-area').innerText = "ZEROWALLET";
+            }
+
+            updateWithdrawUI();
+            checkWaitLimit();
+        });
+
+        const tickerData = [
+            "İstifadəçi a***r Elite Paket aldı!",
+            "İstifadəçi r***l VIP status əldə etdi!",
+            "İstifadəçi m***d 180.00 AZN çıxarış etdi!",
+            "İstifadəçi t***l rütbəsini Gümüşə qaldırdı!"
+        ];
+
+        function updateTicker() {
+            const ticker = document.getElementById('live-ticker');
+            const current = ticker.querySelector('.ticker-item');
+            if(!current) return;
+            const nextText = tickerData[Math.floor(Math.random() * tickerData.length)];
+            current.classList.add('exit');
+            setTimeout(() => {
+                ticker.innerHTML = `<div class="ticker-item"><i class="fas fa-check-circle"></i> <span>${nextText}</span></div>`;
+                const nextItem = ticker.querySelector('.ticker-item');
+                setTimeout(() => nextItem.classList.add('active'), 50);
+            }, 500);
+        }
+        setInterval(updateTicker, 150000);
+
+        function checkWaitLimit() {
+            if (userData.isVip) {
+                document.getElementById('coin-btn').style.opacity = "1";
+                document.getElementById('coin-btn').style.pointerEvents = "auto";
+                document.getElementById('wait-timer').style.display = "none";
+                return false;
+            }
+            if (!userData.lastBatchTime) return false;
+            const now = Date.now();
+            const waitTime = 8 * 60 * 60 * 1000;
+            const diff = now - userData.lastBatchTime;
+
+            if (userData.batchClicks >= 250 && diff < waitTime) {
+                document.getElementById('coin-btn').style.opacity = "0.2";
+                document.getElementById('coin-btn').style.pointerEvents = "none";
+                document.getElementById('wait-timer').style.display = "block";
+                document.getElementById('limit-vip-offer').style.display = "block";
+                updateTimerDisplay(waitTime - diff);
+                return true;
+            } else if (userData.batchClicks >= 250 && diff >= waitTime) {
+                db.ref('zerowallet_users/' + user).update({ batchClicks: 0, lastBatchTime: 0 });
+            }
+            document.getElementById('coin-btn').style.opacity = "1";
+            document.getElementById('coin-btn').style.pointerEvents = "auto";
+            document.getElementById('wait-timer').style.display = "none";
+            document.getElementById('limit-vip-offer').style.display = "none";
+            return false;
         }
 
-        function createRoom() {
-            const name = document.getElementById('c-name').value.trim();
-            roomID = document.getElementById('c-room-id').value.trim().toUpperCase();
-            const pass = document.getElementById('c-room-pass').value.trim();
-
-            if(!name || !roomID || !pass) return alert("Bütün sahələri doldurun!");
-
-            myRole = "user1";
-            db.ref(`rooms/${roomID}`).set({
-                user1: { name, story: "", confirmed: false },
-                roomSecretName: pass, // Otağın adı (parol)
-                status: "waiting"
-            }).then(() => syncRoom());
+        function updateTimerDisplay(ms) {
+            if (ms < 0) ms = 0;
+            const h = Math.floor(ms / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+            document.getElementById('timer-val').innerText = `${h}:${m}:${s}`;
         }
 
-        function joinRoom() {
-            const name = document.getElementById('j-name').value.trim();
-            roomID = document.getElementById('j-room-id').value.trim().toUpperCase();
-            const passInput = document.getElementById('j-room-pass').value.trim();
+        setInterval(() => {
+            if (!userData.isVip && userData.batchClicks >= 250 && userData.lastBatchTime) {
+                const now = Date.now();
+                const waitTime = 8 * 60 * 60 * 1000;
+                const diff = now - userData.lastBatchTime;
+                if (diff < waitTime) updateTimerDisplay(waitTime - diff);
+                else checkWaitLimit();
+            }
+        }, 1000);
 
-            if(!name || !roomID || !passInput) return alert("Bütün xanaları doldurun!");
+        function mine(e) {
+            if (checkWaitLimit()) return;
+            if (energy <= 0) { energy = 100; updateMiningUI(); return; }
+            let bonus = 0.0001;
+            if(userData.rocket === "elite") bonus = 0.0005;
+            if(userData.rocket === "pro") bonus = 0.0008;
+            if(userData.rocket === "super") bonus = 0.0010;
+            energy--;
+            let newBatch = (userData.batchClicks || 0) + 1;
+            let updates = {
+                balance: (userData.balance || 0) + bonus,
+                totalClicks: (userData.totalClicks || 0) + 1,
+                batchClicks: newBatch
+            };
+            if (newBatch >= 250 && !userData.isVip) updates.lastBatchTime = Date.now();
+            db.ref('zerowallet_users/' + user).update(updates);
+            updateMiningUI();
+            if(e) showClickEffect(e, bonus);
+        }
 
-            db.ref(`rooms/${roomID}`).once('value', snap => {
-                if(snap.exists()) {
-                    const roomData = snap.val();
-                    if(roomData.roomSecretName === passInput) {
-                        myRole = "user2";
-                        db.ref(`rooms/${roomID}/user2`).set({ name, story: "", confirmed: false });
-                        syncRoom();
-                    } else {
-                        alert("Otaq adı yanlışdır! Qoşula bilməzsiniz.");
-                    }
-                } else {
-                    alert("Bu kodda otaq tapılmadı!");
+        function updateMiningUI() {
+            document.getElementById('energy-bar').style.width = energy + "%";
+            document.getElementById('energy-val').innerText = energy + " / 100";
+        }
+
+        function showSec(id, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(el) el.classList.add('active');
+        }
+
+        function getRank(clicks) {
+            if(clicks >= 50000) return "Almaz";
+            if(clicks >= 15000) return "Qızıl";
+            if(clicks >= 5000) return "Gümüş";
+            return "Bürünc";
+        }
+
+        function updateWithdrawUI() {
+            const isVip = userData.isVip || false;
+            const b = userData.balance || 0;
+            const c = userData.totalClicks || 0;
+            const r = userData.referralCount || 0;
+            const rocket = (userData.rocket && userData.rocket !== "default");
+            const currentRank = getRank(c);
+            const targetBal = isVip ? 90 : 180;
+            const targetRefs = isVip ? 3 : 10;
+            const targetRank = isVip ? "Gümüş" : "Almaz";
+
+            document.getElementById('req-bal-text').innerText = `Balans ${targetBal} AZN`;
+            document.getElementById('req-ref-text').innerText = `${targetRefs} Dost Dəvəti`;
+            document.getElementById('req-rank-text').innerText = `${targetRank} Rütbə`;
+
+            const check = (id, curId, val, target, type) => {
+                const el = document.getElementById(id);
+                if(!el) return false;
+                const stat = el.querySelector('.status-icon');
+                const cur = document.getElementById(curId);
+                let met = false;
+                if(type === 'bal') {
+                    cur.innerText = `${val.toFixed(2)} / ${target}`;
+                    met = val >= target;
+                } else if(type === 'ref') {
+                    cur.innerText = `${val} / ${target}`;
+                    met = val >= target;
+                } else if(type === 'rank') {
+                    cur.innerText = val;
+                    const ranks = ["Bürünc", "Gümüş", "Qızıl", "Almaz"];
+                    met = ranks.indexOf(val) >= ranks.indexOf(target);
+                } else if(type === 'rocket') {
+                    if(isVip) { cur.innerText = "VIP Ləğv etdi"; met = true; }
+                    else { cur.innerText = val ? "Aktivdir" : "Yoxdur"; met = val; }
                 }
-            });
+                stat.className = met ? "fas fa-check-circle" : "fas fa-clock";
+                stat.style.color = met ? "var(--accent)" : "#475569";
+                return met;
+            };
+
+            const m1 = check('req-balance', 'cur-balance', b, targetBal, 'bal');
+            const m2 = check('req-rank', 'cur-rank', currentRank, targetRank, 'rank');
+            const m3 = check('req-refs', 'cur-refs', r, targetRefs, 'ref');
+            const m4 = check('req-rocket', 'cur-rocket', rocket, null, 'rocket');
+            document.getElementById('withdraw-final-btn').disabled = !(m1 && m2 && m3 && m4);
         }
 
-        function syncRoom() {
-            showScreen('screen-story');
-            document.getElementById('display-room').innerText = "Kod: " + roomID;
-            db.ref(`rooms/${roomID}`).on('value', snap => {
-                const data = snap.val();
-                if(data && data.user1.story && data.user2 && data.user2.story) {
-                    showScreen('screen-verify');
-                    document.getElementById('v-u1').innerHTML = `<b class="text-blue-400">${data.user1.name}:</b><br>${data.user1.story}`;
-                    document.getElementById('v-u2').innerHTML = `<b class="text-emerald-400">${data.user2.name}:</b><br>${data.user2.story}`;
-                    if(data.user1.confirmed && data.user2.confirmed) runGemini();
-                }
-            });
+        function showClickEffect(e, val) {
+            const t = document.createElement('div');
+            t.innerText = "+" + val.toFixed(4);
+            t.style.left = e.clientX + "px"; t.style.top = e.clientY + "px";
+            t.style.position = 'fixed'; t.style.color = 'var(--accent)'; t.style.fontWeight = '800';
+            t.style.animation = 'float 0.6s forwards'; t.style.pointerEvents = 'none';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 600);
         }
 
-        function saveStory() {
-            const story = document.getElementById('story-input').value.trim();
-            if(story.length < 5) return alert("Hekayənizi bir az daha geniş yazın.");
-            db.ref(`rooms/${roomID}/${myRole}`).update({ story });
-            document.getElementById('send-btn').disabled = true;
-            document.getElementById('send-btn').innerText = "Göndərildi";
-            document.getElementById('wait-msg').classList.remove('hidden');
+        function updateLiveOnline() {
+            document.getElementById('online-counter').innerText = Math.floor(Math.random() * 25) + 25;
         }
-
-        function confirmFinal() {
-            db.ref(`rooms/${roomID}/${myRole}`).update({ confirmed: true });
-            document.getElementById('conf-btn').innerText = "Gözlənilir...";
-            document.getElementById('conf-btn').disabled = true;
-        }
-
-        async function runGemini() {
-            showScreen('screen-result');
-            db.ref(`rooms/${roomID}`).once('value', async snap => {
-                const data = snap.val();
-                const prompt = `Sən iki şəxs arasında mübahisəni həll edən bir münsifsən. 
-                Sərt, dürüst və ədalətli olmalısan. Diplomatik olma, kimin səhv etdiyini konkret de. 
-                Tərəf 1 (${data.user1.name}): ${data.user1.story}
-                Tərəf 2 (${data.user2.name}): ${data.user2.story}
-                Azərbaycan dilində qərar ver.`;
-
-                try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GIZLI_INTELLEKT_KODU}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const json = await res.json();
-                    const result = json.candidates[0].content.parts[0].text;
-                    document.getElementById('ai-loading').classList.add('hidden');
-                    document.getElementById('ai-output').classList.remove('hidden');
-                    document.getElementById('ai-output').innerHTML = result.replace(/\n/g, "<br>");
-                } catch (e) {
-                    document.getElementById('ai-output').innerText = "Xəta: İntellekt xidməti cavab vermir.";
-                    document.getElementById('ai-output').classList.remove('hidden');
-                }
-            });
-        }
+        updateLiveOnline();
+        setInterval(updateLiveOnline, 180000);
     </script>
 </body>
 </html>
