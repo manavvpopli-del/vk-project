@@ -23,7 +23,6 @@
             --grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             --accent: #22c55e;
             --vip-grad: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-            --bot-grad: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
@@ -112,8 +111,6 @@
         .item-info { display: flex; align-items: center; gap: 15px; }
         .item-info img { width: 40px; height: 40px; }
 
-        .vip-img-status { width: 20px; height: 20px; vertical-align: middle; }
-
         @keyframes float { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
 
         .card-add-btn { 
@@ -131,17 +128,6 @@
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
             display: none;
-        }
-
-        .auto-bot-card {
-            background: rgba(34, 211, 238, 0.05);
-            border: 1px solid rgba(34, 211, 238, 0.2);
-            border-radius: 20px;
-            padding: 15px;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
     </style>
 </head>
@@ -177,17 +163,6 @@
 
             <div class="coin-btn" id="coin-btn" onclick="mine(event)">
                 <img src="coin.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1490/1490900.png'">
-            </div>
-
-            <div class="auto-bot-card">
-                <div style="display: flex; align-items: center; gap: 10px; text-align: left;">
-                    <i class="fas fa-robot" style="font-size: 1.5rem; color: #22d3ee;"></i>
-                    <div>
-                        <div style="font-size: 0.85rem; font-weight: 800;">AUTO BOT (5 SAAT)</div>
-                        <div id="bot-status-text" style="font-size: 0.65rem; color: #94a3b8;">Avtomatik yığım üçün aktivləşdir</div>
-                    </div>
-                </div>
-                <button id="bot-btn" class="btn" style="width: auto; padding: 8px 15px; font-size: 0.65rem; background: var(--bot-grad);" onclick="location.href='pay.html?package=AutoBot&amount=5.00'">5 AZN</button>
             </div>
 
             <div id="wait-timer" style="display:none; margin-top:10px;">
@@ -308,7 +283,6 @@
             document.getElementById('bal').innerText = (userData.balance || 0).toFixed(2);
             
             if(userData.isVip) {
-                // Logo dəyişdirilməsi
                 document.getElementById('main-logo-area').innerHTML = '<img src="zerowallet.png" alt="Zerowallet VIP">';
                 document.getElementById('vip-status-text-market').innerText = "VİP Statusunuz Aktivdir!";
                 document.getElementById('vip-status-text-market').style.color = "var(--accent)";
@@ -321,32 +295,9 @@
                 document.getElementById('main-logo-area').innerText = "ZEROWALLET";
             }
 
-            const botBtn = document.getElementById('bot-btn');
-            const botText = document.getElementById('bot-status-text');
-            if(userData.autoBotUntil && userData.autoBotUntil > Date.now()) {
-                const timeLeft = Math.ceil((userData.autoBotUntil - Date.now()) / 3600000);
-                botText.innerHTML = `<span style="color:var(--accent)">AKTİVDİR (${timeLeft} saat qaldı)</span>`;
-                botBtn.innerText = "AKTİV";
-                botBtn.disabled = true;
-                botBtn.style.background = "rgba(34, 211, 238, 0.2)";
-                startAutoBotCalculation();
-            }
-
             updateWithdrawUI();
             checkWaitLimit();
         });
-
-        function startAutoBotCalculation() {
-            if(window.botInterval) clearInterval(window.botInterval);
-            window.botInterval = setInterval(() => {
-                if(userData.autoBotUntil > Date.now()) {
-                    let hourlyEarning = 0.75 / 3600; 
-                    db.ref('zerowallet_users/' + user + '/balance').set(firebase.database.ServerValue.increment(hourlyEarning));
-                } else {
-                    clearInterval(window.botInterval);
-                }
-            }, 5000); 
-        }
 
         const tickerData = [
             "İstifadəçi a***r Elite Paket aldı!",
@@ -446,10 +397,6 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(el) el.classList.add('active');
-            else {
-                const navIndex = id === 'market-sec' ? 1 : 0;
-                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
-            }
         }
 
         function getRank(clicks) {
