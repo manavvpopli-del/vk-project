@@ -3,88 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Münsif AI - Groq Llama 3</title>
+    <title>Münsif AI - İntellekt Sistemi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        body { font-family: 'Space Grotesk', sans-serif; background: #05070a; color: #e5e7eb; }
-        .glass { background: rgba(10, 15, 25, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #030712; color: #f9fafb; }
+        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
         .hidden { display: none; }
-        input, textarea, select { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; }
-        .btn-glow:hover { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); transform: translateY(-1px); }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <div id="api-screen" class="w-full max-w-md glass p-10 rounded-3xl text-center shadow-2xl">
-        <div class="text-4xl mb-4">🔐</div>
-        <h2 class="text-2xl font-bold mb-4">Sistem Aktivasiyası</h2>
-        <p class="text-gray-400 mb-6 text-sm">Groq API açarını bura daxil edin. Bu açar yalnız sizin brauzerinizdə qalacaq.</p>
-        <input id="api-key-input" type="password" placeholder="gsk_..." class="w-full p-4 rounded-2xl mb-4 outline-none text-center">
-        <button onclick="initSystem()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold btn-glow transition">Sistemi Başlat</button>
+    <div id="screen-main" class="w-full max-w-md glass p-10 rounded-[2rem] text-center shadow-2xl">
+        <h1 class="text-4xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">Münsif AI</h1>
+        <button onclick="showScreen('screen-create')" class="w-full bg-blue-600 py-4 rounded-2xl font-bold mb-4 hover:scale-[1.02] transition">Otaq Yarat</button>
+        <button onclick="showScreen('screen-join')" class="w-full bg-slate-800 py-4 rounded-2xl font-bold hover:scale-[1.02] transition">Otağa Qoşul</button>
     </div>
 
-    <div id="main-screen" class="w-full max-w-md glass p-10 rounded-3xl text-center hidden shadow-2xl">
-        <h1 class="text-4xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">Münsif AI</h1>
-        <p class="text-gray-500 mb-10 italic">Səhvin kimdə olduğunu Süni İntellekt desin</p>
-        <button onclick="setMode('create')" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold mb-4 btn-glow transition">Otaq Yarat</button>
-        <button onclick="setMode('join')" class="w-full bg-slate-800 py-4 rounded-2xl font-bold hover:bg-slate-700 transition">Otağa Qoşul</button>
+    <div id="screen-create" class="w-full max-w-md glass p-10 rounded-[2rem] hidden">
+        <h2 class="text-2xl font-bold mb-6">Yeni Otaq</h2>
+        <input id="c-name" type="text" placeholder="Adınız" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 outline-none">
+        <input id="c-room" type="text" placeholder="Otaq Kodu (məs: dava1)" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 outline-none text-blue-400 font-bold uppercase">
+        <input id="c-api" type="password" placeholder="İntellekt Kodu (API)" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-6 outline-none border-dashed border-blue-500/50">
+        <button onclick="createRoom()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold transition">Otağı Başlat</button>
     </div>
 
-    <div id="form-screen" class="w-full max-w-md glass p-10 rounded-3xl hidden">
-        <h2 class="text-2xl font-bold mb-6 italic" id="form-title">Məlumatlar</h2>
-        <input id="u-name" type="text" placeholder="Adınız" class="w-full p-4 rounded-2xl mb-4 outline-none">
-        <div class="flex gap-2 mb-4">
-            <select id="u-gender" class="flex-1 p-4 rounded-2xl outline-none">
-                <option value="Kişi">Kişi</option>
-                <option value="Qadın">Qadın</option>
-            </select>
-            <select id="u-age" class="flex-1 p-4 rounded-2xl outline-none">
-                <option value="18-24">18-24</option>
-                <option value="25-35">25-35</option>
-                <option value="36+">36+</option>
-            </select>
-        </div>
-        <input id="u-room" type="text" placeholder="Otaq Kodu (məs: dava1)" class="w-full p-4 rounded-2xl mb-6 outline-none">
-        <button onclick="enterRoom()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold btn-glow transition">Daxil Ol</button>
+    <div id="screen-join" class="w-full max-w-md glass p-10 rounded-[2rem] hidden">
+        <h2 class="text-2xl font-bold mb-6 text-emerald-400">Otağa Daxil Ol</h2>
+        <input id="j-name" type="text" placeholder="Adınız" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 outline-none">
+        <input id="j-room" type="text" placeholder="Otaq Kodu" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-6 outline-none text-blue-400 font-bold uppercase">
+        <button onclick="joinRoom()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold transition text-white">Qoşul</button>
     </div>
 
-    <div id="story-screen" class="w-full max-w-2xl glass p-10 rounded-3xl hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-indigo-400 italic">Sənin tərəfin...</h2>
-            <span id="room-id-display" class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400 uppercase tracking-tighter"></span>
-        </div>
-        <textarea id="story-input" class="w-full h-56 p-6 rounded-3xl mb-6 focus:ring-2 focus:ring-indigo-500 outline-none resize-none leading-relaxed" placeholder="Dava necə başladı? Kim nə dedi? Detalları bura yaz..."></textarea>
-        <button id="send-btn" onclick="saveStory()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold btn-glow transition">Hekayəni Göndər</button>
-        <div id="wait-msg" class="mt-6 p-4 bg-indigo-900/20 border border-indigo-500/20 rounded-2xl text-indigo-400 text-center hidden italic animate-pulse">
-            Partnyorun yazması gözlənilir...
-        </div>
+    <div id="screen-story" class="w-full max-w-2xl glass p-10 rounded-[2rem] hidden">
+        <div id="room-badge" class="mb-4 text-xs font-bold text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-4 py-1 rounded-full inline-block"></div>
+        <h2 class="text-2xl font-bold mb-4 italic">Sənin tərəfin...</h2>
+        <textarea id="story-input" class="w-full h-56 p-6 bg-slate-950 border border-slate-800 rounded-2xl mb-6 outline-none focus:border-indigo-500 transition resize-none leading-relaxed" placeholder="Nə baş verdi?"></textarea>
+        <button id="send-btn" onclick="saveStory()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold">Göndər</button>
+        <p id="wait-msg" class="mt-6 text-center text-yellow-500 hidden italic animate-pulse">Partnyorun hekayəsi gözlənilir...</p>
     </div>
 
-    <div id="verify-screen" class="w-full max-w-5xl glass p-10 rounded-3xl hidden">
-        <h2 class="text-2xl font-bold mb-8 text-center">Hər iki hekayəni oxuyun</h2>
+    <div id="screen-verify" class="w-full max-w-5xl glass p-10 rounded-[2rem] hidden">
+        <h2 class="text-2xl font-bold mb-8 text-center border-b border-slate-800 pb-4">Məlumatların Təsdiqi</h2>
         <div class="grid md:grid-cols-2 gap-8 mb-10">
-            <div class="p-8 bg-slate-900/50 rounded-3xl border border-slate-800">
-                <p id="v-u1" class="text-slate-300 leading-relaxed"></p>
-            </div>
-            <div class="p-8 bg-slate-900/50 rounded-3xl border border-slate-800">
-                <p id="v-u2" class="text-slate-300 leading-relaxed"></p>
-            </div>
+            <div class="p-6 bg-slate-900/50 rounded-2xl border border-slate-800"><p id="v-u1" class="text-slate-300"></p></div>
+            <div class="p-6 bg-slate-900/50 rounded-2xl border border-slate-800"><p id="v-u2" class="text-slate-300"></p></div>
         </div>
-        <button id="confirm-btn" onclick="confirmFinal()" class="w-full bg-white text-black py-5 rounded-2xl font-black text-xl hover:bg-slate-200 transition shadow-xl">TƏSDİQLƏYİRƏM, ANALİZ ET</button>
-        <p id="confirm-wait" class="mt-4 text-center text-indigo-400 hidden italic">Qarşı tərəfin təsdiqi gözlənilir...</p>
+        <button id="conf-btn" onclick="confirmRoom()" class="w-full bg-white text-black py-4 rounded-xl font-black shadow-xl hover:bg-slate-200 transition">HƏR ŞEY DÜZDÜR, ANALİZ ET</button>
+        <p id="conf-wait" class="mt-4 text-center text-indigo-400 hidden italic">Qarşı tərəf təsdiqləyir...</p>
     </div>
 
-    <div id="result-screen" class="w-full max-w-2xl glass p-10 rounded-3xl hidden shadow-2xl">
-        <h2 class="text-3xl font-black text-center text-red-500 mb-8 border-b border-slate-800 pb-4 tracking-widest">HAKİM QƏRARI</h2>
-        <div id="ai-loading" class="text-center py-10">
-            <div class="inline-block w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 text-slate-500 italic">Llama 3 hər iki tərəfin psixologiyasını analiz edir...</p>
-        </div>
-        <div id="ai-output" class="text-slate-200 leading-relaxed text-lg bg-slate-900/30 p-8 rounded-3xl border border-slate-800 hidden"></div>
-        <button onclick="location.reload()" class="mt-10 w-full text-slate-600 hover:text-white transition underline text-sm">Yeni Mübahisə</button>
+    <div id="screen-result" class="w-full max-w-2xl glass p-10 rounded-[2rem] hidden text-center shadow-2xl">
+        <h2 class="text-3xl font-black text-red-500 mb-8 border-b border-slate-800 pb-4 tracking-tighter italic">HAKİMİN HÖKMÜ</h2>
+        <div id="ai-loading" class="py-10"><div class="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full inline-block"></div></div>
+        <div id="ai-text" class="text-left leading-relaxed text-slate-200 bg-slate-950 p-8 rounded-2xl border border-slate-800 hidden"></div>
+        <button onclick="location.reload()" class="mt-10 text-slate-500 hover:text-white underline text-sm transition">Başa qayıt</button>
     </div>
 
     <script>
@@ -99,94 +74,93 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let API_KEY = "";
         let roomID = "";
         let myRole = "";
-        let mode = "";
 
-        function show(id) {
-            document.querySelectorAll('div[id$="-screen"]').forEach(s => s.classList.add('hidden'));
+        function showScreen(id) {
+            document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
 
-        function initSystem() {
-            API_KEY = document.getElementById('api-key-input').value.trim();
-            if(!API_KEY.startsWith("gsk_")) return alert("Düzgün Groq API açarı daxil edin!");
-            show('main-screen');
-        }
+        function createRoom() {
+            const name = document.getElementById('c-name').value.trim();
+            roomID = document.getElementById('c-room').value.trim().toUpperCase();
+            const api = document.getElementById('c-api').value.trim();
 
-        function setMode(m) { mode = m; show('form-screen'); }
-
-        function enterRoom() {
-            const name = document.getElementById('u-name').value.trim();
-            roomID = document.getElementById('u-room').value.trim();
-            if(!name || !roomID) return alert("Bütün sahələri doldurun!");
-
-            myRole = (mode === 'create') ? 'user1' : 'user2';
-            const userObj = { name, gender: document.getElementById('u-gender').value, age: document.getElementById('u-age').value, story: "", confirmed: false };
+            if(!name || !roomID || !api) return alert("Bütün sahələri doldurun!");
             
-            if(mode === 'create') {
-                db.ref(`rooms/${roomID}`).set({ user1: userObj, status: "waiting" }).then(() => listen());
-            } else {
-                db.ref(`rooms/${roomID}/user2`).set(userObj).then(() => listen());
-            }
+            myRole = "user1";
+            db.ref(`rooms/${roomID}`).set({
+                user1: { name, story: "", confirmed: false },
+                intellectCode: api,
+                status: "waiting"
+            }).then(() => startRoomSync());
         }
 
-        function listen() {
-            show('story-screen');
-            document.getElementById('room-id-display').innerText = "OTAQ: " + roomID;
+        function joinRoom() {
+            const name = document.getElementById('j-name').value.trim();
+            roomID = document.getElementById('j-room').value.trim().toUpperCase();
+
+            if(!name || !roomID) return alert("Boş buraxmayın!");
+
+            db.ref(`rooms/${roomID}`).once('value', snap => {
+                if(snap.exists()) {
+                    myRole = "user2";
+                    db.ref(`rooms/${roomID}/user2`).set({ name, story: "", confirmed: false });
+                    startRoomSync();
+                } else alert("Otaq tapılmadı!");
+            });
+        }
+
+        function startRoomSync() {
+            showScreen('screen-story');
+            document.getElementById('room-badge').innerText = "Otaq: " + roomID;
             db.ref(`rooms/${roomID}`).on('value', snap => {
                 const data = snap.val();
                 if(data && data.user1.story && data.user2 && data.user2.story) {
-                    show('verify-screen');
-                    document.getElementById('v-u1').innerHTML = `<b>${data.user1.name}:</b> <br>${data.user1.story}`;
-                    document.getElementById('v-u2').innerHTML = `<b>${data.user2.name}:</b> <br>${data.user2.story}`;
+                    showScreen('screen-verify');
+                    document.getElementById('v-u1').innerHTML = `<b>${data.user1.name}:</b><br>${data.user1.story}`;
+                    document.getElementById('v-u2').innerHTML = `<b>${data.user2.name}:</b><br>${data.user2.story}`;
                     if(data.user1.confirmed && data.user2.confirmed) runAI(data);
                 }
             });
         }
 
         function saveStory() {
-            const s = document.getElementById('story-input').value.trim();
-            if(s.length < 15) return alert("Zəhmət olmasa bir az ətraflı yazın.");
-            db.ref(`rooms/${roomID}/${myRole}`).update({ story: s });
+            const story = document.getElementById('story-input').value.trim();
+            db.ref(`rooms/${roomID}/${myRole}`).update({ story });
             document.getElementById('send-btn').disabled = true;
-            document.getElementById('send-btn').innerText = "Göndərildi ✅";
             document.getElementById('wait-msg').classList.remove('hidden');
         }
 
-        function confirmFinal() {
+        function confirmRoom() {
             db.ref(`rooms/${roomID}/${myRole}`).update({ confirmed: true });
-            document.getElementById('confirm-btn').classList.add('hidden');
-            document.getElementById('confirm-wait').classList.remove('hidden');
+            document.getElementById('conf-btn').classList.add('hidden');
+            document.getElementById('conf-wait').classList.remove('hidden');
         }
 
         async function runAI(data) {
-            show('result-screen');
-            const prompt = `Sən iki sevgili arasında mübahisəni həll edən ədalətli, amma sərt bir hakimsən.
-            Tərəf 1 (${data.user1.name}, ${data.user1.gender}, ${data.user1.age}): "${data.user1.story}"
-            Tərəf 2 (${data.user2.name}, ${data.user2.gender}, ${data.user2.age}): "${data.user2.story}"
-            
-            Vəzifən:
-            1. Hər iki tərəfi obyektiv analiz et.
-            2. Diplomatik olma, konkret de ki, səhv kimdədir və niyə (faizlə göstər).
-            3. Onlara bu davanı bitirmək üçün konkret 1 məsləhət ver.
-            Dil: Azərbaycan. Üslub: Hakim kimi ciddi.`;
+            showScreen('screen-result');
+            const apiKey = data.intellectCode;
+            const prompt = `Sən iki sevgili arasında münsifsən. Sərt, ədalətli və dürüst ol.
+            Tərəf 1 (${data.user1.name}): ${data.user1.story}
+            Tərəf 2 (${data.user2.name}): ${data.user2.story}
+            Analiz et və Azərbaycan dilində kimin haqlı, kimin səhv olduğunu əsaslandır. Konkret qərar ver.`;
 
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: "llama3-70b-8192", messages: [{role: "user", content: prompt}], temperature: 0.5 })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const json = await res.json();
-                const text = json.choices[0].message.content;
+                const aiResponse = json.candidates[0].content.parts[0].text;
                 document.getElementById('ai-loading').classList.add('hidden');
-                document.getElementById('ai-output').classList.remove('hidden');
-                document.getElementById('ai-output').innerHTML = text.replace(/\n/g, "<br>");
-            } catch(e) {
-                document.getElementById('ai-output').innerText = "Xəta: API açarı və ya internet bağlantısı problemi.";
-                document.getElementById('ai-output').classList.remove('hidden');
+                document.getElementById('ai-text').classList.remove('hidden');
+                document.getElementById('ai-text').innerHTML = aiResponse.replace(/\n/g, "<br>");
+            } catch (e) {
+                document.getElementById('ai-text').innerHTML = "Xəta: İntellekt kodu səhvdir və ya bloklanıb.";
+                document.getElementById('ai-text').classList.remove('hidden');
             }
         }
     </script>
