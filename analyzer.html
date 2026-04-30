@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Münsif AI - Real Analiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        body { font-family: 'Outfit', sans-serif; background: #020617; color: #f8fafc; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .hidden { display: none; }
+        .loader { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="screen-main" class="w-full max-w-md glass p-10 rounded-3xl shadow-2xl text-center">
+        <div class="mb-6 flex justify-center"><div class="w-16 h-16 bg-blue-600 rounded-2xl rotate-12 flex items-center justify-center text-3xl shadow-lg shadow-blue-500/50 text-white">⚖️</div></div>
+        <h1 class="text-3xl font-black mb-2">Münsif AI</h1>
+        <p class="text-slate-400 mb-8 font-light italic">Davanı süni intellekt həll etsin</p>
+        <button onclick="showScreen('screen-create')" class="w-full bg-indigo-600 py-4 rounded-xl font-bold mb-4 hover:scale-[1.02] transition">Otaq Yarat</button>
+        <button onclick="showScreen('screen-join')" class="w-full bg-slate-700 py-4 rounded-xl font-bold hover:scale-[1.02] transition">Otağa Qoşul</button>
+    </div>
+
+    <div id="screen-create" class="w-full max-w-md glass p-10 rounded-3xl hidden">
+        <h2 class="text-2xl font-bold mb-6">Yeni Müstəntiq Otağı</h2>
+        <input id="c-name" type="text" placeholder="Adınız" class="w-full p-4 bg-slate-800 rounded-xl mb-4 border border-slate-700">
+        <div class="flex gap-2 mb-4">
+            <select id="c-gender" class="flex-1 p-4 bg-slate-800 rounded-xl border border-slate-700">
+                <option value="Kişi">Kişi</option>
+                <option value="Qadın">Qadın</option>
+            </select>
+            <select id="c-age" class="flex-1 p-4 bg-slate-800 rounded-xl border border-slate-700">
+                <option value="18-24">18-24 yaş</option>
+                <option value="25-30">25-30 yaş</option>
+                <option value="31+">31+ yaş</option>
+            </select>
+        </div>
+        <input id="c-code" type="text" placeholder="Otaq Kodu (Məs: sevgi1)" class="w-full p-4 bg-slate-800 rounded-xl mb-6 border border-slate-700">
+        <button onclick="createRoom()" class="w-full bg-blue-600 py-4 rounded-xl font-bold">Otağı Başlat</button>
+    </div>
+
+    <div id="screen-join" class="w-full max-w-md glass p-10 rounded-3xl hidden">
+        <h2 class="text-2xl font-bold mb-6">Otağa Qoşul</h2>
+        <input id="j-code" type="text" placeholder="Otaq Kodu" class="w-full p-4 bg-slate-800 rounded-xl mb-4 border border-slate-700">
+        <input id="j-name" type="text" placeholder="Adınız" class="w-full p-4 bg-slate-800 rounded-xl mb-4 border border-slate-700">
+        <div class="flex gap-2 mb-6">
+            <select id="j-gender" class="flex-1 p-4 bg-slate-800 rounded-xl border border-slate-700">
+                <option value="Kişi">Kişi</option>
+                <option value="Qadın">Qadın</option>
+            </select>
+            <select id="j-age" class="flex-1 p-4 bg-slate-800 rounded-xl border border-slate-700">
+                <option value="18-24">18-24 yaş</option>
+                <option value="25-30">25-30 yaş</option>
+                <option value="31+">31+ yaş</option>
+            </select>
+        </div>
+        <button onclick="joinRoom()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">Daxil Ol</button>
+    </div>
+
+    <div id="screen-story" class="w-full max-w-2xl glass p-10 rounded-3xl hidden">
+        <div id="room-badge" class="mb-4 text-xs font-bold text-indigo-400 uppercase"></div>
+        <h2 class="text-2xl font-bold mb-2">Hekayəni Yaz</h2>
+        <p class="text-slate-400 mb-6 text-sm">Hər şeyi öz gözündən, detallı və dürüst yaz.</p>
+        <textarea id="story-input" class="w-full h-48 p-5 bg-slate-900 border border-slate-700 rounded-2xl mb-6 focus:border-indigo-500 outline-none" placeholder="Məsələ nədir? Necə başladı? O nə dedi, sən nə dedin?"></textarea>
+        <button id="btn-save-story" onclick="saveStory()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold">Məlumatı Göndər</button>
+        <div id="wait-msg" class="mt-4 text-center text-yellow-500 hidden italic">Digər tərəfin yazması gözlənilir...</div>
+    </div>
+
+    <div id="screen-confirm" class="w-full max-w-3xl glass p-10 rounded-3xl hidden">
+        <h2 class="text-2xl font-bold mb-8 text-center text-blue-400 italic">"Hər iki tərəf hekayəsini bitirdi. Oxuyun və təsdiqləyin."</h2>
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="p-5 bg-slate-800/50 rounded-2xl border border-slate-700">
+                <h3 id="u1-title" class="font-bold text-indigo-400 mb-2"></h3>
+                <p id="u1-text" class="text-sm leading-relaxed text-slate-300"></p>
+            </div>
+            <div class="p-5 bg-slate-800/50 rounded-2xl border border-slate-700">
+                <h3 id="u2-title" class="font-bold text-emerald-400 mb-2"></h3>
+                <p id="u2-text" class="text-sm leading-relaxed text-slate-300"></p>
+            </div>
+        </div>
+        <button id="btn-confirm" onclick="approveAnalysis()" class="w-full bg-white text-black py-4 rounded-xl font-black hover:bg-slate-200 transition">HEKAYƏLƏRİ TƏSDİQLƏYİRƏM</button>
+        <p id="approve-wait" class="mt-4 text-center text-cyan-400 hidden italic font-medium tracking-wide animate-pulse">Qarşı tərəfin təsdiqi gözlənilir...</p>
+    </div>
+
+    <div id="screen-result" class="w-full max-w-2xl glass p-10 rounded-3xl hidden">
+        <h2 class="text-3xl font-black text-red-500 mb-6 border-b border-slate-800 pb-4 text-center">AI MÜNSİF QƏRARI</h2>
+        <div id="ai-loading" class="flex flex-col items-center py-10">
+            <div class="loader w-12 h-12 border-4 border-slate-700 rounded-full mb-4"></div>
+            <p class="text-slate-400 italic">Süni intellekt hər iki tərəfi obyektiv analiz edir...</p>
+        </div>
+        <div id="ai-verdict" class="text-lg leading-relaxed text-slate-200 space-y-4"></div>
+        <button onclick="location.reload()" class="mt-10 w-full text-slate-500 text-sm hover:text-white transition underline">Yeni Otaq Yarat</button>
+    </div>
+
+    <script>
+        // FIREBASE VƏ OPENAI KONFİQURASİYASI
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU",
+            authDomain: "sevgili-testi.firebaseapp.com",
+            databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com",
+            projectId: "sevgili-testi",
+            storageBucket: "sevgili-testi.firebasestorage.app",
+            messagingSenderId: "399260477557",
+            appId: "1:399260477557:web:584204a698d7bf145bb03c"
+        };
+        const OPENAI_API_KEY = "Sk-proj-wyt6IEfA4vegp15x-wH_fF7Ok_Eydd6E-0uszTS4xYVLJ0Ac4WHpCIKatjiN9R4N3u9-wpfmBYT3BlbkFJDUyXrWfT3nhn8w01Q6UXjqeYfpZcAPEkAwbysI9uR9dsL7rW-tykhA9MIFDVFVvJzRrkuwHXQA";
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let roomID = "";
+        let myRole = "";
+
+        function showScreen(id) {
+            document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function createRoom() {
+            const code = document.getElementById('c-code').value.trim();
+            const name = document.getElementById('c-name').value.trim();
+            if(!code || !name) return alert("Boş buraxmayın!");
+            roomID = code; myRole = "user1";
+            db.ref('rooms/' + roomID).set({
+                user1: { name, gender: document.getElementById('c-gender').value, age: document.getElementById('c-age').value, story: "", approved: false },
+                status: "waiting"
+            }).then(() => startRoomSync());
+        }
+
+        function joinRoom() {
+            const code = document.getElementById('j-code').value.trim();
+            const name = document.getElementById('j-name').value.trim();
+            if(!code || !name) return alert("Boş buraxmayın!");
+            db.ref('rooms/' + code).once('value', s => {
+                if(s.exists()) {
+                    roomID = code; myRole = "user2";
+                    db.ref('rooms/' + roomID + '/user2').set({ 
+                        name, gender: document.getElementById('j-gender').value, age: document.getElementById('j-age').value, story: "", approved: false 
+                    });
+                    startRoomSync();
+                } else alert("Otaq yoxdur!");
+            });
+        }
+
+        function startRoomSync() {
+            showScreen('screen-story');
+            document.getElementById('room-badge').innerText = "Otaq: " + roomID;
+            db.ref('rooms/' + roomID).on('value', snapshot => {
+                const data = snapshot.val();
+                // Hər iki tərəf yazdısa Təsdiq ekranına keç
+                if(data.user1.story && data.user2 && data.user2.story) {
+                    showScreen('screen-confirm');
+                    document.getElementById('u1-title').innerText = data.user1.name + " (" + data.user1.gender + ")";
+                    document.getElementById('u1-text').innerText = data.user1.story;
+                    document.getElementById('u2-title').innerText = data.user2.name + " (" + data.user2.gender + ")";
+                    document.getElementById('u2-text').innerText = data.user2.story;
+                    
+                    // Əgər hər ikisi təsdiq etdisə Analizə keç
+                    if(data.user1.approved && data.user2.approved) {
+                        getAIResult(data);
+                    }
+                }
+            });
+        }
+
+        function saveStory() {
+            const story = document.getElementById('story-input').value.trim();
+            if(story.length < 10) return alert("Bir az ətraflı yazın!");
+            db.ref('rooms/' + roomID + '/' + myRole).update({ story });
+            document.getElementById('btn-save-story').disabled = true;
+            document.getElementById('btn-save-story').innerText = "Göndərildi. Gözləyin...";
+            document.getElementById('wait-msg').classList.remove('hidden');
+        }
+
+        function approveAnalysis() {
+            db.ref('rooms/' + roomID + '/' + myRole).update({ approved: true });
+            document.getElementById('btn-confirm').classList.add('hidden');
+            document.getElementById('approve-wait').classList.remove('hidden');
+        }
+
+        async function getAIResult(data) {
+            showScreen('screen-result');
+            const verdictArea = document.getElementById('ai-verdict');
+            
+            const prompt = `Sən obyektiv və sərt bir münsifsən. İki sevgili dalaşıb və hər ikisi öz hekayəsini yazıb. 
+            Məlumatlar:
+            Tərəf 1 (${data.user1.name}, ${data.user1.gender}, ${data.user1.age}): ${data.user1.story}
+            Tərəf 2 (${data.user2.name}, ${data.user2.gender}, ${data.user2.age}): ${data.user2.story}
+            
+            Sənin vəzifən:
+            1. Hər iki hekayəni analiz et.
+            2. Real və konkret olaraq günahın kimdə olduğunu de. "Hər ikisi günahkardır" deyib qaçma, kimin daha çox səhv etdiyini göstər.
+            3. Hansı davranışın (məs. manipulyasiya, laqeydlik, qışqırmaq) davanı böyütdüyünü izah et.
+            4. Sonda hər ikisinə konkret barışıq məsləhəti ver.
+            Cavabı Azərbaycan dilində, maraqlı və ciddiyətdən uzaqlaşmadan yaz.`;
+
+            try {
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${OPENAI_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4",
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                const result = await response.json();
+                const aiText = result.choices[0].message.content;
+                
+                document.getElementById('ai-loading').classList.add('hidden');
+                verdictArea.innerHTML = aiText.replace(/\n/g, "<br>");
+            } catch (error) {
+                verdictArea.innerHTML = "Xəta baş verdi. API açarını və ya interneti yoxlayın.";
+            }
+        }
+    </script>
+</body>
+</html>
