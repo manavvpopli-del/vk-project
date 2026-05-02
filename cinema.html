@@ -22,6 +22,11 @@
         .auth-card { background: var(--card); padding: 30px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center; border: 1px solid var(--border); }
         .logo { font-family: 'Bebas Neue', sans-serif; color: var(--red); font-size: 3.5rem; letter-spacing: 3px; margin-bottom: 20px; }
         
+        /* PROFIL SEKLI STILI */
+        .avatar-upload { width: 100px; height: 100px; margin: 0 auto 20px; position: relative; cursor: pointer; }
+        #avatar-preview { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px dashed #555; }
+        .avatar-upload::after { content: "+"; position: absolute; bottom: 5px; right: 5px; background: var(--red); width: 25px; height: 25px; border-radius: 50%; line-height: 25px; font-weight: bold; }
+
         input { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; font-size: 16px; outline: none; }
         .btn { width: 100%; padding: 15px; background: var(--red); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
@@ -31,7 +36,7 @@
         /* VİDEO SAHƏSİ (SABİT) */
         .video-box { 
             width: 100%; 
-            height: 211px; /* Mobil üçün sabit hündürlük (16:9 nisbəti) */
+            height: 211px; 
             background: #000; 
             flex-shrink: 0;
             position: relative;
@@ -40,7 +45,7 @@
         }
         #player { width: 100%; height: 100%; }
 
-        /* ÇAT SAHƏSİ (DINAMIK) */
+        /* ÇAT SAHƏSİ */
         .chat-wrap { 
             flex-grow: 1; 
             display: flex; 
@@ -57,16 +62,17 @@
             display: flex; 
             flex-direction: column; 
             gap: 10px;
-            padding-bottom: 80px; /* Yazma yerinin altında qalmaması üçün */
+            padding-bottom: 80px; 
         }
 
-        .m-row { display: flex; gap: 8px; max-width: 85%; }
+        .m-row { display: flex; gap: 8px; max-width: 85%; align-items: flex-start; }
         .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .m-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid var(--red); }
         .m-bubble { background: #222; padding: 10px 14px; border-radius: 12px; font-size: 14px; color: #eee; }
         .m-row.me .m-bubble { background: var(--red); color: #fff; }
         .m-bubble b { display: block; font-size: 10px; opacity: 0.6; margin-bottom: 2px; }
 
-        /* MESAJ YAZMA YERİ (SABİT) */
+        /* MESAJ YAZMA YERİ */
         .input-bar { 
             position: absolute; 
             bottom: 0; 
@@ -81,7 +87,7 @@
         }
         .input-bar input { margin: 0; flex: 1; }
 
-        /* ADMIN PANEL - VİDEO ÜSTÜNDƏ POPUP KİMİ */
+        /* ADMIN PANEL */
         .admin-pnl { 
             position: absolute; 
             top: 211px; 
@@ -113,6 +119,12 @@
     <div id="auth-box" class="auth-overlay">
         <div class="auth-card">
             <div class="logo">KN LIVE</div>
+            
+            <div class="avatar-upload" onclick="document.getElementById('file-input').click()">
+                <img id="avatar-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23555' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E">
+                <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(this)">
+            </div>
+
             <input type="text" id="nick" placeholder="Adınız">
             <input type="text" id="room" placeholder="Otaq Kodu">
             <button class="btn" onclick="start('admin')">BAŞLAT (ADMIN)</button>
@@ -157,12 +169,26 @@
 
         firebase.initializeApp(CF);
         const db = firebase.database();
-        let ytP, myN, myR, myL, ok = false;
+        let ytP, myN, myR, myL, myPic = "", ok = false;
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    myPic = e.target.result;
+                    document.getElementById('avatar-preview').src = myPic;
+                    document.getElementById('avatar-preview').style.border = "2px solid var(--red)";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         function start(l) {
             myN = document.getElementById('nick').value.trim();
             myR = document.getElementById('room').value.trim();
-            if(!myN || !myR) return alert("Boş qoyma!");
+            if(!myN || !myR) return alert("Ad və Otaq kodu mütləqdir!");
+            if(!myPic) return alert("Zəhmət olmasa profil şəkli seçin!");
+            
             myL = l;
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
@@ -226,7 +252,10 @@
                 const m = s.val();
                 const d = document.createElement('div');
                 d.className = `m-row ${m.n === myN ? 'me' : ''}`;
-                d.innerHTML = `<div class="m-bubble"><b>${m.n}</b>${m.t}</div>`;
+                d.innerHTML = `
+                    <img src="${m.p || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22%23555%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/%3E%3C/svg%3E'}" class="m-avatar">
+                    <div class="m-bubble"><b>${m.n}</b>${m.t}</div>
+                `;
                 const b = document.getElementById('messages');
                 b.appendChild(d);
                 b.scrollTop = b.scrollHeight;
@@ -238,7 +267,7 @@
         function sm() {
             const i = document.getElementById('mi');
             if(!i.value) return;
-            db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value });
+            db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value, p: myPic });
             i.value = '';
         }
 
