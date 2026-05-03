@@ -30,11 +30,10 @@
 
         #app { display: none; height: 100%; width: 100%; flex-direction: column; }
         
-        /* Video Section */
         .video-box { width: 100%; height: 211px; background: #000; flex-shrink: 0; position: relative; z-index: 10; border-bottom: 1px solid var(--border); }
         #player { width: 100%; height: 100%; }
+        #player.full { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background: #000; }
 
-        /* Controls Area */
         .top-controls { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; z-index: 100; pointer-events: none; }
         .top-controls button { pointer-events: auto; background: rgba(0,0,0,0.7); border: 1px solid var(--border); color: #fff; padding: 8px 14px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
         
@@ -44,7 +43,6 @@
         .user-item span { color: #ccc; }
         .user-item .manage-btn { color: var(--red); font-size: 10px; cursor: pointer; border: 1px solid var(--red); padding: 2px 6px; border-radius: 2px; }
 
-        /* Admin Dashboard */
         .admin-pnl { position: absolute; top: 211px; left: 0; width: 100%; background: #0a0a0a; z-index: 15; padding: 20px; display: none; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--red); }
         .search-results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; max-height: 180px; overflow-y: auto; }
         .res-card { background: #161616; border-radius: 2px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
@@ -52,13 +50,12 @@
         .res-card img { width: 100%; display: block; }
         .res-card p { padding: 6px; font-size: 10px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Chat Section */
         .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: #050505; position: relative; overflow: hidden; }
         #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 80px; }
         .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; }
-        .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .m-row.me { align-self: flex-end; flex-direction: row-reverse; cursor: pointer; }
         .m-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .m-bubble { background: #1a1a1a; padding: 10px 14px; border-radius: 8px 8px 8px 2px; font-size: 13px; line-height: 1.4; color: #eee; }
+        .m-bubble { background: #1a1a1a; padding: 10px 14px; border-radius: 8px 8px 8px 2px; font-size: 13px; line-height: 1.4; color: #eee; position: relative; }
         .m-row.me .m-bubble { background: var(--red); color: #fff; border-radius: 8px 8px 2px 8px; }
         .m-bubble b { font-size: 11px; color: #888; display: block; margin-bottom: 4px; }
         .m-row.me .m-bubble b { color: rgba(255,255,255,0.7); }
@@ -66,6 +63,8 @@
         .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #111; padding: 12px; display: flex; gap: 10px; border-top: 1px solid var(--border); z-index: 20; }
         .input-bar input { margin: 0; background: #000; border: 1px solid #333; }
         .icon-btn { background: none; border: none; color: #888; font-size: 22px; cursor: pointer; display: flex; align-items: center; }
+        
+        #fs-btn { background: rgba(229, 9, 20, 0.8) !important; border: none !important; }
     </style>
 </head>
 <body>
@@ -89,20 +88,19 @@
     </div>
 
     <div id="app">
-        <div class="video-box">
+        <div class="video-box" id="v-container">
             <div class="top-controls">
                 <button id="voice-btn" onclick="toggleVoice()">MIC: OFF</button>
                 <div style="display:flex; gap:8px;">
+                    <button id="fs-btn" onclick="toggleFS()">FULLSCREEN</button>
                     <button id="users-btn" onclick="toggleUsers()">USERS</button>
-                    <button id="toggle-admin" onclick="toggleAdmin()">VIDEO SETTINGS</button>
+                    <button id="toggle-admin" onclick="toggleAdmin()">VIDEO</button>
                 </div>
             </div>
-
             <div id="users-box" class="users-panel">
                 <div class="panel-header">Connected Users <span id="user-count">0</span></div>
                 <div id="users-list-content"></div>
             </div>
-
             <div id="player"></div>
         </div>
 
@@ -140,17 +138,20 @@
         let voiceStream = null;
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => { t.style.display = 'none'; }, 3000); }
-        
-        function previewImage(input) { 
-            if (input.files && input.files[0]) { 
-                let r = new FileReader(); 
-                r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; 
-                r.readAsDataURL(input.files[0]); 
-            } 
-        }
-
+        function previewImage(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(input.files[0]); } }
         function toggleAdmin() { const p = document.getElementById('adm-pnl'); p.style.display = (p.style.display === 'flex') ? 'none' : 'flex'; }
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
+
+        function toggleFS() {
+            const v = document.getElementById('v-container');
+            if (!document.fullscreenElement) {
+                v.requestFullscreen().catch(err => { showToast("Error: " + err.message); });
+                document.getElementById('player').style.height = "100vh";
+            } else {
+                document.exitFullscreen();
+                document.getElementById('player').style.height = "100%";
+            }
+        }
 
         function start(l) {
             myN = document.getElementById('nick').value.trim();
@@ -160,7 +161,6 @@
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
             if(l !== 'admin') document.getElementById('toggle-admin').style.display = 'none';
-            
             db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             init();
@@ -199,66 +199,48 @@
             db.ref('rooms/'+myR+'/chat').orderByChild('ts').startAt(startTime).on('child_added', s => {
                 const m = s.val(); const b = document.getElementById('messages');
                 const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
+                d.id = `msg-${s.key}`;
+                if(m.n === myN) d.onclick = () => { if(confirm("Mesajı silmək istəyirsən?")) db.ref(`rooms/${myR}/chat/${s.key}`).remove(); };
                 let content = m.img ? `<img src="${m.img}" style="max-width:200px; border-radius:4px; margin-top:5px; display:block">` : m.t;
                 d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble"><b>${m.n}</b>${content}</div>`;
                 b.appendChild(d); b.scrollTop = b.scrollHeight;
             });
 
+            db.ref('rooms/'+myR+'/chat').on('child_removed', s => { const e = document.getElementById(`msg-${s.key}`); if(e) e.remove(); });
+
             db.ref(`rooms/${myR}/users`).on('value', s => {
-                const us = s.val(); 
-                const box = document.getElementById('users-list-content'); 
-                const count = document.getElementById('user-count');
-                box.innerHTML = "";
-                let i = 0;
+                const us = s.val(); const box = document.getElementById('users-list-content'); const count = document.getElementById('user-count');
+                box.innerHTML = ""; let i = 0;
                 for(let id in us) {
                     let u = us[id]; i++;
                     let div = document.createElement('div'); div.className = "user-item";
                     div.innerHTML = `<span>${u.n} ${u.role==='admin'?'(ADM)':''}</span> ${myL==='admin'&&id!==myId ? `<b class="manage-btn" onclick="manage('${id}','${u.n}')">CONTROL</b>` : ''}`;
                     box.appendChild(div);
-                    if(id === myId) {
-                        if(u.kick) { alert("Siz otaqdan kənarlaşdırıldınız."); location.reload(); }
-                        document.getElementById('chat-bar').style.display = u.mute ? "none" : "flex";
-                    }
+                    if(id === myId) { if(u.kick) { alert("Çıxarıldınız!"); location.reload(); } document.getElementById('chat-bar').style.display = u.mute ? "none" : "flex"; }
                 }
                 count.innerText = i;
             });
         }
 
         function manage(id, name) {
-            let act = prompt(`Action for ${name}:\n1. KICK (At)\n2. MUTE/UNMUTE (Chat Blok)`);
+            let act = prompt(`Action for ${name}:\n1. KICK\n2. MUTE/UNMUTE`);
             if(act === '1') db.ref(`rooms/${myR}/users/${id}/kick`).set(true);
-            if(act === '2') {
-                db.ref(`rooms/${myR}/users/${id}/mute`).once('value', s => {
-                    db.ref(`rooms/${myR}/users/${id}/mute`).set(!s.val());
-                });
-            }
+            if(act === '2') db.ref(`rooms/${myR}/users/${id}/mute`).once('value', s => { db.ref(`rooms/${myR}/users/${id}/mute`).set(!s.val()); });
         }
 
         async function toggleVoice() {
             const btn = document.getElementById('voice-btn');
             if (!voiceStream) {
-                try {
-                    voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    btn.innerText = "MIC: ACTIVE";
-                    btn.style.borderColor = "green";
-                    btn.style.color = "green";
-                    showToast("Mikrofon aktivdir");
-                } catch (err) {
-                    showToast("Mikrofon icazəsi rədd edildi!");
-                }
+                try { voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "MIC: ON"; btn.style.color = "green"; } 
+                catch (err) { showToast("İcazə verilmədi!"); }
             } else {
-                voiceStream.getTracks().forEach(track => track.stop());
-                voiceStream = null;
-                btn.innerText = "MIC: OFF";
-                btn.style.borderColor = "var(--border)";
-                btn.style.color = "#fff";
-                showToast("Mikrofon söndürüldü");
+                voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null;
+                btn.innerText = "MIC: OFF"; btn.style.color = "#fff";
             }
         }
 
         function sm() { const i = document.getElementById('mi'); if(!i.value) return; db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value, p: myPic, ts: Date.now() }); i.value = ''; }
         function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => { db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); }; r.readAsDataURL(input.files[0]); } }
-        
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         setInterval(() => { if(myL === 'admin' && ok && ytP.getPlayerState() === 1) db.ref('rooms/'+myR+'/sync/t').set(ytP.getCurrentTime()); }, 3000);
     </script>
