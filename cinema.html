@@ -3,165 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Watch Live - Cinema</title>
+<title>Watch Live Cinematic</title>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
+:root{
+    --accent:#ff1f3d;
+    --bg:#050505;
+    --glass:rgba(255,255,255,0.05);
+    --border:rgba(255,255,255,0.1);
+}
 
-/* ===== RESET ===== */
+/* RESET */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 
-:root{
---red:#E50914;
---bg:#050505;
---glass:rgba(20,20,20,0.55);
---border:rgba(255,255,255,0.08);
---text:#eee;
+body{
+    background: radial-gradient(circle at top,#0a0a0a,#000);
+    color:#fff;
+    height:100vh;
+    overflow:hidden;
 }
 
-body,html{
-height:100%;
-width:100%;
-overflow:hidden;
-background:#000;
-color:var(--text);
+/* GLASS */
+.glass{
+    background:var(--glass);
+    backdrop-filter:blur(25px);
+    border:1px solid var(--border);
+    border-radius:20px;
 }
 
-/* ===== 3D BACKGROUND ===== */
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
+/* AUTH */
+.auth-overlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-/* ===== GLASS UI ===== */
-.auth-card,.users-panel,.admin-pnl,.input-bar{
-background:var(--glass);
-backdrop-filter:blur(20px);
-border:1px solid var(--border);
-border-radius:10px;
+.auth-card{
+    width:320px;
+    padding:30px;
+    text-align:center;
 }
 
-/* ===== LOGO ===== */
 .logo{
-font-family:'Bebas Neue';
-font-size:3.5rem;
-color:var(--red);
-letter-spacing:4px;
-text-shadow:0 0 25px rgba(229,9,20,.8);
-animation:glow 2s infinite alternate;
-}
-@keyframes glow{
-from{text-shadow:0 0 10px rgba(229,9,20,.4);}
-to{text-shadow:0 0 30px rgba(229,9,20,1);}
+    font-size:40px;
+    font-weight:700;
+    color:var(--accent);
+    margin-bottom:20px;
 }
 
-/* ===== BUTTON ===== */
+/* INPUT */
+input{
+    width:100%;
+    padding:14px;
+    margin-bottom:10px;
+    background:#000;
+    border:1px solid #333;
+    border-radius:10px;
+    color:#fff;
+}
+
+/* BUTTON */
 .btn{
-background:linear-gradient(135deg,#E50914,#ff2d2d);
-border:none;
-padding:16px;
-color:#fff;
-font-weight:bold;
-letter-spacing:1px;
-cursor:pointer;
-border-radius:6px;
-transition:.3s;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#ff1f3d,#ff4d6d);
+    color:#fff;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s;
 }
+
 .btn:hover{
-transform:translateY(-2px);
-box-shadow:0 15px 40px rgba(229,9,20,.7);
+    transform:translateY(-2px) scale(1.02);
 }
 
-/* ===== VIDEO ===== */
+/* APP */
+#app{
+    display:none;
+    height:100%;
+    flex-direction:column;
+}
+
+/* VIDEO */
 .video-box{
-border-radius:14px;
-overflow:hidden;
-transform:perspective(1400px) rotateX(5deg);
-transition:.5s;
-box-shadow:0 40px 80px rgba(0,0,0,.9);
-}
-.video-box:hover{
-transform:perspective(1400px) rotateX(0deg) scale(1.02);
+    height:40%;
+    position:relative;
 }
 
-/* ===== CHAT ===== */
-.m-row{animation:fadeUp .4s ease;}
-@keyframes fadeUp{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
+#player{
+    width:100%;
+    height:100%;
 }
+
+/* FLOAT CONTROLS */
+.top-controls{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:10px;
+}
+
+.top-controls button{
+    background:rgba(0,0,0,0.6);
+    border:1px solid var(--border);
+    color:#fff;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.top-controls button:hover{
+    background:var(--accent);
+}
+
+/* CHAT */
+.chat-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+#messages{
+    flex:1;
+    padding:15px;
+    overflow-y:auto;
+}
+
+/* MESSAGE */
+.m-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+.m-row.me{
+    justify-content:flex-end;
+}
+
 .m-bubble{
-background:rgba(40,40,40,.6);
-backdrop-filter:blur(10px);
+    padding:12px;
+    border-radius:15px;
+    background:#111;
+    max-width:70%;
 }
+
 .m-row.me .m-bubble{
-background:linear-gradient(135deg,#E50914,#ff3d3d);
+    background:var(--accent);
 }
 
-/* ===== SCROLL ===== */
-#messages::-webkit-scrollbar{width:6px;}
+/* INPUT BAR */
+.input-bar{
+    display:flex;
+    gap:10px;
+    padding:10px;
+}
+
+.input-bar input{
+    flex:1;
+}
+
+.icon-btn{
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:20px;
+}
+
+/* 3D HOVER */
+.m-bubble:hover{
+    transform:scale(1.03);
+    box-shadow:0 10px 25px rgba(0,0,0,0.5);
+    transition:0.2s;
+}
+
+/* SCROLL */
+#messages::-webkit-scrollbar{
+    width:4px;
+}
 #messages::-webkit-scrollbar-thumb{
-background:var(--red);
-border-radius:10px;
+    background:var(--accent);
 }
-
 </style>
 </head>
 
 <body>
 
-<canvas id="bg"></canvas>
+<div id="auth-box" class="auth-overlay">
+    <div class="auth-card glass">
+        <div class="logo">WATCH</div>
+        <input id="nick" placeholder="Nickname">
+        <input id="room" placeholder="Room Code">
+        <button class="btn" onclick="start('admin')">CREATE</button>
+        <button class="btn" onclick="start('member')" style="margin-top:10px;background:#111">JOIN</button>
+    </div>
+</div>
 
-<!-- === ORIGINAL HTML TAM SAXLANIB === -->
-<!-- (sənin göndərdiyin HTML burada dəyişməyib) -->
+<div id="app">
+    <div class="video-box">
+        <div id="player"></div>
 
-<script>
+        <div class="top-controls">
+            <button onclick="toggleFS()">⛶</button>
+            <button onclick="toggleUsers()">👥</button>
+            <button onclick="toggleAdmin()">⚙</button>
+        </div>
+    </div>
 
-/* ===== 3D BACKGROUND ENGINE ===== */
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('bg'),alpha:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
+    <div class="chat-wrap">
+        <div id="messages"></div>
 
-const geo=new THREE.BufferGeometry();
-const count=1500;
-const pos=new Float32Array(count*3);
-
-for(let i=0;i<count*3;i++){
-pos[i]=(Math.random()-.5)*20;
-}
-
-geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-
-const mat=new THREE.PointsMaterial({size:0.02,color:0xff0000});
-const mesh=new THREE.Points(geo,mat);
-scene.add(mesh);
-
-camera.position.z=5;
-
-function anim(){
-requestAnimationFrame(anim);
-mesh.rotation.y+=0.0006;
-mesh.rotation.x+=0.0003;
-renderer.render(scene,camera);
-}
-anim();
-
-window.addEventListener('resize',()=>{
-renderer.setSize(window.innerWidth,window.innerHeight);
-});
-
-/* ===== SƏNİN BÜTÜN JS KODUN BURADA EYNİ QALIR ===== */
-
-</script>
+        <div class="input-bar glass">
+            <input id="mi" placeholder="Message...">
+            <button class="icon-btn" onclick="sm()">➤</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
