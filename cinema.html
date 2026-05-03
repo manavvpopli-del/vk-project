@@ -60,21 +60,14 @@
         .m-row.me .m-bubble b { color: rgba(255,255,255,0.7); }
         
         .reply-box { font-size: 10px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px; border-left: 2px solid var(--red); margin-bottom: 5px; color: #aaa; }
-
         .typing-info { position: absolute; bottom: 65px; left: 15px; font-size: 10px; color: #888; font-style: italic; display: none; }
 
         .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #111; padding: 12px; display: flex; gap: 10px; border-top: 1px solid var(--border); z-index: 20; }
         .input-bar input { margin: 0; background: #000; border: 1px solid #333; }
-        .icon-btn { background: none; border: none; color: #888; font-size: 22px; cursor: pointer; display: flex; align-items: center; position: relative; }
-
-        /* Floating Reactions */
-        .reaction-container { position: absolute; bottom: 70px; right: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
-        .float-emoji { position: absolute; bottom: 0; pointer-events: none; font-size: 24px; animation: floatUp 2s ease-out forwards; z-index: 99; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-200px) scale(1.5); opacity: 0; } }
+        .icon-btn { background: none; border: none; color: #888; font-size: 22px; cursor: pointer; display: flex; align-items: center; }
 
         #reply-indicator { display: none; background: #1a1a1a; padding: 5px 15px; font-size: 11px; border-top: 1px solid var(--border); color: var(--red); justify-content: space-between; align-items: center; }
-
-        #fs-btn { background: rgba(229, 9, 20, 0.8) !important; border: none !important; }
+        #queue-info { font-size: 10px; color: #555; text-align: center; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -87,26 +80,25 @@
                 <img id="avatar-preview" src="https://www.w3schools.com/howto/img_avatar.png">
                 <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(this)">
             </div>
-            <input type="text" id="nick" placeholder="NICKNAME">
-            <input type="text" id="room" placeholder="ROOM CODE">
-            <input type="color" id="u-color" value="#E50914" style="height:45px; padding:2px; cursor:pointer">
-            <button class="btn" onclick="start('admin')">CREATE ROOM</button>
-            <button class="btn" style="background:#1a1a1a; margin-top:10px" onclick="start('member')">JOIN ROOM</button>
+            <input type="text" id="nick" placeholder="LƏQƏB (NICKNAME)">
+            <input type="text" id="room" placeholder="OTAQ KODU">
+            <button class="btn" onclick="start('admin')">OTAQ YARAT</button>
+            <button class="btn" style="background:#1a1a1a; margin-top:10px" onclick="start('member')">OTAĞA QOŞUL</button>
         </div>
     </div>
 
     <div id="app">
         <div class="video-box" id="v-container">
             <div class="top-controls">
-                <button id="voice-btn" onclick="toggleVoice()">MIC: OFF</button>
+                <button id="voice-btn" onclick="toggleVoice()">MİK: KAPALI</button>
                 <div style="display:flex; gap:8px;">
-                    <button id="fs-btn" onclick="toggleFS()">FULLSCREEN</button>
-                    <button id="users-btn" onclick="toggleUsers()">USERS</button>
-                    <button id="toggle-admin" onclick="toggleAdmin()">VIDEO</button>
+                    <button id="fs-btn" onclick="toggleFS()">TAM EKRAN</button>
+                    <button id="users-btn" onclick="toggleUsers()">ÜZVLƏR</button>
+                    <button id="toggle-admin" onclick="toggleAdmin()">VİDEO</button>
                 </div>
             </div>
             <div id="users-box" class="users-panel">
-                <div class="panel-header">Connected Users <span id="user-count">0</span></div>
+                <div class="panel-header">Qoşulanlar <span id="user-count">0</span></div>
                 <div id="users-list-content"></div>
             </div>
             <div id="player"></div>
@@ -115,35 +107,30 @@
         <div class="admin-pnl" id="adm-pnl">
             <div style="display:flex; gap:8px;">
                 <button class="btn" style="background:#222; flex:1" onclick="seek(-10)">-10s</button>
-                <button class="btn" style="background:#2e7d32; flex:1" onclick="sc('play')">PLAY</button>
-                <button class="btn" style="background:#c62828; flex:1" onclick="sc('pause')">PAUSE</button>
+                <button class="btn" style="background:#2e7d32; flex:1" onclick="sc('play')">BAŞLAT</button>
+                <button class="btn" style="background:#c62828; flex:1" onclick="sc('pause')">DAYANDIR</button>
                 <button class="btn" style="background:#222; flex:1" onclick="seek(10)">+10s</button>
             </div>
             <div style="display:flex; gap:8px;">
-                <input type="text" id="sq" placeholder="Search video or paste link..." style="margin:0">
-                <button class="btn" style="width:80px" onclick="yt()">FIND</button>
+                <input type="text" id="sq" placeholder="Video axtar və ya link yapışdır..." style="margin:0">
+                <button class="btn" style="width:80px" onclick="yt()">TAP</button>
             </div>
+            <div id="queue-info">Növbədə olan videolar: 0</div>
             <div id="results" class="search-results"></div>
-            <div id="queue-list" style="font-size:10px; color:#666; margin-top:10px">Queue: 0 videos</div>
         </div>
 
         <div class="chat-wrap">
             <div id="messages"></div>
             <div id="typing-box" class="typing-info">Kiminsə yazır...</div>
-            <div class="reaction-container">
-                <button class="icon-btn" onclick="sendReaction('❤️')">❤️</button>
-                <button class="icon-btn" onclick="sendReaction('😂')">😂</button>
-                <button class="icon-btn" onclick="sendReaction('🔥')">🔥</button>
-            </div>
             <div id="reply-indicator">
-                <span id="reply-text">Replying...</span>
+                <span id="reply-text">Yanıtlanır...</span>
                 <span style="cursor:pointer" onclick="cancelReply()">✕</span>
             </div>
             <div class="input-bar" id="chat-bar">
                 <button class="icon-btn" onclick="document.getElementById('chat-img').click()">🖼️</button>
                 <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImg(this)">
-                <input type="text" id="mi" placeholder="Write a message..." oninput="isTyping()">
-                <button class="icon-btn" style="color:var(--red)" onclick="sm()">SEND</button>
+                <input type="text" id="mi" placeholder="Mesaj yazın..." oninput="isTyping()">
+                <button class="icon-btn" style="color:var(--red)" onclick="sm()">GÖNDƏR</button>
             </div>
         </div>
     </div>
@@ -153,7 +140,7 @@
         const YK = "AIzaSyAYacoXmlRcQBTsAsa23GanByLzUkLOwOk";
         firebase.initializeApp(CF);
         const db = firebase.database();
-        let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", myColor = "#E50914", ok = false, startTime = Date.now(), myId = Math.random().toString(36).substr(2, 9);
+        let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, startTime = Date.now(), myId = Math.random().toString(36).substr(2, 9);
         let voiceStream = null, currentReply = null, typingTimeout;
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => { t.style.display = 'none'; }, 3000); }
@@ -163,20 +150,19 @@
 
         function toggleFS() {
             const v = document.getElementById('v-container');
-            if (!document.fullscreenElement) { v.requestFullscreen().catch(e => showToast(e.message)); document.getElementById('player').style.height = "100vh"; } 
+            if (!document.fullscreenElement) { v.requestFullscreen().catch(e => showToast("Xəta!")); document.getElementById('player').style.height = "100vh"; } 
             else { document.exitFullscreen(); document.getElementById('player').style.height = "100%"; }
         }
 
         function start(l) {
             myN = document.getElementById('nick').value.trim();
             myR = document.getElementById('room').value.trim();
-            myColor = document.getElementById('u-color').value;
-            if(!myN || !myR) return showToast("Daxil olun!");
+            if(!myN || !myR) return showToast("Məlumatları doldurun!");
             myL = l;
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
             if(l !== 'admin') document.getElementById('toggle-admin').style.display = 'none';
-            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l, c: myColor });
+            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             init();
         }
@@ -188,18 +174,18 @@
         async function yt() {
             const q = document.getElementById('sq').value; if(!q) return;
             if(q.includes('v=')) { addToQueue(q.split('v=')[1].split('&')[0]); return; }
-            const b = document.getElementById('results'); b.innerHTML = "<p style='color:#555; grid-column:1/3; text-align:center'>Searching...</p>";
+            const b = document.getElementById('results'); b.innerHTML = "<p style='color:#555; grid-column:1/3; text-align:center'>Axtarılır...</p>";
             const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${q}&type=video&key=${YK}`);
             const d = await r.json(); b.innerHTML = "";
             d.items.forEach(i => {
                 const c = document.createElement('div'); c.className = "res-card";
                 c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}"><p>${i.snippet.title}</p>`;
-                c.onclick = () => { if(confirm("Növbəyə əlavə edilsin? (Ləğv etsəniz birbaşa açılar)")) addToQueue(i.id.videoId); else uv(i.id.videoId); };
+                c.onclick = () => { if(confirm("Növbəyə əlavə edilsin? (İmtina etsəniz dərhal açılar)")) addToQueue(i.id.videoId); else uv(i.id.videoId); };
                 b.appendChild(c);
             });
         }
 
-        function addToQueue(id) { db.ref(`rooms/${myR}/queue`).push(id); }
+        function addToQueue(id) { db.ref(`rooms/${myR}/queue`).push(id); showToast("Növbəyə əlavə olundu"); }
         function checkQueue() { db.ref(`rooms/${myR}/queue`).limitToFirst(1).once('value', s => { s.forEach(v => { uv(v.val()); db.ref(`rooms/${myR}/queue/${v.key}`).remove(); }); }); }
 
         function uv(id) { db.ref('rooms/'+myR+'/sync').set({ v: id, a: 'play', t: 0, f: Date.now() }); toggleAdmin(); }
@@ -212,8 +198,6 @@
             typingTimeout = setTimeout(() => db.ref(`rooms/${myR}/typing/${myId}`).remove(), 2000);
         }
 
-        function sendReaction(emoji) { db.ref(`rooms/${myR}/reactions`).push({ e: emoji, ts: Date.now() }); }
-
         function init() {
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
@@ -223,7 +207,7 @@
                 }
             });
 
-            db.ref(`rooms/${myR}/queue`).on('value', s => { document.getElementById('queue-list').innerText = `Queue: ${s.numChildren()} videos`; });
+            db.ref(`rooms/${myR}/queue`).on('value', s => { document.getElementById('queue-info').innerText = `Növbədə olan videolar: ${s.numChildren()}`; });
 
             db.ref(`rooms/${myR}/typing`).on('value', s => {
                 const names = Object.values(s.val() || {});
@@ -232,29 +216,24 @@
                 else { box.style.display = 'none'; }
             });
 
-            db.ref(`rooms/${myR}/reactions`).on('child_added', s => {
-                const data = s.val();
-                const e = document.createElement('div'); e.className = 'float-emoji'; e.innerText = data.e;
-                e.style.left = Math.random() * 80 + 10 + "%";
-                document.body.appendChild(e);
-                setTimeout(() => e.remove(), 2000);
-            });
-
             db.ref('rooms/'+myR+'/chat').orderByChild('ts').startAt(startTime).on('child_added', s => {
                 const m = s.val(); const b = document.getElementById('messages');
                 const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
+                d.id = `msg-${s.key}`;
                 d.onclick = () => { 
                     if(m.n === myN) { if(confirm("Mesajı silmək istəyirsən?")) db.ref(`rooms/${myR}/chat/${s.key}`).remove(); }
-                    else { setReply(m.n, m.t, s.key); }
+                    else { setReply(m.n, m.t); }
                 };
                 let content = m.img ? `<img src="${m.img}" style="max-width:200px; border-radius:4px; margin-top:5px; display:block">` : m.t;
                 let replyHtml = m.reply ? `<div class="reply-box"><b>${m.reply.n}:</b> ${m.reply.t}</div>` : '';
-                d.innerHTML = `<img src="${m.p}" class="m-avatar" style="border: 2px solid ${m.c || '#444'}">
-                               <div class="m-bubble"><b>${m.n}</b>${replyHtml}${content}</div>`;
+                d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble"><b>${m.n}</b>${replyHtml}${content}</div>`;
                 b.appendChild(d); b.scrollTop = b.scrollHeight;
             });
 
-            db.ref('rooms/'+myR+'/chat').on('child_removed', s => { location.reload(); }); // Silinəndə yenilənmə üçün
+            db.ref('rooms/'+myR+'/chat').on('child_removed', s => {
+                const el = document.getElementById(`msg-${s.key}`);
+                if(el) el.remove();
+            });
 
             db.ref(`rooms/${myR}/users`).on('value', s => {
                 const us = s.val(); const box = document.getElementById('users-list-content'); const count = document.getElementById('user-count');
@@ -262,31 +241,31 @@
                 for(let id in us) {
                     let u = us[id]; i++;
                     let div = document.createElement('div'); div.className = "user-item";
-                    div.innerHTML = `<span style="color:${u.c}">${u.n} ${u.role==='admin'?'(ADM)':''}</span> ${myL==='admin'&&id!==myId ? `<b class="manage-btn" onclick="manage('${id}','${u.n}')">CONTROL</b>` : ''}`;
+                    div.innerHTML = `<span>${u.n} ${u.role==='admin'?'(ADM)':''}</span> ${myL==='admin'&&id!==myId ? `<b class="manage-btn" onclick="manage('${id}','${u.n}')">İDARƏ ET</b>` : ''}`;
                     box.appendChild(div);
-                    if(id === myId) { if(u.kick) { alert("Çıxarıldınız!"); location.reload(); } document.getElementById('chat-bar').style.display = u.mute ? "none" : "flex"; }
+                    if(id === myId) { if(u.kick) { alert("Otaqdan çıxarıldınız!"); location.reload(); } document.getElementById('chat-bar').style.display = u.mute ? "none" : "flex"; }
                 }
                 count.innerText = i;
             });
         }
 
-        function setReply(name, text, key) {
+        function setReply(name, text) {
             currentReply = { n: name, t: text.substring(0, 30) + (text.length > 30 ? "..." : "") };
-            document.getElementById('reply-text').innerText = `Replying to ${name}`;
+            document.getElementById('reply-text').innerText = `${name} adlı istifadəçiyə yanıt verilir...`;
             document.getElementById('reply-indicator').style.display = 'flex';
         }
         function cancelReply() { currentReply = null; document.getElementById('reply-indicator').style.display = 'none'; }
 
         function sm() { 
             const i = document.getElementById('mi'); if(!i.value) return; 
-            const msg = { n: myN, t: i.value, p: myPic, ts: Date.now(), c: myColor };
+            const msg = { n: myN, t: i.value, p: myPic, ts: Date.now() };
             if(currentReply) msg.reply = currentReply;
             db.ref('rooms/'+myR+'/chat').push(msg); 
             i.value = ''; cancelReply();
         }
 
         function manage(id, name) {
-            let act = prompt(`Action for ${name}:\n1. KICK\n2. MUTE/UNMUTE`);
+            let act = prompt(`${name} üçün seçim edin:\n1. AT (KICK)\n2. SUSSUN/DANIŞSIN (MUTE)`);
             if(act === '1') db.ref(`rooms/${myR}/users/${id}/kick`).set(true);
             if(act === '2') db.ref(`rooms/${myR}/users/${id}/mute`).once('value', s => { db.ref(`rooms/${myR}/users/${id}/mute`).set(!s.val()); });
         }
@@ -294,15 +273,15 @@
         async function toggleVoice() {
             const btn = document.getElementById('voice-btn');
             if (!voiceStream) {
-                try { voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "MIC: ON"; btn.style.color = "green"; } 
-                catch (err) { showToast("İcazə verilmədi!"); }
+                try { voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "MİK: AÇIQ"; btn.style.color = "green"; } 
+                catch (err) { showToast("İcazə yoxdur!"); }
             } else {
                 voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null;
-                btn.innerText = "MIC: OFF"; btn.style.color = "#fff";
+                btn.innerText = "MİK: KAPALI"; btn.style.color = "#fff";
             }
         }
 
-        function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => { db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now(), c: myColor }); }; r.readAsDataURL(input.files[0]); } }
+        function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => { db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); }; r.readAsDataURL(input.files[0]); } }
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         setInterval(() => { if(myL === 'admin' && ok && ytP.getPlayerState() === 1) db.ref('rooms/'+myR+'/sync/t').set(ytP.getCurrentTime()); }, 3000);
     </script>
