@@ -5,187 +5,230 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>V.K Project - Maigrat</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
         :root {
-            --bg: #05070a;
-            --surface: #0f1218;
-            --accent: #00f2ff;
-            --success: #00ff88;
-            --error: #ff4d4d;
-            --text: #e0e6ed;
-            --border: rgba(0, 242, 255, 0.2);
+            --primary: #6366f1;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
+            --success: #10b981;
+            --error: #f43f5e;
+        }
+
+        /* Kopyalamanın bloklanması */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'JetBrains+Mono', monospace;
             margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             overflow: hidden;
+            color: var(--text);
         }
 
-        .app-window {
-            width: 95%;
-            max-width: 500px;
-            height: 90vh;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
+        .app-card {
+            width: 90%;
+            max-width: 450px;
+            height: 85vh;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             position: relative;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 255, 0.05);
-        }
-
-        .glow {
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, var(--accent), transparent, var(--success), transparent);
-            border-radius: 24px;
-            z-index: -1;
-            opacity: 0.15;
-            filter: blur(10px);
         }
 
         .header {
-            padding: 25px;
+            padding: 40px 20px 20px;
             text-align: center;
-            border-bottom: 1px solid var(--border);
         }
 
         .header h1 {
-            font-size: 20px;
+            font-size: 24px;
+            font-weight: 800;
             margin: 0;
-            letter-spacing: 3px;
-            color: var(--accent);
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .search-area {
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.02);
+        .header span {
+            font-size: 12px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .input-box {
+        .search-section {
+            padding: 0 30px 25px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        input {
             width: 100%;
-            background: #000;
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 12px;
-            color: var(--accent);
-            font-family: inherit;
+            padding: 18px 25px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
             font-size: 16px;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .input-box:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
-        .btn-group {
+        .btn-container {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
         }
 
         button {
             flex: 1;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 18px;
             border: none;
-            font-family: inherit;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
-            text-transform: uppercase;
+            font-size: 14px;
         }
 
         #startBtn {
-            background: var(--accent);
-            color: #000;
+            background: #fff;
+            color: #4338ca;
         }
 
         #stopBtn {
-            background: transparent;
-            border: 1px solid var(--error);
-            color: var(--error);
+            background: var(--error);
+            color: white;
             display: none;
         }
 
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        button:active { transform: translateY(0); }
 
-        .results-list {
+        .results-area {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent) transparent;
+            padding: 0 25px 25px;
+            scrollbar-width: none;
         }
 
-        .results-list::-webkit-scrollbar { width: 4px; }
-        .results-list::-webkit-scrollbar-thumb { background: var(--accent); }
+        .results-area::-webkit-scrollbar { display: none; }
 
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            padding: 15px;
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
             margin-bottom: 12px;
+            padding: 18px;
+            border-radius: 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border: 1px solid transparent;
-            transition: 0.3s;
-            animation: slideIn 0.3s ease-out;
             text-decoration: none;
+            color: inherit;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
-        .card.found {
+        .result-card.found {
+            background: rgba(16, 185, 129, 0.15);
             border-color: var(--success);
-            background: rgba(0, 255, 136, 0.05);
         }
 
-        .card.not-found {
-            border-color: rgba(255, 77, 77, 0.2);
-            opacity: 0.6;
+        .result-card.not-found {
+            opacity: 0.5;
+            border-color: var(--glass-border);
         }
 
-        .site-name { font-weight: bold; font-size: 14px; }
-        .status-tag { font-size: 10px; padding: 4px 8px; border-radius: 4px; }
-        .tag-success { background: var(--success); color: #000; }
-        .tag-error { color: var(--error); border: 1px solid var(--error); }
+        .site-info { font-weight: 600; font-size: 15px; }
+        .status-pill {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
 
+        .pill-found { background: var(--success); color: white; }
+        .pill-none { background: rgba(255,255,255,0.1); color: #fff; }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 63, 94, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: white;
+            display: none;
+            z-index: 10000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 40px; opacity: 1; }
+        }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-    <div class="app-window">
-        <div class="glow"></div>
+    <div id="toast">Bağlantı xətası: Məlumat tapılmadı</div>
+
+    <div class="app-card">
         <div class="header">
+            <span>OSINT Engine</span>
             <h1>V.K PROJECT - MAIGRAT</h1>
         </div>
 
-        <div class="search-area">
-            <input type="text" id="username" class="input-box" placeholder="USERNAME YAZIN..." spellcheck="false">
-            <div class="btn-group">
+        <div class="search-section">
+            <div class="input-wrapper">
+                <input type="text" id="username" placeholder="İstifadəçi adı..." spellcheck="false" autocomplete="off">
+            </div>
+            <div class="btn-container">
                 <button id="startBtn">ANALİZİ BAŞLAT</button>
                 <button id="stopBtn">DAYANDIR</button>
             </div>
         </div>
 
-        <div class="results-list" id="results">
+        <div class="results-area" id="results">
             </div>
     </div>
 
@@ -195,8 +238,15 @@
         const stopBtn = document.getElementById('stopBtn');
         const resultsDiv = document.getElementById('results');
         const input = document.getElementById('username');
+        const toast = document.getElementById('toast');
 
-        async function analyze() {
+        function triggerToast(msg) {
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        async function startAnalysis() {
             const user = input.value.trim();
             if(!user) return;
 
@@ -207,6 +257,8 @@
 
             try {
                 const response = await fetch('data.json');
+                if (!response.ok) throw new Error("Offline");
+                
                 const data = await response.json();
                 const sites = Object.entries(data);
 
@@ -214,10 +266,10 @@
                     if(!isRunning) break;
 
                     const card = document.createElement('a');
-                    card.className = 'card';
+                    card.className = 'result-card';
                     
-                    // Simulyasiya: 30% ehtimalla tapıldı
-                    const isFound = Math.random() > 0.7; 
+                    // Simulyasiya
+                    const isFound = Math.random() > 0.8; 
                     const targetUrl = info.urlMain.replace('{}', user) || (info.urlMain + user);
 
                     if(isFound) {
@@ -225,34 +277,39 @@
                         card.href = targetUrl;
                         card.target = "_blank";
                         card.innerHTML = `
-                            <span class="site-name">${site.toUpperCase()}</span>
-                            <span class="status-tag tag-success">TAPILDI</span>
+                            <span class="site-info">${site}</span>
+                            <span class="status-pill pill-found">TAPILDI</span>
                         `;
                     } else {
                         card.classList.add('not-found');
                         card.innerHTML = `
-                            <span class="site-name">${site.toUpperCase()}</span>
-                            <span class="status-tag tag-error">YOXDUR</span>
+                            <span class="site-info">${site}</span>
+                            <span class="status-pill pill-none">YOXDUR</span>
                         `;
                     }
 
                     resultsDiv.prepend(card);
-                    await new Promise(r => setTimeout(r, 200));
+                    await new Promise(r => setTimeout(r, 250));
                 }
             } catch (e) {
-                resultsDiv.innerHTML = `<p style="color:red">Xəta: data.json tapılmadı!</p>`;
+                triggerToast("XƏTA: Məlumat bazası ilə əlaqə kəsildi!");
             }
-            resetUI();
+            stopProc();
         }
 
-        function resetUI() {
+        function stopProc() {
             isRunning = false;
             startBtn.style.display = 'block';
             stopBtn.style.display = 'none';
         }
 
-        startBtn.onclick = analyze;
-        stopBtn.onclick = resetUI;
+        startBtn.onclick = startAnalysis;
+        stopBtn.onclick = stopProc;
+
+        // Təhlükəsizlik
+        document.onkeydown = (e) => {
+            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73)) return false;
+        };
     </script>
 </body>
 </html>
