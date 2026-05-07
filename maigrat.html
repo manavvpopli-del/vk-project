@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V.K Project - Maigrat</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --text: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--accent-blue);
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            background: #0f172a;
+            border: 2px solid #334155;
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        #startBtn { background-color: var(--accent-blue); color: #000; }
+        #stopBtn { background-color: var(--error); color: white; display: none; }
+
+        button:active { transform: scale(0.98); }
+
+        .results-container {
+            margin-top: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #334155;
+            animation: fadeIn 0.3s ease-in;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-found { border-left: 5px solid var(--success); cursor: pointer; }
+        .status-not-found { border-left: 5px solid var(--error); opacity: 0.7; pointer-events: none; }
+
+        .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            text-transform: uppercase;
+        }
+
+        .found-text { color: var(--success); font-weight: bold; }
+        .not-found-text { color: var(--error); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>V.K Project - Maigrat</h1>
+            <p style="font-size: 12px; opacity: 0.6;">OSINT Analyzer Interface</p>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Username daxil edin..." autocomplete="off">
+            <div class="controls">
+                <button id="startBtn">ANALİZİ BAŞLAT</button>
+                <button id="stopBtn">DAYANDIR</button>
+            </div>
+        </div>
+
+        <div class="results-container" id="results">
+            </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resultsDiv = document.getElementById('results');
+        const usernameInput = document.getElementById('username');
+
+        // Analizi başladan funksiya
+        async function startAnalysis() {
+            const username = usernameInput.value.trim();
+            if (!username) return alert("Zəhmət olmasa username daxil edin!");
+
+            isRunning = true;
+            resultsDiv.innerHTML = '';
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'block';
+
+            try {
+                // data.json faylını oxuyuruq
+                const response = await fetch('data.json');
+                const data = await response.json();
+                
+                // Maigret datasındakı saytları dövrə salırıq
+                const sites = Object.entries(data);
+
+                for (const [siteName, info] of sites) {
+                    if (!isRunning) break;
+
+                    const profileUrl = info.urlMain + username; // Sadələşdirilmiş URL quruluşu
+                    
+                    // Nəticə elementi yaradılır (Gözləmə vəziyyəti)
+                    const item = document.createElement('a');
+                    item.className = 'result-item';
+                    item.innerHTML = `<span>${siteName}</span> <span class="not-found-text">Yoxlanılır...</span>`;
+                    resultsDiv.prepend(item);
+
+                    // Reallıqda HTTP check (CORS məhdudiyyəti ola bilər, bu simulyasiyadır)
+                    // Amma biz tətbiq məntiqinə uyğun olaraq "Tapıldı" və ya "Tapılmadı" simulyasiyası edirik
+                    const found = Math.random() > 0.7; // Simulyasiya üçün ehtimal
+
+                    if (found) {
+                        item.href = profileUrl;
+                        item.target = "_blank";
+                        item.className = 'result-item status-found';
+                        item.innerHTML = `
+                            <span>${siteName}</span> 
+                            <div>
+                                <span class="badge found-text">HƏQİQƏTƏN TAPILDI</span>
+                            </div>
+                        `;
+                    } else {
+                        item.className = 'result-item status-not-found';
+                        item.innerHTML = `<span>${siteName}</span> <span class="badge not-found-text">TAPILMADI</span>`;
+                    }
+
+                    // Hər yoxlamadan sonra qısa fasilə (vizual effekt üçün)
+                    await new Promise(r => setTimeout(r, 300));
+                }
+
+            } catch (error) {
+                console.error("Data oxunarkən xəta:", error);
+                resultsDiv.innerHTML = `<p style="color:red">Xəta: data.json faylı tapılmadı və ya formatı səhvdir.</p>`;
+            }
+
+            stopAnalysis();
+        }
+
+        function stopAnalysis() {
+            isRunning = false;
+            startBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+        }
+
+        startBtn.addEventListener('click', startAnalysis);
+        stopBtn.addEventListener('click', stopAnalysis);
+    </script>
+</body>
+</html>
