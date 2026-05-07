@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V.K Project - Email OSINT Pro</title>
+    <title>V.K Project - Real Email OSINT</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -20,198 +20,120 @@
         * { -webkit-user-select: none; user-select: none; box-sizing: border-box; outline: none; }
 
         body {
-            margin: 0;
-            background: var(--bg);
-            color: var(--text);
+            margin: 0; background: var(--bg); color: var(--text);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            display: flex; justify-content: center; align-items: center; height: 100vh;
         }
 
         .app-container {
-            width: 90%;
-            max-width: 450px;
-            height: 90vh;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 32px;
-            display: flex;
-            flex-direction: column;
-            padding: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            width: 90%; max-width: 450px; height: 90vh;
+            background: var(--glass); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 32px;
+            display: flex; flex-direction: column; padding: 30px;
         }
 
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { font-size: 22px; margin: 0; color: var(--primary); letter-spacing: 1px; }
+        .header h1 { font-size: 20px; text-align: center; color: var(--primary); letter-spacing: 1px; }
 
-        .input-group { position: relative; margin-bottom: 20px; }
         input {
-            width: 100%;
-            padding: 18px;
-            background: #000;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            color: var(--primary);
-            font-weight: 600;
-            font-size: 15px;
+            width: 100%; padding: 18px; background: #000;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            color: var(--primary); font-weight: 600; margin-bottom: 15px;
         }
 
         button {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 18px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.3s;
+            width: 100%; padding: 16px; background: var(--primary);
+            color: white; border: none; border-radius: 18px;
+            font-weight: 800; cursor: pointer;
         }
 
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .results-list {
-            flex: 1;
-            margin-top: 20px;
-            overflow-y: auto;
-            padding-right: 5px;
-            scrollbar-width: none;
-        }
+        .results-list { flex: 1; margin-top: 20px; overflow-y: auto; scrollbar-width: none; }
 
         .res-card {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 15px;
-            border-radius: 18px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: rgba(255, 255, 255, 0.02); padding: 15px;
+            border-radius: 18px; margin-bottom: 12px;
+            display: flex; justify-content: space-between;
             border-left: 4px solid transparent;
-            animation: slideIn 0.4s ease;
         }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .res-card.found { border-left-color: var(--success); background: rgba(16, 185, 129, 0.08); }
-        .res-card.not-found { border-left-color: var(--error); opacity: 0.6; }
-
-        .status-badge { font-size: 11px; font-weight: 800; text-transform: uppercase; }
-        .success-text { color: var(--success); }
-        .error-text { color: var(--error); }
-
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--error); color: white; padding: 12px 25px;
-            border-radius: 15px; display: none; z-index: 1000;
-        }
+        .res-card.found { border-left-color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .res-card.not-found { border-left-color: var(--error); opacity: 0.5; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="toast">Proxy xətası baş verdi!</div>
-
     <div class="app-container">
-        <div class="header">
-            <h1>EMAIL TRACKER PRO</h1>
-            <span style="font-size: 10px; opacity: 0.5;">HOLEHE ENGINE v2.0 - V.K PROJECT</span>
-        </div>
-
-        <div class="input-group">
-            <input type="email" id="emailInput" placeholder="Hədəf email ünvanı..." spellcheck="false">
-        </div>
-        <button id="startBtn">ANALİZİ BAŞLAT</button>
-
-        <div class="results-list" id="results">
-            </div>
+        <div class="header"><h1>V.K EMAIL ANALYZER</h1></div>
+        <input type="email" id="emailInput" placeholder="Email daxil edin..." spellcheck="false">
+        <button id="startBtn">REAL ANALİZİ BAŞLAT</button>
+        <div class="results-list" id="results"></div>
     </div>
 
     <script>
         const btn = document.getElementById('startBtn');
         const results = document.getElementById('results');
         const emailInput = document.getElementById('emailInput');
-        const toast = document.getElementById('toast');
 
-        // Proxy (Brauzer bloklamasını aşmaq üçün)
-        const proxy = "https://cors-anywhere.herokuapp.com/";
+        // Brauzer bloklamasını aşmaq üçün ən stabil proxy
+        const PROXY = "https://corsproxy.io/?";
 
-        // Yoxlanacaq Saytlar və Məntiqlər
-        const siteList = [
-            { name: "Gravatar", type: "hash" },
-            { name: "Adobe", type: "api", url: "https://auth.services.adobe.com/signin/v2/users/check" },
-            { name: "Instagram", type: "sim" },
-            { name: "Snapchat", type: "sim" },
-            { name: "Twitter (X)", type: "sim" },
-            { name: "Imgur", type: "sim" },
-            { name: "Netflix", type: "sim" },
-            { name: "Spotify", type: "sim" },
-            { name: "LinkedIn", type: "sim" },
-            { name: "GitHub", type: "api", url: "https://api.github.com/users/" }
-        ];
+        async function checkAdobe(email) {
+            try {
+                const res = await fetch(PROXY + "https://auth.services.adobe.com/signin/v2/users/check", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, client_id: "AdobeID" })
+                });
+                const data = await res.json();
+                return data.userStatus === "EXISTS";
+            } catch (e) { return false; }
+        }
 
-        async function analyzeEmail() {
+        async function checkGravatar(email) {
+            const hash = CryptoJS.MD5(email.toLowerCase().trim()).toString();
+            try {
+                const res = await fetch(`https://en.gravatar.com/${hash}.json`);
+                return res.status === 200;
+            } catch (e) { return false; }
+        }
+
+        async function checkImgur(email) {
+            try {
+                const res = await fetch(PROXY + `https://imgur.com/signin/password_found/${email}`);
+                const data = await res.json();
+                return data.exists === true;
+            } catch (e) { return false; }
+        }
+
+        btn.onclick = async () => {
             const email = emailInput.value.trim();
-            if (!email.includes('@')) {
-                alert("Düzgün email daxil edin!");
-                return;
-            }
+            if (!email.includes('@')) return;
 
             btn.disabled = true;
-            btn.innerText = "YOXLANILIR...";
+            btn.innerText = "SORĞU GÖNDƏRİLİR...";
             results.innerHTML = "";
 
-            for (const site of siteList) {
-                let isFound = false;
+            // 1. Gravatar (Real Yoxlanış)
+            const grav = await checkGravatar(email);
+            render("Gravatar", grav);
 
-                // 1. Gravatar Məntiqi (MD5 Hash)
-                if (site.type === "hash") {
-                    const hash = CryptoJS.MD5(email.toLowerCase()).toString();
-                    try {
-                        const res = await fetch(`https://en.gravatar.com/${hash}.json`);
-                        if (res.status === 200) isFound = true;
-                    } catch (e) {}
-                } 
-                // 2. Real API Yoxlanışı (GitHub və s.)
-                else if (site.type === "api" && site.name === "GitHub") {
-                    try {
-                        const userPart = email.split('@')[0];
-                        const res = await fetch(site.url + userPart);
-                        if (res.ok) isFound = true;
-                    } catch (e) {}
-                }
-                // 3. Digərləri üçün Simulyasiya (Holehe məntiqi ilə)
-                else {
-                    isFound = Math.random() > 0.75; 
-                }
+            // 2. Adobe (Real API Yoxlanış)
+            const adobe = await checkAdobe(email);
+            render("Adobe Creative Cloud", adobe);
 
-                renderCard(site.name, isFound);
-                await new Promise(r => setTimeout(r, 400));
-            }
+            // 3. Imgur (Real API Yoxlanış)
+            const imgur = await checkImgur(email);
+            render("Imgur", imgur);
 
             btn.disabled = false;
-            btn.innerText = "ANALİZİ BAŞLAT";
-        }
+            btn.innerText = "REAL ANALİZİ BAŞLAT";
+        };
 
-        function renderCard(name, found) {
+        function render(name, found) {
             const card = document.createElement('div');
             card.className = `res-card ${found ? 'found' : 'not-found'}`;
-            card.innerHTML = `
-                <span style="font-weight:600;">${name}</span>
-                <span class="status-badge ${found ? 'success-text' : 'error-text'}">
-                    ${found ? 'TAPILDI' : 'YOXDUR'}
-                </span>
-            `;
+            card.innerHTML = `<b>${name}</b> <span>${found ? 'TAPILDI' : 'YOXDUR'}</span>`;
             results.prepend(card);
         }
-
-        btn.onclick = analyzeEmail;
-
-        // Təhlükəsizlik
-        document.onkeydown = (e) => {
-            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 85 || e.keyCode === 73)) return false;
-        };
     </script>
 </body>
 </html>
