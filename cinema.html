@@ -71,8 +71,8 @@
                 <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(this)">
             </div>
             <input type="text" id="nick" placeholder="LƏQƏB (NICKNAME)">
-            <input type="text" id="room" placeholder="OTAQ KODU">
-            <button class="btn" onclick="genAndStart()">OTAQ YARAT (AVTO KOD)</button>
+            <input type="text" id="room" placeholder="OTAQ KODUNU DAXİL EDİN">
+            <button class="btn" onclick="start('admin')">OTAQ YARAT</button>
             <button class="btn" style="background:#1a1a1a; margin-top:10px" onclick="start('member')">OTAĞA QOŞUL</button>
         </div>
     </div>
@@ -130,7 +130,6 @@
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
         function toggleFS() { const v = document.getElementById('player-container'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
 
-        // Yan Ekran (PiP) rejimi üçün funksiya
         async function togglePiP() {
             try {
                 const video = document.querySelector('iframe').contentDocument?.querySelector('video') || document.getElementsByTagName('video')[0];
@@ -141,11 +140,6 @@
                     else showToast("Video hələ yüklənməyib");
                 }
             } catch (e) { showToast("Brauzer PiP dəstəkləmir"); }
-        }
-
-        function genAndStart() {
-            document.getElementById('room').value = Math.floor(100000 + Math.random() * 900000);
-            start('admin');
         }
 
         function start(l) {
@@ -193,10 +187,7 @@
                 const m = s.val(); const b = document.getElementById('messages');
                 const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
                 let content = m.img ? "[Şəkil]" : m.t;
-                
-                // Tam ekranda toast göstərmək
                 if (m.n !== myN) showToast(`${m.n}: ${content}`);
-
                 let innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t}</div></div>`;
                 d.innerHTML = innerHTML;
                 b.appendChild(d); b.scrollTop = b.scrollHeight;
