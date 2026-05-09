@@ -1,4 +1,350 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tank Warfare</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+overflow:hidden;
+background:black;
+font-family:Arial;
+}
+
+canvas{
+display:block;
+}
+
+#hud{
+position:fixed;
+top:20px;
+left:20px;
+color:white;
+z-index:100;
+background:rgba(0,0,0,.5);
+padding:20px;
+border-radius:20px;
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,.1);
+}
+
+#hud h1{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.bar{
+width:220px;
+height:12px;
+background:#222;
+border-radius:20px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.fill{
+width:100%;
+height:100%;
+background:linear-gradient(90deg,#00ff88,#00ffaa);
+}
+
+#crosshair{
+position:fixed;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+width:40px;
+height:40px;
+pointer-events:none;
+z-index:100;
+}
+
+#crosshair::before,
+#crosshair::after{
+content:"";
+position:absolute;
+background:white;
+}
+
+#crosshair::before{
+width:2px;
+height:40px;
+left:19px;
+}
+
+#crosshair::after{
+height:2px;
+width:40px;
+top:19px;
+}
+
+#menu{
+position:fixed;
+inset:0;
+background:radial-gradient(circle,#111,#000);
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:999;
+color:white;
+}
+
+#menu h1{
+font-size:80px;
+letter-spacing:8px;
+text-shadow:0 0 40px red;
+}
+
+#menu button{
+margin-top:30px;
+padding:20px 40px;
+border:none;
+border-radius:20px;
+font-size:20px;
+font-weight:bold;
+background:linear-gradient(135deg,#ff003c,#ff4d6d);
+color:white;
+cursor:pointer;
+box-shadow:0 0 40px rgba(255,0,60,.5);
+}
+
+</style>
+</head>
+<body>
+
+<div id="menu">
+<h1>TANK WARFARE</h1>
+<button onclick="startGame()">START GAME</button>
+</div>
+
+<div id="hud">
+
+<h1>BATTLE HUD</h1>
+
+<div>Armor</div>
+<div class="bar">
+<div class="fill"></div>
+</div>
+
+<div style="margin-top:15px;">Fuel</div>
+<div class="bar">
+<div class="fill"></div>
+</div>
+
+</div>
+
+<div id="crosshair"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<script>
+
+const scene = new THREE.Scene();
+
+scene.fog = new THREE.Fog(0x000000,20,250);
+
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+const renderer = new THREE.WebGLRenderer({
+antialias:true
+});
+
+renderer.setSize(window.innerWidth,window.innerHeight);
+
+renderer.shadowMap.enabled = true;
+
+document.body.appendChild(renderer.domElement);
+
+const ambient = new THREE.AmbientLight(0xffffff,.3);
+scene.add(ambient);
+
+const light = new THREE.DirectionalLight(0xffffff,2);
+
+light.position.set(50,80,20);
+
+light.castShadow = true;
+
+scene.add(light);
+
+const groundGeo = new THREE.PlaneGeometry(500,500);
+
+const groundMat = new THREE.MeshStandardMaterial({
+color:0x111111
+});
+
+const ground = new THREE.Mesh(groundGeo,groundMat);
+
+ground.rotation.x = -Math.PI/2;
+
+ground.receiveShadow = true;
+
+scene.add(ground);
+
+const tank = new THREE.Group();
+
+scene.add(tank);
+
+const bodyGeo = new THREE.BoxGeometry(5,2,8);
+
+const bodyMat = new THREE.MeshStandardMaterial({
+color:0x222222,
+metalness:.7,
+roughness:.3
+});
+
+const body = new THREE.Mesh(bodyGeo,bodyMat);
+
+body.castShadow = true;
+
+tank.add(body);
+
+const turretGeo = new THREE.CylinderGeometry(1.8,1.8,1.2,32);
+
+const turret = new THREE.Mesh(turretGeo,bodyMat);
+
+turret.rotation.z = Math.PI/2;
+
+turret.position.y = 1.5;
+
+tank.add(turret);
+
+const barrelGeo = new THREE.CylinderGeometry(.25,.25,7,32);
+
+const barrel = new THREE.Mesh(barrelGeo,bodyMat);
+
+barrel.rotation.z = Math.PI/2;
+
+barrel.position.set(4,1.5,0);
+
+tank.add(barrel);
+
+camera.position.set(0,8,18);
+
+camera.lookAt(tank.position);
+
+const keys = {};
+
+window.addEventListener('keydown',e=>{
+keys[e.key.toLowerCase()] = true;
+});
+
+window.addEventListener('keyup',e=>{
+keys[e.key.toLowerCase()] = false;
+});
+
+function createBuilding(x,z,h){
+
+const geo = new THREE.BoxGeometry(8,h,8);
+
+const mat = new THREE.MeshStandardMaterial({
+color:0x1b1b1b
+});
+
+const mesh = new THREE.Mesh(geo,mat);
+
+mesh.position.set(x,h/2,z);
+
+mesh.castShadow = true;
+
+mesh.receiveShadow = true;
+
+scene.add(mesh);
+
+}
+
+for(let i=0;i<100;i++){
+
+createBuilding(
+(Math.random()-.5)*400,
+(Math.random()-.5)*400,
+Math.random()*30+10
+);
+
+}
+
+function shoot(){
+
+const flash = new THREE.PointLight(0xff5500,12,20);
+
+flash.position.copy(barrel.position);
+
+tank.add(flash);
+
+setTimeout(()=>{
+tank.remove(flash);
+},60);
+
+const shellGeo = new THREE.SphereGeometry(.2,12,12);
+
+const shellMat = new THREE.MeshBasicMaterial({
+color:0xffaa00
+});
+
+const shell = new THREE.Mesh(shellGeo,shellMat);
+
+scene.add(shell);
+
+shell.position.copy(tank.position);
+
+const dir = new THREE.Vector3();
+
+camera.getWorldDirection(dir);
+
+gsap.to(shell.position,{
+x:shell.position.x + dir.x*120,
+y:shell.position.y + dir.y*120,
+z:shell.position.z + dir.z*120,
+duration:1,
+onComplete:()=>{
+explosion(shell.position);
+scene.remove(shell);
+}
+});
+
+}
+
+function explosion(pos){
+
+for(let i=0;i<40;i++){
+
+const pGeo = new THREE.SphereGeometry(.12,8,8);
+
+const pMat = new THREE.MeshBasicMaterial({
+color:0xff5500
+});
+
+const p = new THREE.Mesh(pGeo,pMat);
+
+scene.add(p);
+
+p.position.copy(pos);
+
+gsap.to(p.position,{
+x:pos.x + (Math.random()-.5)*10,
+y:pos.y + Math.random()*6,
+z:pos.z + (Math.random()-.5)*10,
+duration:1,
+onComplete:()=>{
+scene.remove(p);
+}
+});
+
+}
 
 }
 
@@ -7,41 +353,58 @@ shoot();
 });
 
 function animate(){
+
 requestAnimationFrame(animate);
 
 if(keys['w']){
+
 tank.position.z -= .35;
+
 }
 
 if(keys['s']){
+
 tank.position.z += .35;
+
 }
 
 if(keys['a']){
+
 tank.rotation.y += .03;
+
 }
 
 if(keys['d']){
+
 tank.rotation.y -= .03;
+
 }
 
 camera.position.x = tank.position.x;
-camera.position.z = tank.position.z + 16;
+
+camera.position.z = tank.position.z + 18;
+
 camera.lookAt(tank.position);
 
 renderer.render(scene,camera);
+
 }
 
 animate();
 
 function startGame(){
 
-gsap.to('#intro',{
+gsap.to('#menu',{
+
 opacity:0,
 duration:1,
+
 onComplete:()=>{
-document.getElementById('intro').style.display='none';
+
+document.getElementById('menu').style.display='none';
+
 }
+
 });
 
 }
@@ -49,7 +412,9 @@ document.getElementById('intro').style.display='none';
 window.addEventListener('resize',()=>{
 
 camera.aspect = window.innerWidth/window.innerHeight;
+
 camera.updateProjectionMatrix();
+
 renderer.setSize(window.innerWidth,window.innerHeight);
 
 });
