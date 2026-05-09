@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cinematic Tank Game</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+<title>Cinematic Tank Warfare</title>
 
 <style>
 
@@ -14,7 +16,9 @@ box-sizing:border-box;
 -webkit-tap-highlight-color:transparent;
 }
 
-body{
+html,body{
+width:100%;
+height:100%;
 overflow:hidden;
 background:#000;
 font-family:Arial;
@@ -24,50 +28,61 @@ canvas{
 display:block;
 }
 
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at top left,#ff003322,transparent 25%),
+radial-gradient(circle at bottom right,#0044ff22,transparent 25%),
+linear-gradient(to bottom,#050505,#000);
+z-index:-2;
+}
+
 #menu{
 position:fixed;
 inset:0;
-z-index:999;
 display:flex;
 justify-content:center;
 align-items:center;
 flex-direction:column;
-background:
-radial-gradient(circle at top,#ff003344,transparent 30%),
-linear-gradient(to bottom,#050505,#000);
+background:rgba(0,0,0,.6);
+backdrop-filter:blur(10px);
+z-index:999;
 color:white;
 }
 
 #menu h1{
 font-size:52px;
 letter-spacing:5px;
+margin-bottom:25px;
 text-shadow:0 0 30px red;
-margin-bottom:30px;
 }
 
 #startBtn{
 width:240px;
 height:65px;
 border:none;
-border-radius:25px;
+border-radius:24px;
 background:linear-gradient(135deg,#ff003c,#ff4d6d);
 color:white;
 font-size:20px;
 font-weight:bold;
-box-shadow:0 0 40px rgba(255,0,60,.5);
+box-shadow:0 0 40px rgba(255,0,60,.4);
 }
 
 #hud{
 position:fixed;
 top:15px;
 left:15px;
-z-index:10;
-background:rgba(0,0,0,.35);
+z-index:50;
 padding:15px;
 border-radius:20px;
+background:rgba(0,0,0,.35);
 backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,.08);
 color:white;
-border:1px solid rgba(255,255,255,.1);
+min-width:170px;
 }
 
 #hud h2{
@@ -76,7 +91,7 @@ margin-bottom:10px;
 }
 
 .bar{
-width:150px;
+width:140px;
 height:10px;
 background:#222;
 border-radius:20px;
@@ -94,11 +109,11 @@ background:linear-gradient(90deg,#00ff88,#00ffaa);
 #crosshair{
 position:fixed;
 left:50%;
-top:40%;
+top:38%;
 transform:translate(-50%,-50%);
-width:35px;
-height:35px;
-z-index:20;
+width:38px;
+height:38px;
+z-index:30;
 pointer-events:none;
 }
 
@@ -107,39 +122,40 @@ pointer-events:none;
 content:"";
 position:absolute;
 background:white;
+box-shadow:0 0 10px red;
 }
 
 #crosshair::before{
 width:2px;
-height:35px;
-left:16px;
+height:38px;
+left:18px;
 }
 
 #crosshair::after{
 height:2px;
-width:35px;
-top:16px;
+width:38px;
+top:18px;
 }
 
 #controls{
 position:fixed;
-bottom:20px;
+bottom:18px;
 left:0;
 width:100%;
 display:flex;
 justify-content:space-between;
 padding:0 20px;
-z-index:30;
+z-index:60;
 }
 
 .pad{
 width:150px;
 height:150px;
 border-radius:50%;
-background:rgba(255,255,255,.05);
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.08);
 backdrop-filter:blur(20px);
 position:relative;
-border:1px solid rgba(255,255,255,.08);
 }
 
 .stick{
@@ -147,23 +163,23 @@ position:absolute;
 width:65px;
 height:65px;
 border-radius:50%;
-background:linear-gradient(135deg,#ffffff33,#ffffff11);
+background:linear-gradient(135deg,#ffffff33,#ffffff10);
 left:42px;
 top:42px;
 }
 
 #fireBtn{
-width:90px;
-height:90px;
+width:95px;
+height:95px;
 border-radius:50%;
 border:none;
 background:linear-gradient(135deg,#ff003c,#ff5c74);
 color:white;
 font-size:22px;
 font-weight:bold;
-box-shadow:0 0 40px rgba(255,0,60,.6);
 align-self:flex-end;
 margin-bottom:25px;
+box-shadow:0 0 50px rgba(255,0,60,.6);
 }
 
 </style>
@@ -176,28 +192,42 @@ margin-bottom:25px;
 </div>
 
 <div id="hud">
+
 <h2>BATTLE HUD</h2>
+
 ARMOR
-<div class="bar"><div class="fill"></div></div>
+<div class="bar">
+<div class="fill"></div>
+</div>
+
 FUEL
-<div class="bar"><div class="fill"></div></div>
+<div class="bar">
+<div class="fill"></div>
+</div>
+
 </div>
 
 <div id="crosshair"></div>
 
 <div id="controls">
+
 <div class="pad" id="movePad">
 <div class="stick" id="stick"></div>
 </div>
 
 <button id="fireBtn">FIRE</button>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+
 <script>
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x000000,20,180);
+
+scene.fog = new THREE.Fog(0x000000,20,220);
 
 const camera = new THREE.PerspectiveCamera(
 75,
@@ -211,121 +241,119 @@ antialias:true
 });
 
 renderer.setSize(window.innerWidth,window.innerHeight);
+
 renderer.shadowMap.enabled = true;
+
+renderer.outputEncoding = THREE.sRGBEncoding;
+
 document.body.appendChild(renderer.domElement);
 
-const ambient = new THREE.AmbientLight(0xffffff,.45);
+const ambient = new THREE.AmbientLight(0xffffff,.5);
+
 scene.add(ambient);
 
-const light = new THREE.DirectionalLight(0xffffff,1.8);
+const light = new THREE.DirectionalLight(0xffffff,2);
+
 light.position.set(30,60,20);
+
 light.castShadow = true;
+
 scene.add(light);
 
-const floor = new THREE.Mesh(
-new THREE.PlaneGeometry(500,500),
+const ground = new THREE.Mesh(
+
+new THREE.PlaneGeometry(600,600),
+
 new THREE.MeshStandardMaterial({
-color:0x101010
+color:0x101010,
+roughness:1
 })
+
 );
 
-floor.rotation.x = -Math.PI/2;
-floor.receiveShadow = true;
-scene.add(floor);
+ground.rotation.x = -Math.PI/2;
 
-const tank = new THREE.Group();
-scene.add(tank);
+ground.receiveShadow = true;
 
-const body = new THREE.Mesh(
-new THREE.BoxGeometry(4,1.5,6),
-new THREE.MeshStandardMaterial({
-color:0x2b2b2b,
-metalness:.8,
-roughness:.25
-})
-);
+scene.add(ground);
 
-body.castShadow = true;
-tank.add(body);
-
-const topTank = new THREE.Mesh(
-new THREE.BoxGeometry(2.5,1.2,2.5),
-new THREE.MeshStandardMaterial({
-color:0x3a3a3a
-})
-);
-
-topTank.position.y = 1.2;
-topTank.castShadow = true;
-tank.add(topTank);
-
-const gun = new THREE.Mesh(
-new THREE.CylinderGeometry(.18,.18,5,32),
-new THREE.MeshStandardMaterial({
-color:0x555555
-})
-);
-
-gun.rotation.z = Math.PI/2;
-gun.position.set(2.5,1.2,0);
-gun.castShadow = true;
-tank.add(gun);
-
-function wheel(x,z){
-
-const w = new THREE.Mesh(
-new THREE.CylinderGeometry(.7,.7,.6,32),
-new THREE.MeshStandardMaterial({
-color:0x111111
-})
-);
-
-w.rotation.z = Math.PI/2;
-w.position.set(x,-.8,z);
-
-w.castShadow = true;
-
-tank.add(w);
-
-}
-
-wheel(-2,2);
-wheel(2,2);
-wheel(-2,0);
-wheel(2,0);
-wheel(-2,-2);
-wheel(2,-2);
-
-camera.position.set(0,8,12);
-
-for(let i=0;i<80;i++){
+for(let i=0;i<120;i++){
 
 const building = new THREE.Mesh(
+
 new THREE.BoxGeometry(
 5,
-Math.random()*20+5,
+Math.random()*25+5,
 5
 ),
+
 new THREE.MeshStandardMaterial({
-color:0x1a1a1a
+color:0x191919
 })
+
 );
 
 building.position.set(
-(Math.random()-.5)*300,
+(Math.random()-.5)*500,
 building.geometry.parameters.height/2,
-(Math.random()-.5)*300
+(Math.random()-.5)*500
 );
 
 building.castShadow = true;
+
 scene.add(building);
 
 }
+
+let tank;
+
+const loader = new THREE.GLTFLoader();
+
+loader.load(
+
+'tank.glb',
+
+function(gltf){
+
+tank = gltf.scene;
+
+tank.scale.set(1.8,1.8,1.8);
+
+tank.position.y = 0;
+
+tank.traverse(obj=>{
+
+if(obj.isMesh){
+
+obj.castShadow = true;
+
+obj.receiveShadow = true;
+
+}
+
+});
+
+scene.add(tank);
+
+},
+
+undefined,
+
+function(error){
+
+console.log(error);
+
+}
+
+);
+
+camera.position.set(0,8,12);
 
 let moveX = 0;
 let moveY = 0;
 
 const pad = document.getElementById('movePad');
+
 const stick = document.getElementById('stick');
 
 pad.addEventListener('touchmove',e=>{
@@ -344,27 +372,89 @@ stick.style.top = (42 + y*.4) + 'px';
 });
 
 pad.addEventListener('touchend',()=>{
+
 moveX = 0;
 moveY = 0;
+
 stick.style.left = '42px';
 stick.style.top = '42px';
+
 });
+
+function explosion(pos){
+
+for(let i=0;i<25;i++){
+
+const particle = new THREE.Mesh(
+
+new THREE.SphereGeometry(.1,8,8),
+
+new THREE.MeshBasicMaterial({
+color:0xff6600
+})
+
+);
+
+scene.add(particle);
+
+particle.position.copy(pos);
+
+const vx = (Math.random()-.5)*8;
+const vy = Math.random()*5;
+const vz = (Math.random()-.5)*8;
+
+let t = 0;
+
+function anim(){
+
+particle.position.x += vx*.02;
+particle.position.y += vy*.02;
+particle.position.z += vz*.02;
+
+particle.scale.multiplyScalar(.97);
+
+t++;
+
+if(t < 40){
+
+requestAnimationFrame(anim);
+
+}else{
+
+scene.remove(particle);
+
+}
+
+}
+
+anim();
+
+}
+
+}
 
 function shoot(){
 
+if(!tank) return;
+
 const bullet = new THREE.Mesh(
-new THREE.SphereGeometry(.18,12,12),
+
+new THREE.SphereGeometry(.15,8,8),
+
 new THREE.MeshBasicMaterial({
 color:0xff5500
 })
+
 );
 
 scene.add(bullet);
 
 bullet.position.copy(tank.position);
-bullet.position.y = 1.2;
+
+bullet.position.y += 1.5;
 
 const dir = new THREE.Vector3(0,0,-1);
+
 dir.applyQuaternion(tank.quaternion);
 
 let speed = 0;
@@ -376,70 +466,52 @@ speed += 1.5;
 bullet.position.x += dir.x * speed*.1;
 bullet.position.z += dir.z * speed*.1;
 
-if(speed < 80){
+if(speed < 90){
+
 requestAnimationFrame(bulletAnim);
+
 }else{
-scene.remove(bullet);
+
 explosion(bullet.position);
+
+scene.remove(bullet);
+
 }
 
 }
 
 bulletAnim();
 
-}
-
-function explosion(pos){
-
-for(let i=0;i<25;i++){
-
-const p = new THREE.Mesh(
-new THREE.SphereGeometry(.1,8,8),
-new THREE.MeshBasicMaterial({
-color:0xff6600
-})
+const flash = new THREE.PointLight(
+0xff5500,
+8,
+20
 );
 
-scene.add(p);
+flash.position.copy(bullet.position);
 
-p.position.copy(pos);
+scene.add(flash);
 
-const vx = (Math.random()-.5)*8;
-const vy = Math.random()*5;
-const vz = (Math.random()-.5)*8;
+setTimeout(()=>{
 
-let t = 0;
+scene.remove(flash);
 
-function anim(){
-
-p.position.x += vx*.02;
-p.position.y += vy*.02;
-p.position.z += vz*.02;
-
-p.scale.multiplyScalar(.98);
-
-t++;
-
-if(t<40){
-requestAnimationFrame(anim);
-}else{
-scene.remove(p);
-}
+},80);
 
 }
 
-anim();
+document.getElementById('fireBtn')
+.addEventListener('click',()=>{
 
-}
-
-}
-
-document.getElementById('fireBtn').addEventListener('click',()=>{
 shoot();
+
 });
 
 function animate(){
+
 requestAnimationFrame(animate);
+
+if(tank){
 
 if(moveY < -.2){
 
@@ -465,29 +537,44 @@ tank.rotation.y -= .03;
 
 }
 
-camera.position.x = tank.position.x;
-camera.position.z = tank.position.z + 12;
+camera.position.x += (
+tank.position.x - camera.position.x
+)*.08;
+
+camera.position.z += (
+tank.position.z + 12 - camera.position.z
+)*.08;
 
 camera.lookAt(
 tank.position.x,
-0,
+tank.position.y + 2,
 tank.position.z
 );
 
+}
+
 renderer.render(scene,camera);
+
 }
 
 animate();
 
 document.getElementById('startBtn').onclick = ()=>{
+
 document.getElementById('menu').style.display='none';
+
 };
 
 window.addEventListener('resize',()=>{
 
 camera.aspect = window.innerWidth/window.innerHeight;
+
 camera.updateProjectionMatrix();
-renderer.setSize(window.innerWidth,window.innerHeight);
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
 
 });
 
