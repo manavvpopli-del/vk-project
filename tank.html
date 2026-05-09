@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+}
+
+window.addEventListener('click',()=>{
+shoot();
+});
+
+function animate(){
+requestAnimationFrame(animate);
+
+if(keys['w']){
+tank.position.z -= .35;
+}
+
+if(keys['s']){
+tank.position.z += .35;
+}
+
+if(keys['a']){
+tank.rotation.y += .03;
+}
+
+if(keys['d']){
+tank.rotation.y -= .03;
+}
+
+camera.position.x = tank.position.x;
+camera.position.z = tank.position.z + 16;
+camera.lookAt(tank.position);
+
+renderer.render(scene,camera);
+}
+
+animate();
+
+function startGame(){
+
+gsap.to('#intro',{
+opacity:0,
+duration:1,
+onComplete:()=>{
+document.getElementById('intro').style.display='none';
+}
+});
+
+}
+
+window.addEventListener('resize',()=>{
+
+camera.aspect = window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth,window.innerHeight);
+
+});
+
+</script>
+
+</body>
+</html>
