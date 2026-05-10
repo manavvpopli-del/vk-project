@@ -1,377 +1,301 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="az">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOVIX Streaming UI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<title>Tank Game</title>
+  <style>
+    *{
+      font-family: 'Inter', sans-serif;
+    }
 
-<style>
+    body{
+      background:#040816;
+      overflow-x:hidden;
+    }
 
-body{
-    margin:0;
-    overflow:hidden;
-    background:black;
-    touch-action:none;
-    font-family:sans-serif;
-}
+    ::-webkit-scrollbar{
+      width:8px;
+    }
 
-canvas{
-    display:block;
-}
+    ::-webkit-scrollbar-thumb{
+      background:#6d4aff;
+      border-radius:20px;
+    }
 
-#ui{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-}
+    .glass{
+      backdrop-filter: blur(16px);
+      background: rgba(255,255,255,0.04);
+    }
 
-.controls{
-    position:absolute;
-    bottom:25px;
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    padding:0 20px;
-    box-sizing:border-box;
-}
-
-.left{
-    display:flex;
-    gap:12px;
-}
-
-.btn{
-    width:85px;
-    height:85px;
-    border-radius:50%;
-    background:rgba(255,255,255,0.15);
-    border:2px solid white;
-    color:white;
-    font-size:32px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    user-select:none;
-    pointer-events:auto;
-    backdrop-filter: blur(5px);
-}
-
-</style>
+    .card:hover{
+      transform: translateY(-10px);
+      border-color:#7c5cff;
+      box-shadow:0 20px 50px rgba(111,76,255,.25);
+    }
+  </style>
 </head>
+<body class="text-white">
 
-<body>
+<div class="flex min-h-screen">
 
-<div id="ui">
+  <!-- Sidebar -->
+  <aside class="w-[260px] bg-[#050b1d] border-r border-white/5 px-5 py-6 flex flex-col justify-between fixed left-0 top-0 h-screen">
 
-    <div class="controls">
+    <div>
+      <div class="text-4xl font-black mb-12 tracking-wider">
+        MOVI<span class="text-[#6d4aff]">X</span>
+      </div>
 
-        <div class="left">
-            <div class="btn" id="leftBtn">◀</div>
-            <div class="btn" id="rightBtn">▶</div>
+      <div class="space-y-3">
+
+        <button class="w-full flex items-center gap-4 bg-[#6d4aff] px-5 py-4 rounded-2xl text-left font-semibold shadow-lg shadow-violet-700/30">
+          🏠 Ana səhifə
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          🎬 Filmlər
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          📺 Seriallar
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          ❤️ Sevimlilər
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          📋 Listəm
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          ⬇️ Yükləmələr
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          🕒 Tarixçə
+        </button>
+
+        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
+          ⚙️ Parametrlər
+        </button>
+      </div>
+    </div>
+
+
+    <div class="bg-gradient-to-br from-[#6d4aff] to-[#3421aa] p-6 rounded-[30px] shadow-2xl">
+      <h2 class="text-2xl font-bold mb-2">Premium-a keç</h2>
+      <p class="text-white/70 mb-5 text-sm leading-7">
+        Reklamsız və limitsiz izləmə təcrübəsi əldə et.
+      </p>
+
+      <button class="w-full bg-white text-black py-4 rounded-2xl font-bold hover:scale-105 transition">
+        İndi keç
+      </button>
+    </div>
+
+  </aside>
+
+
+  <!-- Main -->
+  <main class="ml-[260px] w-full px-8 py-7">
+
+    <!-- Top -->
+    <div class="flex items-center justify-between gap-6 mb-8">
+
+      <div class="flex-1 relative">
+        <input
+          type="text"
+          placeholder="Film, serial, aktyor axtar..."
+          class="w-full bg-[#0b1226] border border-white/5 rounded-full h-[64px] px-7 text-white outline-none focus:border-[#6d4aff] transition"
+        />
+
+        <div class="absolute right-7 top-1/2 -translate-y-1/2 text-white/50 text-xl">
+          🔍
         </div>
+      </div>
 
-        <div class="btn" id="gasBtn">▲</div>
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-[#6d4aff]"></div>
+
+        <div>
+          <div class="font-semibold">Murad</div>
+          <div class="text-white/50 text-sm">Premium</div>
+        </div>
+      </div>
 
     </div>
 
+
+    <!-- Hero -->
+    <section class="relative rounded-[38px] overflow-hidden h-[430px] mb-10 bg-gradient-to-r from-[#091124] via-[#121a33] to-[#43396e] flex items-center px-14 shadow-2xl">
+
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.25),transparent_25%)]"></div>
+
+      <div class="relative z-10 max-w-[520px]">
+
+        <h1 class="text-7xl font-black tracking-[10px] mb-6">
+          INTERSTELLAR
+        </h1>
+
+        <p class="text-white/75 text-xl leading-9 mb-9">
+          Yer kürəsinin gələcəyi təhlükə altındadır. Keçmişimizi geridə qoyub ulduzlararası səyahətə çıxmalıyıq.
+        </p>
+
+        <div class="flex gap-5">
+
+          <button class="bg-[#6d4aff] hover:bg-[#7c5cff] transition px-10 py-5 rounded-2xl font-bold shadow-xl shadow-violet-700/30">
+            ▶ İzləməyə başla
+          </button>
+
+          <button class="glass border border-white/10 px-10 py-5 rounded-2xl font-semibold hover:bg-white/10 transition">
+            Ətraflı məlumat
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Trending -->
+    <section class="mb-12">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold">İndi trenddə</h2>
+        <button class="text-white/60 hover:text-white transition">Daha çox →</button>
+      </div>
+
+      <div class="grid grid-cols-6 gap-5">
+
+        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
+          <div class="h-[290px] bg-gradient-to-b from-orange-400 to-red-900"></div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Oppenheimer</h3>
+            <p class="text-white/50 text-sm">Tarix / Drama</p>
+          </div>
+        </div>
+
+        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
+          <div class="h-[290px] bg-gradient-to-b from-blue-400 to-slate-900"></div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">John Wick 4</h3>
+            <p class="text-white/50 text-sm">Aksiyon / Triller</p>
+          </div>
+        </div>
+
+        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
+          <div class="h-[290px] bg-gradient-to-b from-orange-300 to-black"></div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Dark Knight</h3>
+            <p class="text-white/50 text-sm">Kriminal</p>
+          </div>
+        </div>
+
+        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
+          <div class="h-[290px] bg-gradient-to-b from-sky-400 to-slate-900"></div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Inception</h3>
+            <p class="text-white/50 text-sm">Sci‑Fi</p>
+          </div>
+        </div>
+
+        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
+          <div class="h-[290px] bg-gradient-to-b from-yellow-700 to-black"></div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">The Godfather</h3>
+            <p class="text-white/50 text-sm">Drama</p>
+          </div>
+        </div>
+
+        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
+          <div class="h-[290px] bg-gradient-to-b from-red-400 to-blue-900"></div>
+          <div class="p-4">
+            <h3 class="font-bold text-lg mb-1">Spider‑Man</h3>
+            <p class="text-white/50 text-sm">Macəra</p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Categories -->
+    <section class="mb-12">
+
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold">Kateqoriyalar</h2>
+      </div>
+
+      <div class="grid grid-cols-8 gap-4">
+
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Aksiyon</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Komediya</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Drama</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Sci‑Fi</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Qorxu</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Romantika</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Animasiya</div>
+        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Sənədli</div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Bottom Player -->
+    <footer class="glass sticky bottom-5 rounded-[34px] border border-white/10 px-8 py-6 flex items-center justify-between gap-8 shadow-2xl">
+
+      <div class="flex items-center gap-5 min-w-[280px]">
+
+        <div class="w-24 h-24 rounded-[24px] bg-gradient-to-br from-slate-600 to-black"></div>
+
+        <div>
+          <div class="text-xl font-bold mb-1">Interstellar</div>
+          <div class="text-white/50">1:25:34 / 2:49:04</div>
+        </div>
+
+      </div>
+
+
+      <div class="flex-1">
+
+        <div class="flex items-center justify-center gap-6 mb-4 text-2xl">
+          <button>⏮</button>
+
+          <button class="w-16 h-16 rounded-full bg-[#6d4aff] shadow-xl shadow-violet-700/30 text-2xl hover:scale-105 transition">
+            ⏸
+          </button>
+
+          <button>⏭</button>
+        </div>
+
+        <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+          <div class="w-1/2 h-full bg-[#6d4aff]"></div>
+        </div>
+
+      </div>
+
+
+      <div class="flex items-center gap-5 text-2xl">
+        <button>🔊</button>
+        <button>⚙️</button>
+        <button>⛶</button>
+      </div>
+
+    </footer>
+
+  </main>
+
 </div>
-
-<script type="module">
-
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-
-import { GLTFLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
-
-////////////////////////////
-// SCENE
-////////////////////////////
-
-const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x87CEEB);
-
-////////////////////////////
-// CAMERA
-////////////////////////////
-
-const camera = new THREE.PerspectiveCamera(
-    70,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-);
-
-camera.position.set(0,5,-12);
-
-////////////////////////////
-// RENDERER
-////////////////////////////
-
-const renderer = new THREE.WebGLRenderer({
-    antialias:true
-});
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-renderer.shadowMap.enabled = true;
-
-document.body.appendChild(renderer.domElement);
-
-////////////////////////////
-// LIGHTS
-////////////////////////////
-
-const hemi = new THREE.HemisphereLight(0xffffff,0x444444,1.5);
-scene.add(hemi);
-
-const dirLight = new THREE.DirectionalLight(0xffffff,2);
-
-dirLight.position.set(5,10,7);
-
-dirLight.castShadow = true;
-
-scene.add(dirLight);
-
-////////////////////////////
-// ROAD
-////////////////////////////
-
-const roadGeometry = new THREE.PlaneGeometry(12,500);
-
-const roadMaterial = new THREE.MeshStandardMaterial({
-    color:0x444444
-});
-
-const road = new THREE.Mesh(
-    roadGeometry,
-    roadMaterial
-);
-
-road.rotation.x = -Math.PI / 2;
-
-road.receiveShadow = true;
-
-scene.add(road);
-
-////////////////////////////
-// ROAD LINES
-////////////////////////////
-
-for(let i=-240;i<240;i+=15){
-
-    const line = new THREE.Mesh(
-
-        new THREE.BoxGeometry(0.25,0.02,7),
-
-        new THREE.MeshStandardMaterial({
-            color:0xffffff
-        })
-    );
-
-    line.position.set(0,0.02,i);
-
-    scene.add(line);
-}
-
-////////////////////////////
-// GRASS
-////////////////////////////
-
-const grass = new THREE.Mesh(
-
-    new THREE.PlaneGeometry(200,500),
-
-    new THREE.MeshStandardMaterial({
-        color:0x2f7d32
-    })
-);
-
-grass.rotation.x = -Math.PI / 2;
-
-grass.position.y = -0.01;
-
-scene.add(grass);
-
-////////////////////////////
-// TANK
-////////////////////////////
-
-let tank;
-
-const loader = new GLTFLoader();
-
-loader.load(
-
-    'tank.glb',
-
-    (gltf)=>{
-
-        tank = gltf.scene;
-
-        tank.scale.set(1.5,1.5,1.5);
-
-        tank.position.set(0,0.5,-20);
-
-        tank.traverse((obj)=>{
-
-            if(obj.isMesh){
-
-                obj.castShadow = true;
-            }
-        });
-
-        scene.add(tank);
-
-        console.log("tank loaded");
-    },
-
-    undefined,
-
-    (error)=>{
-
-        console.log(error);
-
-        // fallback tank
-
-        tank = new THREE.Mesh(
-
-            new THREE.BoxGeometry(2,2,4),
-
-            new THREE.MeshStandardMaterial({
-                color:0x00ff00
-            })
-        );
-
-        tank.position.y = 1;
-
-        scene.add(tank);
-    }
-);
-
-////////////////////////////
-// CONTROLS
-////////////////////////////
-
-let gas = false;
-let left = false;
-let right = false;
-
-function bindButton(id, variable){
-
-    const btn = document.getElementById(id);
-
-    btn.addEventListener('touchstart',(e)=>{
-        e.preventDefault();
-        window[variable] = true;
-    });
-
-    btn.addEventListener('touchend',(e)=>{
-        e.preventDefault();
-        window[variable] = false;
-    });
-
-    btn.addEventListener('mousedown',()=>{
-        window[variable] = true;
-    });
-
-    btn.addEventListener('mouseup',()=>{
-        window[variable] = false;
-    });
-}
-
-bindButton('gasBtn','gas');
-bindButton('leftBtn','left');
-bindButton('rightBtn','right');
-
-////////////////////////////
-// CAMERA OFFSET
-////////////////////////////
-
-const cameraOffset = new THREE.Vector3(0,6,-12);
-
-////////////////////////////
-// ANIMATE
-////////////////////////////
-
-function animate(){
-
-    requestAnimationFrame(animate);
-
-    if(tank){
-
-        ////////////////////////////
-        // MOVE
-        ////////////////////////////
-
-        if(gas){
-
-            tank.translateZ(0.35);
-        }
-
-        if(left){
-
-            tank.rotation.y += 0.03;
-        }
-
-        if(right){
-
-            tank.rotation.y -= 0.03;
-        }
-
-        ////////////////////////////
-        // ROAD LIMIT
-        ////////////////////////////
-
-        if(tank.position.x > 5){
-
-            tank.position.x = 5;
-        }
-
-        if(tank.position.x < -5){
-
-            tank.position.x = -5;
-        }
-
-        ////////////////////////////
-        // CAMERA FOLLOW
-        ////////////////////////////
-
-        const desiredPosition = cameraOffset.clone();
-
-        desiredPosition.applyMatrix4(tank.matrixWorld);
-
-        camera.position.lerp(desiredPosition,0.08);
-
-        const lookPos = tank.position.clone();
-
-        lookPos.y += 2;
-
-        camera.lookAt(lookPos);
-    }
-
-    renderer.render(scene,camera);
-}
-
-animate();
-
-////////////////////////////
-// RESIZE
-////////////////////////////
-
-window.addEventListener('resize',()=>{
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
-});
-
-</script>
 
 </body>
 </html>
