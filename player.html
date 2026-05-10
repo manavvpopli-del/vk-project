@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Tank Oyunu</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #333; touch-action: none; }
+        #joystick-container {
+            position: absolute; bottom: 50px; left: 50px;
+            width: 120px; height: 120px; background: rgba(255,255,255,0.2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+        #joystick-knob {
+            width: 50px; height: 50px; background: #fff; border-radius: 50%; position: relative;
+        }
+    </style>
+</head>
+<body>
+
+<div id="joystick-container"><div id="joystick-knob"></div></div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+        "cannon": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+    }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as CANNON from 'cannon';
+
+// --- AYARLAR ---
+let scene, camera, renderer, world;
+let tankModel, tankBody;
+const loader = new GLTFLoader();
+const keys = { w: 0, s: 0, a: 0, d: 0 };
+
+// --- FİZİKA DÜNYASI ---
+world = new CANNON.World();
+world.gravity.set(0, -9.82, 0);
+
+// --- THREE.JS SAHƏSİ ---
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
+camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(10, 20, 10);
+light.castShadow = true;
+scene.add(light);
+scene.add(new THREE.AmbientLight(0x404040));
+
+// --- MODELLƏRİ YÜKLƏ ---
+
+// 1. Ərazi Yüklə
+loader.load('erazi.glb', (gltf) => {
+    const model = gltf.scene;
+    scene.add(model);
+    // Ərazi üçün sadə statik fizika (Yerin altına düşməmək üçün)
+    const groundBody = new CANNON.Body({ mass: 0 });
+    groundBody.addShape(new CANNON.Plane());
+    groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+    world.addBody(groundBody);
+});
+
+// 2. Tank Yüklə
+loader.load('tank.glb', (gltf) => {
+    tankModel = gltf.scene;
+    tankModel.traverse(n => { if(n.isMesh) n.castShadow = true; });
+    scene.add(tankModel);
+
+    // Tank Fizikası
+    const shape = new CANNON.Box(new CANNON.Vec3(1, 0.5, 2));
+    tankBody = new CANNON.Body({ mass: 500 });
+    tankBody.addShape(shape);
+    tankBody.position.set(0, 5, 0);
+    world.addBody(tankBody);
+});
+
+// --- MOBİL İDARƏETMƏ (JOYSTICK) ---
+const knob = document.getElementById('joystick-knob');
+let moveX = 0, moveY = 0;
+
+window.addEventListener('touchstart', e => handleMove(e));
+window.addEventListener('touchmove', e => handleMove(e));
+window.addEventListener('touchend', () => {
+    moveX = 0; moveY = 0;
+    knob.style.transform = `translate(0px, 0px)`;
+});
+
+function handleMove(e) {
+    const touch = e.touches[0];
+    const rect = document.getElementById('joystick-container').getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    moveX = (touch.clientX - centerX) / 60;
+    moveY = (touch.clientY - centerY) / 60;
+    
+    // Joystick vizual hərəkəti
+    const dist = Math.min(Math.sqrt(moveX*moveX + moveY*moveY), 1);
+    const angle = Math.atan2(moveY, moveX);
+    knob.style.transform = `translate(${Math.cos(angle)*dist*40}px, ${Math.sin(angle)*dist*40}px)`;
+}
+
+// --- OYUN DÖNGÜSÜ ---
+function animate() {
+    requestAnimationFrame(animate);
+    world.step(1/60);
+
+    if (tankBody && tankModel) {
+        // Fizika mövqeyini modelə köçür
+        tankModel.position.copy(tankBody.position);
+        tankModel.quaternion.copy(tankBody.quaternion);
+
+        // Hərəkət məntiqi
+        const speed = 10;
+        const rotationSpeed = 2;
+
+        // Joystick məlumatına görə tankı itələ
+        if (Math.abs(moveY) > 0.1) {
+            const force = new CANNON.Vec3(0, 0, -moveY * speed);
+            tankBody.applyLocalForce(force, new CANNON.Vec3(0,0,0));
+        }
+        tankBody.angularVelocity.y = -moveX * rotationSpeed;
+
+        // Kamera Tankı İzləsin
+        const relativeCameraOffset = new THREE.Vector3(0, 5, 10);
+        const cameraOffset = relativeCameraOffset.applyMatrix4(tankModel.matrixWorld);
+        camera.position.x = cameraOffset.x;
+        camera.position.y = cameraOffset.y;
+        camera.position.z = cameraOffset.z;
+        camera.lookAt(tankModel.position);
+    }
+
+    renderer.render(scene, camera);
+}
+
+animate();
+
+// Ekran ölçüsü dəyişəndə uyğunlaşdır
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
