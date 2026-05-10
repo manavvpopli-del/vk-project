@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Tank Oyunu</title>
+    <title>3D Drone Tank Simulation</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #333; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: sans-serif; }
         #joystick-container {
-            position: absolute; bottom: 50px; left: 50px;
-            width: 120px; height: 120px; background: rgba(255,255,255,0.2);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            position: absolute; bottom: 40px; left: 40px;
+            width: 100px; height: 100px; background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
         }
         #joystick-knob {
-            width: 50px; height: 50px; background: #fff; border-radius: 50%; position: relative;
+            width: 40px; height: 40px; background: #fff; border-radius: 50%;
+            position: absolute; left: 30px; top: 30px;
+        }
+        #instructions {
+            position: absolute; top: 10px; width: 100%; text-align: center;
+            color: white; pointer-events: none; text-shadow: 1px 1px 2px black;
         }
     </style>
 </head>
 <body>
 
+<div id="instructions">Sürmək üçün Joystick, Baxmaq üçün ekranı sürüşdür</div>
 <div id="joystick-container"><div id="joystick-knob"></div></div>
 
 <script type="importmap">
@@ -35,119 +41,144 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as CANNON from 'cannon';
 
-// --- AYARLAR ---
+// --- DEYİŞƏNLƏR ---
 let scene, camera, renderer, world;
 let tankModel, tankBody;
-const loader = new GLTFLoader();
-const keys = { w: 0, s: 0, a: 0, d: 0 };
+let moveX = 0, moveY = 0;
+let camAngleX = 0, camAngleY = 0.8; // Kamera fırlanma bucaqları
+let camDistance = 15;
 
 // --- FİZİKA DÜNYASI ---
 world = new CANNON.World();
 world.gravity.set(0, -9.82, 0);
 
-// --- THREE.JS SAHƏSİ ---
+// --- SCENE & RENDERER ---
 scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb);
-camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+scene.background = new THREE.Color(0x334455);
+camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(10, 20, 10);
+// İşıqlandırma
+const light = new THREE.DirectionalLight(0xffffff, 1.2);
+light.position.set(20, 50, 20);
 light.castShadow = true;
 scene.add(light);
-scene.add(new THREE.AmbientLight(0x404040));
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-// --- MODELLƏRİ YÜKLƏ ---
+// --- KODLA ƏRAZİ YARATMA (TERRAIN) ---
+function createTerrain() {
+    const size = 100;
+    const segments = 40;
+    const geometry = new THREE.PlaneGeometry(size, size, segments, segments);
+    
+    // Təpəciklər yaratmaq üçün hündürlük dəyişdirilir
+    const vertices = geometry.attributes.position.array;
+    for (let i = 0; i < vertices.length; i += 3) {
+        const x = vertices[i];
+        const y = vertices[i+1];
+        vertices[i+2] = Math.sin(x * 0.1) * Math.cos(y * 0.1) * 1.5; // Kələ-kötürlük
+    }
+    geometry.computeVertexNormals();
 
-// 1. Ərazi Yüklə
-loader.load('erazi.glb', (gltf) => {
-    const model = gltf.scene;
-    scene.add(model);
-    // Ərazi üçün sadə statik fizika (Yerin altına düşməmək üçün)
+    const material = new THREE.MeshStandardMaterial({ color: 0x446633, roughness: 0.8 });
+    const terrain = new THREE.Mesh(geometry, material);
+    terrain.rotation.x = -Math.PI / 2;
+    terrain.receiveShadow = true;
+    scene.add(terrain);
+
+    // Fizika üçün zəmin (Plane)
     const groundBody = new CANNON.Body({ mass: 0 });
     groundBody.addShape(new CANNON.Plane());
     groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
     world.addBody(groundBody);
-});
+}
+createTerrain();
 
-// 2. Tank Yüklə
+// --- TANK YÜKLƏ ---
+const loader = new GLTFLoader();
 loader.load('tank.glb', (gltf) => {
     tankModel = gltf.scene;
-    tankModel.traverse(n => { if(n.isMesh) n.castShadow = true; });
     scene.add(tankModel);
 
-    // Tank Fizikası
-    const shape = new CANNON.Box(new CANNON.Vec3(1, 0.5, 2));
-    tankBody = new CANNON.Body({ mass: 500 });
+    const shape = new CANNON.Box(new CANNON.Vec3(1.2, 0.6, 2));
+    tankBody = new CANNON.Body({ mass: 800 });
     tankBody.addShape(shape);
     tankBody.position.set(0, 5, 0);
     world.addBody(tankBody);
 });
 
-// --- MOBİL İDARƏETMƏ (JOYSTICK) ---
+// --- JOYSTICK VƏ 360 BAXIŞ ---
 const knob = document.getElementById('joystick-knob');
-let moveX = 0, moveY = 0;
+let isMovingCamera = false;
+let lastTouchX = 0, lastTouchY = 0;
 
-window.addEventListener('touchstart', e => handleMove(e));
-window.addEventListener('touchmove', e => handleMove(e));
+window.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    if(t.clientX > 200) isMovingCamera = true; // Ekranın sağ tərəfi kameradır
+    lastTouchX = t.clientX;
+    lastTouchY = t.clientY;
+});
+
+window.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    const dx = t.clientX - lastTouchX;
+    const dy = t.clientY - lastTouchY;
+
+    if (isMovingCamera) {
+        camAngleX -= dx * 0.01;
+        camAngleY = Math.max(0.2, Math.min(1.4, camAngleY + dy * 0.01)); // Yuxarı-aşağı limit
+    } else {
+        // Joystick hissəsi
+        const rect = document.getElementById('joystick-container').getBoundingClientRect();
+        moveX = (t.clientX - (rect.left + 50)) / 50;
+        moveY = (t.clientY - (rect.top + 50)) / 50;
+        const dist = Math.min(Math.sqrt(moveX**2 + moveY**2), 1);
+        const ang = Math.atan2(moveY, moveX);
+        knob.style.transform = `translate(${Math.cos(ang)*dist*30}px, ${Math.sin(ang)*dist*30}px)`;
+    }
+    lastTouchX = t.clientX;
+    lastTouchY = t.clientY;
+});
+
 window.addEventListener('touchend', () => {
+    isMovingCamera = false;
     moveX = 0; moveY = 0;
     knob.style.transform = `translate(0px, 0px)`;
 });
 
-function handleMove(e) {
-    const touch = e.touches[0];
-    const rect = document.getElementById('joystick-container').getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    moveX = (touch.clientX - centerX) / 60;
-    moveY = (touch.clientY - centerY) / 60;
-    
-    // Joystick vizual hərəkəti
-    const dist = Math.min(Math.sqrt(moveX*moveX + moveY*moveY), 1);
-    const angle = Math.atan2(moveY, moveX);
-    knob.style.transform = `translate(${Math.cos(angle)*dist*40}px, ${Math.sin(angle)*dist*40}px)`;
-}
-
-// --- OYUN DÖNGÜSÜ ---
+// --- ANIMATION LOOP ---
 function animate() {
     requestAnimationFrame(animate);
     world.step(1/60);
 
     if (tankBody && tankModel) {
-        // Fizika mövqeyini modelə köçür
         tankModel.position.copy(tankBody.position);
         tankModel.quaternion.copy(tankBody.quaternion);
 
-        // Hərəkət məntiqi
-        const speed = 10;
-        const rotationSpeed = 2;
-
-        // Joystick məlumatına görə tankı itələ
+        // Tank hərəkəti
+        const speed = 15;
         if (Math.abs(moveY) > 0.1) {
-            const force = new CANNON.Vec3(0, 0, -moveY * speed);
-            tankBody.applyLocalForce(force, new CANNON.Vec3(0,0,0));
+            const dir = new THREE.Vector3(0, 0, -moveY).applyQuaternion(tankModel.quaternion);
+            tankBody.velocity.x = dir.x * speed;
+            tankBody.velocity.z = dir.z * speed;
         }
-        tankBody.angularVelocity.y = -moveX * rotationSpeed;
+        tankBody.angularVelocity.y = -moveX * 2.5;
 
-        // Kamera Tankı İzləsin
-        const relativeCameraOffset = new THREE.Vector3(0, 5, 10);
-        const cameraOffset = relativeCameraOffset.applyMatrix4(tankModel.matrixWorld);
-        camera.position.x = cameraOffset.x;
-        camera.position.y = cameraOffset.y;
-        camera.position.z = cameraOffset.z;
+        // DRON BAXIŞI (360 dərəcə fırlanan)
+        const x = tankModel.position.x + camDistance * Math.sin(camAngleX) * Math.cos(camAngleY);
+        const y = tankModel.position.y + camDistance * Math.sin(camAngleY);
+        const z = tankModel.position.z + camDistance * Math.cos(camAngleX) * Math.cos(camAngleY);
+
+        camera.position.set(x, y, z);
         camera.lookAt(tankModel.position);
     }
-
     renderer.render(scene, camera);
 }
-
 animate();
 
-// Ekran ölçüsü dəyişəndə uyğunlaşdır
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
