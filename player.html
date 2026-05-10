@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fixed Drone Tank View</title>
+    <title>Mini Tank Drone View</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #222; touch-action: none; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background: #1a1a1a; touch-action: none; font-family: Arial, sans-serif; }
         
-        /* İdarəetmə Düymələri */
-        #controls {
-            position: absolute; bottom: 40px; width: 100%;
-            display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box;
+        #ui {
+            position: absolute; bottom: 30px; width: 100%;
+            display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box;
             pointer-events: none;
         }
-        .btn-group { display: flex; gap: 15px; pointer-events: auto; }
+        .group { display: flex; gap: 10px; pointer-events: auto; }
         .btn {
-            width: 70px; height: 70px; background: rgba(255,255,255,0.2);
-            border: 2px solid #fff; border-radius: 10px;
+            width: 80px; height: 80px; background: rgba(0,0,0,0.6);
+            border: 2px solid #555; border-radius: 15px;
             display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; user-select: none;
+            color: #fff; font-size: 14px; font-weight: bold; user-select: none;
         }
-        .btn:active { background: rgba(255,255,255,0.5); }
+        .btn:active { background: #ff4444; border-color: #fff; }
     </style>
 </head>
 <body>
 
-<div id="controls">
-    <div class="btn-group">
-        <div class="btn" id="leftBtn">SOL</div>
-        <div class="btn" id="rightBtn">SAĞ</div>
+<div id="ui">
+    <div class="group">
+        <div class="btn" id="lBtn">SOL</div>
+        <div class="btn" id="rBtn">SAĞ</div>
     </div>
-    <div class="btn-group">
-        <div class="btn" id="upBtn">İLERİ</div>
-        <div class="btn" id="downBtn">GERİ</div>
+    <div class="group">
+        <div class="btn" id="uBtn">QAZ</div>
+        <div class="btn" id="dBtn">GERİ</div>
     </div>
 </div>
 
@@ -54,88 +53,69 @@ import * as CANNON from 'cannon';
 let scene, camera, renderer, world, tankModel, tankBody;
 const input = { left: false, right: false, up: false, down: false };
 
-// --- FİZİKA ---
+// --- FİZİKA SİSTEMİ ---
 world = new CANNON.World();
 world.gravity.set(0, -9.82, 0);
 
 // --- SCENE ---
 scene = new THREE.Scene();
-scene.background = new THREE.Color(0x222222);
+scene.background = new THREE.Color(0x252525);
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-
 renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 const sun = new THREE.DirectionalLight(0xffffff, 1);
-sun.position.set(10, 20, 10);
+sun.position.set(5, 20, 5);
 scene.add(sun);
 
-// --- YOL YARAT (DÜZ) ---
-function createRoad() {
-    const roadGeo = new THREE.PlaneGeometry(10, 2000);
-    const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-    const road = new THREE.Mesh(roadGeo, roadMat);
-    road.rotation.x = -Math.PI / 2;
-    scene.add(road);
+// --- YOL (ASVALT) ---
+const roadGeo = new THREE.PlaneGeometry(12, 2000);
+const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+const road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI / 2;
+scene.add(road);
 
-    const lineGeo = new THREE.PlaneGeometry(0.3, 2000);
-    const lineMat = new THREE.MeshBasicMaterial({ color: 0xaaaaaa });
-    const line = new THREE.Mesh(lineGeo, lineMat);
-    line.rotation.x = -Math.PI / 2;
-    line.position.y = 0.01;
-    scene.add(line);
+const groundBody = new CANNON.Body({ mass: 0 });
+groundBody.addShape(new CANNON.Plane());
+groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+world.addBody(groundBody);
 
-    const groundBody = new CANNON.Body({ mass: 0 });
-    groundBody.addShape(new CANNON.Plane());
-    groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-    world.addBody(groundBody);
-}
-createRoad();
-
-// --- TANKI YÜKLƏ VƏ ÖLÇÜSÜNÜ BALACALAŞDIR ---
+// --- TANK YÜKLƏMƏ (KİÇİK ÖLÇÜ) ---
 const loader = new GLTFLoader();
 loader.load('tank.glb', (gltf) => {
     tankModel = gltf.scene;
-    
-    // Tankın ölçüsünü kiçildirik (Əgər model çox iridirsə 0.1 və ya 0.2 et)
-    tankModel.scale.set(0.5, 0.5, 0.5); 
+    tankModel.scale.set(0.15, 0.15, 0.15); // Tankı çox kiçiltdik
     scene.add(tankModel);
 
-    // Fizika gövdəsi (Ölçüləri kiçildilmiş tanka uyğunlaşdırıldı)
-    const shape = new CANNON.Box(new CANNON.Vec3(0.6, 0.4, 1));
-    tankBody = new CANNON.Body({ mass: 800 });
+    const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.4, 0.8));
+    tankBody = new CANNON.Body({ mass: 500 });
     tankBody.addShape(shape);
     tankBody.position.set(0, 1, 0);
-    tankBody.angularDamping = 0.99; // Tankın aşmaması üçün
-    world.addBody(groundBody);
+    tankBody.angularDamping = 0.99; // Sağa-sola aşmaması üçün
     world.addBody(tankBody);
 });
 
-// --- DÜYMƏLƏRİN İŞLƏMƏSİ ---
-const setupBtn = (id, key) => {
-    const btn = document.getElementById(id);
-    btn.addEventListener('touchstart', (e) => { e.preventDefault(); input[key] = true; });
-    btn.addEventListener('touchend', (e) => { e.preventDefault(); input[key] = false; });
+// --- DÜYMƏ KONTROLLARI ---
+const bind = (id, key) => {
+    const el = document.getElementById(id);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); input[key] = true; });
+    el.addEventListener('touchend', (e) => { e.preventDefault(); input[key] = false; });
 };
-setupBtn('leftBtn', 'left');
-setupBtn('rightBtn', 'right');
-setupBtn('upBtn', 'up');
-setupBtn('downBtn', 'down');
+bind('lBtn', 'left'); bind('rBtn', 'right'); bind('uBtn', 'up'); bind('dBtn', 'down');
 
-// --- UPDATE LOOP ---
-function animate() {
-    requestAnimationFrame(animate);
+// --- ANA DÖNGÜ ---
+function update() {
+    requestAnimationFrame(update);
     world.step(1/60);
 
     if (tankBody && tankModel) {
         tankModel.position.copy(tankBody.position);
         tankModel.quaternion.copy(tankBody.quaternion);
 
-        // Hərəkət Məntiqi
-        const speed = 12;
-        const rotateSpeed = 2.5;
+        const speed = 15;
+        const rotSpeed = 2.2;
 
         if (input.up) {
             const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(tankModel.quaternion);
@@ -145,30 +125,19 @@ function animate() {
             const dir = new THREE.Vector3(0, 0, 1).applyQuaternion(tankModel.quaternion);
             tankBody.velocity.x = dir.x * speed;
             tankBody.velocity.z = dir.z * speed;
-        } else {
-            tankBody.velocity.x *= 0.95;
-            tankBody.velocity.z *= 0.95;
         }
 
-        if (input.left) tankBody.angularVelocity.y = rotateSpeed;
-        else if (input.right) tankBody.angularVelocity.y = -rotateSpeed;
-        else tankBody.angularVelocity.y *= 0.9;
+        if (input.left) tankBody.angularVelocity.y = rotSpeed;
+        else if (input.right) tankBody.angularVelocity.y = -rotSpeed;
+        else tankBody.angularVelocity.y = 0;
 
-        // SABİT YUXARIDAN BAXIŞ (Kamera fırlanmır, yalnız izləyir)
-        // Yuxarıdan və bir az arxadan (Drone View)
-        camera.position.set(tankBody.position.x, tankBody.position.y + 12, tankBody.position.z + 8);
+        // SABİT DRON KAMERASI (Yuxarıdan və bir az arxadan)
+        camera.position.set(tankBody.position.x, tankBody.position.y + 15, tankBody.position.z + 10);
         camera.lookAt(tankBody.position);
     }
-
     renderer.render(scene, camera);
 }
-animate();
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+update();
 </script>
 </body>
 </html>
