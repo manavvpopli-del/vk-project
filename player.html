@@ -1,143 +1,258 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mini Tank Drone View</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; touch-action: none; font-family: Arial, sans-serif; }
-        
-        #ui {
-            position: absolute; bottom: 30px; width: 100%;
-            display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box;
-            pointer-events: none;
-        }
-        .group { display: flex; gap: 10px; pointer-events: auto; }
-        .btn {
-            width: 80px; height: 80px; background: rgba(0,0,0,0.6);
-            border: 2px solid #555; border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 14px; font-weight: bold; user-select: none;
-        }
-        .btn:active { background: #ff4444; border-color: #fff; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Tank Game</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+        touch-action: none;
+    }
+
+    canvas {
+        display: block;
+    }
+
+    .controls {
+        position: fixed;
+        bottom: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        box-sizing: border-box;
+        z-index: 10;
+    }
+
+    .left-controls {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        border: 2px solid white;
+        color: white;
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+    }
+</style>
 </head>
 <body>
 
-<div id="ui">
-    <div class="group">
-        <div class="btn" id="lBtn">SOL</div>
-        <div class="btn" id="rBtn">SAĞ</div>
+<div class="controls">
+    <div class="left-controls">
+        <div class="btn" id="leftBtn">◀</div>
+        <div class="btn" id="rightBtn">▶</div>
     </div>
-    <div class="group">
-        <div class="btn" id="uBtn">QAZ</div>
-        <div class="btn" id="dBtn">GERİ</div>
-    </div>
+
+    <div class="btn" id="gasBtn">▲</div>
 </div>
 
-<script type="importmap">
-{
-    "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
-        "cannon": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
-    }
-}
-</script>
-
 <script type="module">
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import * as CANNON from 'cannon';
 
-let scene, camera, renderer, world, tankModel, tankBody;
-const input = { left: false, right: false, up: false, down: false };
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js';
 
-// --- FİZİKA SİSTEMİ ---
-world = new CANNON.World();
-world.gravity.set(0, -9.82, 0);
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js';
 
-// --- SCENE ---
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x252525);
-camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-renderer = new THREE.WebGLRenderer({ antialias: true });
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
+
+const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+);
+
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const sun = new THREE.DirectionalLight(0xffffff, 1);
-sun.position.set(5, 20, 5);
-scene.add(sun);
+//////////////////////////
+// LIGHT
+//////////////////////////
 
-// --- YOL (ASVALT) ---
-const roadGeo = new THREE.PlaneGeometry(12, 2000);
-const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-const road = new THREE.Mesh(roadGeo, roadMat);
+const light = new THREE.DirectionalLight(0xffffff, 2);
+light.position.set(5, 10, 5);
+scene.add(light);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+
+//////////////////////////
+// ROAD
+//////////////////////////
+
+const roadGeometry = new THREE.PlaneGeometry(12, 500);
+const roadMaterial = new THREE.MeshStandardMaterial({
+    color: 0x444444
+});
+
+const road = new THREE.Mesh(roadGeometry, roadMaterial);
+
 road.rotation.x = -Math.PI / 2;
 scene.add(road);
 
-const groundBody = new CANNON.Body({ mass: 0 });
-groundBody.addShape(new CANNON.Plane());
-groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-world.addBody(groundBody);
+//////////////////////////
+// ROAD LINES
+//////////////////////////
 
-// --- TANK YÜKLƏMƏ (KİÇİK ÖLÇÜ) ---
+for(let i = -240; i < 240; i += 15){
+
+    const lineGeo = new THREE.BoxGeometry(0.3,0.02,8);
+
+    const lineMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff
+    });
+
+    const line = new THREE.Mesh(lineGeo,lineMat);
+
+    line.position.z = i;
+    line.position.y = 0.01;
+
+    scene.add(line);
+}
+
+//////////////////////////
+// TANK
+//////////////////////////
+
+let tank;
+
 const loader = new GLTFLoader();
-loader.load('tank.glb', (gltf) => {
-    tankModel = gltf.scene;
-    tankModel.scale.set(0.15, 0.15, 0.15); // Tankı çox kiçiltdik
-    scene.add(tankModel);
 
-    const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.4, 0.8));
-    tankBody = new CANNON.Body({ mass: 500 });
-    tankBody.addShape(shape);
-    tankBody.position.set(0, 1, 0);
-    tankBody.angularDamping = 0.99; // Sağa-sola aşmaması üçün
-    world.addBody(tankBody);
-});
+loader.load(
+    './tank.glb',
+    (gltf) => {
 
-// --- DÜYMƏ KONTROLLARI ---
-const bind = (id, key) => {
-    const el = document.getElementById(id);
-    el.addEventListener('touchstart', (e) => { e.preventDefault(); input[key] = true; });
-    el.addEventListener('touchend', (e) => { e.preventDefault(); input[key] = false; });
-};
-bind('lBtn', 'left'); bind('rBtn', 'right'); bind('uBtn', 'up'); bind('dBtn', 'down');
+        tank = gltf.scene;
 
-// --- ANA DÖNGÜ ---
-function update() {
-    requestAnimationFrame(update);
-    world.step(1/60);
+        tank.scale.set(1.5,1.5,1.5);
 
-    if (tankBody && tankModel) {
-        tankModel.position.copy(tankBody.position);
-        tankModel.quaternion.copy(tankBody.quaternion);
+        tank.position.set(0,0,-10);
 
-        const speed = 15;
-        const rotSpeed = 2.2;
+        scene.add(tank);
+    }
+);
 
-        if (input.up) {
-            const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(tankModel.quaternion);
-            tankBody.velocity.x = dir.x * speed;
-            tankBody.velocity.z = dir.z * speed;
-        } else if (input.down) {
-            const dir = new THREE.Vector3(0, 0, 1).applyQuaternion(tankModel.quaternion);
-            tankBody.velocity.x = dir.x * speed;
-            tankBody.velocity.z = dir.z * speed;
+//////////////////////////
+// CONTROLS
+//////////////////////////
+
+let moveForward = false;
+let turnLeft = false;
+let turnRight = false;
+
+const gasBtn = document.getElementById('gasBtn');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+
+function hold(btn, variableName){
+
+    btn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        window[variableName] = true;
+    });
+
+    btn.addEventListener('touchend', e => {
+        e.preventDefault();
+        window[variableName] = false;
+    });
+}
+
+hold(gasBtn, 'moveForward');
+hold(leftBtn, 'turnLeft');
+hold(rightBtn, 'turnRight');
+
+//////////////////////////
+// GAME LOOP
+//////////////////////////
+
+function animate(){
+
+    requestAnimationFrame(animate);
+
+    if(tank){
+
+        if(moveForward){
+
+            tank.translateZ(0.25);
         }
 
-        if (input.left) tankBody.angularVelocity.y = rotSpeed;
-        else if (input.right) tankBody.angularVelocity.y = -rotSpeed;
-        else tankBody.angularVelocity.y = 0;
+        if(turnLeft){
 
-        // SABİT DRON KAMERASI (Yuxarıdan və bir az arxadan)
-        camera.position.set(tankBody.position.x, tankBody.position.y + 15, tankBody.position.z + 10);
-        camera.lookAt(tankBody.position);
+            tank.rotation.y += 0.03;
+        }
+
+        if(turnRight){
+
+            tank.rotation.y -= 0.03;
+        }
+
+        //////////////////////////
+        // ROAD LIMIT
+        //////////////////////////
+
+        if(tank.position.x > 5){
+            tank.position.x = 5;
+        }
+
+        if(tank.position.x < -5){
+            tank.position.x = -5;
+        }
+
+        //////////////////////////
+        // THIRD PERSON CAMERA
+        //////////////////////////
+
+        const cameraOffset = new THREE.Vector3(
+            0,
+            5,
+            -10
+        );
+
+        cameraOffset.applyMatrix4(tank.matrixWorld);
+
+        camera.position.lerp(cameraOffset, 0.1);
+
+        camera.lookAt(tank.position);
     }
+
     renderer.render(scene, camera);
 }
-update();
+
+animate();
+
+//////////////////////////
+// RESIZE
+//////////////////////////
+
+window.addEventListener('resize', () => {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+});
+
 </script>
 </body>
 </html>
