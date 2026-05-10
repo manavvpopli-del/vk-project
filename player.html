@@ -7,180 +7,292 @@
 <title>Tank Game</title>
 
 <style>
-    body {
-        margin: 0;
-        overflow: hidden;
-        background: black;
-        touch-action: none;
-    }
 
-    canvas {
-        display: block;
-    }
+body{
+    margin:0;
+    overflow:hidden;
+    background:black;
+    touch-action:none;
+    font-family:sans-serif;
+}
 
-    .controls {
-        position: fixed;
-        bottom: 20px;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        padding: 0 20px;
-        box-sizing: border-box;
-        z-index: 10;
-    }
+canvas{
+    display:block;
+}
 
-    .left-controls {
-        display: flex;
-        gap: 10px;
-    }
+#ui{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
 
-    .btn {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.2);
-        border: 2px solid white;
-        color: white;
-        font-size: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        user-select: none;
-    }
+.controls{
+    position:absolute;
+    bottom:25px;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding:0 20px;
+    box-sizing:border-box;
+}
+
+.left{
+    display:flex;
+    gap:12px;
+}
+
+.btn{
+    width:85px;
+    height:85px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    border:2px solid white;
+    color:white;
+    font-size:32px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    user-select:none;
+    pointer-events:auto;
+    backdrop-filter: blur(5px);
+}
+
 </style>
 </head>
+
 <body>
 
-<div class="controls">
-    <div class="left-controls">
-        <div class="btn" id="leftBtn">◀</div>
-        <div class="btn" id="rightBtn">▶</div>
+<div id="ui">
+
+    <div class="controls">
+
+        <div class="left">
+            <div class="btn" id="leftBtn">◀</div>
+            <div class="btn" id="rightBtn">▶</div>
+        </div>
+
+        <div class="btn" id="gasBtn">▲</div>
+
     </div>
 
-    <div class="btn" id="gasBtn">▲</div>
 </div>
 
 <script type="module">
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+
+////////////////////////////
+// SCENE
+////////////////////////////
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb);
+
+scene.background = new THREE.Color(0x87CEEB);
+
+////////////////////////////
+// CAMERA
+////////////////////////////
 
 const camera = new THREE.PerspectiveCamera(
-    75,
+    70,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
 );
 
+camera.position.set(0,5,-12);
+
+////////////////////////////
+// RENDERER
+////////////////////////////
+
 const renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias:true
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
+
+renderer.shadowMap.enabled = true;
+
 document.body.appendChild(renderer.domElement);
 
-//////////////////////////
-// LIGHT
-//////////////////////////
+////////////////////////////
+// LIGHTS
+////////////////////////////
 
-const light = new THREE.DirectionalLight(0xffffff, 2);
-light.position.set(5, 10, 5);
-scene.add(light);
+const hemi = new THREE.HemisphereLight(0xffffff,0x444444,1.5);
+scene.add(hemi);
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+const dirLight = new THREE.DirectionalLight(0xffffff,2);
 
-//////////////////////////
+dirLight.position.set(5,10,7);
+
+dirLight.castShadow = true;
+
+scene.add(dirLight);
+
+////////////////////////////
 // ROAD
-//////////////////////////
+////////////////////////////
 
-const roadGeometry = new THREE.PlaneGeometry(12, 500);
+const roadGeometry = new THREE.PlaneGeometry(12,500);
+
 const roadMaterial = new THREE.MeshStandardMaterial({
-    color: 0x444444
+    color:0x444444
 });
 
-const road = new THREE.Mesh(roadGeometry, roadMaterial);
+const road = new THREE.Mesh(
+    roadGeometry,
+    roadMaterial
+);
 
 road.rotation.x = -Math.PI / 2;
+
+road.receiveShadow = true;
+
 scene.add(road);
 
-//////////////////////////
+////////////////////////////
 // ROAD LINES
-//////////////////////////
+////////////////////////////
 
-for(let i = -240; i < 240; i += 15){
+for(let i=-240;i<240;i+=15){
 
-    const lineGeo = new THREE.BoxGeometry(0.3,0.02,8);
+    const line = new THREE.Mesh(
 
-    const lineMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff
-    });
+        new THREE.BoxGeometry(0.25,0.02,7),
 
-    const line = new THREE.Mesh(lineGeo,lineMat);
+        new THREE.MeshStandardMaterial({
+            color:0xffffff
+        })
+    );
 
-    line.position.z = i;
-    line.position.y = 0.01;
+    line.position.set(0,0.02,i);
 
     scene.add(line);
 }
 
-//////////////////////////
+////////////////////////////
+// GRASS
+////////////////////////////
+
+const grass = new THREE.Mesh(
+
+    new THREE.PlaneGeometry(200,500),
+
+    new THREE.MeshStandardMaterial({
+        color:0x2f7d32
+    })
+);
+
+grass.rotation.x = -Math.PI / 2;
+
+grass.position.y = -0.01;
+
+scene.add(grass);
+
+////////////////////////////
 // TANK
-//////////////////////////
+////////////////////////////
 
 let tank;
 
 const loader = new GLTFLoader();
 
 loader.load(
-    './tank.glb',
-    (gltf) => {
+
+    'tank.glb',
+
+    (gltf)=>{
 
         tank = gltf.scene;
 
         tank.scale.set(1.5,1.5,1.5);
 
-        tank.position.set(0,0,-10);
+        tank.position.set(0,0.5,-20);
+
+        tank.traverse((obj)=>{
+
+            if(obj.isMesh){
+
+                obj.castShadow = true;
+            }
+        });
+
+        scene.add(tank);
+
+        console.log("tank loaded");
+    },
+
+    undefined,
+
+    (error)=>{
+
+        console.log(error);
+
+        // fallback tank
+
+        tank = new THREE.Mesh(
+
+            new THREE.BoxGeometry(2,2,4),
+
+            new THREE.MeshStandardMaterial({
+                color:0x00ff00
+            })
+        );
+
+        tank.position.y = 1;
 
         scene.add(tank);
     }
 );
 
-//////////////////////////
+////////////////////////////
 // CONTROLS
-//////////////////////////
+////////////////////////////
 
-let moveForward = false;
-let turnLeft = false;
-let turnRight = false;
+let gas = false;
+let left = false;
+let right = false;
 
-const gasBtn = document.getElementById('gasBtn');
-const leftBtn = document.getElementById('leftBtn');
-const rightBtn = document.getElementById('rightBtn');
+function bindButton(id, variable){
 
-function hold(btn, variableName){
+    const btn = document.getElementById(id);
 
-    btn.addEventListener('touchstart', e => {
+    btn.addEventListener('touchstart',(e)=>{
         e.preventDefault();
-        window[variableName] = true;
+        window[variable] = true;
     });
 
-    btn.addEventListener('touchend', e => {
+    btn.addEventListener('touchend',(e)=>{
         e.preventDefault();
-        window[variableName] = false;
+        window[variable] = false;
+    });
+
+    btn.addEventListener('mousedown',()=>{
+        window[variable] = true;
+    });
+
+    btn.addEventListener('mouseup',()=>{
+        window[variable] = false;
     });
 }
 
-hold(gasBtn, 'moveForward');
-hold(leftBtn, 'turnLeft');
-hold(rightBtn, 'turnRight');
+bindButton('gasBtn','gas');
+bindButton('leftBtn','left');
+bindButton('rightBtn','right');
 
-//////////////////////////
-// GAME LOOP
-//////////////////////////
+////////////////////////////
+// CAMERA OFFSET
+////////////////////////////
+
+const cameraOffset = new THREE.Vector3(0,6,-12);
+
+////////////////////////////
+// ANIMATE
+////////////////////////////
 
 function animate(){
 
@@ -188,60 +300,66 @@ function animate(){
 
     if(tank){
 
-        if(moveForward){
+        ////////////////////////////
+        // MOVE
+        ////////////////////////////
 
-            tank.translateZ(0.25);
+        if(gas){
+
+            tank.translateZ(0.35);
         }
 
-        if(turnLeft){
+        if(left){
 
             tank.rotation.y += 0.03;
         }
 
-        if(turnRight){
+        if(right){
 
             tank.rotation.y -= 0.03;
         }
 
-        //////////////////////////
+        ////////////////////////////
         // ROAD LIMIT
-        //////////////////////////
+        ////////////////////////////
 
         if(tank.position.x > 5){
+
             tank.position.x = 5;
         }
 
         if(tank.position.x < -5){
+
             tank.position.x = -5;
         }
 
-        //////////////////////////
-        // THIRD PERSON CAMERA
-        //////////////////////////
+        ////////////////////////////
+        // CAMERA FOLLOW
+        ////////////////////////////
 
-        const cameraOffset = new THREE.Vector3(
-            0,
-            5,
-            -10
-        );
+        const desiredPosition = cameraOffset.clone();
 
-        cameraOffset.applyMatrix4(tank.matrixWorld);
+        desiredPosition.applyMatrix4(tank.matrixWorld);
 
-        camera.position.lerp(cameraOffset, 0.1);
+        camera.position.lerp(desiredPosition,0.08);
 
-        camera.lookAt(tank.position);
+        const lookPos = tank.position.clone();
+
+        lookPos.y += 2;
+
+        camera.lookAt(lookPos);
     }
 
-    renderer.render(scene, camera);
+    renderer.render(scene,camera);
 }
 
 animate();
 
-//////////////////////////
+////////////////////////////
 // RESIZE
-//////////////////////////
+////////////////////////////
 
-window.addEventListener('resize', () => {
+window.addEventListener('resize',()=>{
 
     camera.aspect = window.innerWidth / window.innerHeight;
 
@@ -254,5 +372,6 @@ window.addEventListener('resize', () => {
 });
 
 </script>
+
 </body>
 </html>
