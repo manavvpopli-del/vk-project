@@ -1,301 +1,160 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MOVIX Streaming UI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <style>
-    *{
-      font-family: 'Inter', sans-serif;
-    }
-
-    body{
-      background:#040816;
-      overflow-x:hidden;
-    }
-
-    ::-webkit-scrollbar{
-      width:8px;
-    }
-
-    ::-webkit-scrollbar-thumb{
-      background:#6d4aff;
-      border-radius:20px;
-    }
-
-    .glass{
-      backdrop-filter: blur(16px);
-      background: rgba(255,255,255,0.04);
-    }
-
-    .card:hover{
-      transform: translateY(-10px);
-      border-color:#7c5cff;
-      box-shadow:0 20px 50px rgba(111,76,255,.25);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nizami Street 3D Experience</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        #instructions {
+            position: absolute; top: 10px; left: 10px; color: white;
+            font-family: Arial, sans-serif; background: rgba(0,0,0,0.5); padding: 10px;
+        }
+    </style>
 </head>
-<body class="text-white">
-
-<div class="flex min-h-screen">
-
-  <!-- Sidebar -->
-  <aside class="w-[260px] bg-[#050b1d] border-r border-white/5 px-5 py-6 flex flex-col justify-between fixed left-0 top-0 h-screen">
-
-    <div>
-      <div class="text-4xl font-black mb-12 tracking-wider">
-        MOVI<span class="text-[#6d4aff]">X</span>
-      </div>
-
-      <div class="space-y-3">
-
-        <button class="w-full flex items-center gap-4 bg-[#6d4aff] px-5 py-4 rounded-2xl text-left font-semibold shadow-lg shadow-violet-700/30">
-          🏠 Ana səhifə
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          🎬 Filmlər
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          📺 Seriallar
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          ❤️ Sevimlilər
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          📋 Listəm
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          ⬇️ Yükləmələr
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          🕒 Tarixçə
-        </button>
-
-        <button class="w-full flex items-center gap-4 hover:bg-white/5 px-5 py-4 rounded-2xl text-left transition">
-          ⚙️ Parametrlər
-        </button>
-      </div>
-    </div>
-
-
-    <div class="bg-gradient-to-br from-[#6d4aff] to-[#3421aa] p-6 rounded-[30px] shadow-2xl">
-      <h2 class="text-2xl font-bold mb-2">Premium-a keç</h2>
-      <p class="text-white/70 mb-5 text-sm leading-7">
-        Reklamsız və limitsiz izləmə təcrübəsi əldə et.
-      </p>
-
-      <button class="w-full bg-white text-black py-4 rounded-2xl font-bold hover:scale-105 transition">
-        İndi keç
-      </button>
-    </div>
-
-  </aside>
-
-
-  <!-- Main -->
-  <main class="ml-[260px] w-full px-8 py-7">
-
-    <!-- Top -->
-    <div class="flex items-center justify-between gap-6 mb-8">
-
-      <div class="flex-1 relative">
-        <input
-          type="text"
-          placeholder="Film, serial, aktyor axtar..."
-          class="w-full bg-[#0b1226] border border-white/5 rounded-full h-[64px] px-7 text-white outline-none focus:border-[#6d4aff] transition"
-        />
-
-        <div class="absolute right-7 top-1/2 -translate-y-1/2 text-white/50 text-xl">
-          🔍
-        </div>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-[#6d4aff]"></div>
-
-        <div>
-          <div class="font-semibold">Murad</div>
-          <div class="text-white/50 text-sm">Premium</div>
-        </div>
-      </div>
-
-    </div>
-
-
-    <!-- Hero -->
-    <section class="relative rounded-[38px] overflow-hidden h-[430px] mb-10 bg-gradient-to-r from-[#091124] via-[#121a33] to-[#43396e] flex items-center px-14 shadow-2xl">
-
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.25),transparent_25%)]"></div>
-
-      <div class="relative z-10 max-w-[520px]">
-
-        <h1 class="text-7xl font-black tracking-[10px] mb-6">
-          INTERSTELLAR
-        </h1>
-
-        <p class="text-white/75 text-xl leading-9 mb-9">
-          Yer kürəsinin gələcəyi təhlükə altındadır. Keçmişimizi geridə qoyub ulduzlararası səyahətə çıxmalıyıq.
-        </p>
-
-        <div class="flex gap-5">
-
-          <button class="bg-[#6d4aff] hover:bg-[#7c5cff] transition px-10 py-5 rounded-2xl font-bold shadow-xl shadow-violet-700/30">
-            ▶ İzləməyə başla
-          </button>
-
-          <button class="glass border border-white/10 px-10 py-5 rounded-2xl font-semibold hover:bg-white/10 transition">
-            Ətraflı məlumat
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- Trending -->
-    <section class="mb-12">
-
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-3xl font-bold">İndi trenddə</h2>
-        <button class="text-white/60 hover:text-white transition">Daha çox →</button>
-      </div>
-
-      <div class="grid grid-cols-6 gap-5">
-
-        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
-          <div class="h-[290px] bg-gradient-to-b from-orange-400 to-red-900"></div>
-          <div class="p-4">
-            <h3 class="font-bold text-lg mb-1">Oppenheimer</h3>
-            <p class="text-white/50 text-sm">Tarix / Drama</p>
-          </div>
-        </div>
-
-        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
-          <div class="h-[290px] bg-gradient-to-b from-blue-400 to-slate-900"></div>
-          <div class="p-4">
-            <h3 class="font-bold text-lg mb-1">John Wick 4</h3>
-            <p class="text-white/50 text-sm">Aksiyon / Triller</p>
-          </div>
-        </div>
-
-        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
-          <div class="h-[290px] bg-gradient-to-b from-orange-300 to-black"></div>
-          <div class="p-4">
-            <h3 class="font-bold text-lg mb-1">The Dark Knight</h3>
-            <p class="text-white/50 text-sm">Kriminal</p>
-          </div>
-        </div>
-
-        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
-          <div class="h-[290px] bg-gradient-to-b from-sky-400 to-slate-900"></div>
-          <div class="p-4">
-            <h3 class="font-bold text-lg mb-1">Inception</h3>
-            <p class="text-white/50 text-sm">Sci‑Fi</p>
-          </div>
-        </div>
-
-        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
-          <div class="h-[290px] bg-gradient-to-b from-yellow-700 to-black"></div>
-          <div class="p-4">
-            <h3 class="font-bold text-lg mb-1">The Godfather</h3>
-            <p class="text-white/50 text-sm">Drama</p>
-          </div>
-        </div>
-
-        <div class="card transition duration-300 bg-[#0b1226] rounded-[28px] overflow-hidden border border-white/5 cursor-pointer">
-          <div class="h-[290px] bg-gradient-to-b from-red-400 to-blue-900"></div>
-          <div class="p-4">
-            <h3 class="font-bold text-lg mb-1">Spider‑Man</h3>
-            <p class="text-white/50 text-sm">Macəra</p>
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- Categories -->
-    <section class="mb-12">
-
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-3xl font-bold">Kateqoriyalar</h2>
-      </div>
-
-      <div class="grid grid-cols-8 gap-4">
-
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Aksiyon</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Komediya</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Drama</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Sci‑Fi</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Qorxu</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Romantika</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Animasiya</div>
-        <div class="bg-[#0b1226] rounded-[26px] py-8 text-center border border-white/5 hover:border-[#6d4aff] transition cursor-pointer">Sənədli</div>
-
-      </div>
-
-    </section>
-
-
-    <!-- Bottom Player -->
-    <footer class="glass sticky bottom-5 rounded-[34px] border border-white/10 px-8 py-6 flex items-center justify-between gap-8 shadow-2xl">
-
-      <div class="flex items-center gap-5 min-w-[280px]">
-
-        <div class="w-24 h-24 rounded-[24px] bg-gradient-to-br from-slate-600 to-black"></div>
-
-        <div>
-          <div class="text-xl font-bold mb-1">Interstellar</div>
-          <div class="text-white/50">1:25:34 / 2:49:04</div>
-        </div>
-
-      </div>
-
-
-      <div class="flex-1">
-
-        <div class="flex items-center justify-center gap-6 mb-4 text-2xl">
-          <button>⏮</button>
-
-          <button class="w-16 h-16 rounded-full bg-[#6d4aff] shadow-xl shadow-violet-700/30 text-2xl hover:scale-105 transition">
-            ⏸
-          </button>
-
-          <button>⏭</button>
-        </div>
-
-        <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-          <div class="w-1/2 h-full bg-[#6d4aff]"></div>
-        </div>
-
-      </div>
-
-
-      <div class="flex items-center gap-5 text-2xl">
-        <button>🔊</button>
-        <button>⚙️</button>
-        <button>⛶</button>
-      </div>
-
-    </footer>
-
-  </main>
-
-</div>
-
+<body>
+    <div id="instructions">W,A,S,D ilə hərəkət et | Siçanla ətrafa bax</div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+        // 1. Səhnə və Kamera Ayarları
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000814, 0.02); // Gecə atmosferi üçün duman
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. İşıqlandırma
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Zəif ümumi işıq
+        scene.add(ambientLight);
+
+        // 3. Yol (Floor) - Şəkildəki naxışlı döşəmə
+        const floorGeometry = new THREE.PlaneGeometry(20, 200);
+        const floorMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x333333, 
+            roughness: 0.8 
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // 4. Binaların Yaradılması (Funksiya ilə)
+        function createBuilding(x, z, width, height, depth) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: 0xe3dac9 }); // Bej rəngli daş binalar
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(x, height / 2, z);
+            scene.add(building);
+
+            // Pəncərə işıqları simulyasiyası
+            for(let i = 0; i < 5; i++) {
+                const windowLight = new THREE.PointLight(0xffaa00, 0.5, 5);
+                windowLight.position.set(x > 0 ? x-2 : x+2, Math.random() * height, z + (Math.random()-0.5)*5);
+                scene.add(windowLight);
+            }
+        }
+
+        // Küçə boyunca binaları düzək
+        for (let i = -100; i < 100; i += 15) {
+            createBuilding(-8, i, 5, 15 + Math.random() * 10, 10); // Sol tərəf
+            createBuilding(8, i, 5, 15 + Math.random() * 10, 10);  // Sağ tərəf
+        }
+
+        // 5. Məşhur Çilçıraqlar (Street Chandeliers)
+        function createChandelier(z) {
+            const group = new THREE.Group();
+            const light = new THREE.PointLight(0xfff3b0, 2, 15);
+            const geo = new THREE.SphereGeometry(0.5, 16, 16);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xfff3b0 });
+            const mesh = new THREE.Mesh(geo, mat);
+            
+            light.position.set(0, 8, z);
+            mesh.position.set(0, 8, z);
+            
+            scene.add(light);
+            scene.add(mesh);
+        }
+
+        for (let i = -80; i < 80; i += 20) {
+            createChandelier(i);
+        }
+
+        // 6. İdarəetmə (Controls)
+        const controls = new PointerLockControls(camera, document.body);
+        document.body.addEventListener('click', () => controls.lock());
+
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        const moveKeys = { forward: false, backward: false, left: false, right: false };
+
+        const onKeyDown = (event) => {
+            switch (event.code) {
+                case 'KeyW': moveKeys.forward = true; break;
+                case 'KeyS': moveKeys.backward = true; break;
+                case 'KeyA': moveKeys.left = true; break;
+                case 'KeyD': moveKeys.right = true; break;
+            }
+        };
+
+        const onKeyUp = (event) => {
+            switch (event.code) {
+                case 'KeyW': moveKeys.forward = false; break;
+                case 'KeyS': moveKeys.backward = false; break;
+                case 'KeyA': moveKeys.left = false; break;
+                case 'KeyD': moveKeys.right = false; break;
+            }
+        };
+
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+
+        camera.position.y = 1.7; // İnsan boyu hündürlüyü
+
+        // 7. Animasyon Döngüsü
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (controls.isLocked) {
+                const delta = 0.15;
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+                direction.z = Number(moveKeys.forward) - Number(moveKeys.backward);
+                direction.x = Number(moveKeys.right) - Number(moveKeys.left);
+                direction.normalize();
+
+                if (moveKeys.forward || moveKeys.backward) velocity.z -= direction.z * 400.0 * delta;
+                if (moveKeys.left || moveKeys.right) velocity.x -= direction.x * 400.0 * delta;
+
+                controls.moveRight(-velocity.x * delta);
+                controls.moveForward(-velocity.z * delta);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Pəncərə ölçüsü dəyişəndə uyğunlaşma
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
