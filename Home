@@ -1,0 +1,10 @@
+/**
+ * Tank Wars - Neon Warfare
+ * Design: Cyberpunk neon aesthetic, dark theme, mobile-first touch controls
+ * Full-screen game canvas with virtual joystick and fire button
+ */
+import TankGame from "@/components/TankGame";
+
+export default function Home() {
+  return <TankGame />;
+}
