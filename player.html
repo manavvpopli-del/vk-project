@@ -2,195 +2,180 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tarqovi 3D Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario Pro - Single File Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; touch-action: none; }
-        #joystick-zone {
-            position: absolute; bottom: 50px; left: 50px;
-            width: 150px; height: 150px; z-index: 100;
-        }
-        #ui {
-            position: absolute; top: 20px; width: 100%; text-align: center;
-            color: gold; font-family: 'Segoe UI', sans-serif; pointer-events: none;
-            text-shadow: 2px 2px 4px #000;
-        }
+        body { margin: 0; padding: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 2px solid #333; }
     </style>
 </head>
 <body>
-    <div id="ui"><h1>NIZAMI STREET 3D</h1><p>Ekranda sürüşdürərək bax, Joystick ilə gəz</p></div>
-    <div id="joystick-zone"></div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-            }
+<div id="game-container"></div>
+
+<script>
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 480,
+    parent: 'game-container',
+    physics: {
+        default: 'arcade',
+        arcade: { gravity: { y: 1200 }, debug: false }
+    },
+    scene: { preload: preload, create: create, update: update }
+};
+
+const game = new Phaser.Game(config);
+
+function preload() {
+    // --- TEKSTURALARIN KODLA YARADILMASI (Donmanı önləyir) ---
+    
+    // 1. Mario (Oyunçu)
+    this.textures.addCanvas('player', createRect(32, 40, '#e74c3c', true));
+    
+    // 2. Torpaq/Platforma
+    this.textures.addCanvas('tiles', createRect(32, 32, '#8b4513', false, '#5d2906'));
+    
+    // 3. Bulud
+    this.textures.addCanvas('cloud', createCloud(96, 48));
+    
+    // 4. Düşmən
+    this.textures.addCanvas('enemy', createRect(30, 30, '#2ecc71', true));
+    
+    // 5. Arxa Plan (Səma)
+    this.textures.addCanvas('sky', createSky(800, 480));
+}
+
+function create() {
+    // Dünyanın ümumi ölçüsü (Çox uzun xəritə)
+    const worldWidth = 6400;
+    this.physics.world.setBounds(0, 0, worldWidth, 480);
+
+    // ARXA PLAN (Parallax Effekti)
+    this.add.tileSprite(0, 0, worldWidth, 480, 'sky').setOrigin(0, 0).setScrollFactor(0);
+    
+    // Buludları təsadüfi yerlərə düzürük (Parallax 0.3)
+    for (let i = 0; i < 20; i++) {
+        this.add.image(Phaser.Math.Between(0, worldWidth), Phaser.Math.Between(50, 200), 'cloud').setScrollFactor(0.3);
+    }
+
+    // PLATFORMALAR (Statik Qrup - Performans üçün)
+    platforms = this.physics.add.staticGroup();
+
+    // Yeri döşəyirik
+    for (let i = 0; i < worldWidth; i += 32) {
+        platforms.create(i, 464, 'tiles');
+    }
+
+    // Səviyyə Dizaynı (Bloklar və Maneələr)
+    [400, 700, 1200, 1500, 1800, 2200, 2500].forEach(x => {
+        platforms.create(x, 320, 'tiles');
+        platforms.create(x + 32, 320, 'tiles');
+        platforms.create(x + 64, 320, 'tiles');
+    });
+
+    // OYUNÇU (MARIO)
+    this.player = this.physics.add.sprite(100, 350, 'player');
+    this.player.setCollideWorldBounds(true);
+    this.player.setDamping(true);
+    this.player.setDrag(0.1);
+
+    // DÜŞMƏNLƏR
+    this.enemies = this.physics.add.group();
+    [800, 1300, 2000, 2800].forEach(x => {
+        let en = this.enemies.create(x, 400, 'enemy');
+        en.setCollideWorldBounds(true);
+        en.setVelocityX(-100);
+    });
+
+    // KAMERA
+    this.cameras.main.setBounds(0, 0, worldWidth, 480);
+    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+
+    // FİZİKA TOQQUŞMALARI
+    this.physics.add.collider(this.player, platforms);
+    this.physics.add.collider(this.enemies, platforms);
+
+    // Düşmənlə qarşılaşma məntiqi
+    this.physics.add.overlap(this.player, this.enemies, (p, e) => {
+        if (p.body.velocity.y > 0 && p.y < e.y) {
+            e.destroy(); // Üstünə tullansa ölür
+            p.setVelocityY(-400);
+        } else {
+            // Öləndə restart
+            this.scene.restart();
         }
-    </script>
+    });
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+    this.cursors = this.input.keyboard.createCursorKeys();
+}
 
-    <script type="module">
-        import * as THREE from 'three';
+function update() {
+    // Hərəkət İdarəetməsi
+    if (this.cursors.left.isDown) {
+        this.player.setVelocityX(-300);
+    } else if (this.cursors.right.isDown) {
+        this.player.setVelocityX(300);
+    } else {
+        this.player.setVelocityX(0);
+    }
 
-        // --- SƏHNƏ AYARLARI ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020205);
-        scene.fog = new THREE.Fog(0x020205, 10, 50);
+    // Tullanma
+    if (this.cursors.up.isDown && this.player.body.touching.down) {
+        this.player.setVelocityY(-650);
+    }
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
+    // Düşmənlərin platforma kənarından dönməsi (Sadə AI)
+    this.enemies.children.iterate(en => {
+        if (en && en.body.blocked.left) en.setVelocityX(100);
+        if (en && en.body.blocked.right) en.setVelocityX(-100);
+    });
+}
 
-        // --- İŞIQLANDIRMA (Gecə Bakısı Effekti) ---
-        const hemiLight = new THREE.HemisphereLight(0x443333, 0x111122, 0.5);
-        scene.add(hemiLight);
+// --- KÖMƏKÇİ VİZUAL FUNKSİYALAR (Asset Generator) ---
 
-        // --- YOL (Tarqovi Daşları) ---
-        const floorGeo = new THREE.PlaneGeometry(30, 500);
-        const floorMat = new THREE.MeshStandardMaterial({ 
-            color: 0x222222, 
-            roughness: 0.1, 
-            metalness: 0.5 
-        });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        floor.receiveShadow = true;
-        scene.add(floor);
+function createRect(w, h, color, isPlayer, stroke = '#000') {
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(0, 0, w, h);
+    if(isPlayer) { // Göz əlavə edək ki, hara baxdığı bilinsin
+        ctx.fillStyle = "white";
+        ctx.fillRect(20, 10, 8, 8);
+    }
+    return canvas;
+}
 
-        // --- BİNALAR (Detallı Arxiv) ---
-        function createNizamiBuilding(x, z, h) {
-            const group = new THREE.Group();
-            
-            // Ana Bina
-            const geo = new THREE.BoxGeometry(10, h, 20);
-            const mat = new THREE.MeshStandardMaterial({ color: 0xd4c4a8 });
-            const b = new THREE.Mesh(geo, mat);
-            group.add(b);
+function createSky(w, h) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    let grd = ctx.createLinearGradient(0, 0, 0, h);
+    grd.addColorStop(0, "#5c94fc");
+    grd.addColorStop(1, "#94bdfc");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, w, h);
+    return canvas;
+}
 
-            // Eyvanlar (Şəkildəki kimi qara metal)
-            for(let j = 4; j < h; j += 4) {
-                const balconyGeo = new THREE.BoxGeometry(2, 0.5, 15);
-                const balconyMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-                const balcony = new THREE.Mesh(balconyGeo, balconyMat);
-                balcony.position.set(x > 0 ? -5 : 5, j - (h/2), 0);
-                group.add(balcony);
-            }
-
-            group.position.set(x, h/2, z);
-            scene.add(group);
-        }
-
-        for(let i = -200; i < 200; i += 25) {
-            createNizamiBuilding(18, i, 20 + Math.random() * 10);
-            createNizamiBuilding(-18, i, 20 + Math.random() * 10);
-        }
-
-        // --- ASMA ÇİLÇIRAQLAR (Məşhur effekt) ---
-        function addLamps(z) {
-            const curve = new THREE.CubicBezierCurve3(
-                new THREE.Vector3(-12, 15, z),
-                new THREE.Vector3(-5, 10, z),
-                new THREE.Vector3(5, 10, z),
-                new THREE.Vector3(12, 15, z)
-            );
-            const points = curve.getPoints(20);
-            const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3, transparent: true });
-            const line = new THREE.Line(lineGeo, lineMat);
-            scene.add(line);
-
-            // Mərkəzi çilçıraq işığı
-            const lampGeo = new THREE.SphereGeometry(0.6, 16, 16);
-            const lampMat = new THREE.MeshBasicMaterial({ color: 0xfff0aa });
-            const lamp = new THREE.Mesh(lampGeo, lampMat);
-            lamp.position.set(0, 10, z);
-            
-            const light = new THREE.PointLight(0xffaa00, 5, 20);
-            light.position.set(0, 10, z);
-            
-            scene.add(lamp, light);
-        }
-
-        for(let z = -180; z < 180; z += 30) addLamps(z);
-
-        // --- MOBİL İDARƏETMƏ SİSTEMİ ---
-        let moveForward = 0;
-        let moveSide = 0;
-        let lookAlpha = 0;
-        let lookBeta = 1.7;
-
-        // Joystick
-        const joystick = nipplejs.create({
-            zone: document.getElementById('joystick-zone'),
-            mode: 'static',
-            position: { left: '75px', bottom: '75px' },
-            color: 'white'
-        });
-
-        joystick.on('move', (evt, data) => {
-            const forward = data.vector.y;
-            const side = data.vector.x;
-            moveForward = forward;
-            moveSide = side;
-        });
-
-        joystick.on('end', () => {
-            moveForward = 0;
-            moveSide = 0;
-        });
-
-        // Touch ilə ətrafa baxmaq
-        let startX, startY;
-        document.addEventListener('touchstart', e => {
-            startX = e.touches[0].pageX;
-            startY = e.touches[0].pageY;
-        });
-
-        document.addEventListener('touchmove', e => {
-            const dx = e.touches[0].pageX - startX;
-            const dy = e.touches[0].pageY - startY;
-            lookAlpha -= dx * 0.005;
-            lookBeta = Math.max(1.2, Math.min(2.0, lookBeta + dy * 0.005));
-            startX = e.touches[0].pageX;
-            startY = e.touches[0].pageY;
-        });
-
-        camera.position.set(0, 1.7, 50);
-
-        // --- RENDER DÖNGÜSÜ ---
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Hərəkət hesablama
-            const speed = 0.2;
-            camera.position.z -= Math.cos(lookAlpha) * moveForward * speed;
-            camera.position.x -= Math.sin(lookAlpha) * moveForward * speed;
-            camera.position.x += Math.cos(lookAlpha) * moveSide * speed;
-            camera.position.z -= Math.sin(lookAlpha) * moveSide * speed;
-
-            // Baxış istiqaməti
-            const target = new THREE.Vector3(
-                camera.position.x + Math.sin(lookAlpha),
-                camera.position.y + (1.7 - lookBeta),
-                camera.position.z + Math.cos(lookAlpha)
-            );
-            camera.lookAt(target);
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+function createCloud(w, h) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(24, 30, 18, 0, Math.PI * 2);
+    ctx.arc(48, 20, 24, 0, Math.PI * 2);
+    ctx.arc(72, 30, 18, 0, Math.PI * 2);
+    ctx.fill();
+    return canvas;
+}
+</script>
 </body>
 </html>
