@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Watch Live - Premium</title>
+    <title>Watch Live</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -30,7 +30,7 @@
         .video-section { width: 100%; background: #000; position: relative; }
         #player-container { width: 100%; height: 211px; position: relative; }
         #player { width: 100%; height: 100%; pointer-events: none; }
-        #video-chat-overlay { position: absolute; bottom: 20px; left: 10px; z-index: 100; pointer-events: none; color: #fff; text-shadow: 1px 1px 2px #000; font-size: 12px; }
+        #video-chat-overlay { position: absolute; bottom: 20px; left: 10px; z-index: 100; pointer-events: none; color: #fff; text-shadow: 1px 1px 4px #000; font-size: 12px; }
 
         .controls-bar { background: #0a0a0a; padding: 10px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border); }
         .main-btns { display: flex; gap: 5px; overflow-x: auto; }
@@ -79,7 +79,7 @@
             <div class="controls-bar">
                 <div class="main-btns">
                     <button onclick="toggleAudio()" id="aud-btn" style="background:#2e7d32">SƏSİ AÇ</button>
-                    <button onclick="goFull()">TAM EKRAN (YAN)</button>
+                    <button onclick="handleFS()" id="fs-btn">TAM EKRAN (YAN)</button>
                     <button id="adm-p" onclick="toggleAdm()" style="display:none; background:var(--red)">VİDEO PANEL</button>
                 </div>
                 <div id="adm-box" style="display:none; margin-top:10px">
@@ -129,7 +129,6 @@
         }
 
         function init() {
-            // Sinxronizasiya
             if(myL === 'admin') {
                 setInterval(() => { if(ok) db.ref(`rooms/${myR}/sync`).set({ t: ytP.getCurrentTime(), s: ytP.getPlayerState(), v: ytP.getVideoData().video_id }); }, 1000);
             } else {
@@ -149,10 +148,9 @@
                 let rQ = m.rep ? `<div class="rep-text"><b>${m.rep.n}:</b> ${m.rep.t}</div>` : "";
                 d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble">${rQ}<b>${m.n}</b><br>${m.t}<span class="rep-btn" onclick="setRep('${m.n}','${m.t}')">Yanıtla</span></div>`;
                 b.appendChild(d); b.scrollTop = b.scrollHeight;
-                // Tam ekranda video üstü mesaj
                 const ov = document.getElementById('video-chat-overlay');
                 ov.innerHTML = `<b>${m.n}:</b> ${m.t}`;
-                setTimeout(() => ov.innerHTML = "", 3000);
+                setTimeout(() => ov.innerHTML = "", 4000);
             });
         }
 
@@ -179,19 +177,29 @@
         async function toggleAudio() {
             const btn = document.getElementById('aud-btn');
             if(!stream) {
-                try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "SƏSİ BAĞLA"; btn.style.background = "#c62828"; showToast("Səsli söhbət aktivdir."); } 
-                catch(e) { showToast("Mikrofon tapılmadı."); }
+                try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "SƏSİ BAĞLA"; btn.style.background = "#c62828"; } 
+                catch(e) { showToast("Mikrofon icazəsi yoxdur."); }
             } else { stream.getTracks().forEach(t => t.stop()); stream = null; btn.innerText = "SƏSİ AÇ"; btn.style.background = "#2e7d32"; }
         }
 
-        function goFull() {
+        function handleFS() {
             const v = document.getElementById('v-sec');
-            if(!document.fullscreenElement) {
-                if(v.requestFullscreen) v.requestFullscreen();
+            if (!document.fullscreenElement) {
+                if (v.requestFullscreen) v.requestFullscreen();
+                else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
                 v.classList.add('full-screen-mode');
-                if(screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape");
-            } else { document.exitFullscreen(); v.classList.remove('full-screen-mode'); }
+                document.getElementById('fs-btn').innerText = "NORMAL REJİM";
+                if(screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(e=>{});
+            } else { document.exitFullscreen(); }
         }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('v-sec').classList.remove('full-screen-mode');
+                document.getElementById('fs-btn').innerText = "TAM EKRAN (YAN)";
+                if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+            }
+        });
 
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") send(); };
     </script>
