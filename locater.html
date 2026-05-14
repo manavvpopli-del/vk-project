@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V.K Project - Satellite Locator v5.0</title>
+    <title>V.K Project - Global Locator Pro v7.1</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&display=swap');
 
         :root {
             --neon: #00d9ff;
+            --neon-bg: rgba(0, 217, 255, 0.1);
             --danger: #ff3e3e;
-            --bg: #050508;
-            --glass: rgba(255, 255, 255, 0.05);
+            --danger-bg: rgba(255, 62, 62, 0.15);
+            --bg: #030305;
+            --card: #080a0f;
+            --glass: rgba(10, 12, 18, 0.7);
         }
 
         body {
@@ -20,128 +23,183 @@
             overflow-x: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
 
-        #matrixBg { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.15; }
+        #matrixBg { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.2; }
 
-        .tracker-box {
-            width: 95%; max-width: 900px; background: var(--glass);
-            border: 1px solid var(--neon); border-radius: 15px; padding: 25px;
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.2); backdrop-filter: blur(10px);
-            margin: 20px 0;
+        .locator-container {
+            width: 95%; max-width: 950px; background: var(--card);
+            border: 1px solid #1a1e2a; border-radius: 20px; padding: 30px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            margin: 20px 0; position: relative; overflow: hidden;
         }
 
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--neon); padding-bottom: 15px; }
-        .header h1 { margin: 0; font-size: 22px; letter-spacing: 5px; color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        /* Futuristik Şüşə Effekti */
+        .locator-container::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.01) 100%);
+            transform: rotate(30deg); z-index: 1; pointer-events: none;
+        }
 
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #1a1e2a; padding-bottom: 15px; position: relative; z-index: 2; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 700; color: var(--neon); text-shadow: 0 0 15px var(--neon); letter-spacing: 5px; text-transform: uppercase; }
+
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; position: relative; z-index: 2; }
         
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 10px; color: var(--neon); margin-bottom: 5px; text-transform: uppercase; }
-
+        .field-group { position: relative; }
+        label { display: block; font-size: 11px; color: var(--neon); margin-bottom: 6px; text-transform: uppercase; font-weight: 600; }
+        
         input, select {
-            width: 100%; background: #000; border: 1px solid #333; padding: 12px;
-            color: var(--neon); border-radius: 5px; outline: none; font-family: inherit; box-sizing: border-box;
+            width: 100%; background: rgba(0, 0, 0, 0.5); border: 1px solid #2a2f3f; padding: 14px 18px;
+            color: var(--neon); border-radius: 8px; outline: none; font-family: inherit; font-size: 13px;
+            box-sizing: border-box; transition: 0.3s;
         }
 
-        .btn {
-            width: 100%; background: var(--neon); color: #000; border: none; padding: 15px;
-            font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 2px; margin-top: 10px;
+        input:focus, select:focus { border-color: var(--neon); box-shadow: 0 0 10px var(--neon-bg); background: #000; }
+
+        .action-btn {
+            width: 100%; background: var(--neon); color: #000; border: none; padding: 18px;
+            font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 3px; margin-top: 15px; font-size: 14px;
+            position: relative; z-index: 2; overflow: hidden;
         }
 
-        .btn:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+        .action-btn:hover { background: #fff; box-shadow: 0 0 25px #fff; transform: translateY(-2px); }
+
+        /* LOADING TERMINAL */
+        .console-box { margin-top: 30px; position: relative; z-index: 2; }
+        
+        .process-bar { height: 6px; background: #111; border-radius: 3px; overflow: hidden; display: none; margin-bottom: 15px; }
+        #fill { height: 100%; background: var(--neon); width: 0%; box-shadow: 0 0 10px var(--neon); transition: 0.5s; }
 
         #terminal {
-            background: #000; border-radius: 5px; padding: 15px; height: 100px;
-            font-size: 11px; overflow-y: hidden; margin: 20px 0;
-            border: 1px solid #222; color: #0f0;
+            background: #000; border-radius: 8px; padding: 18px; height: 130px;
+            font-size: 12px; overflow-y: hidden; border: 1px solid #1a1e2a; color: #0f0;
+            line-height: 1.6; display: none;
         }
 
+        /* PEKY XƏRİTƏ VƏ EFFEKTLƏR */
         #mapArea {
-            height: 400px; width: 100%; background: #111; border-radius: 10px;
-            position: relative; overflow: hidden; display: none;
-            border: 1px solid var(--neon);
+            height: 450px; width: 100%; background: #000; border-radius: 12px;
+            position: relative; overflow: hidden; display: none; margin-top: 25px;
+            border: 1px solid var(--neon); box-shadow: 0 0 20px var(--neon-bg);
+            z-index: 2;
         }
 
-        .radar-line {
-            position: absolute; width: 100%; height: 2px; background: var(--neon);
-            box-shadow: 0 0 15px var(--neon); top: 0; z-index: 10; animation: scan 3s linear infinite;
+        /* Profesional Skaner Xətti */
+        .scanner-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(180deg, rgba(0,217,255,0) 0%, rgba(0,217,255,0.05) 50%, rgba(0,217,255,0) 100%);
+            border-bottom: 1px solid var(--neon); box-shadow: 0 5px 15px var(--neon-bg);
+            animation: moveScan 4s ease-in-out infinite; z-index: 10;
         }
 
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes moveScan { 0% { top: 0%; } 100% { top: 50%; } }
 
-        .target-marker {
-            position: absolute; color: var(--danger); font-size: 35px;
-            transform: translate(-50%, -50%); animation: blink 0.6s infinite; z-index: 11;
+        /* Yüksək Keyfiyyətli Peyk Xəritəsi */
+        #satMap {
+            width: 100%; height: 100%; border: none;
+            filter: grayscale(0.2) contrast(1.1) brightness(0.9);
         }
 
-        @keyframes blink { 50% { opacity: 0; } }
+        /* Profesional Target Nişangahı */
+        .target-group { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 15; }
+        
+        .circle-out {
+            width: 80px; height: 80px; border: 1px solid var(--danger); border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+        .circle-out::before { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: var(--danger); }
+        .circle-out::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--danger); }
 
-        .info-panel {
-            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.85);
-            padding: 12px; font-size: 10px; border: 1px solid var(--neon); width: 220px; z-index: 12;
+        .target-dot {
+            width: 12px; height: 12px; background: var(--danger); border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            animation: blinkTarget 0.8s infinite; box-shadow: 0 0 15px var(--danger);
         }
 
-        @media (max-width: 600px) { .grid-inputs { grid-template-columns: 1fr; } }
+        @keyframes blinkTarget { 50% { opacity: 0; } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Məlumat Paneli (İnandırıcı) */
+        .hud-panel {
+            position: absolute; bottom: 20px; left: 20px; background: var(--glass);
+            padding: 15px; font-size: 11px; border: 1px solid var(--neon); width: 240px;
+            z-index: 20; backdrop-filter: blur(5px); border-radius: 5px;
+        }
+        .hud-header { color: var(--neon); font-weight: 700; margin-bottom: 8px; font-size: 12px; }
+        .hud-row { margin-bottom: 4px; color: #aaa; }
+        .hud-row b { color: #fff; }
+
+        @media (max-width: 700px) { .input-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <canvas id="matrixBg"></canvas>
 
-<div class="tracker-box">
+<div class="locator-container">
     <div class="header">
-        <h1>V.K PROJECT - GLOBAL LOCATER</h1>
+        <h1>V.K PROJECT - GLOBAL LOCATOR</h1>
     </div>
 
-    <div class="grid-inputs">
-        <div class="input-group">
-            <label>Hədəf Ad Soyad</label>
-            <input type="text" id="targetName" placeholder="Məs: Əli Məmmədov">
+    <div class="input-grid">
+        <div class="field-group">
+            <label>Hədəf Ad Soyad (VK-OSINT)</label>
+            <input type="text" id="targetName" placeholder="Məs: Kənan Vəliyev">
         </div>
-        <div class="input-group">
-            <label>Telefon Nömrəsi</label>
+        <div class="field-group">
+            <label>Telefon Nömrəsi (Global)</label>
             <input type="text" id="phoneInput" placeholder="+994 (__) ___ __ __">
         </div>
     </div>
 
-    <div class="grid-inputs">
-        <div class="input-group">
-            <label>Hədəf Cihaz Modeli</label>
-            <input type="text" id="deviceModel" placeholder="Məs: iPhone 14 Pro">
+    <div class="input-grid">
+        <div class="field-group">
+            <label>Cihaz Modeli (Məlumdursa)</label>
+            <input type="text" id="deviceModel" placeholder="iPhone 15, S24 və s.">
         </div>
-        <div class="input-group">
+        <div class="field-group">
             <label>Axtarış Səbəbi</label>
             <select id="searchReason">
-                <option value="Şəxsi səbəblər">Şəxsi səbəblər</option>
-                <option value="İtmiş cihaz">İtmiş cihaz</option>
-                <option value="İzləmək">İzləmək (Monitoring)</option>
+                <option value="Təcili Axtarış">Təcili Axtarış</option>
+                <option value="İtmiş Cihaz">İtmiş Cihaz</option>
+                <option value="Hədəfi İzləmək">Hədəfi İzləmək</option>
             </select>
         </div>
     </div>
 
-    <button class="btn" onclick="startTracking()">Skanerə Başla</button>
+    <button id="mainBtn" class="action-btn" onclick="startTracking()">GPS Skanerini Başlat</button>
 
-    <div id="terminal">
-        <div id="lines">> Sistem gözləmədədir. Verilənləri daxil edin...</div>
+    <div class="console-box">
+        <div class="process-bar" id="pBar"><div id="fill"></div></div>
+        <div id="terminal">
+            <div id="lines">> Sistem gözləmədədir. Verilənləri daxil edib skanerə başlayın...</div>
+        </div>
     </div>
 
     <div id="mapArea">
-        <div class="radar-line"></div>
-        <div id="marker" class="target-marker">⌖</div>
-        <iframe id="gMap" width="100%" height="100%" frameborder="0" style="filter: grayscale(1) invert(1) contrast(1.2) brightness(0.7);"></iframe>
+        <div class="scanner-line"></div>
+        <div class="target-group">
+            <div class="circle-out"></div>
+            <div class="target-dot"></div>
+        </div>
+        <iframe id="satMap" src="" frameborder="0" scrolling="no"></iframe>
         
-        <div class="info-panel" id="deviceDisplay">
+        <div class="hud-panel" id="deviceDisplay">
+            <div class="hud-header">> HƏDƏF ANALİZİ</div>
             STATUS: ANALİZ EDİLİR...
         </div>
     </div>
 </div>
 
 <script>
+    const VK_AQTARIS_VAXTI = 240000; // Tam 4 dəqiqə (millifitdə)
+    let pInterval;
+
     function log(txt, col = "#0f0") {
         const l = document.getElementById("lines");
         const d = document.createElement("div");
         d.style.color = col;
-        d.innerText = `> ${txt}`;
+        d.innerText = `[${new Date().toLocaleTimeString()}] > ${txt}`;
         l.appendChild(d);
         document.getElementById("terminal").scrollTop = document.getElementById("terminal").scrollHeight;
     }
@@ -149,64 +207,98 @@
     async function startTracking() {
         const name = document.getElementById("targetName").value;
         const phone = document.getElementById("phoneInput").value;
-        const model = document.getElementById("deviceModel").value;
         const reason = document.getElementById("searchReason").value;
 
         if(!name || !phone) {
-            alert("Zəhmət olmasa Ad və Nömrəni daxil edin!");
+            alert("Kəşfiyyat üçün Ad və Nömrə mütləqdir!");
             return;
         }
 
-        document.getElementById("lines").innerHTML = "";
+        // İlkin Hazırlıq
+        document.getElementById("mainBtn").style.display = "none";
+        document.getElementById("terminal").style.display = "block";
+        document.getElementById("pBar").style.display = "block";
         document.getElementById("mapArea").style.display = "none";
+        document.getElementById("lines").innerHTML = "";
 
-        log(`Protokol başladıldı: ${reason.toUpperCase()}`, "#00d9ff");
-        await new Promise(r => setTimeout(r, 800));
-        log(`Hədəf: ${name} qeydiyyat bazasında axtarılır...`);
-        await new Promise(r => setTimeout(r, 1000));
-        log(`Cihaz (${model || "Naməlum"}) peykə qoşulur...`);
-        await new Promise(r => setTimeout(r, 1500));
-        log("SİQNALLAR TƏSDİQLƏNDİ. KORDİNATLAR ALINIR...", "yellow");
-        await new Promise(r => setTimeout(r, 1000));
-
-        const locs = [
-            { lat: 40.4093, lng: 49.8671, n: "Bakı, AZ" },
-            { lat: 40.4520, lng: 49.7330, n: "Xırdalan, AZ" },
-            { lat: 40.5897, lng: 49.6689, n: "Sumqayıt, AZ" }
-        ];
-        const lc = locs[Math.floor(Math.random() * locs.length)];
-
-        document.getElementById("mapArea").style.display = "block";
-        document.getElementById("gMap").src = `https://maps.google.com/maps?q=${lc.lat},${lc.lng}&z=15&output=embed`;
+        // Terminal Mərhələləri (Realistik OSINT)
+        log(`Protokol Started: ${reason.toUpperCase()}`, "#00d9ff");
+        await sleep(2000);
+        log(`Hədəf: "${name}" üzrə VK-OSINT skaneri başladılır...`);
+        await sleep(3000);
+        log(`Qlobal Peyk Bazasına (VK-SAT) bağlantı qurulur...`, "yellow");
+        await sleep(4000);
+        log(`Peykə qoşuldu. GSM Siqnal trianqulyasiyası aparılır (v8.1)...`);
+        await sleep(3000);
+        log(`Gözlənilir. Bu proses tam 4 dəqiqə çəkə bilər. Səhifəni bağlamayın.`, "red");
         
-        document.getElementById("marker").style.top = "50%";
-        document.getElementById("marker").style.left = "50%";
+        // 4 Dəqiqəlik Tərəqqi Barı (Mükəmməl Animasiya)
+        const startTime = Date.now();
+        const fill = document.getElementById("fill");
+        
+        pInterval = setInterval(() => {
+            const timePassed = Date.now() - startTime;
+            const progress = (timePassed / VK_AQTARIS_VAXTI) * 100;
+            fill.style.width = progress + "%";
 
-        document.getElementById("deviceDisplay").innerHTML = `
-            <b style="color:var(--neon)">HƏDƏF TAPILDI</b><br>
-            <b>AD:</b> ${name}<br>
-            <b>CİHAZ:</b> ${model || "Auto-Detected"}<br>
-            <b>MƏKAN:</b> ${lc.n}<br>
-            <b>SƏBƏB:</b> ${reason}<br>
-            <b>STATUS:</b> <span style="color:lime">ONLINE</span>
-        `;
-        log(`BAĞLANTI QURULDU! ${name} izlənilir.`, "lime");
+            // Aralıq Terminal Mesajları
+            if(progress > 15 && progress < 16) log(`Siqnal gücləndirilir: Absheron Sector...`);
+            if(progress > 35 && progress < 36) log(`GSM koordinatları deşifrə edilir: AES-256...`);
+            if(progress > 60 && progress < 61) log(`Yüksək Keyfiyyətli Peyk Xəritəsi yüklənir...`);
+            if(progress > 85 && progress < 86) log(`Hədəf yeri vizuallaşdırılır...`);
+
+            if(timePassed >= VK_AQTARIS_VAXTI) {
+                clearInterval(pInterval);
+                finishAqtaris(name, phone, reason);
+            }
+        }, 500); // Hər yarım saniyədə bir yoxla
     }
 
-    // Matrix Arka Fon
+    // Axtarış Bitdikdən Sonra (Xəritə Mərhələsi)
+    function finishAqtaris(name, phone, reason) {
+        document.getElementById("pBar").style.display = "none";
+        document.getElementById("mapArea").style.display = "block";
+        
+        log("HƏDƏF TƏSBİT EDİLDİ! Xəritə üzərində göstərilir.", "lime");
+
+        // Keyfiyyətli Peyk Kordinatları (Azərbaycan)
+        const coords = [
+            { lat: 40.3772, lng: 49.8474, n: "Bakı (Mərkəz), AZ" },
+            { lat: 40.4497, lng: 50.1123, n: "Absheron, AZ" },
+            { lat: 40.5901, lng: 49.6631, n: "Sumqayıt, AZ" }
+        ];
+        const c = coords[Math.floor(Math.random() * coords.length)];
+
+        // REAL, KEYFİYYƏTLİ PEYK XƏRİTƏSİ
+        // Bu link Google Maps-in real peyk görüntüsünü (Satellite view) yükləyir
+        document.getElementById("satMap").src = `https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d1521.1491740941913!2d${c.lng}!3d${c.lat}!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDIyJzM4LjAiTiA0OcKwNTAnNTAuNiJF!5e1!3m2!1sen!2saz!4v1700000000000!5m2!1sen!2saz&t=k`;
+
+        // HUD Panel Məlumatları
+        const model = document.getElementById("deviceModel").value || "Naməlum Device";
+        document.getElementById("deviceDisplay").innerHTML = `
+            <div class="hud-header">> TAPILAN MƏLUMAT</div>
+            <div class="hud-row"><b>HƏDƏF:</b> ${name}</div>
+            <div class="hud-row"><b>COORD:</b> ${c.lat}, ${c.lng}</div>
+            <div class="hud-row"><b>MƏKAN:</b> ${c.n}</div>
+            <div class="hud-row"><b>CİHAZ:</b> ${model}</div>
+            <div class="hud-row"><b>STATUS:</b> <span style="color:lime">MÜKƏMMƏL</span></div>
+        `;
+    }
+
+    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    // Matrix Background Logic (010101 VKPROJECT)
     const canvas = document.getElementById('matrixBg');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const letters = "01VKPROJECTLOCATER994";
+    const letters = "01010101VKPROJECT";
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
     function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#00d9ff";
-        ctx.font = fontSize + "px monospace";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00d9ff"; ctx.font = fontSize + "px monospace";
         for (let i = 0; i < drops.length; i++) {
             const text = letters.charAt(Math.floor(Math.random() * letters.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
