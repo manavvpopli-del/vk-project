@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Watch Live</title>
+    <title>Watch Live - Premium</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -13,44 +13,60 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
 
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--red); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--red); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .auth-card { background: var(--card); padding: 40px 30px; border-radius: 4px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
         .logo { font-family: 'Bebas Neue', sans-serif; color: var(--red); font-size: 3.5rem; letter-spacing: 4px; margin-bottom: 25px; }
         
-        .avatar-upload { width: 90px; height: 90px; margin: 0 auto 20px; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); }
+        .avatar-upload { width: 90px; height: 90px; margin: 0 auto 20px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); transition: 0.3s; }
         #avatar-preview { width: 100%; height: 100%; object-fit: cover; }
 
         input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 4px; border: 1px solid var(--border); background: #1a1a1a; color: #fff; font-size: 14px; outline: none; }
-        .btn { width: 100%; padding: 16px; background: var(--red); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; }
+        .btn { width: 100%; padding: 16px; background: var(--red); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; transition: 0.2s; }
 
         #app { display: none; height: 100%; width: 100%; flex-direction: column; }
         
-        .video-section { width: 100%; background: #000; position: relative; }
-        #player-container { width: 100%; height: 211px; position: relative; }
-        #player { width: 100%; height: 100%; pointer-events: none; }
-        #video-chat-overlay { position: absolute; bottom: 20px; left: 10px; z-index: 100; pointer-events: none; color: #fff; text-shadow: 1px 1px 4px #000; font-size: 12px; }
+        .video-section { width: 100%; background: #000; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
+        #player-container { width: 100%; height: 211px; pointer-events: none; }
+        #player { width: 100%; height: 100%; }
 
-        .controls-bar { background: #0a0a0a; padding: 10px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border); }
-        .main-btns { display: flex; gap: 5px; overflow-x: auto; }
-        .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 8px 12px; border-radius: 4px; font-size: 10px; white-space: nowrap; font-weight: bold; }
+        /* VIDEO BAR */
+        .v-bar-cont { height: 25px; background: #0a0a0a; display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid var(--border); }
+        #v-time { font-size: 10px; font-weight: 700; color: #888; white-space: nowrap; }
+        .v-progress { flex: 1; height: 4px; background: #333; position: relative; border-radius: 2px; }
+        #v-fill { height: 100%; background: var(--red); width: 0%; border-radius: 2px; }
+        .admin-seek { cursor: pointer; }
+
+        .controls-bar { background: #0a0a0a; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+        .active-mic { color: #2e7d32 !important; border-color: #2e7d32 !important; }
+
+        .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
+        .search-box { display: flex; gap: 5px; }
+        .search-box input { margin: 0; padding: 10px; font-size: 12px; }
+        .search-box button { width: 70px; background: var(--red); border: none; color: white; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+        .users-panel { position: absolute; top: 60px; right: 10px; width: 200px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: none; z-index: 1000; }
+        .panel-header { padding: 10px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #888; }
 
         .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: #050505; position: relative; overflow: hidden; }
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .m-row { display: flex; gap: 8px; max-width: 90%; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+        .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; }
         .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
-        .m-avatar { width: 30px; height: 30px; border-radius: 50%; }
-        .m-bubble { background: #1a1a1a; padding: 10px; border-radius: 8px; font-size: 13px; position: relative; }
-        .me .m-bubble { background: var(--red); }
-        .rep-btn { font-size: 10px; color: #888; cursor: pointer; margin-top: 3px; display: block; }
-        .rep-text { font-size: 11px; opacity: 0.7; border-left: 2px solid #fff; padding-left: 5px; margin-bottom: 5px; }
+        .m-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+        .m-bubble { background: #1a1a1a; padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; }
+        .m-row.me .m-bubble { background: var(--red); border-radius: 8px 8px 2px 8px; }
 
-        .input-bar { background: #111; padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border); }
-        #reply-panel { display: none; background: #1a1a1a; padding: 5px 15px; font-size: 11px; color: var(--red); justify-content: space-between; }
-        
-        .full-screen-mode { position: fixed !important; inset: 0 !important; z-index: 99999 !important; width: 100vw !important; height: 100vh !important; background: #000; }
-        .full-screen-mode #player-container { height: 100% !important; }
+        /* TYPING STATUS */
+        #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #888; display: none; }
+
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #111; padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; }
+        .input-bar input { margin: 0; background: #000; border: 1px solid #333; height: 40px; }
+        .chat-icon { width: 30px; height: 30px; cursor: pointer; object-fit: contain; }
+        .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; }
+        .res-card img { width: 100%; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -61,41 +77,59 @@
             <div class="logo">WATCH LIVE</div>
             <div class="avatar-upload" onclick="document.getElementById('file-input').click()">
                 <img id="avatar-preview" src="https://www.w3schools.com/howto/img_avatar.png">
-                <input type="file" id="file-input" hidden accept="image/*" onchange="prevImg(this)">
+                <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(this)">
             </div>
-            <input type="text" id="nick" placeholder="Nickname">
-            <input type="text" id="room" placeholder="Otaq Kodu">
-            <button class="btn" onclick="start('admin')">Otaq Yarat</button>
-            <button class="btn" style="background:#1a1a1a; margin-top:10px" onclick="start('member')">Otağa Qoşul</button>
+            <input type="text" id="nick" placeholder="LƏQƏB (NICKNAME)">
+            <input type="text" id="room" placeholder="OTAQ KODUNU DAXİL EDİN">
+            <button class="btn" onclick="start('admin')">OTAQ YARAT</button>
+            <button class="btn" style="background:#1a1a1a; margin-top:10px" onclick="start('member')">OTAĞA QOŞUL</button>
         </div>
     </div>
 
     <div id="app">
-        <div class="video-section" id="v-sec">
-            <div id="player-container">
-                <div id="player"></div>
-                <div id="video-chat-overlay"></div>
+        <div class="video-section">
+            <div id="player-container"><div id="player"></div></div>
+            
+            <!-- VIDEO PROGRESS BAR -->
+            <div class="v-bar-cont">
+                <span id="v-time">00:00 / 00:00</span>
+                <div class="v-progress" id="v-seek-bar" onclick="handleSeek(event)">
+                    <div id="v-fill"></div>
+                </div>
             </div>
+
             <div class="controls-bar">
                 <div class="main-btns">
-                    <button onclick="toggleAudio()" id="aud-btn" style="background:#2e7d32">SƏSİ AÇ</button>
-                    <button onclick="handleFS()" id="fs-btn">TAM EKRAN (YAN)</button>
-                    <button id="adm-p" onclick="toggleAdm()" style="display:none; background:var(--red)">VİDEO PANEL</button>
+                    <button id="voice-btn" onclick="toggleVoice()">MİK: KAPALI</button>
+                    <button onclick="toggleFS()">TAM EKRAN</button>
+                    <button onclick="togglePiP()">YAN EKRAN</button>
+                    <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
+                    <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--red); grid-column: span 2;">VİDEO PANEL</button>
                 </div>
-                <div id="adm-box" style="display:none; margin-top:10px">
-                    <input type="text" id="sq" placeholder="Axtar və ya Link..." style="margin:0">
-                    <button class="btn" style="padding:10px; margin-top:5px" onclick="ySearch()">TAP</button>
-                    <div id="res" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; margin-top:5px"></div>
+                <div id="admin-panel" class="admin-tools" style="display:none;">
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn" style="background:#222; padding:8px; flex:1" onclick="seek(-10)">-10s</button>
+                        <button class="btn" style="background:#2e7d32; padding:8px; flex:1" onclick="sc('play')">BAŞLAT</button>
+                        <button class="btn" style="background:#c62828; padding:8px; flex:1" onclick="sc('pause')">DAYANDIR</button>
+                        <button class="btn" style="background:#222; padding:8px; flex:1" onclick="seek(10)">+10s</button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="sq" placeholder="Video axtar və ya link yapışdır...">
+                        <button onclick="yt()">TAP</button>
+                    </div>
+                    <div id="results" class="search-results"></div>
                 </div>
             </div>
         </div>
-
+        <div id="users-box" class="users-panel"><div class="panel-header">Qoşulanlar</div><div id="users-list-content"></div></div>
         <div class="chat-wrap">
             <div id="messages"></div>
-            <div id="reply-panel"><span id="rep-inf"></span><span onclick="cancelRep()">✕</span></div>
+            <div id="typing-status"></div>
             <div class="input-bar">
-                <input type="text" id="mi" placeholder="Mesaj yaz...">
-                <button class="btn" style="width:70px; padding:0" onclick="send()">GÖNDƏR</button>
+                <img src="galery.png" class="chat-icon" onclick="document.getElementById('chat-img').click()" alt="Galereya">
+                <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImg(this)">
+                <input type="text" id="mi" placeholder="Mesaj yazın..." oninput="handleTyping()">
+                <img src="send.png" class="chat-icon" onclick="sm()" alt="Göndər">
             </div>
         </div>
     </div>
@@ -106,102 +140,143 @@
         firebase.initializeApp(CF);
         const db = firebase.database();
         
-        let ytP, myN, myR, myL, myPic = null, myId = "u" + Date.now(), ok = false, activeRep = null, stream = null;
+        let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, startTime = Date.now(), myId = Math.random().toString(36).substr(2, 9);
+        let voiceStream = null, typingTimeout;
 
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-        function prevImg(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(i.files[0]); } }
-        function toggleAdm() { const b = document.getElementById('adm-box'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
+        function previewImage(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(input.files[0]); } }
+        function toggleAdminPanel() { const p = document.getElementById('admin-panel'); p.style.display = (p.style.display === 'none') ? 'flex' : 'none'; }
+        function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
+        function toggleFS() { const v = document.getElementById('app'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
+
+        async function togglePiP() {
+            try {
+                const video = document.getElementsByTagName('video')[0];
+                if (document.pictureInPictureElement) await document.exitPictureInPicture();
+                else if (video) await video.requestPictureInPicture();
+                else showToast("Video aktiv deyil");
+            } catch (e) { showToast("PiP dəstəklənmir"); }
+        }
 
         function start(l) {
             myN = document.getElementById('nick').value.trim();
             myR = document.getElementById('room').value.trim();
-            if(!myN || !myR || !myPic) return showToast("Şəkil seçin və xanaları doldurun!");
+            if(!myN || !myR) return showToast("Məlumatları doldurun!");
             myL = l;
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
-            if(l === 'admin') document.getElementById('adm-p').style.display = 'block';
-            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic });
+            if(l === 'admin') {
+                document.getElementById('admin-toggle-btn').style.display = 'block';
+                document.getElementById('v-seek-bar').classList.add('admin-seek');
+            }
+            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
+            db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             init();
         }
 
         function onYouTubeIframeAPIReady() {
-            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0 }, events: { 'onReady': () => ok = true } });
+            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1 }, events: { 'onReady': () => { ok = true; tick(); } } });
         }
+
+        function fmt(s) { 
+            let m = Math.floor(s / 60); s = Math.floor(s % 60); 
+            return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s); 
+        }
+
+        function tick() {
+            setInterval(() => {
+                if(ok && ytP && ytP.getCurrentTime) {
+                    const curr = ytP.getCurrentTime();
+                    const dur = ytP.getDuration();
+                    if(dur > 0) {
+                        document.getElementById('v-fill').style.width = (curr/dur*100) + '%';
+                        document.getElementById('v-time').innerText = `${fmt(curr)} / ${fmt(dur)}`;
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleSeek(e) {
+            if(myL !== 'admin' || !ok) return;
+            const bar = document.getElementById('v-seek-bar');
+            const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth;
+            const target = pct * ytP.getDuration();
+            ytP.seekTo(target);
+            sc('play');
+        }
+
+        function handleTyping() {
+            db.ref(`rooms/${myR}/typing/${myId}`).set(myN);
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => db.ref(`rooms/${myR}/typing/${myId}`).remove(), 2000);
+        }
+
+        async function yt() {
+            const q = document.getElementById('sq').value; if(!q) return;
+            const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${q}&type=video&key=${YK}`);
+            const d = await r.json(); const b = document.getElementById('results'); b.innerHTML = "";
+            d.items.forEach(i => {
+                const c = document.createElement('div'); c.className = "res-card";
+                c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}">`;
+                c.onclick = () => db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 });
+                b.appendChild(c);
+            });
+        }
+
+        function seek(s) { if(myL === 'admin') { let nt = ytP.getCurrentTime() + s; ytP.seekTo(nt); sc('play'); } }
+        function sc(a) { if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
 
         function init() {
-            if(myL === 'admin') {
-                setInterval(() => { if(ok) db.ref(`rooms/${myR}/sync`).set({ t: ytP.getCurrentTime(), s: ytP.getPlayerState(), v: ytP.getVideoData().video_id }); }, 1000);
-            } else {
-                db.ref(`rooms/${myR}/sync`).on('value', s => {
-                    const d = s.val(); if(d && ok) {
-                        if(d.v && d.v !== ytP.getVideoData().video_id) ytP.loadVideoById(d.v);
-                        if(Math.abs(ytP.getCurrentTime() - d.t) > 2) ytP.seekTo(d.t);
-                        d.s === 1 ? ytP.playVideo() : ytP.pauseVideo();
-                    }
-                });
-            }
+            db.ref('rooms/'+myR+'/sync').on('value', s => {
+                const d = s.val(); if(d && ok) {
+                    if(d.v && d.v !== ytP.getVideoData().video_id) ytP.loadVideoById(d.v);
+                    d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo();
+                    if(Math.abs(ytP.getCurrentTime() - d.t) > 3) ytP.seekTo(d.t);
+                }
+            });
 
-            db.ref(`rooms/${myR}/chat`).on('child_added', s => {
-                const m = s.val();
-                const b = document.getElementById('messages');
+            db.ref('rooms/'+myR+'/chat').orderByChild('ts').startAt(startTime).on('child_added', s => {
+                const m = s.val(); const b = document.getElementById('messages');
                 const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
-                let rQ = m.rep ? `<div class="rep-text"><b>${m.rep.n}:</b> ${m.rep.t}</div>` : "";
-                d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble">${rQ}<b>${m.n}</b><br>${m.t}<span class="rep-btn" onclick="setRep('${m.n}','${m.t}')">Yanıtla</span></div>`;
+                d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t}</div></div>`;
                 b.appendChild(d); b.scrollTop = b.scrollHeight;
-                const ov = document.getElementById('video-chat-overlay');
-                ov.innerHTML = `<b>${m.n}:</b> ${m.t}`;
-                setTimeout(() => ov.innerHTML = "", 4000);
+            });
+
+            db.ref(`rooms/${myR}/typing`).on('value', s => {
+                const data = s.val();
+                const ts = document.getElementById('typing-status');
+                if(!data) { ts.style.display = 'none'; return; }
+                const users = Object.values(data).filter(n => n !== myN);
+                if(users.length > 0) {
+                    ts.innerText = users.join(', ') + " yazır...";
+                    ts.style.display = 'block';
+                } else { ts.style.display = 'none'; }
+            });
+
+            db.ref(`rooms/${myR}/users`).on('value', s => {
+                document.getElementById('user-count').innerText = s.numChildren();
             });
         }
 
-        function setRep(n, t) { activeRep = {n, t: t.slice(0,20)}; document.getElementById('reply-panel').style.display='flex'; document.getElementById('rep-inf').innerText = `Yanıt: ${n}`; }
-        function cancelRep() { activeRep = null; document.getElementById('reply-panel').style.display='none'; }
-
-        function send() {
-            const i = document.getElementById('mi'); if(!i.value) return;
-            db.ref(`rooms/${myR}/chat`).push({ n: myN, t: i.value, p: myPic, rep: activeRep });
-            i.value = ""; cancelRep();
+        function sm() { 
+            const i = document.getElementById('mi'); if(!i.value) return; 
+            db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value, p: myPic, ts: Date.now() }); 
+            i.value = '';
+            db.ref(`rooms/${myR}/typing/${myId}`).remove();
         }
 
-        async function ySearch() {
-            const q = document.getElementById('sq').value;
-            const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=3&q=${q}&type=video&key=${YK}`);
-            const d = await r.json(); const res = document.getElementById('res'); res.innerHTML = "";
-            d.items.forEach(v => {
-                const img = document.createElement('img'); img.src = v.snippet.thumbnails.medium.url; img.style.width="100%";
-                img.onclick = () => { ytP.loadVideoById(v.id.videoId); toggleAdm(); };
-                res.appendChild(img);
-            });
-        }
-
-        async function toggleAudio() {
-            const btn = document.getElementById('aud-btn');
-            if(!stream) {
-                try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "SƏSİ BAĞLA"; btn.style.background = "#c62828"; } 
-                catch(e) { showToast("Mikrofon icazəsi yoxdur."); }
-            } else { stream.getTracks().forEach(t => t.stop()); stream = null; btn.innerText = "SƏSİ AÇ"; btn.style.background = "#2e7d32"; }
-        }
-
-        function handleFS() {
-            const v = document.getElementById('v-sec');
-            if (!document.fullscreenElement) {
-                if (v.requestFullscreen) v.requestFullscreen();
-                else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
-                v.classList.add('full-screen-mode');
-                document.getElementById('fs-btn').innerText = "NORMAL REJİM";
-                if(screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(e=>{});
-            } else { document.exitFullscreen(); }
-        }
-
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                document.getElementById('v-sec').classList.remove('full-screen-mode');
-                document.getElementById('fs-btn').innerText = "TAM EKRAN (YAN)";
-                if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+        async function toggleVoice() {
+            const btn = document.getElementById('voice-btn');
+            if (!voiceStream) {
+                try { voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "MİK: AÇIQ"; btn.classList.add('active-mic'); } catch (e) { showToast("İcazə yoxdur"); }
+            } else {
+                voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null;
+                btn.innerText = "MİK: KAPALI"; btn.classList.remove('active-mic');
             }
-        });
+        }
 
-        document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") send(); };
+        function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); r.readAsDataURL(input.files[0]); } }
+        document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
     </script>
 </body>
 </html>
