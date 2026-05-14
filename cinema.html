@@ -11,7 +11,7 @@
     <style>
         :root { --red: #E50914; --bg: #050505; --card: #121212; --border: #252525; --text: #e5e5e5; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; background-size: cover; background-position: center; transition: background 0.5s ease; }
 
         #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--red); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
@@ -25,20 +25,25 @@
         input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 4px; border: 1px solid var(--border); background: #1a1a1a; color: #fff; font-size: 14px; outline: none; }
         .btn { width: 100%; padding: 16px; background: var(--red); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; transition: 0.2s; }
 
-        #app { display: none; height: 100%; width: 100%; flex-direction: column; }
+        #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
-        .video-section { width: 100%; background: #000; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
+        /* THEME SELECTOR */
+        .theme-btn { position: absolute; top: 10px; right: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
+        .theme-panel { position: absolute; top: 50px; right: 10px; background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 200px; }
+        .theme-colors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .color-opt { width: 100%; pt: 100%; padding-bottom: 100%; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+
+        .video-section { width: 100%; background: rgba(0,0,0,0.8); flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
         #player-container { width: 100%; height: 211px; pointer-events: none; }
         #player { width: 100%; height: 100%; }
 
-        /* VIDEO BAR */
-        .v-bar-cont { height: 25px; background: #0a0a0a; display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid var(--border); }
+        .v-bar-cont { height: 25px; background: rgba(10,10,10,0.9); display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid var(--border); }
         #v-time { font-size: 10px; font-weight: 700; color: #888; white-space: nowrap; }
         .v-progress { flex: 1; height: 4px; background: #333; position: relative; border-radius: 2px; }
         #v-fill { height: 100%; background: var(--red); width: 0%; border-radius: 2px; }
         .admin-seek { cursor: pointer; }
 
-        .controls-bar { background: #0a0a0a; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .controls-bar { background: rgba(10,10,10,0.9); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
         .active-mic { color: #2e7d32 !important; border-color: #2e7d32 !important; }
@@ -51,18 +56,17 @@
         .users-panel { position: absolute; top: 60px; right: 10px; width: 200px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: none; z-index: 1000; }
         .panel-header { padding: 10px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #888; }
 
-        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: #050505; position: relative; overflow: hidden; }
+        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: transparent; position: relative; overflow: hidden; }
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
         .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; }
         .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
         .m-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
-        .m-bubble { background: #1a1a1a; padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; }
+        .m-bubble { background: rgba(26,26,26,0.9); padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); }
         .m-row.me .m-bubble { background: var(--red); border-radius: 8px 8px 2px 8px; }
 
-        /* TYPING STATUS */
-        #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #888; display: none; }
+        #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #ccc; display: none; text-shadow: 1px 1px 2px #000; }
 
-        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #111; padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; }
         .input-bar input { margin: 0; background: #000; border: 1px solid #333; height: 40px; }
         .chat-icon { width: 30px; height: 30px; cursor: pointer; object-fit: contain; }
         .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; }
@@ -87,17 +91,27 @@
     </div>
 
     <div id="app">
+        <div class="theme-btn" onclick="toggleThemePanel()">🎨</div>
+        <div id="theme-panel" class="theme-panel">
+            <div style="font-size: 11px; margin-bottom: 10px; color: #888; font-weight: bold;">TEMA SEÇİN</div>
+            <div class="theme-colors">
+                <div class="color-opt" style="background: #050505;" onclick="setTheme('#050505')"></div>
+                <div class="color-opt" style="background: #1a1a2e;" onclick="setTheme('#1a1a2e')"></div>
+                <div class="color-opt" style="background: #2d132c;" onclick="setTheme('#2d132c')"></div>
+                <div class="color-opt" style="background: #0f3443;" onclick="setTheme('#0f3443')"></div>
+            </div>
+            <button class="btn" style="padding: 10px; font-size: 11px;" onclick="document.getElementById('bg-input').click()">ŞƏKİL SEÇ</button>
+            <input type="file" id="bg-input" hidden accept="image/*" onchange="uploadBg(this)">
+        </div>
+
         <div class="video-section">
             <div id="player-container"><div id="player"></div></div>
-            
-            <!-- VIDEO PROGRESS BAR -->
             <div class="v-bar-cont">
                 <span id="v-time">00:00 / 00:00</span>
                 <div class="v-progress" id="v-seek-bar" onclick="handleSeek(event)">
                     <div id="v-fill"></div>
                 </div>
             </div>
-
             <div class="controls-bar">
                 <div class="main-btns">
                     <button id="voice-btn" onclick="toggleVoice()">MİK: KAPALI</button>
@@ -121,7 +135,9 @@
                 </div>
             </div>
         </div>
+        
         <div id="users-box" class="users-panel"><div class="panel-header">Qoşulanlar</div><div id="users-list-content"></div></div>
+        
         <div class="chat-wrap">
             <div id="messages"></div>
             <div id="typing-status"></div>
@@ -145,6 +161,21 @@
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         function previewImage(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(input.files[0]); } }
+        
+        // THEME LOGIC
+        function toggleThemePanel() { const p = document.getElementById('theme-panel'); p.style.display = (p.style.display === 'none') ? 'block' : 'none'; }
+        function setTheme(val, isImg = false) {
+            db.ref(`rooms/${myR}/theme`).set({ val, isImg });
+            toggleThemePanel();
+        }
+        function uploadBg(input) {
+            if(input.files[0]) {
+                let r = new FileReader();
+                r.onload = e => setTheme(e.target.result, true);
+                r.readAsDataURL(input.files[0]);
+            }
+        }
+
         function toggleAdminPanel() { const p = document.getElementById('admin-panel'); p.style.display = (p.style.display === 'none') ? 'flex' : 'none'; }
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
         function toggleFS() { const v = document.getElementById('app'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
@@ -227,6 +258,19 @@
         function sc(a) { if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
 
         function init() {
+            // Theme sync
+            db.ref(`rooms/${myR}/theme`).on('value', s => {
+                const t = s.val();
+                if(t) {
+                    if(t.isImg) {
+                        document.body.style.backgroundImage = `url(${t.val})`;
+                    } else {
+                        document.body.style.backgroundImage = 'none';
+                        document.body.style.backgroundColor = t.val;
+                    }
+                }
+            });
+
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
                     if(d.v && d.v !== ytP.getVideoData().video_id) ytP.loadVideoById(d.v);
