@@ -3,78 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Watch Live - 3D Cinema Experience</title>
+    <title>Watch Live - Premium</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff0055; --bg: #0a0b10; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: #fff; }
+        :root { --red: #E50914; --bg: #050505; --card: #121212; --border: #252525; --text: #e5e5e5; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
 
-        /* Background Animation */
-        body::before { content: ''; position: absolute; width: 200%; height: 200%; background: radial-gradient(circle, #1a1c2c 0%, #0a0b10 70%); z-index: -1; animation: rotate 20s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--red); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; }
 
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--primary); padding: 10px 20px; border-radius: 50px; font-size: 12px; z-index: 10001; display: none; box-shadow: 0 10px 30px rgba(255, 0, 85, 0.4); }
-
-        /* Auth Screen */
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .auth-card { background: var(--glass); backdrop-filter: blur(20px); padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; background: linear-gradient(to right, #ff0055, #ffcc00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; filter: drop-shadow(0 5px 15px rgba(255,0,85,0.5)); }
+        .auth-card { background: var(--card); padding: 40px 30px; border-radius: 4px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
+        .logo { font-family: 'Bebas Neue', sans-serif; color: var(--red); font-size: 3.5rem; letter-spacing: 4px; margin-bottom: 25px; }
         
-        .avatar-upload { width: 100px; height: 100px; margin: 0 auto 25px; border-radius: 50%; border: 3px solid var(--primary); overflow: hidden; cursor: pointer; position: relative; }
+        .avatar-upload { width: 90px; height: 90px; margin: 0 auto 20px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); transition: 0.3s; }
         #avatar-preview { width: 100%; height: 100%; object-fit: cover; }
 
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: #fff; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(255,0,85,0.3); }
-        .btn { width: 100%; padding: 16px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn:active { transform: scale(0.98); }
+        input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 4px; border: 1px solid var(--border); background: #1a1a1a; color: #fff; font-size: 14px; outline: none; }
+        .btn { width: 100%; padding: 16px; background: var(--red); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; transition: 0.2s; }
 
-        /* App Layout */
-        #app { display: none; height: 100vh; flex-direction: column; }
+        #app { display: none; height: 100%; width: 100%; flex-direction: column; }
         
-        .video-container { width: 100%; background: #000; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        #player-wrap { width: 100%; aspect-ratio: 16/9; position: relative; }
+        .video-section { width: 100%; background: #000; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        #player-container { width: 100%; height: 211px; position: relative; }
         #player { width: 100%; height: 100%; }
-        .overlay-shield { position: absolute; inset: 0; z-index: 5; display: none; } /* Admin olmayanda açılır */
+        #player-shield { position: absolute; inset: 0; z-index: 11; display: none; }
 
-        /* Custom Progress Bar */
-        .cinema-controls { background: rgba(10, 11, 16, 0.9); padding: 15px; border-bottom: 1px solid var(--border); }
-        .progress-container { width: 100%; height: 6px; background: #333; border-radius: 3px; position: relative; margin-bottom: 15px; cursor: pointer; }
-        #progress-bar { height: 100%; background: var(--primary); width: 0%; border-radius: 3px; position: relative; }
-        #progress-bar::after { content: ''; position: absolute; right: -5px; top: -4px; width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px var(--primary); }
+        .controls-bar { background: #0a0a0a; padding: 10px; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--border); }
+        .main-btns { display: flex; gap: 8px; justify-content: space-between; }
+        .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; flex: 1; text-transform: uppercase; }
+        .active-mic { color: #2e7d32 !important; border-color: #2e7d32 !important; }
 
-        .control-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .control-btns button { flex: 1; min-width: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--glass); color: #fff; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .btn-admin { background: var(--primary) !important; border: none !important; }
+        .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
+        .search-box { display: flex; gap: 5px; }
+        .search-box input { margin: 0; padding: 10px; font-size: 12px; }
+        .search-box button { width: 70px; background: var(--red); border: none; color: white; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        /* Chat Section */
-        .chat-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4)); }
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        
-        .m-wrap { display: flex; flex-direction: column; max-width: 80%; gap: 4px; cursor: pointer; }
-        .m-wrap.me { align-self: flex-end; align-items: flex-end; }
-        .m-meta { font-size: 10px; color: #888; margin: 0 5px; }
-        .m-bubble { padding: 12px 16px; border-radius: 18px; font-size: 13px; position: relative; background: var(--glass); border: 1px solid var(--border); }
-        .me .m-bubble { background: var(--primary); border: none; color: #fff; box-shadow: 0 5px 15px rgba(255,0,85,0.3); }
-        
-        .reply-box { font-size: 11px; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 8px; border-left: 3px solid #ffcc00; margin-bottom: 5px; opacity: 0.8; }
+        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: #050505; position: relative; overflow: hidden; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 70px; }
+        .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; cursor: pointer; }
+        .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .m-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+        .m-bubble { background: #1a1a1a; padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; }
+        .m-row.me .m-bubble { background: var(--red); border-radius: 8px 8px 2px 8px; }
+        .reply-meta { font-size: 10px; opacity: 0.6; border-left: 2px solid #fff; padding-left: 5px; margin-bottom: 5px; }
 
-        .input-area { padding: 15px; background: var(--bg); border-top: 1px solid var(--border); }
-        #reply-indicator { display: none; padding: 8px 15px; background: #1a1c2c; border-radius: 10px 10px 0 0; font-size: 11px; color: #ffcc00; justify-content: space-between; align-items: center; }
-        .input-row { display: flex; gap: 10px; align-items: center; }
-        .input-row input { margin: 0; background: var(--glass); }
-        .icon-btn { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--glass); border-radius: 12px; cursor: pointer; }
-
-        /* Admin Tools */
-        .search-panel { padding: 15px; display: none; }
-        .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; max-height: 150px; overflow-y: auto; }
-        .res-item img { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
-
-        .active-mic { background: #00ff88 !important; color: #000 !important; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: #111; padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; }
+        #reply-box { display: none; background: #1a1a1a; padding: 5px 15px; font-size: 11px; border-top: 1px solid var(--border); color: var(--red); justify-content: space-between; }
+        .chat-icon { width: 30px; height: 30px; cursor: pointer; }
+        .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -82,258 +62,132 @@
 
     <div id="auth-box" class="auth-overlay">
         <div class="auth-card">
-            <div class="logo">CINEMA LIVE</div>
+            <div class="logo">WATCH LIVE</div>
             <div class="avatar-upload" onclick="document.getElementById('file-input').click()">
-                <img id="avatar-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky">
+                <img id="avatar-preview" src="https://www.w3schools.com/howto/img_avatar.png">
                 <input type="file" id="file-input" hidden accept="image/*" onchange="previewImage(this)">
             </div>
-            <input type="text" id="nick" placeholder="Adınız">
-            <input type="text" id="room" placeholder="Otaq Kodu">
-            <button class="btn" onclick="start('admin')">Otaq Yarat</button>
-            <button class="btn" style="background:transparent; border: 1px solid var(--border); margin-top:10px" onclick="start('member')">Otağa Qoşul</button>
+            <input type="text" id="nick" placeholder="LƏQƏB">
+            <input type="text" id="room" placeholder="OTAQ KODU">
+            <button class="btn" onclick="start('admin')">OTAQ YARAT</button>
+            <button class="btn" style="background:#1a1a1a; margin-top:10px" onclick="start('member')">OTAĞA QOŞUL</button>
         </div>
     </div>
 
     <div id="app">
-        <div class="video-container">
-            <div id="player-wrap">
+        <div class="video-section">
+            <div id="player-container">
+                <div id="player-shield"></div>
                 <div id="player"></div>
-                <div id="shield" class="overlay-shield"></div>
             </div>
-            <div class="cinema-controls">
-                <div class="progress-container" onclick="seekVideo(event)">
-                    <div id="progress-bar"></div>
+            <div class="controls-bar">
+                <div class="main-btns">
+                    <button id="voice-btn" onclick="toggleVoice()">MİK: KAPALI</button>
+                    <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--red)">VİDEO PANEL</button>
                 </div>
-                <div class="control-btns">
-                    <button id="mic-btn" onclick="toggleMic()">SƏS: BAĞLI</button>
-                    <button onclick="toggleUsers()">ÜZVLƏR (<span id="u-count">0</span>)</button>
-                    <button id="admin-panel-btn" onclick="toggleSearch()" style="display:none;" class="btn-admin">VİDEO SEÇ</button>
-                    <button id="play-pause-btn" onclick="togglePlay()" style="display:none;" class="btn-admin">PAUSE</button>
-                </div>
-                <div id="search-panel" class="search-panel">
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="sq" placeholder="YouTube-da axtar..." style="margin:0">
-                        <button class="btn" style="width:80px; padding:0" onclick="searchYT()">TAP</button>
+                <div id="admin-panel" class="admin-tools" style="display:none;">
+                    <div class="search-box">
+                        <input type="text" id="sq" placeholder="Video axtar və ya link...">
+                        <button onclick="ytSearch()">TAP</button>
                     </div>
-                    <div id="results" class="res-grid"></div>
+                    <div id="results" class="search-results"></div>
                 </div>
             </div>
         </div>
-
-        <div class="chat-section">
+        
+        <div class="chat-wrap">
             <div id="messages"></div>
-            <div id="reply-indicator">
-                <span id="reply-text"></span>
-                <span onclick="cancelReply()" style="cursor:pointer">✕</span>
-            </div>
-            <div class="input-area">
-                <div class="input-row">
-                    <div class="icon-btn" onclick="document.getElementById('chat-img').click()">🖼️</div>
-                    <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImage(this)">
-                    <input type="text" id="mi" placeholder="Mesaj yazın...">
-                    <div class="icon-btn" onclick="sendMessage()" style="background:var(--primary)">🚀</div>
-                </div>
+            <div id="reply-box"><span id="reply-text"></span><span onclick="cancelReply()">✕</span></div>
+            <div class="input-bar">
+                <img src="galery.png" class="chat-icon" onclick="document.getElementById('chat-img').click()">
+                <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImg(this)">
+                <input type="text" id="mi" placeholder="Mesaj yazın...">
+                <img src="send.png" class="chat-icon" onclick="sm()">
             </div>
         </div>
     </div>
 
     <script>
-        const CFG = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", projectId: "sevgili-testi" };
-        const YT_KEY = "AIzaSyAYacoXmlRcQBTsAsa23GanByLzUkLOwOk";
-        firebase.initializeApp(CFG);
+        const CF = { apiKey: "AIzaSyCM5WdZNSj9oFipNI-J3csHpOIvK8PjoLU", databaseURL: "https://sevgili-testi-default-rtdb.firebaseio.com", projectId: "sevgili-testi" };
+        const YK = "AIzaSyAYacoXmlRcQBTsAsa23GanByLzUkLOwOk";
+        firebase.initializeApp(CF);
         const db = firebase.database();
-
-        let ytP, myN, myR, myL, myPic = "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky";
-        let myId = "u_" + Math.random().toString(36).substr(2, 9);
-        let ok = false, replyTo = null, isMicActive = false;
+        
+        let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9), currentReply = null;
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-        function previewImage(i) { if(i.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(i.files[0]); } }
-        function toggleSearch() { const p = document.getElementById('search-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
-        
-        function start(role) {
+        function previewImage(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(input.files[0]); } }
+        function toggleAdminPanel() { const p = document.getElementById('admin-panel'); p.style.display = (p.style.display === 'none') ? 'flex' : 'none'; }
+
+        function start(l) {
             myN = document.getElementById('nick').value.trim();
             myR = document.getElementById('room').value.trim();
             if(!myN || !myR) return showToast("Məlumatları doldurun!");
-            myL = role;
+            myL = l;
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
-            
-            if(role === 'admin') {
-                document.getElementById('admin-panel-btn').style.display = 'block';
-                document.getElementById('play-pause-btn').style.display = 'block';
-            } else {
-                document.getElementById('shield').style.display = 'block';
-            }
-
-            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: role });
-            db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
-            
-            initRoom();
+            if(l === 'admin') document.getElementById('admin-toggle-btn').style.display = 'block';
+            else document.getElementById('player-shield').style.display = 'block';
+            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic });
+            init();
         }
 
         function onYouTubeIframeAPIReady() {
-            ytP = new YT.Player('player', {
-                height: '100%', width: '100%', videoId: '',
-                playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'modestbranding': 1, 'rel': 0, 'iv_load_policy': 3 },
-                events: { 'onReady': () => { ok = true; startSyncLoop(); } }
+            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 1, 'playsinline': 1 }, 
+                events: { 'onReady': () => ok = true, 'onStateChange': e => { if(myL === 'admin' && e.data === YT.PlayerState.PLAYING) syncAdmin(); } } 
             });
         }
 
-        function startSyncLoop() {
-            setInterval(() => {
-                if(ok && myL === 'admin') {
-                    db.ref(`rooms/${myR}/sync`).update({
-                        t: ytP.getCurrentTime(),
-                        s: ytP.getPlayerState(),
-                        dur: ytP.getDuration()
-                    });
-                }
-                updateProgressBar();
-            }, 1000);
-        }
-
-        function updateProgressBar() {
-            if(!ok) return;
-            const cur = ytP.getCurrentTime();
-            const dur = ytP.getDuration();
-            if(dur > 0) {
-                document.getElementById('progress-bar').style.width = (cur / dur * 100) + "%";
+        function syncAdmin() {
+            if(myL === 'admin' && ok) {
+                setInterval(() => {
+                    db.ref(`rooms/${myR}/sync`).set({ t: ytP.getCurrentTime(), s: ytP.getPlayerState(), v: ytP.getVideoData().video_id });
+                }, 2000);
             }
         }
 
-        function seekVideo(e) {
-            if(myL !== 'admin' || !ok) return;
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const perc = x / rect.width;
-            const time = ytP.getDuration() * perc;
-            ytP.seekTo(time);
-            db.ref(`rooms/${myR}/sync`).update({ t: time });
-        }
-
-        function togglePlay() {
-            if(myL !== 'admin') return;
-            const state = ytP.getPlayerState();
-            if(state === 1) {
-                ytP.pauseVideo();
-                document.getElementById('play-pause-btn').innerText = "PLAY";
-            } else {
-                ytP.playVideo();
-                document.getElementById('play-pause-btn').innerText = "PAUSE";
-            }
-        }
-
-        async function searchYT() {
-            const q = document.getElementById('sq').value;
-            const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=9&q=${q}&type=video&key=${YT_KEY}`);
-            const data = await res.json();
-            const grid = document.getElementById('results');
-            grid.innerHTML = "";
-            data.items.forEach(i => {
-                const div = document.createElement('div');
-                div.className = "res-item";
-                div.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}">`;
-                div.onclick = () => {
-                    db.ref(`rooms/${myR}/sync`).set({ v: i.id.videoId, t: 0, s: 1 });
-                    toggleSearch();
-                };
-                grid.appendChild(div);
+        async function ytSearch() {
+            const q = document.getElementById('sq').value; if(!q) return;
+            const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${q}&type=video&key=${YK}`);
+            const d = await r.json(); const b = document.getElementById('results'); b.innerHTML = "";
+            d.items.forEach(i => {
+                const c = document.createElement('div');
+                c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}" style="width:100%">`;
+                c.onclick = () => { ytP.loadVideoById(i.id.videoId); db.ref(`rooms/${myR}/sync`).update({v: i.id.videoId, t:0}); };
+                b.appendChild(c);
             });
         }
 
-        function initRoom() {
-            // Video Sinxronizasiya
+        function init() {
             db.ref(`rooms/${myR}/sync`).on('value', s => {
-                const d = s.val();
-                if(!d || !ok) return;
-                if(d.v && d.v !== ytP.getVideoData().video_id) ytP.loadVideoById(d.v, d.t);
-                if(myL !== 'admin') {
-                    if(Math.abs(ytP.getCurrentTime() - d.t) > 2) ytP.seekTo(d.t);
+                const d = s.val(); if(d && ok && myL !== 'admin') {
+                    if(d.v && d.v !== ytP.getVideoData().video_id) ytP.loadVideoById(d.v);
+                    if(Math.abs(ytP.getCurrentTime() - d.t) > 3) ytP.seekTo(d.t);
                     d.s === 1 ? ytP.playVideo() : ytP.pauseVideo();
                 }
             });
 
-            // Chat və Yanıt
-            db.ref(`rooms/${myR}/chat`).limitToLast(50).on('child_added', s => {
-                const m = s.val();
-                const wrap = document.createElement('div');
-                wrap.className = `m-wrap ${m.uid === myId ? 'me' : ''}`;
-                wrap.onclick = () => setReply(m.n, m.t);
-
-                let replyHtml = m.reply ? `<div class="reply-box"><b>${m.reply.n}</b>: ${m.reply.t}</div>` : "";
-                let content = m.img ? `<img src="${m.img}" style="max-width:200px; border-radius:10px;">` : m.t;
-
-                wrap.innerHTML = `
-                    <span class="m-meta">${m.n}</span>
-                    <div class="m-bubble">${replyHtml}${content}</div>
-                `;
-                document.getElementById('messages').appendChild(wrap);
-                const msgBox = document.getElementById('messages');
-                msgBox.scrollTop = msgBox.scrollHeight;
-                if(m.uid !== myId) showToast(`${m.n}: ${m.img ? "🖼️ Foto" : m.t}`);
-            });
-
-            // İştirakçı sayı
-            db.ref(`rooms/${myR}/users`).on('value', s => {
-                document.getElementById('u-count').innerText = s.numChildren();
+            db.ref(`rooms/${myR}/chat`).on('child_added', s => {
+                const m = s.val(); const b = document.getElementById('messages');
+                const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
+                d.onclick = () => { currentReply = {n: m.n, t: m.t}; document.getElementById('reply-box').style.display='flex'; document.getElementById('reply-text').innerText=`Yanıt: ${m.n}`; };
+                
+                let rep = m.rep ? `<div class="reply-meta"><b>${m.rep.n}:</b> ${m.rep.t}</div>` : "";
+                let content = m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t;
+                d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble">${rep}<b>${m.n}</b><div>${content}</div></div>`;
+                b.appendChild(d); b.scrollTop = b.scrollHeight;
             });
         }
 
-        function setReply(n, t) {
-            replyTo = { n, t: t.substring(0, 30) + (t.length > 30 ? "..." : "") };
-            document.getElementById('reply-text').innerText = `Yanıt verilir: ${n}`;
-            document.getElementById('reply-indicator').style.display = 'flex';
-            document.getElementById('mi').focus();
+        function sm() { 
+            const i = document.getElementById('mi'); if(!i.value) return; 
+            db.ref(`rooms/${myR}/chat`).push({ n: myN, t: i.value, p: myPic, rep: currentReply }); 
+            i.value = ''; cancelReply();
         }
 
-        function cancelReply() {
-            replyTo = null;
-            document.getElementById('reply-indicator').style.display = 'none';
-        }
-
-        function sendMessage() {
-            const i = document.getElementById('mi');
-            if(!i.value.trim()) return;
-            db.ref(`rooms/${myR}/chat`).push({
-                uid: myId, n: myN, t: i.value, p: myPic,
-                reply: replyTo, ts: Date.now()
-            });
-            i.value = "";
-            cancelReply();
-        }
-
-        function sendImage(input) {
-            if(input.files[0]) {
-                const r = new FileReader();
-                r.onload = e => {
-                    db.ref(`rooms/${myR}/chat`).push({
-                        uid: myId, n: myN, img: e.target.result, p: myPic, ts: Date.now()
-                    });
-                };
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Sadələşdirilmiş Səsli Danışıq (Voice Simulation via Status)
-        async function toggleMic() {
-            const btn = document.getElementById('mic-btn');
-            if(!isMicActive) {
-                try {
-                    await navigator.mediaDevices.getUserMedia({ audio: true });
-                    isMicActive = true;
-                    btn.innerText = "SƏS: AÇIQ";
-                    btn.classList.add('active-mic');
-                    showToast("Səsiniz digərlərinə ötürülür...");
-                } catch(e) { showToast("Mikrofon xətası!"); }
-            } else {
-                isMicActive = false;
-                btn.innerText = "SƏS: BAĞLI";
-                btn.classList.remove('active-mic');
-            }
-        }
-
-        document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sendMessage(); };
+        function cancelReply() { currentReply = null; document.getElementById('reply-box').style.display='none'; }
+        function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => db.ref(`rooms/${myR}/chat`).push({ n: myN, img: e.target.result, p: myPic }); r.readAsDataURL(input.files[0]); } }
+        document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
     </script>
 </body>
 </html>
