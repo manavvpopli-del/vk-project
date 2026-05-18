@@ -154,11 +154,11 @@
     </div>
 
     <script>
-        // Yeni Firebase konfiqurasiya məlumatları bura daxil edildi
+        // Yenilənmiş Firebase Konfiqurasiyası
         const CF = { 
             apiKey: "AIzaSyAGLab7iSmhRAIZGuwQLa7HeE_Kg_4PVqM", 
             authDomain: "vkproject-63da1.firebaseapp.com",
-            databaseURL: "https://vkproject-63da1-default-rtdb.firebaseio.com", 
+            databaseURL: "https://vkproject-63da1-default-rtdb.firebaseio.com/", 
             projectId: "vkproject-63da1",
             storageBucket: "vkproject-63da1.firebasestorage.app",
             messagingSenderId: "510055616550",
@@ -170,7 +170,7 @@
         firebase.initializeApp(CF);
         const db = firebase.database();
         
-        let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, startTime = Date.now(), myId = Math.random().toString(36).substr(2, 9);
+        let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
         let voiceStream = null, typingTimeout;
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
@@ -291,7 +291,8 @@
                 }
             });
 
-            db.ref('rooms/'+myR+'/chat').orderByChild('ts').startAt(startTime).on('child_added', s => {
+            // FIXED: startAt(startTime) silindi, bütün mesajlar artıq problemsiz görünür
+            db.ref('rooms/'+myR+'/chat').on('child_added', s => {
                 const m = s.val(); const b = document.getElementById('messages');
                 const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
                 d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t}</div></div>`;
