@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Watch Live - Premium</title>
+    <title>Watch Live - Ultimate Premium</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -13,9 +13,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
 
-        /* CANVASES FOR ANIMATIONS */
         #animation-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; background: #050505; }
-
         #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
@@ -30,11 +28,12 @@
 
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
-        /* THEME SELECTOR - ANIMATION ONLY */
         .theme-btn { position: absolute; top: 10px; right: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
         .theme-panel { position: absolute; top: 50px; right: 10px; background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 220px; }
         .anim-opt-btn { width: 100%; background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
-        .anim-opt-btn:hover { background: #252525; border-color: var(--blue); }
+        .speed-panel { display: flex; gap: 5px; margin-top: 5px; }
+        .speed-btn { flex: 1; background: #222; border: 1px solid var(--border); color: #fff; padding: 5px; font-size: 10px; border-radius: 4px; cursor: pointer; }
+        .speed-btn.active { background: var(--blue); }
 
         .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; backdrop-filter: blur(5px); }
         #player-container { width: 100%; height: 211px; pointer-events: none; }
@@ -56,34 +55,72 @@
         .search-box input { margin: 0; padding: 10px; font-size: 12px; }
         .search-box button { width: 70px; background: var(--blue); border: none; color: white; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        .users-panel { position: absolute; top: 60px; right: 10px; width: 200px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: none; z-index: 1000; max-height: 250px; overflow-y: auto; }
+        /* PLAYLIST QUEUE DESIGN */
+        .queue-container { background: #111; padding: 8px; border-radius: 4px; border: 1px solid var(--border); max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 6px; font-size: 11px; border-radius: 4px; }
+        .queue-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
+        .queue-item button { background: none; border: none; color: #ff3333; cursor: pointer; font-weight: bold; }
+
+        .users-panel { position: absolute; top: 60px; right: 10px; width: 220px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: none; z-index: 1000; max-height: 250px; overflow-y: auto; }
         .panel-header { padding: 10px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
         #users-list-content { padding: 5px; display: flex; flex-direction: column; gap: 5px; }
-        .u-item { display: flex; align-items: center; gap: 8px; padding: 5px; font-size: 12px; }
-        .u-item img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+        .u-item { display: flex; align-items: center; justify-content: space-between; padding: 6px; font-size: 12px; cursor: pointer; border-radius: 4px; }
+        .u-item:hover { background: rgba(255,255,255,0.05); }
+        .u-info { display: flex; align-items: center; gap: 8px; }
+        .u-item img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+        .kick-btn { background: none; border: none; color: #c62828; cursor: pointer; font-weight: bold; font-size: 12px; padding: 2px 6px; }
 
         .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: transparent; position: relative; overflow: hidden; z-index: 5; }
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
-        .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; }
+        
+        /* CHAT BUBBLES & REACTION & SYSTEM */
+        .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; position: relative; }
         .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
         .m-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
-        .m-bubble { background: rgba(26,26,26,0.85); padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); }
+        .m-bubble-wrap { display: flex; flex-direction: column; gap: 2px; position: relative; cursor: pointer; }
+        .m-bubble { background: rgba(26,26,26,0.85); padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); position: relative; }
         .m-row.me .m-bubble { background: rgba(0, 173, 181, 0.9); border-radius: 8px 8px 2px 8px; color: #fff; border: none; }
+        .system-msg { align-self: center; background: rgba(255,255,255,0.05); color: #aaa; font-size: 11px; padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.02); text-align: center; max-width: 90%; font-style: italic; }
+        
+        .reactions-container { display: flex; gap: 3px; position: absolute; bottom: -10px; left: 5px; z-index: 10; }
+        .m-row.me .reactions-container { left: auto; right: 5px; }
+        .react-badge { background: #222; border: 1px solid #333; border-radius: 8px; padding: 1px 5px; font-size: 10px; display: flex; align-items: center; }
+
+        /* REACTION POPUP MENU */
+        .react-popup { position: absolute; top: -35px; left: 0; background: #1a1a1a; border: 1px solid #333; border-radius: 20px; padding: 4px 8px; display: none; gap: 6px; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .react-popup span { cursor: pointer; transition: 0.2s; font-size: 16px; }
+        .react-popup span:hover { transform: scale(1.3); }
 
         #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #ccc; display: none; text-shadow: 1px 1px 2px #000; }
-
         .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(5px); }
         .input-bar input { margin: 0; background: #000; border: 1px solid #333; height: 40px; }
         .chat-icon { width: 30px; height: 30px; cursor: pointer; object-fit: contain; }
-        .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; }
-        .res-card img { width: 100%; border-radius: 4px; }
+        .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 5px; }
+        .res-card { position: relative; cursor: pointer; }
+        .res-card img { width: 100%; border-radius: 4px; display: block; }
+        .add-q-btn { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.8); border: 1px solid #555; color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
+
+        /* USER PROFILE POPUP MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(4px); }
+        .profile-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 25px; width: 260px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); margin-bottom: 15px; }
+        .profile-card h3 { font-size: 18px; margin-bottom: 5px; color: #fff; }
+        .profile-card p { font-size: 12px; color: var(--blue); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-    <!-- BACKGROUND ANIMATION CANVAS -->
     <canvas id="animation-canvas"></canvas>
-
     <div id="toast"></div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profile-modal" class="modal-overlay" onclick="this.style.display='none'">
+        <div class="profile-card" onclick="event.stopPropagation()">
+            <img id="p-modal-img" src="">
+            <h3 id="p-modal-name"></h3>
+            <p id="p-modal-role"></p>
+            <button class="btn" style="padding: 8px; font-size: 11px; margin-top: 15px;" onclick="document.getElementById('profile-modal').style.display='none'">BAĞLA</button>
+        </div>
+    </div>
 
     <div id="auth-box" class="auth-overlay">
         <div class="auth-card">
@@ -102,10 +139,16 @@
     <div id="app">
         <div class="theme-btn" onclick="toggleThemePanel()">✨</div>
         <div id="theme-panel" class="theme-panel">
-            <div style="font-size: 11px; margin-bottom: 12px; color: #888; font-weight: bold; text-transform: uppercase;">Arxa Fon Animasiyası</div>
+            <div style="font-size: 11px; margin-bottom: 8px; color: #888; font-weight: bold; text-transform: uppercase;">Animasiya Tərzi</div>
             <button class="anim-opt-btn" onclick="setAnimation('stars')">🌌 Parıldayan Ulduzlar</button>
             <button class="anim-opt-btn" onclick="setAnimation('waves')">🔮 Neon Dalğalar</button>
             <button class="anim-opt-btn" onclick="setAnimation('matrix')">🟢 Matris Yağışı</button>
+            <div style="font-size: 10px; margin: 5px 0; color: #888; font-weight: bold; text-transform: uppercase;">Sürət Parametri</div>
+            <div class="speed-panel">
+                <button class="speed-btn" id="sp-slow" onclick="setSpeed(0.5)">Yavaş</button>
+                <button class="speed-btn" id="sp-med" onclick="setSpeed(1)">Orta</button>
+                <button class="speed-btn" id="sp-fast" onclick="setSpeed(2.5)">Sürətli</button>
+            </div>
         </div>
 
         <div class="video-section">
@@ -120,6 +163,7 @@
                 <div class="main-btns">
                     <button id="voice-btn" onclick="toggleVoice()">MİK: KAPALI</button>
                     <button onclick="toggleFS()">TAM EKRAN</button>
+                    <button id="sync-fix-btn" style="display:none; color:var(--blue);" onclick="forceSync()">🔄 SİNXRON ET</button>
                     <button onclick="togglePiP()">YAN EKRAN</button>
                     <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
                     <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--blue); grid-column: span 2;">VİDEO PANEL</button>
@@ -136,6 +180,8 @@
                         <button onclick="yt()">TAP</button>
                     </div>
                     <div id="results" class="search-results"></div>
+                    <div style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Növbədəki Videolar</div>
+                    <div id="queue-box" class="queue-container"></div>
                 </div>
             </div>
         </div>
@@ -171,103 +217,70 @@
         const db = firebase.database();
         
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
-        let voiceStream = null, typingTimeout;
+        let voiceStream = null, typingTimeout, lastAdminTime = 0, currentVideoId = "";
+        let playlistQueue = [];
 
-        // ANIMATION ENGINE VARIABLES
+        // ANIMATION SYSTEM
         const canvas = document.getElementById('animation-canvas');
         const ctx = canvas.getContext('2d');
-        let currentAnim = 'stars'; 
-        let animId = null;
-        let animData = [];
+        let currentAnim = 'stars', animId = null, animData = [], globalSpeedModifier = 1;
 
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initAnimationData(); }
         window.addEventListener('resize', resizeCanvas);
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         function previewImage(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(input.files[0]); } }
-        
         function toggleThemePanel() { const p = document.getElementById('theme-panel'); p.style.display = (p.style.display === 'none') ? 'block' : 'none'; }
         
-        function setAnimation(type) {
-            db.ref(`rooms/${myR}/theme`).set({ type: type });
-            toggleThemePanel();
+        function setAnimation(type) { db.ref(`rooms/${myR}/theme`).update({ type }); toggleThemePanel(); }
+        function setSpeed(mult) { db.ref(`rooms/${myR}/theme`).update({ speed: mult }); toggleThemePanel(); }
+
+        function updateSpeedUI(speed) {
+            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+            if(speed <= 0.6) document.getElementById('sp-slow').classList.add('active');
+            else if(speed > 2) document.getElementById('sp-fast').classList.add('active');
+            else document.getElementById('sp-med').classList.add('active');
         }
 
-        // ANIMATIONS CONFIG & LOOP
         function initAnimationData() {
             animData = [];
             if (currentAnim === 'stars') {
                 for (let i = 0; i < 120; i++) {
-                    animData.push({
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        size: Math.random() * 2,
-                        speed: Math.random() * 0.5 + 0.1,
-                        alpha: Math.random(),
-                        phase: Math.random() * Math.PI
-                    });
+                    animData.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1, alpha: Math.random(), phase: Math.random() * Math.PI });
                 }
             } else if (currentAnim === 'matrix') {
                 const columns = Math.floor(canvas.width / 16) + 1;
-                for (let i = 0; i < columns; i++) {
-                    animData.push({ x: i * 16, y: Math.random() * -100 - 50, speed: Math.random() * 3 + 2 });
-                }
-            } else if (currentAnim === 'waves') {
-                animData = { hue: 0, time: 0 };
-            }
+                for (let i = 0; i < columns; i++) { animData.push({ x: i * 16, y: Math.random() * -100 - 50, speed: Math.random() * 3 + 2 }); }
+            } else if (currentAnim === 'waves') { animData = { hue: 0, time: 0 }; }
         }
 
         function runAnimationLoop() {
             if (animId) cancelAnimationFrame(animId);
-            
             function draw() {
                 if (currentAnim === 'stars') {
-                    ctx.fillStyle = '#050505';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#050505'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = '#ffffff';
                     animData.forEach(p => {
-                        p.phase += 0.02;
+                        p.phase += 0.02 * globalSpeedModifier;
                         let curAlpha = p.alpha + Math.sin(p.phase) * 0.4;
-                        if(curAlpha < 0) curAlpha = 0; if(curAlpha > 1) curAlpha = 1;
-                        ctx.globalAlpha = curAlpha;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
-                        p.y -= p.speed;
+                        ctx.globalAlpha = Math.max(0, Math.min(1, curAlpha));
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                        p.y -= p.speed * globalSpeedModifier;
                         if (p.y < 0) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
                     });
                     ctx.globalAlpha = 1.0;
-                } 
-                else if (currentAnim === 'matrix') {
-                    ctx.fillStyle = 'rgba(5, 5, 5, 0.08)';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillStyle = '#0f0';
-                    ctx.font = '14px monospace';
+                } else if (currentAnim === 'matrix') {
+                    ctx.fillStyle = 'rgba(5, 5, 5, 0.08)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#0f0'; ctx.font = '14px monospace';
                     animData.forEach(drop => {
-                        const text = String.fromCharCode(0x30A0 + Math.random() * 96);
-                        ctx.fillText(text, drop.x, drop.y);
-                        drop.y += drop.speed;
-                        if (drop.y > canvas.height && Math.random() > 0.975) {
-                            drop.y = Math.random() * -50;
-                        }
+                        ctx.fillText(String.fromCharCode(0x30A0 + Math.random() * 96), drop.x, drop.y);
+                        drop.y += drop.speed * globalSpeedModifier;
+                        if (drop.y > canvas.height && Math.random() > 0.975) drop.y = Math.random() * -50;
                     });
-                } 
-                else if (currentAnim === 'waves') {
-                    animData.time += 0.003;
-                    animData.hue = (animData.hue + 0.1) % 360;
-                    
-                    let grad = ctx.createRadialGradient(
-                        canvas.width/2 + Math.sin(animData.time) * (canvas.width/4), 
-                        canvas.height/2 + Math.cos(animData.time * 1.5) * (canvas.height/4), 
-                        10, 
-                        canvas.width/2, canvas.height/2, canvas.width
-                    );
-                    grad.addColorStop(0, `hsla(${animData.hue}, 70%, 15%, 1)`);
-                    grad.addColorStop(0.5, `hsla(${(animData.hue + 60) % 360}, 60%, 5%, 1)`);
-                    grad.addColorStop(1, '#050505');
-                    
-                    ctx.fillStyle = grad;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                } else if (currentAnim === 'waves') {
+                    animData.time += 0.003 * globalSpeedModifier; animData.hue = (animData.hue + 0.1 * globalSpeedModifier) % 360;
+                    let grad = ctx.createRadialGradient(canvas.width/2 + Math.sin(animData.time) * (canvas.width/4), canvas.height/2 + Math.cos(animData.time * 1.5) * (canvas.height/4), 10, canvas.width/2, canvas.height/2, canvas.width);
+                    grad.addColorStop(0, `hsla(${animData.hue}, 70%, 15%, 1)`); grad.addColorStop(0.5, `hsla(${(animData.hue + 60) % 360}, 60%, 5%, 1)`); grad.addColorStop(1, '#050505');
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
                 animId = requestAnimationFrame(draw);
             }
@@ -277,69 +290,67 @@
         function toggleAdminPanel() { const p = document.getElementById('admin-panel'); p.style.display = (p.style.display === 'none') ? 'flex' : 'none'; }
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
         function toggleFS() { const v = document.getElementById('app'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
+        async function togglePiP() { try { const video = document.getElementsByTagName('video')[0]; if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (video) await video.requestPictureInPicture(); } catch (e) { showToast("PiP xətası"); } }
 
-        async function togglePiP() {
-            try {
-                const video = document.getElementsByTagName('video')[0];
-                if (document.pictureInPictureElement) await document.exitPictureInPicture();
-                else if (video) await video.requestPictureInPicture();
-                else showToast("Video aktiv deyil");
-            } catch (e) { showToast("PiP dəstəklənmir"); }
+        function showProfile(name, pic, role) {
+            document.getElementById('p-modal-img').src = pic;
+            document.getElementById('p-modal-name').innerText = name;
+            document.getElementById('p-modal-role').innerText = role === 'admin' ? 'Qurucu / Admin' : 'İzləyici';
+            document.getElementById('profile-modal').style.display = 'flex';
         }
 
         function start(l) {
-            myN = document.getElementById('nick').value.trim();
-            myR = document.getElementById('room').value.trim();
+            myN = document.getElementById('nick').value.trim(); myR = document.getElementById('room').value.trim();
             if(!myN || !myR) return showToast("Məlumatları doldurun!");
             myL = l;
-            document.getElementById('auth-box').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
+            document.getElementById('auth-box').style.display = 'none'; document.getElementById('app').style.display = 'flex';
             if(l === 'admin') {
                 document.getElementById('admin-toggle-btn').style.display = 'block';
                 document.getElementById('v-seek-bar').classList.add('admin-seek');
+            } else {
+                document.getElementById('sync-fix-btn').style.display = 'block';
             }
             resizeCanvas();
             db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
+            
+            // System In Notification
+            db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${myN} otağa qoşuldu.` });
+            
+            // Check kick condition
+            db.ref(`rooms/${myR}/kicked/${myId}`).on('value', s => { if(s.val()) { alert("Otaqdan qovuldunuz!"); window.location.reload(); } });
+            
             init();
         }
 
         function onYouTubeIframeAPIReady() {
-            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1 }, events: { 'onReady': () => { ok = true; tick(); } } });
+            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1 }, events: { 'onReady': () => { ok = true; tick(); }, 'onStateChange': onPlayerStateChange } });
         }
 
-        function fmt(s) { 
-            let m = Math.floor(s / 60); s = Math.floor(s % 60); 
-            return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s); 
+        function onPlayerStateChange(e) {
+            if(myL === 'admin' && e.data === YT.PlayerState.ENDED) {
+                playNextInQueue();
+            }
         }
+
+        function forceSync() { if(ok && lastAdminTime) { ytP.seekTo(lastAdminTime); showToast("Sinxronlaşdırıldı"); } }
 
         function tick() {
             setInterval(() => {
                 if(ok && ytP && ytP.getCurrentTime) {
-                    const curr = ytP.getCurrentTime();
-                    const dur = ytP.getDuration();
+                    const curr = ytP.getCurrentTime(); const dur = ytP.getDuration();
                     if(dur > 0) {
                         document.getElementById('v-fill').style.width = (curr/dur*100) + '%';
                         document.getElementById('v-time').innerText = `${fmt(curr)} / ${fmt(dur)}`;
                     }
+                    if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ t: curr });
                 }
             }, 1000);
         }
 
-        function handleSeek(e) {
-            if(myL !== 'admin' || !ok) return;
-            const bar = document.getElementById('v-seek-bar');
-            const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth;
-            const target = pct * ytP.getDuration();
-            ytP.seekTo(target);
-            sc('play');
-        }
-
-        function handleTyping() {
-            db.ref(`rooms/${myR}/typing/${myId}`).set(myN);
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => db.ref(`rooms/${myR}/typing/${myId}`).remove(), 2000);
-        }
+        function fmt(s) { let m = Math.floor(s / 60); s = Math.floor(s % 60); return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s); }
+        function handleSeek(e) { if(myL !== 'admin' || !ok) return; const bar = document.getElementById('v-seek-bar'); const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth; ytP.seekTo(pct * ytP.getDuration()); sc('play'); }
+        function handleTyping() { db.ref(`rooms/${myR}/typing/${myId}`).set(myN); clearTimeout(typingTimeout); typingTimeout = setTimeout(() => db.ref(`rooms/${myR}/typing/${myId}`).remove(), 2000); }
 
         async function yt() {
             const q = document.getElementById('sq').value; if(!q) return;
@@ -347,65 +358,127 @@
             const d = await r.json(); const b = document.getElementById('results'); b.innerHTML = "";
             d.items.forEach(i => {
                 const c = document.createElement('div'); c.className = "res-card";
-                c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}">`;
+                c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}"><button class="add-q-btn" onclick="addToQueue('${i.id.videoId}', '${i.snippet.title.replace(/'/g, "\\'")}', event)">+ NÖVBƏ</button>`;
                 c.onclick = () => db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 });
                 b.appendChild(c);
             });
         }
 
-        function seek(s) { if(myL === 'admin') { let nt = ytP.getCurrentTime() + s; ytP.seekTo(nt); sc('play'); } }
+        function addToQueue(id, title, e) {
+            e.stopPropagation();
+            db.ref(`rooms/${myR}/queue`).push({ id, title });
+            showToast("Növbəyə əlavə edildi");
+        }
+
+        function playNextInQueue() {
+            if(playlistQueue.length > 0) {
+                const nextVid = playlistQueue[0];
+                db.ref(`rooms/${myR}/queue/${nextVid.key}`).remove();
+                db.ref('rooms/'+myR+'/sync').set({ v: nextVid.id, a: 'play', t: 0 });
+            }
+        }
+
+        function removeFromQueue(key) { db.ref(`rooms/${myR}/queue/${key}`).remove(); }
+        function seek(s) { if(myL === 'admin') { ytP.seekTo(ytP.getCurrentTime() + s); sc('play'); } }
         function sc(a) { if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
+        
+        function kickUser(uid, name) { if(confirm(`${name} qovulsun?`)) db.ref(`rooms/${myR}/kicked/${uid}`).set(true); }
+
+        function openReactMenu(msgId, e) {
+            e.stopPropagation();
+            document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none');
+            const p = document.getElementById(`pop-${msgId}`); if(p) p.style.display = 'flex';
+        }
+
+        function addReaction(msgId, emo) {
+            db.ref(`rooms/${myR}/chat/${msgId}/reacts/${myId}`).set(emo);
+            document.getElementById(`pop-${msgId}`).style.display = 'none';
+        }
 
         function init() {
-            // FIREBASE ANIMATION SYNCHRONIZATION
+            window.onclick = () => document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none');
+
             db.ref(`rooms/${myR}/theme`).on('value', s => {
                 const t = s.val();
-                if(t && t.type) {
-                    currentAnim = t.type;
-                } else {
-                    currentAnim = 'stars'; // Defolt olaraq ulduzlar
+                if(t) {
+                    currentAnim = t.type || 'stars';
+                    globalSpeedModifier = t.speed || 1;
                 }
-                initAnimationData();
-                runAnimationLoop();
+                updateSpeedUI(globalSpeedModifier); initAnimationData(); runAnimationLoop();
             });
 
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
-                    if(d.v && d.v !== ytP.getVideoData().video_id) ytP.loadVideoById(d.v);
+                    if(d.v && d.v !== currentVideoId) { currentVideoId = d.v; ytP.loadVideoById(d.v); }
                     d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo();
-                    if(Math.abs(ytP.getCurrentTime() - d.t) > 3) ytP.seekTo(d.t);
+                    lastAdminTime = d.t;
+                    if(myL !== 'admin' && Math.abs(ytP.getCurrentTime() - d.t) > 5) ytP.seekTo(d.t);
                 }
             });
 
+            // Queue Listener
+            db.ref(`rooms/${myR}/queue`).on('value', s => {
+                const qBox = document.getElementById('queue-box'); qBox.innerHTML = ''; playlistQueue = [];
+                s.forEach(child => {
+                    const item = child.val(); playlistQueue.push({key: child.key, ...item});
+                    const div = document.createElement('div'); div.className = 'queue-item';
+                    div.innerHTML = `<span>${item.title}</span> ${myL==='admin' ? `<button onclick="removeFromQueue('${child.key}')">❌</button>` : ''}`;
+                    qBox.appendChild(div);
+                });
+            });
+
+            // Chat with System Msg and Reactions
             db.ref('rooms/'+myR+'/chat').on('child_added', s => {
                 const m = s.val(); const b = document.getElementById('messages');
-                const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
-                d.innerHTML = `<img src="${m.p}" class="m-avatar"><div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t}</div></div>`;
-                b.appendChild(d); b.scrollTop = b.scrollHeight;
+                if(m.type === 'system') {
+                    const sysDiv = document.createElement('div'); sysDiv.className = 'system-msg';
+                    sysDiv.innerText = m.t; b.appendChild(sysDiv);
+                } else {
+                    const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`; d.id = `msg-${s.key}`;
+                    d.innerHTML = `
+                        <img src="${m.p}" class="m-avatar" onclick="showProfile('${m.n}','${m.p}','')">
+                        <div class="m-bubble-wrap" onclick="openReactMenu('${s.key}', event)">
+                            <div class="react-popup" id="pop-${s.key}">
+                                <span onclick="addReaction('${s.key}', '👍')">👍</span><span onclick="addReaction('${s.key}', '❤️')">❤️</span>
+                                <span onclick="addReaction('${s.key}', '😂')">😂</span><span onclick="addReaction('${s.key}', '😮')">😮</span>
+                            </div>
+                            <div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t}</div></div>
+                            <div class="reactions-container" id="reacts-${s.key}"></div>
+                        </div>`;
+                    b.appendChild(d);
+                    
+                    // Listen to reaction updates for this message
+                    db.ref(`rooms/${myR}/chat/${s.key}/reacts`).on('value', rSnap => {
+                        const rBox = document.getElementById(`reacts-${s.key}`); if(!rBox) return; rBox.innerHTML = '';
+                        const counts = {}; const vals = rSnap.val() || {};
+                        Object.values(vals).forEach(v => counts[v] = (counts[v] || 0) + 1);
+                        Object.keys(counts).forEach(emo => {
+                            const bge = document.createElement('div'); bge.className = 'react-badge'; bge.innerText = `${emo} ${counts[emo]}`;
+                            rBox.appendChild(bge);
+                        });
+                    });
+                }
+                b.scrollTop = b.scrollHeight;
             });
 
             db.ref(`rooms/${myR}/typing`).on('value', s => {
-                const data = s.val();
-                const ts = document.getElementById('typing-status');
+                const data = s.val(); const ts = document.getElementById('typing-status');
                 if(!data) { ts.style.display = 'none'; return; }
                 const users = Object.values(data).filter(n => n !== myN);
-                if(users.length > 0) {
-                    ts.innerText = users.join(', ') + " yazır...";
-                    ts.style.display = 'block';
-                } else { ts.style.display = 'none'; }
+                if(users.length > 0) { ts.innerText = users.join(', ') + " yazır..."; ts.style.display = 'block'; } else { ts.style.display = 'none'; }
             });
 
+            // Users list with Profil Cards & Kick Trigger
             db.ref(`rooms/${myR}/users`).on('value', s => {
-                const data = s.val();
-                document.getElementById('user-count').innerText = s.numChildren();
-                
-                const listCont = document.getElementById('users-list-content');
-                listCont.innerHTML = '';
+                const data = s.val(); document.getElementById('user-count').innerText = s.numChildren();
+                const listCont = document.getElementById('users-list-content'); listCont.innerHTML = '';
                 if(data) {
-                    Object.values(data).forEach(u => {
-                        const uRow = document.createElement('div');
-                        uRow.className = 'u-item';
-                        uRow.innerHTML = `<img src="${u.p}"> <span>${u.n} (${u.role === 'admin' ? 'Qurucu' : 'İzləyici'})</span>`;
+                    Object.entries(data).forEach(([uid, u]) => {
+                        const uRow = document.createElement('div'); uRow.className = 'u-item';
+                        uRow.onclick = () => showProfile(u.n, u.p, u.role);
+                        uRow.innerHTML = `
+                            <div class="u-info"><img src="${u.p}"><span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'})</span></div>
+                            ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}`;
                         listCont.appendChild(uRow);
                     });
                 }
@@ -414,27 +487,18 @@
 
         function sm() { 
             const i = document.getElementById('mi'); if(!i.value) return; 
-            db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value, p: myPic, ts: Date.now() }); 
-            i.value = '';
+            db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value, p: myPic, ts: Date.now() }); i.value = '';
             db.ref(`rooms/${myR}/typing/${myId}`).remove();
         }
-
         async function toggleVoice() {
             const btn = document.getElementById('voice-btn');
             if (!voiceStream) {
                 try { voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "MİK: AÇIQ"; btn.classList.add('active-mic'); } catch (e) { showToast("İcazə yoxdur"); }
-            } else {
-                voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null;
-                btn.innerText = "MİK: KAPALI"; btn.classList.remove('active-mic');
-            }
+            } else { voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null; btn.innerText = "MİK: KAPALI"; btn.classList.remove('active-mic'); }
         }
-
         function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); r.readAsDataURL(input.files[0]); } }
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
-        
-        // Initial setup for canvas on load
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     </script>
 </body>
 </html>
