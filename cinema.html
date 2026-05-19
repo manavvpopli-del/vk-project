@@ -438,11 +438,9 @@
             db.ref(`rooms/${myR}/kicked/${myId}`).on('value', s => { if(s.val()) { alert("Otaqdan qovuldunuz!"); window.location.reload(); } });
             
             if(l === 'admin') {
-                // Seçilmiş əsas rejimi verilənlər bazasına yazırıq
                 db.ref(`rooms/${myR}/base_mode`).set(selectedRoomMode);
                 setupInterfaceForMode(selectedRoomMode);
             } else {
-                // Üzvlər otağın rejiminə verilənlər bazasından baxır
                 db.ref(`rooms/${myR}/base_mode`).once('value', s => {
                     const mode = s.val() || 'youtube';
                     setupInterfaceForMode(mode);
@@ -452,14 +450,13 @@
             init();
         }
 
-        // REJİMƏ UYGUN OLARAQ İNTERFEYSİ AYARLAMAQ
         function setupInterfaceForMode(mode) {
             if(myL === 'admin') {
                 document.getElementById('voice-call-btn').style.display = 'block';
                 if(mode === 'screen') {
                     document.getElementById('screen-share-btn').style.display = 'block';
-                    document.getElementById('admin-toggle-btn').style.display = 'none'; // YouTube panelini gizlət
-                    document.getElementById('progress-bar-wrapper').style.display = 'none'; // YouTube saniyə panelini gizlət
+                    document.getElementById('admin-toggle-btn').style.display = 'none';
+                    document.getElementById('progress-bar-wrapper').style.display = 'none';
                 } else {
                     document.getElementById('screen-share-btn').style.display = 'none';
                     document.getElementById('admin-toggle-btn').style.display = 'block';
@@ -585,7 +582,7 @@
         }
 
         // ==========================================
-        //         SCREEN SHARING FUNCTION
+        //    SCREEN SHARING FUNCTION (GÜCLƏNDİRİLDİ)
         // ==========================================
         async function toggleScreenShare() {
             const btn = document.getElementById('screen-share-btn');
@@ -604,12 +601,17 @@
                     
                     scrVideo.srcObject = localScreenStream;
                     scrVideo.style.display = 'block';
-                    if(ytP && ytP.pauseVideo) ytP.pauseVideo();
+                    
+                    if(ytP && typeof ytP.pauseVideo === 'function') {
+                        try { ytP.pauseVideo(); } catch(e) { console.log("YT pleyer dayandırıla bilmədi:", e); }
+                    }
                     
                     db.ref(`rooms/${myR}/screen_state`).set({ sharerId: myId, active: true });
 
                     Object.keys(peerConnections).forEach(uid => {
-                        localScreenStream.getVideoTracks().forEach(track => peerConnections[uid].addTrack(track, localScreenStream));
+                        localScreenStream.getVideoTracks().forEach(track => {
+                            peerConnections[uid].addTrack(track, localScreenStream);
+                        });
                     });
 
                     localScreenStream.getVideoTracks()[0].onended = () => {
@@ -617,7 +619,12 @@
                     };
                     
                 } catch (e) {
-                    showToast("Ekran paylaşımı ləğv edildi.");
+                    console.error("Ekran paylaşımı xətası:", e);
+                    if (e.name === 'NotAllowedError') {
+                        showToast("İcazə verilmədi və ya pəncərə seçilmədi.");
+                    } else {
+                        showToast("Xəta: " + e.message);
+                    }
                 }
             } else {
                 stopLocalScreenShare();
@@ -640,7 +647,10 @@
             }
             
             db.ref(`rooms/${myR}/screen_state`).set({ active: false });
-            if(ytP && ytP.playVideo) ytP.playVideo();
+            
+            if(ytP && typeof ytP.playVideo === 'function' && ok) {
+                try { ytP.playVideo(); } catch(e) { console.log("YT pleyer başladıla bilmədi:", e); }
+            }
         }
 
         function initVoiceSignaling() {
@@ -714,9 +724,6 @@
             if (audioEl) audioEl.remove();
         }
 
-        // ==========================================
-        //         MAIN INITIALIZATION CODE
-        // ==========================================
         function init() {
             window.onclick = () => document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none');
             initVoiceSignaling();
