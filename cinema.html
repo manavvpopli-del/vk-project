@@ -35,6 +35,11 @@
         input:focus { border-color: var(--blue); background: #1a1a1a; }
         input:disabled { background: #0c0c0c; color: var(--blue); font-weight: bold; font-size: 16px; letter-spacing: 2px; text-align: center; border-color: #333; }
         
+        /* MODE SELECTOR */
+        .mode-selector { display: flex; gap: 10px; margin-bottom: 14px; }
+        .mode-btn { flex: 1; padding: 12px; background: #151515; border: 1px solid var(--border); color: #888; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .mode-btn.selected { background: rgba(0, 173, 181, 0.1); border-color: var(--blue); color: var(--blue); }
+
         .code-generator-wrapper { display: flex; gap: 8px; margin-bottom: 14px; width: 100%; }
         .code-generator-wrapper input { margin-bottom: 0; }
         .copy-btn { background: #1a1a1a; border: 1px solid var(--border); color: #fff; border-radius: 4px; padding: 0 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
@@ -53,8 +58,11 @@
         .speed-btn.active { background: var(--blue); }
 
         .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; backdrop-filter: blur(5px); }
-        #player-container { width: 100%; height: 211px; pointer-events: none; }
+        #player-container { width: 100%; height: 211px; position: relative; background: #000; }
         #player { width: 100%; height: 100%; }
+        
+        /* SCREEN SHARE VIDEO ELEMENT */
+        #screen-video { width: 100%; height: 100%; object-fit: contain; display: none; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
 
         .v-bar-cont { height: 25px; background: rgba(10,10,10,0.9); display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid var(--border); }
         #v-time { font-size: 10px; font-weight: 700; color: #888; white-space: nowrap; }
@@ -66,9 +74,11 @@
         .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
         
-        /* VOICE CALL BUTTON STYLES */
         .voice-active { background: #2e7d32 !important; border-color: #4caf50 !important; font-weight: bold; }
         .voice-muted { background: #c62828 !important; border-color: #ef5350 !important; }
+        .screen-active { background: #ff8f00 !important; border-color: #ffb300 !important; font-weight: bold; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
         .search-box { display: flex; gap: 5px; }
@@ -123,7 +133,6 @@
         .profile-card h3 { font-size: 18px; margin-bottom: 5px; color: #fff; }
         .profile-card p { font-size: 12px; color: var(--blue); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         
-        /* HIDDEN AUDIO CONTAINER FOR WEBRTC STREAMS */
         #remote-audios { display: none; }
     </style>
 </head>
@@ -159,6 +168,12 @@
                     <input type="file" id="file-input-create" hidden accept="image/*" onchange="previewImage(this, 'avatar-preview')">
                 </div>
                 <input type="text" id="nick-create" placeholder="LƏQƏBİNİZ (NICKNAME)">
+                
+                <!-- NEW ROOM MODE SELECTOR -->
+                <div class="mode-selector">
+                    <button id="mode-yt" class="mode-btn selected" onclick="selectRoomMode('youtube')">🍿 YouTube</button>
+                    <button id="mode-screen" class="mode-btn" onclick="selectRoomMode('screen')">🖥️ Screen Share</button>
+                </div>
                 
                 <div class="code-generator-wrapper">
                     <input type="text" id="room-create" placeholder="KOD GENERASİYA OLUNACAQ" disabled>
@@ -199,8 +214,12 @@
         </div>
 
         <div class="video-section">
-            <div id="player-container"><div id="player"></div></div>
-            <div class="v-bar-cont">
+            <div id="player-container">
+                <div id="player"></div>
+                <!-- SCREEN SHARE LAYER -->
+                <video id="screen-video" autoplay playsinline></video>
+            </div>
+            <div class="v-bar-cont" id="progress-bar-wrapper">
                 <span id="v-time">00:00 / 00:00</span>
                 <div class="v-progress" id="v-seek-bar" onclick="handleSeek(event)">
                     <div id="v-fill"></div>
@@ -208,8 +227,9 @@
             </div>
             <div class="controls-bar">
                 <div class="main-btns">
-                    <!-- NEW HIGH-QUALITY VOICE CALL BUTTON -->
                     <button id="voice-call-btn" onclick="toggleVoiceRoom()">🔊 SƏSLİ ZƏNGƏ QOŞUL</button>
+                    <!-- SCREEN SHARE BUTTON FOR ADMIN -->
+                    <button id="screen-share-btn" style="display:none;" onclick="toggleScreenShare()">🖥️ EKRANI PAYLAŞ</button>
                     <button onclick="toggleFS()">TAM EKRAN</button>
                     <button id="sync-fix-btn" style="display:none; color:var(--blue);" onclick="forceSync()">🔄 SİNXRON ET</button>
                     <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
@@ -266,12 +286,15 @@
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
         let typingTimeout, lastAdminTime = 0, currentVideoId = "";
         let playlistQueue = [];
+        let selectedRoomMode = "youtube"; // Default rejim
 
-        // WEBRTC ADVANCED MESH VOICE SIGNALING SYSTEM
+        // WEBRTC SIGNALING SYSTEM (AUDIO & VIDEO MESH)
         let localVoiceStream = null;
+        let localScreenStream = null;
         let peerConnections = {};
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
         let isInVoiceRoom = false;
+        let isSharingScreen = false;
 
         // ANIMATION SYSTEM
         const canvas = document.getElementById('animation-canvas');
@@ -293,6 +316,18 @@
             } else {
                 document.getElementById('tab-join-btn').classList.add('active');
                 document.getElementById('tab-join').classList.add('active');
+            }
+        }
+
+        // REJİM SEÇİMİ FUNKSİYASI
+        function selectRoomMode(mode) {
+            selectedRoomMode = mode;
+            document.getElementById('mode-yt').classList.remove('selected');
+            document.getElementById('mode-screen').classList.remove('selected');
+            if(mode === 'youtube') {
+                document.getElementById('mode-yt').classList.add('selected');
+            } else {
+                document.getElementById('mode-screen').classList.add('selected');
             }
         }
 
@@ -395,13 +430,6 @@
             myL = l;
             document.getElementById('auth-box').style.display = 'none'; document.getElementById('app').style.display = 'flex';
             
-            if(l === 'admin') {
-                document.getElementById('admin-toggle-btn').style.display = 'block';
-                document.getElementById('v-seek-bar').classList.add('admin-seek');
-            } else {
-                document.getElementById('sync-fix-btn').style.display = 'block';
-            }
-            
             resizeCanvas();
             db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l, voice: false });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
@@ -409,7 +437,41 @@
             db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${myN} otağa qoşuldu.` });
             db.ref(`rooms/${myR}/kicked/${myId}`).on('value', s => { if(s.val()) { alert("Otaqdan qovuldunuz!"); window.location.reload(); } });
             
+            if(l === 'admin') {
+                // Seçilmiş əsas rejimi verilənlər bazasına yazırıq
+                db.ref(`rooms/${myR}/base_mode`).set(selectedRoomMode);
+                setupInterfaceForMode(selectedRoomMode);
+            } else {
+                // Üzvlər otağın rejiminə verilənlər bazasından baxır
+                db.ref(`rooms/${myR}/base_mode`).once('value', s => {
+                    const mode = s.val() || 'youtube';
+                    setupInterfaceForMode(mode);
+                });
+            }
+
             init();
+        }
+
+        // REJİMƏ UYGUN OLARAQ İNTERFEYSİ AYARLAMAQ
+        function setupInterfaceForMode(mode) {
+            if(myL === 'admin') {
+                document.getElementById('voice-call-btn').style.display = 'block';
+                if(mode === 'screen') {
+                    document.getElementById('screen-share-btn').style.display = 'block';
+                    document.getElementById('admin-toggle-btn').style.display = 'none'; // YouTube panelini gizlət
+                    document.getElementById('progress-bar-wrapper').style.display = 'none'; // YouTube saniyə panelini gizlət
+                } else {
+                    document.getElementById('screen-share-btn').style.display = 'none';
+                    document.getElementById('admin-toggle-btn').style.display = 'block';
+                    document.getElementById('progress-bar-wrapper').style.display = 'flex';
+                    document.getElementById('v-seek-bar').classList.add('admin-seek');
+                }
+            } else {
+                document.getElementById('sync-fix-btn').style.display = (mode === 'youtube') ? 'block' : 'none';
+                if(mode === 'screen') {
+                    document.getElementById('progress-bar-wrapper').style.display = 'none';
+                }
+            }
         }
 
         function onYouTubeIframeAPIReady() {
@@ -424,19 +486,19 @@
 
         function tick() {
             setInterval(() => {
-                if(ok && ytP && ytP.getCurrentTime) {
+                if(ok && ytP && ytP.getCurrentTime && !isSharingScreen) {
                     const curr = ytP.getCurrentTime(); const dur = ytP.getDuration();
                     if(dur > 0) {
                         document.getElementById('v-fill').style.width = (curr/dur*100) + '%';
                         document.getElementById('v-time').innerText = `${fmt(curr)} / ${fmt(dur)}`;
                     }
-                    if(myL === 'admin') db.ref('rooms/'+myR+'/theme' ? 'rooms/'+myR+'/sync' : 'rooms/'+myR+'/sync').update({ t: curr });
+                    if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ t: curr });
                 }
             }, 1000);
         }
 
         function fmt(s) { let m = Math.floor(s / 60); s = Math.floor(s % 60); return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s); }
-        function handleSeek(e) { if(myL !== 'admin' || !ok) return; const bar = document.getElementById('v-seek-bar'); const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth; ytP.seekTo(pct * ytP.getDuration()); sc('play'); }
+        function handleSeek(e) { if(myL !== 'admin' || !ok || isSharingScreen) return; const bar = document.getElementById('v-seek-bar'); const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth; ytP.seekTo(pct * ytP.getDuration()); sc('play'); }
         function handleTyping() { db.ref(`rooms/${myR}/typing/${myId}`).set(myN); clearTimeout(typingTimeout); typingTimeout = setTimeout(() => db.ref(`rooms/${myR}/typing/${myId}`).remove(), 2000); }
 
         async function yt() {
@@ -446,7 +508,9 @@
             d.items.forEach(i => {
                 const c = document.createElement('div'); c.className = "res-card";
                 c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}"><button class="add-q-btn" onclick="addToQueue('${i.id.videoId}', '${i.snippet.title.replace(/'/g, "\\'")}', event)">+ NÖVBƏ</button>`;
-                c.onclick = () => db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 });
+                c.onclick = () => {
+                    db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 });
+                };
                 b.appendChild(c);
             });
         }
@@ -466,8 +530,8 @@
         }
 
         function removeFromQueue(key) { db.ref(`rooms/${myR}/queue/${key}`).remove(); }
-        function seek(s) { if(myL === 'admin') { ytP.seekTo(ytP.getCurrentTime() + s); sc('play'); } }
-        function sc(a) { if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
+        function seek(s) { if(myL === 'admin' && !isSharingScreen) { ytP.seekTo(ytP.getCurrentTime() + s); sc('play'); } }
+        function sc(a) { if(myL === 'admin' && !isSharingScreen) db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
         function kickUser(uid, name) { if(confirm(`${name} qovulsun?`)) db.ref(`rooms/${myR}/kicked/${uid}`).set(true); }
 
         function openReactMenu(msgId, e) {
@@ -488,7 +552,6 @@
             const btn = document.getElementById('voice-call-btn');
             if (!isInVoiceRoom) {
                 try {
-                    // Optimized for maximum clarity and auto noise suppression
                     localVoiceStream = await navigator.mediaDevices.getUserMedia({ 
                         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
                     });
@@ -496,12 +559,15 @@
                     btn.innerText = "🎙️ MİKRAFONU SÖNDÜR";
                     btn.className = "voice-active";
                     db.ref(`rooms/${myR}/users/${myId}/voice`).set(true);
+                    
+                    Object.keys(peerConnections).forEach(uid => {
+                        localVoiceStream.getTracks().forEach(track => peerConnections[uid].addTrack(track, localVoiceStream));
+                    });
                     showToast("Səsli kanala qoşuldunuz!");
                 } catch (e) {
                     showToast("Mikrofon icazəsi verilmədi!");
                 }
             } else {
-                // Internal Mute/Unmute for instant mic blocking
                 const audioTrack = localVoiceStream.getAudioTracks()[0];
                 if(audioTrack) {
                     audioTrack.enabled = !audioTrack.enabled;
@@ -518,8 +584,66 @@
             }
         }
 
+        // ==========================================
+        //         SCREEN SHARING FUNCTION
+        // ==========================================
+        async function toggleScreenShare() {
+            const btn = document.getElementById('screen-share-btn');
+            const scrVideo = document.getElementById('screen-video');
+            
+            if (!isSharingScreen) {
+                try {
+                    localScreenStream = await navigator.mediaDevices.getDisplayMedia({ 
+                        video: { cursor: "always" },
+                        audio: true 
+                    });
+                    
+                    isSharingScreen = true;
+                    btn.innerText = "⏹️ PAYLAŞIMI DAYANDIR";
+                    btn.className = "screen-active";
+                    
+                    scrVideo.srcObject = localScreenStream;
+                    scrVideo.style.display = 'block';
+                    if(ytP && ytP.pauseVideo) ytP.pauseVideo();
+                    
+                    db.ref(`rooms/${myR}/screen_state`).set({ sharerId: myId, active: true });
+
+                    Object.keys(peerConnections).forEach(uid => {
+                        localScreenStream.getVideoTracks().forEach(track => peerConnections[uid].addTrack(track, localScreenStream));
+                    });
+
+                    localScreenStream.getVideoTracks()[0].onended = () => {
+                        stopLocalScreenShare();
+                    };
+                    
+                } catch (e) {
+                    showToast("Ekran paylaşımı ləğv edildi.");
+                }
+            } else {
+                stopLocalScreenShare();
+            }
+        }
+
+        function stopLocalScreenShare() {
+            const btn = document.getElementById('screen-share-btn');
+            const scrVideo = document.getElementById('screen-video');
+            
+            isSharingScreen = false;
+            btn.innerText = "🖥️ EKRANI PAYLAŞ";
+            btn.className = "";
+            scrVideo.style.display = 'none';
+            scrVideo.srcObject = null;
+            
+            if (localScreenStream) {
+                localScreenStream.getTracks().forEach(track => track.stop());
+                localScreenStream = null;
+            }
+            
+            db.ref(`rooms/${myR}/screen_state`).set({ active: false });
+            if(ytP && ytP.playVideo) ytP.playVideo();
+        }
+
         function initVoiceSignaling() {
-            // Listen for signaling data for peer connection setup
             db.ref(`rooms/${myR}/voice_signals/${myId}`).on('child_added', async snapshot => {
                 const signal = snapshot.val();
                 const fromId = signal.from;
@@ -546,20 +670,30 @@
             if (localVoiceStream) {
                 localVoiceStream.getTracks().forEach(track => pc.addTrack(track, localVoiceStream));
             }
+            if (localScreenStream && isSharingScreen) {
+                localScreenStream.getTracks().forEach(track => pc.addTrack(track, localScreenStream));
+            }
 
             pc.onicecandidate = e => {
                 if (e.candidate) db.ref(`rooms/${myR}/voice_signals/${targetId}`).push({ from: myId, ice: e.candidate });
             };
 
             pc.ontrack = e => {
-                let audioEl = document.getElementById(`audio-${targetId}`);
-                if (!audioEl) {
-                    audioEl = document.createElement('audio');
-                    audioEl.id = `audio-${targetId}`;
-                    audioEl.autoplay = true;
-                    document.getElementById('remote-audios').appendChild(audioEl);
+                if (e.track.kind === 'video') {
+                    const scrVideo = document.getElementById('screen-video');
+                    scrVideo.srcObject = e.streams[0];
+                    scrVideo.style.display = 'block';
+                    if(ytP && ytP.pauseVideo) ytP.pauseVideo();
+                } else {
+                    let audioEl = document.getElementById(`audio-${targetId}`);
+                    if (!audioEl) {
+                        audioEl = document.createElement('audio');
+                        audioEl.id = `audio-${targetId}`;
+                        audioEl.autoplay = true;
+                        document.getElementById('remote-audios').appendChild(audioEl);
+                    }
+                    audioEl.srcObject = e.streams[0];
                 }
-                audioEl.srcObject = e.streams[0];
             };
 
             if (isOffer) {
@@ -596,9 +730,26 @@
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
                     if(d.v && d.v !== currentVideoId) { currentVideoId = d.v; ytP.loadVideoById(d.v); }
-                    d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo();
+                    if(!isSharingScreen) {
+                        d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo();
+                    }
                     lastAdminTime = d.t;
-                    if(myL !== 'admin' && Math.abs(ytP.getCurrentTime() - d.t) > 5) ytP.seekTo(d.t);
+                    if(myL !== 'admin' && Math.abs(ytP.getCurrentTime() - d.t) > 5 && !isSharingScreen) ytP.seekTo(d.t);
+                }
+            });
+
+            db.ref(`rooms/${myR}/screen_state`).on('value', s => {
+                const data = s.val();
+                const scrVideo = document.getElementById('screen-video');
+                if (data && data.active) {
+                    if (data.sharerId !== myId) {
+                        showToast("Admin ekran paylaşımını başlatdı!");
+                        if(ytP && ytP.pauseVideo) ytP.pauseVideo();
+                    }
+                } else {
+                    scrVideo.style.display = 'none';
+                    scrVideo.srcObject = null;
+                    if(ytP && ytP.playVideo && ok) ytP.playVideo();
                 }
             });
 
@@ -651,12 +802,10 @@
                 if(users.length > 0) { ts.innerText = users.join(', ') + " yazır..."; ts.style.display = 'block'; } else { ts.style.display = 'none'; }
             });
 
-            // Handle voice networking when users list updates
             db.ref(`rooms/${myR}/users`).on('value', s => {
                 const data = s.val() || {}; document.getElementById('user-count').innerText = s.numChildren();
                 const listCont = document.getElementById('users-list-content'); listCont.innerHTML = '';
                 
-                // Track dynamic connections
                 Object.keys(peerConnections).forEach(id => {
                     if (!data[id]) clearPeerConnection(id);
                 });
@@ -665,7 +814,6 @@
                     const uRow = document.createElement('div'); uRow.className = 'u-item';
                     uRow.onclick = () => showProfile(u.n, u.p, u.role);
                     
-                    // Voice room indicators
                     const voiceIndicator = u.voice ? "🟢 Səsdə" : "⚪ Səsdə deyil";
                     
                     uRow.innerHTML = `
@@ -676,8 +824,7 @@
                         ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}`;
                     listCont.appendChild(uRow);
 
-                    // Automesh peer logic trigger
-                    if (isInVoiceRoom && u.voice && uid !== myId && !peerConnections[uid]) {
+                    if (uid !== myId && !peerConnections[uid]) {
                         if (myId < uid) setupPeerConnection(uid, true);
                     }
                 });
