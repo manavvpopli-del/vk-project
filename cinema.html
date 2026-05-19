@@ -16,7 +16,7 @@
         #animation-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; background: #050505; }
         #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
-        /* MULTI-TAB AUTH DESIGN */
+        /* AUTH DESIGN */
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .auth-card { background: var(--card); padding: 30px; border-radius: 6px; width: 90%; max-width: 420px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 10; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .logo { font-family: 'Bebas Neue', sans-serif; color: var(--blue); font-size: 3.5rem; letter-spacing: 4px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 173, 181, 0.3); }
@@ -65,7 +65,10 @@
         .controls-bar { background: rgba(10,10,10,0.9); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
-        .active-mic { color: #2e7d32 !important; border-color: #2e7d32 !important; }
+        
+        /* VOICE CALL BUTTON STYLES */
+        .voice-active { background: #2e7d32 !important; border-color: #4caf50 !important; font-weight: bold; }
+        .voice-muted { background: #c62828 !important; border-color: #ef5350 !important; }
 
         .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
         .search-box { display: flex; gap: 5px; }
@@ -119,11 +122,15 @@
         .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); margin-bottom: 15px; }
         .profile-card h3 { font-size: 18px; margin-bottom: 5px; color: #fff; }
         .profile-card p { font-size: 12px; color: var(--blue); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        
+        /* HIDDEN AUDIO CONTAINER FOR WEBRTC STREAMS */
+        #remote-audios { display: none; }
     </style>
 </head>
 <body>
     <canvas id="animation-canvas"></canvas>
     <div id="toast"></div>
+    <div id="remote-audios"></div>
 
     <!-- PROFILE MODAL -->
     <div id="profile-modal" class="modal-overlay" onclick="this.style.display='none'">
@@ -135,7 +142,7 @@
         </div>
     </div>
 
-    <!-- UPDATED PREMIUM AUTH OVERLAY -->
+    <!-- PREMIUM AUTH OVERLAY -->
     <div id="auth-box" class="auth-overlay">
         <div class="auth-card">
             <div class="logo">WATCH LIVE</div>
@@ -201,10 +208,10 @@
             </div>
             <div class="controls-bar">
                 <div class="main-btns">
-                    <button id="voice-btn" onclick="toggleVoice()">MİK: KAPALI</button>
+                    <!-- NEW HIGH-QUALITY VOICE CALL BUTTON -->
+                    <button id="voice-call-btn" onclick="toggleVoiceRoom()">🔊 SƏSLİ ZƏNGƏ QOŞUL</button>
                     <button onclick="toggleFS()">TAM EKRAN</button>
                     <button id="sync-fix-btn" style="display:none; color:var(--blue);" onclick="forceSync()">🔄 SİNXRON ET</button>
-                    <button onclick="togglePiP()">YAN EKRAN</button>
                     <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
                     <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--blue); grid-column: span 2;">VİDEO PANEL</button>
                 </div>
@@ -257,8 +264,14 @@
         const db = firebase.database();
         
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
-        let voiceStream = null, typingTimeout, lastAdminTime = 0, currentVideoId = "";
+        let typingTimeout, lastAdminTime = 0, currentVideoId = "";
         let playlistQueue = [];
+
+        // WEBRTC ADVANCED MESH VOICE SIGNALING SYSTEM
+        let localVoiceStream = null;
+        let peerConnections = {};
+        const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+        let isInVoiceRoom = false;
 
         // ANIMATION SYSTEM
         const canvas = document.getElementById('animation-canvas');
@@ -271,7 +284,6 @@
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         function previewImage(input, previewId) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById(previewId).src = myPic; }; r.readAsDataURL(input.files[0]); } }
         
-        // TAB SWITCHER
         function switchTab(type) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -284,14 +296,11 @@
             }
         }
 
-        // GENERATE 6 DIGIT CODE FOR ROOM
         function generate6DigitCode() {
             const nick = document.getElementById('nick-create').value.trim();
             if(!nick) return showToast("Zəhmət olmasa ləqəb daxil edin!");
-            
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             document.getElementById('room-create').value = code;
-            
             document.getElementById('gen-btn').style.display = 'none';
             document.getElementById('copy-code-btn').style.display = 'block';
             document.getElementById('start-btn').style.display = 'block';
@@ -363,7 +372,6 @@
         function toggleAdminPanel() { const p = document.getElementById('admin-panel'); p.style.display = (p.style.display === 'none') ? 'flex' : 'none'; }
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
         function toggleFS() { const v = document.getElementById('app'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
-        async function togglePiP() { try { const video = document.getElementsByTagName('video')[0]; if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (video) await video.requestPictureInPicture(); } catch (e) { showToast("PiP xətası"); } }
 
         function showProfile(name, pic, role) {
             document.getElementById('p-modal-img').src = pic;
@@ -395,7 +403,7 @@
             }
             
             resizeCanvas();
-            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
+            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l, voice: false });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             
             db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${myN} otağa qoşuldu.` });
@@ -422,7 +430,7 @@
                         document.getElementById('v-fill').style.width = (curr/dur*100) + '%';
                         document.getElementById('v-time').innerText = `${fmt(curr)} / ${fmt(dur)}`;
                     }
-                    if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ t: curr });
+                    if(myL === 'admin') db.ref('rooms/'+myR+'/theme' ? 'rooms/'+myR+'/sync' : 'rooms/'+myR+'/sync').update({ t: curr });
                 }
             }, 1000);
         }
@@ -473,8 +481,111 @@
             document.getElementById(`pop-${msgId}`).style.display = 'none';
         }
 
+        // ==========================================
+        //  ADVANCED WEBRTC MULTI-USER VOICE SYSTEM
+        // ==========================================
+        async function toggleVoiceRoom() {
+            const btn = document.getElementById('voice-call-btn');
+            if (!isInVoiceRoom) {
+                try {
+                    // Optimized for maximum clarity and auto noise suppression
+                    localVoiceStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
+                    });
+                    isInVoiceRoom = true;
+                    btn.innerText = "🎙️ MİKRAFONU SÖNDÜR";
+                    btn.className = "voice-active";
+                    db.ref(`rooms/${myR}/users/${myId}/voice`).set(true);
+                    showToast("Səsli kanala qoşuldunuz!");
+                } catch (e) {
+                    showToast("Mikrofon icazəsi verilmədi!");
+                }
+            } else {
+                // Internal Mute/Unmute for instant mic blocking
+                const audioTrack = localVoiceStream.getAudioTracks()[0];
+                if(audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    if(audioTrack.enabled) {
+                        btn.innerText = "🎙️ MİKRAFONU SÖNDÜR";
+                        btn.className = "voice-active";
+                        db.ref(`rooms/${myR}/users/${myId}/voice`).set(true);
+                    } else {
+                        btn.innerText = "🔇 MİKRAFONU AÇ";
+                        btn.className = "voice-muted";
+                        db.ref(`rooms/${myR}/users/${myId}/voice`).set(false);
+                    }
+                }
+            }
+        }
+
+        function initVoiceSignaling() {
+            // Listen for signaling data for peer connection setup
+            db.ref(`rooms/${myR}/voice_signals/${myId}`).on('child_added', async snapshot => {
+                const signal = snapshot.val();
+                const fromId = signal.from;
+                if (!peerConnections[fromId]) setupPeerConnection(fromId, false);
+                
+                const pc = peerConnections[fromId];
+                if (signal.sdp) {
+                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                    if (signal.sdp.type === 'offer') {
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+                        db.ref(`rooms/${myR}/voice_signals/${fromId}`).push({ from: myId, sdp: answer });
+                    }
+                } else if (signal.ice) {
+                    try { await pc.addIceCandidate(new RTCIceCandidate(signal.ice)); } catch(e){}
+                }
+            });
+        }
+
+        function setupPeerConnection(targetId, isOffer) {
+            const pc = new RTCPeerConnection(rtcConfig);
+            peerConnections[targetId] = pc;
+
+            if (localVoiceStream) {
+                localVoiceStream.getTracks().forEach(track => pc.addTrack(track, localVoiceStream));
+            }
+
+            pc.onicecandidate = e => {
+                if (e.candidate) db.ref(`rooms/${myR}/voice_signals/${targetId}`).push({ from: myId, ice: e.candidate });
+            };
+
+            pc.ontrack = e => {
+                let audioEl = document.getElementById(`audio-${targetId}`);
+                if (!audioEl) {
+                    audioEl = document.createElement('audio');
+                    audioEl.id = `audio-${targetId}`;
+                    audioEl.autoplay = true;
+                    document.getElementById('remote-audios').appendChild(audioEl);
+                }
+                audioEl.srcObject = e.streams[0];
+            };
+
+            if (isOffer) {
+                pc.onnegotiationneeded = async () => {
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    db.ref(`rooms/${myR}/voice_signals/${targetId}`).push({ from: myId, sdp: offer });
+                };
+            }
+        }
+
+        function clearPeerConnection(targetId) {
+            if (peerConnections[targetId]) {
+                peerConnections[targetId].close();
+                delete peerConnections[targetId];
+            }
+            const audioEl = document.getElementById(`audio-${targetId}`);
+            if (audioEl) audioEl.remove();
+        }
+
+        // ==========================================
+        //         MAIN INITIALIZATION CODE
+        // ==========================================
         function init() {
             window.onclick = () => document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none');
+            initVoiceSignaling();
 
             db.ref(`rooms/${myR}/theme`).on('value', s => {
                 const t = s.val();
@@ -540,19 +651,36 @@
                 if(users.length > 0) { ts.innerText = users.join(', ') + " yazır..."; ts.style.display = 'block'; } else { ts.style.display = 'none'; }
             });
 
+            // Handle voice networking when users list updates
             db.ref(`rooms/${myR}/users`).on('value', s => {
-                const data = s.val(); document.getElementById('user-count').innerText = s.numChildren();
+                const data = s.val() || {}; document.getElementById('user-count').innerText = s.numChildren();
                 const listCont = document.getElementById('users-list-content'); listCont.innerHTML = '';
-                if(data) {
-                    Object.entries(data).forEach(([uid, u]) => {
-                        const uRow = document.createElement('div'); uRow.className = 'u-item';
-                        uRow.onclick = () => showProfile(u.n, u.p, u.role);
-                        uRow.innerHTML = `
-                            <div class="u-info"><img src="${u.p}"><span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'})</span></div>
-                            ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}`;
-                        listCont.appendChild(uRow);
-                    });
-                }
+                
+                // Track dynamic connections
+                Object.keys(peerConnections).forEach(id => {
+                    if (!data[id]) clearPeerConnection(id);
+                });
+
+                Object.entries(data).forEach(([uid, u]) => {
+                    const uRow = document.createElement('div'); uRow.className = 'u-item';
+                    uRow.onclick = () => showProfile(u.n, u.p, u.role);
+                    
+                    // Voice room indicators
+                    const voiceIndicator = u.voice ? "🟢 Səsdə" : "⚪ Səsdə deyil";
+                    
+                    uRow.innerHTML = `
+                        <div class="u-info">
+                            <img src="${u.p}">
+                            <span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'}) <small style="color:${u.voice?'#4caf50':'#888'}">${voiceIndicator}</small></span>
+                        </div>
+                        ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}`;
+                    listCont.appendChild(uRow);
+
+                    // Automesh peer logic trigger
+                    if (isInVoiceRoom && u.voice && uid !== myId && !peerConnections[uid]) {
+                        if (myId < uid) setupPeerConnection(uid, true);
+                    }
+                });
             });
         }
 
@@ -561,12 +689,7 @@
             db.ref('rooms/'+myR+'/chat').push({ n: myN, t: i.value, p: myPic, ts: Date.now() }); i.value = '';
             db.ref(`rooms/${myR}/typing/${myId}`).remove();
         }
-        async function toggleVoice() {
-            const btn = document.getElementById('voice-btn');
-            if (!voiceStream) {
-                try { voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true }); btn.innerText = "MİK: AÇIQ"; btn.classList.add('active-mic'); } catch (e) { showToast("İcazə yoxdur"); }
-            } else { voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null; btn.innerText = "MİK: KAPALI"; btn.classList.remove('active-mic'); }
-        }
+
         function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); r.readAsDataURL(input.files[0]); } }
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         
