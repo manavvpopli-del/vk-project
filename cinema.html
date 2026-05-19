@@ -11,12 +11,15 @@
     <style>
         :root { --blue: #00adb5; --bg: #050505; --card: #121212; --border: #252525; --text: #e5e5e5; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; background-size: cover; background-position: center; transition: background 0.5s ease; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
+
+        /* CANVASES FOR ANIMATIONS */
+        #animation-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; background: #050505; }
 
         #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
         .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .auth-card { background: var(--card); padding: 40px 30px; border-radius: 4px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
+        .auth-card { background: var(--card); padding: 40px 30px; border-radius: 4px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 10; }
         .logo { font-family: 'Bebas Neue', sans-serif; color: var(--blue); font-size: 3.5rem; letter-spacing: 4px; margin-bottom: 25px; }
         
         .avatar-upload { width: 90px; height: 90px; margin: 0 auto 20px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); transition: 0.3s; }
@@ -27,13 +30,13 @@
 
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
-        /* THEME SELECTOR */
+        /* THEME SELECTOR - ANIMATION ONLY */
         .theme-btn { position: absolute; top: 10px; right: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
-        .theme-panel { position: absolute; top: 50px; right: 10px; background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 200px; }
-        .theme-colors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .color-opt { width: 100%; pt: 100%; padding-bottom: 100%; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+        .theme-panel { position: absolute; top: 50px; right: 10px; background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 220px; }
+        .anim-opt-btn { width: 100%; background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
+        .anim-opt-btn:hover { background: #252525; border-color: var(--blue); }
 
-        .video-section { width: 100%; background: rgba(0,0,0,0.8); flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
+        .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; backdrop-filter: blur(5px); }
         #player-container { width: 100%; height: 211px; pointer-events: none; }
         #player { width: 100%; height: 100%; }
 
@@ -59,17 +62,17 @@
         .u-item { display: flex; align-items: center; gap: 8px; padding: 5px; font-size: 12px; }
         .u-item img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 
-        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: transparent; position: relative; overflow: hidden; }
+        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: transparent; position: relative; overflow: hidden; z-index: 5; }
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
         .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; }
         .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
         .m-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
-        .m-bubble { background: rgba(26,26,26,0.9); padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); }
-        .m-row.me .m-bubble { background: var(--blue); border-radius: 8px 8px 2px 8px; color: #fff; }
+        .m-bubble { background: rgba(26,26,26,0.85); padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); }
+        .m-row.me .m-bubble { background: rgba(0, 173, 181, 0.9); border-radius: 8px 8px 2px 8px; color: #fff; border: none; }
 
         #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #ccc; display: none; text-shadow: 1px 1px 2px #000; }
 
-        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(5px); }
         .input-bar input { margin: 0; background: #000; border: 1px solid #333; height: 40px; }
         .chat-icon { width: 30px; height: 30px; cursor: pointer; object-fit: contain; }
         .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; }
@@ -77,6 +80,9 @@
     </style>
 </head>
 <body>
+    <!-- BACKGROUND ANIMATION CANVAS -->
+    <canvas id="animation-canvas"></canvas>
+
     <div id="toast"></div>
 
     <div id="auth-box" class="auth-overlay">
@@ -94,17 +100,12 @@
     </div>
 
     <div id="app">
-        <div class="theme-btn" onclick="toggleThemePanel()">🎨</div>
+        <div class="theme-btn" onclick="toggleThemePanel()">✨</div>
         <div id="theme-panel" class="theme-panel">
-            <div style="font-size: 11px; margin-bottom: 10px; color: #888; font-weight: bold;">TEMA SEÇİN</div>
-            <div class="theme-colors">
-                <div class="color-opt" style="background: #050505;" onclick="setTheme('#050505')"></div>
-                <div class="color-opt" style="background: #1a1a2e;" onclick="setTheme('#1a1a2e')"></div>
-                <div class="color-opt" style="background: #2d132c;" onclick="setTheme('#2d132c')"></div>
-                <div class="color-opt" style="background: #0f3443;" onclick="setTheme('#0f3443')"></div>
-            </div>
-            <button class="btn" style="padding: 10px; font-size: 11px;" onclick="document.getElementById('bg-input').click()">ŞƏKİL SEÇ</button>
-            <input type="file" id="bg-input" hidden accept="image/*" onchange="uploadBg(this)">
+            <div style="font-size: 11px; margin-bottom: 12px; color: #888; font-weight: bold; text-transform: uppercase;">Arxa Fon Animasiyası</div>
+            <button class="anim-opt-btn" onclick="setAnimation('stars')">🌌 Parıldayan Ulduzlar</button>
+            <button class="anim-opt-btn" onclick="setAnimation('waves')">🔮 Neon Dalğalar</button>
+            <button class="anim-opt-btn" onclick="setAnimation('matrix')">🟢 Matris Yağışı</button>
         </div>
 
         <div class="video-section">
@@ -154,7 +155,6 @@
     </div>
 
     <script>
-        // Yenilənmiş Firebase Konfiqurasiyası
         const CF = { 
             apiKey: "AIzaSyAGLab7iSmhRAIZGuwQLa7HeE_Kg_4PVqM", 
             authDomain: "vkproject-63da1.firebaseapp.com",
@@ -173,20 +173,105 @@
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
         let voiceStream = null, typingTimeout;
 
+        // ANIMATION ENGINE VARIABLES
+        const canvas = document.getElementById('animation-canvas');
+        const ctx = canvas.getContext('2d');
+        let currentAnim = 'stars'; 
+        let animId = null;
+        let animData = [];
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initAnimationData(); }
+        window.addEventListener('resize', resizeCanvas);
+
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         function previewImage(input) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById('avatar-preview').src = myPic; }; r.readAsDataURL(input.files[0]); } }
         
         function toggleThemePanel() { const p = document.getElementById('theme-panel'); p.style.display = (p.style.display === 'none') ? 'block' : 'none'; }
-        function setTheme(val, isImg = false) {
-            db.ref(`rooms/${myR}/theme`).set({ val, isImg });
+        
+        function setAnimation(type) {
+            db.ref(`rooms/${myR}/theme`).set({ type: type });
             toggleThemePanel();
         }
-        function uploadBg(input) {
-            if(input.files[0]) {
-                let r = new FileReader();
-                r.onload = e => setTheme(e.target.result, true);
-                r.readAsDataURL(input.files[0]);
+
+        // ANIMATIONS CONFIG & LOOP
+        function initAnimationData() {
+            animData = [];
+            if (currentAnim === 'stars') {
+                for (let i = 0; i < 120; i++) {
+                    animData.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2,
+                        speed: Math.random() * 0.5 + 0.1,
+                        alpha: Math.random(),
+                        phase: Math.random() * Math.PI
+                    });
+                }
+            } else if (currentAnim === 'matrix') {
+                const columns = Math.floor(canvas.width / 16) + 1;
+                for (let i = 0; i < columns; i++) {
+                    animData.push({ x: i * 16, y: Math.random() * -100 - 50, speed: Math.random() * 3 + 2 });
+                }
+            } else if (currentAnim === 'waves') {
+                animData = { hue: 0, time: 0 };
             }
+        }
+
+        function runAnimationLoop() {
+            if (animId) cancelAnimationFrame(animId);
+            
+            function draw() {
+                if (currentAnim === 'stars') {
+                    ctx.fillStyle = '#050505';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#ffffff';
+                    animData.forEach(p => {
+                        p.phase += 0.02;
+                        let curAlpha = p.alpha + Math.sin(p.phase) * 0.4;
+                        if(curAlpha < 0) curAlpha = 0; if(curAlpha > 1) curAlpha = 1;
+                        ctx.globalAlpha = curAlpha;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        p.y -= p.speed;
+                        if (p.y < 0) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
+                    });
+                    ctx.globalAlpha = 1.0;
+                } 
+                else if (currentAnim === 'matrix') {
+                    ctx.fillStyle = 'rgba(5, 5, 5, 0.08)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#0f0';
+                    ctx.font = '14px monospace';
+                    animData.forEach(drop => {
+                        const text = String.fromCharCode(0x30A0 + Math.random() * 96);
+                        ctx.fillText(text, drop.x, drop.y);
+                        drop.y += drop.speed;
+                        if (drop.y > canvas.height && Math.random() > 0.975) {
+                            drop.y = Math.random() * -50;
+                        }
+                    });
+                } 
+                else if (currentAnim === 'waves') {
+                    animData.time += 0.003;
+                    animData.hue = (animData.hue + 0.1) % 360;
+                    
+                    let grad = ctx.createRadialGradient(
+                        canvas.width/2 + Math.sin(animData.time) * (canvas.width/4), 
+                        canvas.height/2 + Math.cos(animData.time * 1.5) * (canvas.height/4), 
+                        10, 
+                        canvas.width/2, canvas.height/2, canvas.width
+                    );
+                    grad.addColorStop(0, `hsla(${animData.hue}, 70%, 15%, 1)`);
+                    grad.addColorStop(0.5, `hsla(${(animData.hue + 60) % 360}, 60%, 5%, 1)`);
+                    grad.addColorStop(1, '#050505');
+                    
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                animId = requestAnimationFrame(draw);
+            }
+            draw();
         }
 
         function toggleAdminPanel() { const p = document.getElementById('admin-panel'); p.style.display = (p.style.display === 'none') ? 'flex' : 'none'; }
@@ -213,6 +298,7 @@
                 document.getElementById('admin-toggle-btn').style.display = 'block';
                 document.getElementById('v-seek-bar').classList.add('admin-seek');
             }
+            resizeCanvas();
             db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             init();
@@ -271,16 +357,16 @@
         function sc(a) { if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
 
         function init() {
+            // FIREBASE ANIMATION SYNCHRONIZATION
             db.ref(`rooms/${myR}/theme`).on('value', s => {
                 const t = s.val();
-                if(t) {
-                    if(t.isImg) {
-                        document.body.style.backgroundImage = `url(${t.val})`;
-                    } else {
-                        document.body.style.backgroundImage = 'none';
-                        document.body.style.backgroundColor = t.val;
-                    }
+                if(t && t.type) {
+                    currentAnim = t.type;
+                } else {
+                    currentAnim = 'stars'; // Defolt olaraq ulduzlar
                 }
+                initAnimationData();
+                runAnimationLoop();
             });
 
             db.ref('rooms/'+myR+'/sync').on('value', s => {
@@ -291,7 +377,6 @@
                 }
             });
 
-            // FIXED: startAt(startTime) silindi, bütün mesajlar artıq problemsiz görünür
             db.ref('rooms/'+myR+'/chat').on('child_added', s => {
                 const m = s.val(); const b = document.getElementById('messages');
                 const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`;
@@ -346,6 +431,10 @@
 
         function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); r.readAsDataURL(input.files[0]); } }
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
+        
+        // Initial setup for canvas on load
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     </script>
 </body>
 </html>
