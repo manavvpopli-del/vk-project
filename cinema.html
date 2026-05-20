@@ -32,12 +32,12 @@
 
         .avatar-upload { width: 100px; height: 100px; margin: 0 auto 25px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px dashed rgba(0, 173, 181, 0.5); transition: 0.3s; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
         .avatar-upload:hover { border-color: var(--blue); transform: scale(1.03); }
-        #avatar-preview, #avatar-preview-join, #avatar-preview-register { width: 100%; height: 100%; object-fit: cover; }
+        #avatar-preview, #avatar-preview-join, #avatar-preview-register, #settings-avatar-preview { width: 100%; height: 100%; object-fit: cover; }
 
         .input-group { position: relative; width: 100%; margin-bottom: 18px; }
         input { width: 100%; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 14px; font-weight: 500; outline: none; transition: all 0.3s ease; }
         input:focus { border-color: var(--blue); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 20px rgba(0, 173, 181, 0.15); }
-        input:disabled { background: rgba(0, 173, 181, 0.05); color: var(--blue); font-weight: 700; font-size: 18px; letter-spacing: 3px; text-align: center; border-color: rgba(0, 173, 181, 0.3); }
+        input:disabled { background: rgba(173, 181, 181, 0.05); color: var(--blue); font-weight: 700; font-size: 18px; letter-spacing: 3px; text-align: center; border-color: rgba(0, 173, 181, 0.3); }
         
         .mode-selector { display: flex; gap: 10px; margin-bottom: 18px; }
         .mode-btn { flex: 1; padding: 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); color: #888; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
@@ -55,12 +55,19 @@
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
         /* INTERFEYS DIZAYNI PARAMETRLƏRİ */
-        .theme-btn { position: absolute; top: 10px; right: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
+        .top-action-btn { position: absolute; top: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .theme-btn { right: 10px; }
+        .settings-btn { right: 52px; font-size: 14px; }
+        
         .theme-panel { position: absolute; top: 50px; right: 10px; background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 220px; }
         .anim-opt-btn { width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
         .speed-panel { display: flex; gap: 5px; margin-top: 5px; }
         .speed-btn { flex: 1; background: #222; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 5px; font-size: 10px; border-radius: 4px; cursor: pointer; }
         .speed-btn.active { background: var(--blue); }
+
+        /* AYARLAR PANELİ (SLIDE OUT WINDOW) */
+        .settings-panel { position: absolute; top: 50px; right: 52px; background: rgba(18,18,18,0.95); border: 1px solid rgba(255,255,255,0.15); padding: 20px; border-radius: 16px; display: none; z-index: 1001; width: 310px; max-height: 80vh; overflow-y: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .settings-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #fff; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
         .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; backdrop-filter: blur(5px); }
         #player-container { width: 100%; height: 211px; position: relative; background: #000; }
@@ -225,7 +232,7 @@
 
             <!-- REGISTRATION TAB -->
             <div id="tab-register" class="tab-content">
-                <div class="auth-notice">⚠️ DİQQƏT: Bu cihazda yalnız 1 hesab yaratmaq olar! Şifrənizi mütləq yadda saxlayın.</div>
+                <div class="auth-notice">⚠️ DİQQƏT: Bu cihazda yalnız 1 hesab yaratmaq olar! Şifrənizi mütləq yadda scala edin.</div>
                 
                 <div class="avatar-upload" onclick="document.getElementById('file-input-register').click()">
                     <img id="avatar-preview-register" src="https://www.w3schools.com/howto/img_avatar.png">
@@ -241,7 +248,10 @@
 
     <!-- APP MAIN CONTENT -->
     <div id="app">
-        <div class="theme-btn" onclick="toggleThemePanel()">✨</div>
+        <div class="top-action-btn theme-btn" onclick="toggleThemePanel()">✨</div>
+        <div class="top-action-btn settings-btn" onclick="toggleSettingsPanel()">⚙️</div>
+        
+        <!-- THEME PANEL -->
         <div id="theme-panel" class="theme-panel">
             <div style="font-size: 11px; margin-bottom: 8px; color: #888; font-weight: bold; text-transform: uppercase;">Animasiya Tərzi</div>
             <button class="anim-opt-btn" onclick="setAnimation('stars')">🌌 Parıldayan Ulduzlar</button>
@@ -252,6 +262,33 @@
                 <button class="speed-btn" id="sp-slow" onclick="setSpeed(0.5)">Yavaş</button>
                 <button class="speed-btn" id="sp-med" onclick="setSpeed(1)">Orta</button>
                 <button class="speed-btn" id="sp-fast" onclick="setSpeed(2.5)">Sürətli</button>
+            </div>
+        </div>
+
+        <!-- LIVE SETTINGS & PERSONAL STATISTICS PANEL -->
+        <div id="settings-panel" class="settings-panel">
+            <div class="settings-title"><span>⚙️ AYARLAR və STATİSTİKA</span> <span style="cursor:pointer;" onclick="toggleSettingsPanel()">❌</span></div>
+            
+            <!-- Edit Profile Base -->
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div class="avatar-upload" style="width:75px; height:75px; margin-bottom:10px;" onclick="document.getElementById('file-input-settings').click()">
+                    <img id="settings-avatar-preview" src="">
+                    <input type="file" id="file-input-settings" hidden accept="image/*" onchange="processAndPreviewImage(this, 'settings-avatar-preview', true)">
+                </div>
+                <input type="text" id="settings-display-name" placeholder="YENİ ADINIZ" style="padding: 10px; font-size: 12px; margin-bottom: 10px; text-align: center;">
+                <button class="btn" style="padding: 10px; font-size: 11px; border-radius: 8px;" onclick="saveProfileChanges()">MƏLUMATLARI YENİLƏ</button>
+            </div>
+
+            <!-- Realtime Local Statistics -->
+            <div class="p-stat-box" style="max-height: none; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.05);">
+                <div class="p-stat-title" style="color:var(--blue)">⏱️ SƏNİN SƏRF ETDİYİN VAXT:</div>
+                <div class="p-stat-text" id="my-stat-time" style="font-weight: bold; font-size: 13px;">0 dəqiqə</div>
+                
+                <div class="p-stat-title" style="color:var(--blue)">🎬 SƏNİN İZLƏDİKLƏRİN (VİDEO ID):</div>
+                <div class="p-stat-text" id="my-stat-watched" style="font-size: 11px; word-break: break-all;">Heç nə baxılmayıb</div>
+                
+                <div class="p-stat-title" style="color:var(--blue)">👥 ƏN ÇOX BAXDIĞIN PROFİLLƏR:</div>
+                <div class="p-stat-text" id="my-stat-interacted" style="font-size: 11px;">Heç kim</div>
             </div>
         </div>
 
@@ -348,7 +385,7 @@
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         
-        function processAndPreviewImage(input, previewId) {
+        function processAndPreviewImage(input, previewId, isSettings = false) {
             if (input.files && input.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (e) {
@@ -364,9 +401,14 @@
                         canvasMat.height = height;
                         canvasMat.getContext('2d').drawImage(img, 0, 0, width, height);
                         let compressedDataUrl = canvasMat.toDataURL('image/jpeg', 0.7);
-                        myPic = compressedDataUrl;
-                        document.getElementById(previewId).src = compressedDataUrl;
-                        if(previewId === 'avatar-preview-register') currentHasUploadedAvatar = true;
+                        
+                        if(isSettings) {
+                            document.getElementById(previewId).src = compressedDataUrl;
+                        } else {
+                            myPic = compressedDataUrl;
+                            document.getElementById(previewId).src = compressedDataUrl;
+                            if(previewId === 'avatar-preview-register') currentHasUploadedAvatar = true;
+                        }
                     };
                     img.src = e.target.result;
                 };
@@ -414,7 +456,6 @@
                     db.ref(`registered_users/${uName}`).set(userData, (error) => {
                         if(!error) {
                             localStorage.setItem('wl_registered_device', uName);
-                            // AVTOMATİK OLARAQ LOCALSTORAGE-Ə SESSİYA MƏLUMATINI DA YAZIRIQ
                             localStorage.setItem('wl_logged_user', uName);
                             localStorage.setItem('wl_logged_pass', uPass);
                             
@@ -441,7 +482,6 @@
                     return showToast("Şifrə yanlışdır!");
                 }
 
-                // DAXİL OLANDAN SONRA SEANSLARI LOKALDA SAXLIYIRIQ
                 localStorage.setItem('wl_logged_user', uName);
                 localStorage.setItem('wl_logged_pass', uPass);
 
@@ -449,7 +489,6 @@
             });
         }
 
-        // BİR DƏFƏ GİRİŞ EDİLDİSƏ BİRBAŞA OTAQ MENYUSUNU AÇAN METOD
         function executeSessionLogin(username, userData) {
             myN = username;
             myPic = userData.avatar;
@@ -463,10 +502,15 @@
             document.getElementById('login-inputs-area').style.display = 'none';
             document.getElementById('welcome-user-text').innerText = "XOŞ GƏLDİNİZ, @" + myN.toUpperCase();
             document.getElementById('room-actions-area').style.display = 'block';
+            
+            // Ayarlar panelindəki ilkin dataları doldurur
+            document.getElementById('settings-avatar-preview').src = myPic;
+            document.getElementById('settings-display-name').value = myN;
+            updateMyLiveStatisticsUI();
+
             showToast("Giriş uğurludur!");
         }
 
-        // SEHİFƏ YENİLƏNƏNDƏ GİRİŞİ YOXLAYAN FUNKSİYA
         function checkSavedLoginSession() {
             const savedUser = localStorage.getItem('wl_logged_user');
             const savedPass = localStorage.getItem('wl_logged_pass');
@@ -478,13 +522,87 @@
                         if(userData.password === savedPass) {
                             executeSessionLogin(savedUser, userData);
                         } else {
-                            // Şifrə bazada dəyişibsə təmizlə
                             localStorage.removeItem('wl_logged_user');
                             localStorage.removeItem('wl_logged_pass');
                         }
                     }
                 });
             }
+        }
+
+        /* AYARLAR PANEI İDARƏETMƏSİ */
+        function toggleSettingsPanel() {
+            const p = document.getElementById('settings-panel');
+            if(p.style.display === 'none' || p.style.display === '') {
+                p.style.display = 'block';
+                updateMyLiveStatisticsUI();
+            } else {
+                p.style.display = 'none';
+            }
+        }
+
+        function updateMyLiveStatisticsUI() {
+            document.getElementById('my-stat-time').innerText = `${localUserStats.totalTime} dəqiqə`;
+            
+            const wList = Object.keys(localUserStats.watched || {});
+            document.getElementById('my-stat-watched').innerText = wList.length > 0 ? wList.slice(-5).join(', ') : "Heç nə izlənilməyib";
+            
+            const sortedInteractions = Object.entries(localUserStats.interacted || {}).sort((a,b) => b[1] - a[1]).map(item => "@" + item[0].toUpperCase());
+            document.getElementById('my-stat-interacted').innerText = sortedInteractions.length > 0 ? sortedInteractions.slice(0, 3).join(', ') : "Heç kim";
+        }
+
+        function saveProfileChanges() {
+            const newName = document.getElementById('settings-display-name').value.trim().toLowerCase();
+            const newPic = document.getElementById('settings-avatar-preview').src;
+
+            if(!newName) return showToast("Ad boş ola bilməz!");
+
+            // Köhnə adından fərqlidirsə verilənlər bazasındakı unikal adı yoxlayırıq
+            if(newName !== myN) {
+                db.ref(`registered_users/${newName}`).once('value', snapshot => {
+                    if(snapshot.exists()) {
+                        return showToast("Bu istifadəçi adı artıq başqası tərəfindən alınıb!");
+                    } else {
+                        proceedProfileUpdate(newName, newPic);
+                    }
+                });
+            } else {
+                proceedProfileUpdate(myN, newPic);
+            }
+        }
+
+        function proceedProfileUpdate(finalName, finalPic) {
+            const oldName = myN;
+            
+            // 1. Köhnə verilənlər strukturunu saxlayıb yenisinə daşımaq
+            db.ref(`registered_users/${oldName}`).once('value', snapshot => {
+                const currentData = snapshot.val() || {};
+                currentData.username = finalName;
+                currentData.avatar = finalPic;
+                currentData.stats = localUserStats;
+
+                // Əgər ad dəyişibsə, köhnə nodu silib yenisini yaradırıq
+                if(finalName !== oldName) {
+                    db.ref(`registered_users/${finalName}`).set(currentData);
+                    db.ref(`registered_users/${oldName}`).remove();
+                    localStorage.setItem('wl_registered_device', finalName);
+                    localStorage.setItem('wl_logged_user', finalName);
+                } else {
+                    db.ref(`registered_users/${oldName}`).update({ avatar: finalPic });
+                }
+
+                // Global dəyişənləri yeniləyirik
+                myN = finalName;
+                myPic = finalPic;
+
+                // Aktiv otaqdadırsa, otaqdakı canlı istifadəçi datasını da yeniləyirik
+                if(myR && myId) {
+                    db.ref(`rooms/${myR}/users/${myId}`).update({ n: finalName, p: finalPic });
+                }
+
+                showToast("Profil uğurla yeniləndi!");
+                toggleSettingsPanel();
+            });
         }
 
         function switchTab(type) {
@@ -665,6 +783,9 @@
             activeSessionInterval = setInterval(() => {
                 localUserStats.totalTime += 1;
                 db.ref(`registered_users/${myN}/stats/totalTime`).set(localUserStats.totalTime);
+                if(document.getElementById('settings-panel').style.display === 'block') {
+                    updateMyLiveStatisticsUI();
+                }
             }, 60000);
 
             init();
@@ -955,6 +1076,9 @@
                         if(myN) {
                             localUserStats.watched[currentVideoId] = true;
                             db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true);
+                            if(document.getElementById('settings-panel').style.display === 'block') {
+                                updateMyLiveStatisticsUI();
+                            }
                         }
                     }
                     if(!isSharingScreen) {
@@ -1089,7 +1213,6 @@
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         
-        // SEHİFƏ YÜKLƏNƏNDƏ AVTOMATİK GİRİŞ SESSİYASINI YOXLA VƏ ANIMASIYANI BAŞLAT
         window.onload = function() {
             checkSavedLoginSession();
             initAnimationData();
