@@ -29,7 +29,7 @@
         .tab-content.active { display: flex; }
 
         .avatar-upload { width: 85px; height: 85px; margin: 0 auto 20px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px solid var(--blue); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 173, 181, 0.2); }
-        #avatar-preview, #avatar-preview-join { width: 100%; height: 100%; object-fit: cover; }
+        #avatar-preview, #avatar-preview-join, #avatar-preview-register { width: 100%; height: 100%; object-fit: cover; }
 
         input { width: 100%; padding: 14px; margin-bottom: 14px; border-radius: 4px; border: 1px solid var(--border); background: #151515; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
         input:focus { border-color: var(--blue); background: #1a1a1a; }
@@ -77,7 +77,7 @@
         .voice-muted { background: #c62828 !important; border-color: #ef5350 !important; }
         .screen-active { background: #ff8f00 !important; border-color: #ffb300 !important; font-weight: bold; animation: pulse 1.5s infinite; }
         
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        @pragma keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
         .search-box { display: flex; gap: 5px; }
@@ -127,11 +127,17 @@
         .add-q-btn { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.8); border: 1px solid #555; color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(4px); }
-        .profile-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 25px; width: 260px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .profile-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 25px; width: 280px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); margin-bottom: 15px; }
         .profile-card h3 { font-size: 18px; margin-bottom: 5px; color: #fff; }
         .profile-card p { font-size: 12px; color: var(--blue); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         
+        /* NEW PROFILE INFO AND REGISTER INPUTS */
+        .p-stat-box { margin-top: 12px; text-align: left; background: #181818; padding: 10px; border-radius: 4px; border: 1px solid var(--border); max-height: 150px; overflow-y: auto; }
+        .p-stat-title { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+        .p-stat-text { font-size: 11px; color: #ddd; margin-bottom: 8px; line-height: 1.4; }
+        .auth-notice { font-size: 11px; color: #ff8f00; font-weight: 600; margin-bottom: 14px; text-align: center; background: rgba(255,143,0,0.1); padding: 8px; border-radius: 4px; border: 1px solid rgba(255,143,0,0.2); }
+
         #remote-audios { display: none; }
     </style>
 </head>
@@ -146,6 +152,18 @@
             <img id="p-modal-img" src="">
             <h3 id="p-modal-name"></h3>
             <p id="p-modal-role"></p>
+            
+            <div class="p-stat-box">
+                <div class="p-stat-title">⏱️ Saytda keçirdiyi vaxt:</div>
+                <div class="p-stat-text" id="p-modal-time">0 dəqiqə</div>
+                
+                <div class="p-stat-title">🎬 Son İzlədikləri:</div>
+                <div class="p-stat-text" id="p-modal-watched">Heç nə izləməyib</div>
+                
+                <div class="p-stat-title">👥 Ən çox vaxt keçirdiyi profillər:</div>
+                <div class="p-stat-text" id="p-modal-interacted">Heç kimlə</div>
+            </div>
+            
             <button class="btn" style="padding: 8px; font-size: 11px; margin-top: 15px;" onclick="document.getElementById('profile-modal').style.display='none'">BAĞLA</button>
         </div>
     </div>
@@ -156,41 +174,60 @@
             <div class="logo">WATCH LIVE</div>
             
             <div class="auth-tabs">
-                <button id="tab-create-btn" class="tab-btn active" onclick="switchTab('create')">Otaq Yarat</button>
-                <button id="tab-join-btn" class="tab-btn" onclick="switchTab('join')">Otağa Qoşul</button>
+                <button id="tab-login-btn" class="tab-btn active" onclick="switchAuthMode('login')">Giriş Et</button>
+                <button id="tab-register-btn" class="tab-btn" onclick="switchAuthMode('register')">Qeydiyyat</button>
             </div>
 
-            <!-- CREATE ROOM TAB -->
-            <div id="tab-create" class="tab-content active">
-                <div class="avatar-upload" onclick="document.getElementById('file-input-create').click()">
-                    <img id="avatar-preview" src="https://www.w3schools.com/howto/img_avatar.png">
-                    <input type="file" id="file-input-create" hidden accept="image/*" onchange="processAndPreviewImage(this, 'avatar-preview')">
-                </div>
-                <input type="text" id="nick-create" placeholder="LƏQƏBİNİZ (NICKNAME)">
+            <!-- LOGIN & ROOM ACTIONS (Merged into workflow) -->
+            <div id="auth-main-flow" class="tab-content active">
+                <input type="text" id="auth-username" placeholder="İSTİFADƏÇİ ADINIZ">
+                <input type="password" id="auth-password" placeholder="6 RƏQƏMLİ ŞİFRƏ" maxlength="6">
+                <button class="btn" onclick="handleAuthLogin()" style="margin-bottom: 20px;">HESABA GİRİŞ ET</button>
                 
-                <div class="mode-selector">
-                    <button id="mode-yt" class="mode-btn selected" onclick="selectRoomMode('youtube')">🍿 YouTube</button>
-                    <button id="mode-screen" class="mode-btn" onclick="selectRoomMode('screen')">🖥️ Screen Share</button>
+                <div id="room-actions-area" style="display: none; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <div style="font-size: 11px; color: var(--blue); font-weight: bold; margin-bottom: 15px;" id="welcome-user-text"></div>
+                    
+                    <div class="auth-tabs">
+                        <button id="tab-create-btn" class="tab-btn active" onclick="switchTab('create')">Otaq Yarat</button>
+                        <button id="tab-join-btn" class="tab-btn" onclick="switchTab('join')">Otağa Qoşul</button>
+                    </div>
+
+                    <!-- CREATE ROOM SUB-TAB -->
+                    <div id="tab-create" class="tab-content active">
+                        <div class="mode-selector">
+                            <button id="mode-yt" class="mode-btn selected" onclick="selectRoomMode('youtube')">🍿 YouTube</button>
+                            <button id="mode-screen" class="mode-btn" onclick="selectRoomMode('screen')">🖥️ Screen Share</button>
+                        </div>
+                        
+                        <div class="code-generator-wrapper">
+                            <input type="text" id="room-create" placeholder="KOD GENERASİYA OLUNACAQ" disabled>
+                            <button id="copy-code-btn" class="copy-btn" style="display: none;" onclick="copyCreatedCode()">Kopyala</button>
+                        </div>
+                        
+                        <button id="gen-btn" class="btn" onclick="generate6DigitCode()">KOD GENERASİYA ET</button>
+                        <button id="start-btn" class="btn" style="display: none; background: #2e7d32;" onclick="start('admin')">OTAĞI BAŞLAT</button>
+                    </div>
+
+                    <!-- JOIN ROOM SUB-TAB -->
+                    <div id="tab-join" class="tab-content">
+                        <input type="text" id="room-join" placeholder="6 RƏQƏMLİ OTAQ KODU" maxlength="6">
+                        <button class="btn" onclick="start('member')">OTAĞA QOŞUL</button>
+                    </div>
                 </div>
-                
-                <div class="code-generator-wrapper">
-                    <input type="text" id="room-create" placeholder="KOD GENERASİYA OLUNACAQ" disabled>
-                    <button id="copy-code-btn" class="copy-btn" style="display: none;" onclick="copyCreatedCode()">Kopyala</button>
-                </div>
-                
-                <button id="gen-btn" class="btn" onclick="generate6DigitCode()">KOD GENERASİYA ET</button>
-                <button id="start-btn" class="btn" style="display: none; background: #2e7d32;" onclick="start('admin')">OTAĞI BAŞLAT</button>
             </div>
 
-            <!-- JOIN ROOM TAB -->
-            <div id="tab-join" class="tab-content">
-                <div class="avatar-upload" onclick="document.getElementById('file-input-join').click()">
-                    <img id="avatar-preview-join" src="https://www.w3schools.com/howto/img_avatar.png">
-                    <input type="file" id="file-input-join" hidden accept="image/*" onchange="processAndPreviewImage(this, 'avatar-preview-join')">
+            <!-- REGISTRATION TAB -->
+            <div id="tab-register" class="tab-content">
+                <div class="auth-notice">⚠️ DİQQƏT: Bu cihazda yalnız 1 hesab yaratmaq olar! Şifrənizi mütləq yadda saxlayın.</div>
+                
+                <div class="avatar-upload" onclick="document.getElementById('file-input-register').click()">
+                    <img id="avatar-preview-register" src="https://www.w3schools.com/howto/img_avatar.png">
+                    <input type="file" id="file-input-register" hidden accept="image/*" onchange="processAndPreviewImage(this, 'avatar-preview-register')">
                 </div>
-                <input type="text" id="nick-join" placeholder="LƏQƏBİNİZ (NICKNAME)">
-                <input type="text" id="room-join" placeholder="6 RƏQƏMLİ OTAQ KODU" maxlength="6">
-                <button class="btn" onclick="start('member')">OTAĞA QOŞUL</button>
+                
+                <input type="text" id="reg-username" placeholder="YENİ İSTİFADƏÇİ ADI">
+                <input type="password" id="reg-password" placeholder="6 RƏQƏMLİ ŞİFRƏ (YALNIZ RƏQƏM)" maxlength="6">
+                <button class="btn" style="background: #2e7d32;" onclick="handleAuthRegister()">QEYDİYYATI TAMAMLA</button>
             </div>
         </div>
     </div>
@@ -294,6 +331,11 @@
         const ctx = canvas.getContext('2d');
         let currentAnim = 'stars', animId = null, animData = [], globalSpeedModifier = 1;
 
+        // NEW GLOBAL APP/SOCIAL ANALYTICS STATE VARIABLES
+        let activeSessionInterval = null;
+        let localUserStats = { totalTime: 0, watched: {}, interacted: {} };
+        let currentHasUploadedAvatar = false;
+
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initAnimationData(); }
         window.addEventListener('resize', resizeCanvas);
 
@@ -318,6 +360,7 @@
                         let compressedDataUrl = canvasMat.toDataURL('image/jpeg', 0.7);
                         myPic = compressedDataUrl;
                         document.getElementById(previewId).src = compressedDataUrl;
+                        if(previewId === 'avatar-preview-register') currentHasUploadedAvatar = true;
                     };
                     img.src = e.target.result;
                 };
@@ -325,9 +368,94 @@
             }
         }
 
+        // NEW AUTH TAB AND REGISTER LAW ENFORCEMENT FUNCTIONS
+        function switchAuthMode(mode) {
+            document.getElementById('tab-login-btn').classList.remove('active');
+            document.getElementById('tab-register-btn').classList.remove('active');
+            document.getElementById('auth-main-flow').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            
+            if(mode === 'login') {
+                document.getElementById('tab-login-btn').classList.add('active');
+                document.getElementById('auth-main-flow').classList.add('active');
+            } else {
+                document.getElementById('tab-register-btn').classList.add('active');
+                document.getElementById('tab-register').classList.add('active');
+            }
+        }
+
+        function handleAuthRegister() {
+            const uName = document.getElementById('reg-username').value.trim().toLowerCase();
+            const uPass = document.getElementById('reg-password').value.trim();
+
+            if(!uName || !uPass) return showToast("Bütün xanaları doldurun!");
+            if(uPass.length !== 6 || isNaN(uPass)) return showToast("Şifrə mütləq 6 rəqəmdən ibarət olmalıdır!");
+            if(!currentHasUploadedAvatar || myPic === "https://www.w3schools.com/howto/img_avatar.png") return showToast("Profil şəkli qoymaq məcburidir!");
+
+            if(localStorage.getItem('wl_registered_device')) {
+                return showToast("Bu cihazda artıq bir hesab açılıb! İkinci hesab açmaq olmaz.");
+            }
+
+            db.ref(`registered_users/${uName}`).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    showToast("Bu istifadəçi adı artıq alınıb!");
+                } else {
+                    const userData = {
+                        username: uName,
+                        password: uPass,
+                        avatar: myPic,
+                        stats: { totalTime: 0, watched: "", interacted: "" }
+                    };
+                    db.ref(`registered_users/${uName}`).set(userData, (error) => {
+                        if(!error) {
+                            localStorage.setItem('wl_registered_device', uName);
+                            showToast("Qeydiyyat tamamlandı! Giriş edə bilərsiniz.");
+                            switchAuthMode('login');
+                            document.getElementById('auth-username').value = uName;
+                        }
+                    });
+                }
+            });
+        }
+
+        function handleAuthLogin() {
+            const uName = document.getElementById('auth-username').value.trim().toLowerCase();
+            const uPass = document.getElementById('auth-password').value.trim();
+
+            if(!uName || !uPass) return showToast("İstifadəçi adı və şifrəni daxil edin!");
+
+            db.ref(`registered_users/${uName}`).once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    return showToast("Belə bir istifadəçi tapılmadı!");
+                }
+                const userData = snapshot.val();
+                if(userData.password !== uPass) {
+                    return showToast("Şifrə yanlışdır!");
+                }
+
+                myN = userData.username;
+                myPic = userData.avatar;
+                if(userData.stats) {
+                    localUserStats.totalTime = userData.stats.totalTime || 0;
+                    localUserStats.watched = userData.stats.watched || {};
+                    localUserStats.interacted = userData.stats.interacted || {};
+                }
+
+                document.getElementById('welcome-user-text').innerText = "XOŞ GƏLDİNİZ, @" + myN.toUpperCase();
+                document.getElementById('auth-username').style.display = 'none';
+                document.getElementById('auth-password').style.display = 'none';
+                document.getElementById('auth-main-flow').querySelector('.btn').style.display = 'none';
+                document.getElementById('room-actions-area').style.display = 'block';
+                showToast("Giriş uğurludur!");
+            });
+        }
+
         function switchTab(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if(b.id === 'tab-create-btn' || b.id === 'tab-join-btn') b.classList.remove('active');
+            });
+            document.getElementById('tab-create').classList.remove('active');
+            document.getElementById('tab-join').classList.remove('active');
             if(type === 'create') {
                 document.getElementById('tab-create-btn').classList.add('active');
                 document.getElementById('tab-create').classList.add('active');
@@ -349,8 +477,7 @@
         }
 
         function generate6DigitCode() {
-            const nick = document.getElementById('nick-create').value.trim();
-            if(!nick) return showToast("Zəhmət olmasa ləqəb daxil edin!");
+            if(!myN) return showToast("Zəhmət olmasa əvvəlcə giriş edin!");
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             document.getElementById('room-create').value = code;
             document.getElementById('gen-btn').style.display = 'none';
@@ -425,23 +552,58 @@
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
         function toggleFS() { const v = document.getElementById('app'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
 
+        // NEW SOCIAL EXPLORATION ANALYTICS PROFILE CARD MODAL VISUALIZER
         function showProfile(name, pic, role) {
             document.getElementById('p-modal-img').src = pic;
-            document.getElementById('p-modal-name').innerText = name;
+            document.getElementById('p-modal-name').innerText = "@" + name.toUpperCase();
             document.getElementById('p-modal-role').innerText = role === 'admin' ? 'Qurucu / Admin' : 'İzləyici';
+            
+            document.getElementById('p-modal-time').innerText = "Yüklənir...";
+            document.getElementById('p-modal-watched').innerText = "Yüklənir...";
+            document.getElementById('p-modal-interacted').innerText = "Yüklənir...";
+
+            if(myN && name !== myN) {
+                localUserStats.interacted[name] = (localUserStats.interacted[name] || 0) + 1;
+                db.ref(`registered_users/${myN}/stats/interacted`).set(localUserStats.interacted);
+            }
+
+            db.ref(`registered_users/${name}/stats`).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    const stats = snapshot.val();
+                    const minutesSpent = stats.totalTime || 0;
+                    document.getElementById('p-modal-time').innerText = `${minutesSpent} dəqiqə`;
+                    
+                    if(stats.watched) {
+                        const wList = Object.keys(stats.watched);
+                        document.getElementById('p-modal-watched').innerText = wList.length > 0 ? wList.slice(-4).join(', ') : "Heç nə izləməyib";
+                    } else {
+                        document.getElementById('p-modal-watched').innerText = "Heç nə izləməyib";
+                    }
+
+                    if(stats.interacted) {
+                        const sortedInteractions = Object.entries(stats.interacted).sort((a,b) => b[1] - a[1]).map(item => "@" + item[0].toUpperCase());
+                        document.getElementById('p-modal-interacted').innerText = sortedInteractions.length > 0 ? sortedInteractions.slice(0, 3).join(', ') : "Heç kimlə";
+                    } else {
+                        document.getElementById('p-modal-interacted').innerText = "Heç kimlə";
+                    }
+                } else {
+                    document.getElementById('p-modal-time').innerText = "0 dəqiqə";
+                    document.getElementById('p-modal-watched').innerText = "Heç nə izləməyib";
+                    document.getElementById('p-modal-interacted').innerText = "Heç kimlə";
+                }
+            });
+
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
         function start(l) {
             if(l === 'admin') {
-                myN = document.getElementById('nick-create').value.trim();
                 myR = document.getElementById('room-create').value.trim();
             } else {
-                myN = document.getElementById('nick-join').value.trim();
                 myR = document.getElementById('room-join').value.trim();
             }
 
-            if(!myN || !myR) return showToast("Məlumatları tam doldurun!");
+            if(!myN || !myR) return showToast("Məlumatları tam doldurun və Giriş edin!");
             if(myR.length !== 6) return showToast("Otaq kodu 6 rəqəmli olmalıdır!");
             
             myL = l;
@@ -463,6 +625,12 @@
                     setupInterfaceForMode(mode);
                 });
             }
+
+            // NEW APP ANALYTICS TRACKING RUNTIME TIMER
+            activeSessionInterval = setInterval(() => {
+                localUserStats.totalTime += 1;
+                db.ref(`registered_users/${myN}/stats/totalTime`).set(localUserStats.totalTime);
+            }, 60000);
 
             init();
         }
@@ -681,7 +849,7 @@
         }
 
         function setupPeerConnection(targetId, isOffer) {
-            if(peerConnections[targetId]) return; // Qoşulma artıq varsa təkrar açma
+            if(peerConnections[targetId]) return; 
 
             const pc = new RTCPeerConnection(rtcConfig);
             peerConnections[targetId] = pc;
@@ -745,7 +913,16 @@
 
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
-                    if(d.v && d.v !== currentVideoId) { currentVideoId = d.v; ytP.loadVideoById(d.v); }
+                    if(d.v && d.v !== currentVideoId) { 
+                        currentVideoId = d.v; 
+                        ytP.loadVideoById(d.v); 
+                        
+                        // NEW HIT-STATISTIC SYSTEM FOR HISTORICAL WATCH DATA
+                        if(myN) {
+                            localUserStats.watched[currentVideoId] = true;
+                            db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true);
+                        }
+                    }
                     if(!isSharingScreen) {
                         d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo();
                     }
@@ -861,7 +1038,7 @@
                     let img = new Image();
                     img.onload = function() {
                         let canvasMat = document.createElement('canvas');
-                        let max_size = 400; // Çat şəkli üçün bir az daha böyük ölçü
+                        let max_size = 400; 
                         let width = img.width; let height = img.height;
                         if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
                         else { if (height > max_size) { width *= max_size / height; height = max_size; } }
