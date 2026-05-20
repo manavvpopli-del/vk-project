@@ -7,63 +7,68 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #00adb5; --bg: #050505; --card: #121212; --border: #252525; --text: #e5e5e5; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        :root { --blue: #00adb5; --bg: #050505; --card: rgba(18, 18, 18, 0.75); --border: rgba(255, 255, 255, 0.08); --text: #e5e5e5; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
 
         #animation-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; background: #050505; }
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 24px; border-radius: 4px; font-size: 13px; font-weight: 600; z-index: 10001; display: none; box-shadow: 0 8px 20px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 100001; display: none; box-shadow: 0 12px 30px rgba(0, 173, 181, 0.4); text-transform: uppercase; letter-spacing: 1px; text-align: center; backdrop-filter: blur(5px); }
 
-        /* AUTH DESIGN */
-        .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .auth-card { background: var(--card); padding: 30px; border-radius: 6px; width: 90%; max-width: 420px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 10; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .logo { font-family: 'Bebas Neue', sans-serif; color: var(--blue); font-size: 3.5rem; letter-spacing: 4px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 173, 181, 0.3); }
+        /* MÜKƏMMƏL MODERN GİRİŞ EKRANI (GLASSMORPHISM) */
+        .auth-overlay { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #0a191a 0%, #050505 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 15px; }
+        .auth-card { background: var(--card); padding: 40px 35px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 10; backdrop-filter: blur(20px); box-shadow: 0 30px 70px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1); transform: translateY(0); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         
-        .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 25px; gap: 5px; }
-        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #666; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: 0.3s; border-bottom: 2px solid transparent; }
-        .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+        .logo { font-family: 'Bebas Neue', sans-serif; color: #fff; font-size: 4.2rem; letter-spacing: 6px; margin-bottom: 5px; background: linear-gradient(180deg, #ffffff 30%, #00adb5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 10px 30px rgba(0, 173, 181, 0.2); }
+        .logo-sub { font-size: 11px; text-transform: uppercase; letter-spacing: 5px; color: #666; margin-bottom: 35px; font-weight: 700; }
+        
+        .auth-tabs { display: flex; background: rgba(0, 0, 0, 0.4); padding: 6px; border-radius: 14px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.03); }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #888; font-weight: 600; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 10px; }
+        .tab-btn.active { color: #fff; background: rgba(0, 173, 181, 0.25); box-shadow: 0 4px 15px rgba(0, 173, 181, 0.2); border: 1px solid rgba(0, 173, 181, 0.3); }
         
         .tab-content { display: none; flex-direction: column; }
         .tab-content.active { display: flex; }
 
-        .avatar-upload { width: 85px; height: 85px; margin: 0 auto 20px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px solid var(--blue); transition: 0.3s; box-shadow: 0 0 15px rgba(0, 173, 181, 0.2); }
+        .avatar-upload { width: 100px; height: 100px; margin: 0 auto 25px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px dashed rgba(0, 173, 181, 0.5); transition: 0.3s; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
+        .avatar-upload:hover { border-color: var(--blue); transform: scale(1.03); }
         #avatar-preview, #avatar-preview-join, #avatar-preview-register { width: 100%; height: 100%; object-fit: cover; }
 
-        input { width: 100%; padding: 14px; margin-bottom: 14px; border-radius: 4px; border: 1px solid var(--border); background: #151515; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--blue); background: #1a1a1a; }
-        input:disabled { background: #0c0c0c; color: var(--blue); font-weight: bold; font-size: 16px; letter-spacing: 2px; text-align: center; border-color: #333; }
+        .input-group { position: relative; width: 100%; margin-bottom: 18px; }
+        input { width: 100%; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 14px; font-weight: 500; outline: none; transition: all 0.3s ease; }
+        input:focus { border-color: var(--blue); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 20px rgba(0, 173, 181, 0.15); }
+        input:disabled { background: rgba(0, 173, 181, 0.05); color: var(--blue); font-weight: 700; font-size: 18px; letter-spacing: 3px; text-align: center; border-color: rgba(0, 173, 181, 0.3); }
         
-        /* MODE SELECTOR */
-        .mode-selector { display: flex; gap: 10px; margin-bottom: 14px; }
-        .mode-btn { flex: 1; padding: 12px; background: #151515; border: 1px solid var(--border); color: #888; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .mode-btn.selected { background: rgba(0, 173, 181, 0.1); border-color: var(--blue); color: var(--blue); }
+        .mode-selector { display: flex; gap: 10px; margin-bottom: 18px; }
+        .mode-btn { flex: 1; padding: 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); color: #888; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .mode-btn.selected { background: rgba(0, 173, 181, 0.15); border-color: var(--blue); color: #fff; box-shadow: 0 0 15px rgba(0, 173, 181, 0.1); }
 
-        .code-generator-wrapper { display: flex; gap: 8px; margin-bottom: 14px; width: 100%; }
+        .code-generator-wrapper { display: flex; gap: 8px; margin-bottom: 18px; width: 100%; }
         .code-generator-wrapper input { margin-bottom: 0; }
-        .copy-btn { background: #1a1a1a; border: 1px solid var(--border); color: #fff; border-radius: 4px; padding: 0 15px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .copy-btn:hover { background: #252525; }
+        .copy-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; border-radius: 12px; padding: 0 20px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .copy-btn:hover { background: rgba(255,255,255,0.1); border-color: #666; }
 
-        .btn { width: 100%; padding: 16px; background: var(--blue); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; transition: 0.2s; letter-spacing: 1px; }
-        .btn:hover { opacity: 0.9; box-shadow: 0 5px 15px rgba(0, 173, 181, 0.4); }
+        .btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #00adb5 0%, #007a80 100%); color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; transition: all 0.3s ease; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(0, 173, 181, 0.3); }
+        .btn:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 173, 181, 0.5); }
+        .btn:active { transform: translateY(0); }
 
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
+        /* INTERFEYS DIZAYNI PARAMETRLƏRİ */
         .theme-btn { position: absolute; top: 10px; right: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
-        .theme-panel { position: absolute; top: 50px; right: 10px; background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 220px; }
-        .anim-opt-btn { width: 100%; background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
+        .theme-panel { position: absolute; top: 50px; right: 10px; background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 220px; }
+        .anim-opt-btn { width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
         .speed-panel { display: flex; gap: 5px; margin-top: 5px; }
-        .speed-btn { flex: 1; background: #222; border: 1px solid var(--border); color: #fff; padding: 5px; font-size: 10px; border-radius: 4px; cursor: pointer; }
+        .speed-btn { flex: 1; background: #222; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 5px; font-size: 10px; border-radius: 4px; cursor: pointer; }
         .speed-btn.active { background: var(--blue); }
 
-        .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; backdrop-filter: blur(5px); }
+        .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; backdrop-filter: blur(5px); }
         #player-container { width: 100%; height: 211px; position: relative; background: #000; }
         #player { width: 100%; height: 100%; }
         
         #screen-video { width: 100%; height: 100%; object-fit: contain; display: none; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
 
-        .v-bar-cont { height: 25px; background: rgba(10,10,10,0.9); display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid var(--border); }
+        .v-bar-cont { height: 25px; background: rgba(10,10,10,0.9); display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
         #v-time { font-size: 10px; font-weight: 700; color: #888; white-space: nowrap; }
         .v-progress { flex: 1; height: 4px; background: #333; position: relative; border-radius: 2px; }
         #v-fill { height: 100%; background: var(--blue); width: 0%; border-radius: 2px; }
@@ -71,26 +76,26 @@
 
         .controls-bar { background: rgba(10,10,10,0.9); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .main-btns button { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+        .main-btns button { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
         
         .voice-active { background: #2e7d32 !important; border-color: #4caf50 !important; font-weight: bold; }
         .voice-muted { background: #c62828 !important; border-color: #ef5350 !important; }
         .screen-active { background: #ff8f00 !important; border-color: #ffb300 !important; font-weight: bold; animation: pulse 1.5s infinite; }
         
-        @pragma keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
         .search-box { display: flex; gap: 5px; }
         .search-box input { margin: 0; padding: 10px; font-size: 12px; }
         .search-box button { width: 70px; background: var(--blue); border: none; color: white; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        .queue-container { background: #111; padding: 8px; border-radius: 4px; border: 1px solid var(--border); max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .queue-container { background: #111; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
         .queue-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 6px; font-size: 11px; border-radius: 4px; }
         .queue-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
         .queue-item button { background: none; border: none; color: #ff3333; cursor: pointer; font-weight: bold; }
 
-        .users-panel { position: absolute; top: 60px; right: 10px; width: 220px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: none; z-index: 1000; max-height: 250px; overflow-y: auto; }
-        .panel-header { padding: 10px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
+        .users-panel { position: absolute; top: 60px; right: 10px; width: 220px; background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; display: none; z-index: 1000; max-height: 250px; overflow-y: auto; }
+        .panel-header { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
         #users-list-content { padding: 5px; display: flex; flex-direction: column; gap: 5px; }
         .u-item { display: flex; align-items: center; justify-content: space-between; padding: 6px; font-size: 12px; cursor: pointer; border-radius: 4px; }
         .u-item:hover { background: rgba(255,255,255,0.05); }
@@ -118,7 +123,7 @@
         .react-popup span:hover { transform: scale(1.3); }
 
         #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #ccc; display: none; text-shadow: 1px 1px 2px #000; }
-        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(5px); }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); align-items: center; backdrop-filter: blur(5px); }
         .input-bar input { margin: 0; background: #000; border: 1px solid #333; height: 40px; }
         .chat-icon { width: 30px; height: 30px; cursor: pointer; object-fit: contain; }
         .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 5px; }
@@ -127,16 +132,15 @@
         .add-q-btn { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.8); border: 1px solid #555; color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(4px); }
-        .profile-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 25px; width: 280px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .profile-card { background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 25px; width: 280px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); margin-bottom: 15px; }
         .profile-card h3 { font-size: 18px; margin-bottom: 5px; color: #fff; }
         .profile-card p { font-size: 12px; color: var(--blue); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         
-        /* NEW PROFILE INFO AND REGISTER INPUTS */
-        .p-stat-box { margin-top: 12px; text-align: left; background: #181818; padding: 10px; border-radius: 4px; border: 1px solid var(--border); max-height: 150px; overflow-y: auto; }
+        .p-stat-box { margin-top: 12px; text-align: left; background: #181818; padding: 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); max-height: 150px; overflow-y: auto; }
         .p-stat-title { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
         .p-stat-text { font-size: 11px; color: #ddd; margin-bottom: 8px; line-height: 1.4; }
-        .auth-notice { font-size: 11px; color: #ff8f00; font-weight: 600; margin-bottom: 14px; text-align: center; background: rgba(255,143,0,0.1); padding: 8px; border-radius: 4px; border: 1px solid rgba(255,143,0,0.2); }
+        .auth-notice { font-size: 11px; color: #ff8f00; font-weight: 600; margin-bottom: 20px; text-align: center; background: rgba(255,143,0,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,143,0,0.2); }
 
         #remote-audios { display: none; }
     </style>
@@ -164,28 +168,31 @@
                 <div class="p-stat-text" id="p-modal-interacted">Heç kimlə</div>
             </div>
             
-            <button class="btn" style="padding: 8px; font-size: 11px; margin-top: 15px;" onclick="document.getElementById('profile-modal').style.display='none'">BAĞLA</button>
+            <button class="btn" style="padding: 10px; font-size: 11px; margin-top: 15px; border-radius: 8px;" onclick="document.getElementById('profile-modal').style.display='none'">BAĞLA</button>
         </div>
     </div>
 
-    <!-- PREMIUM AUTH OVERLAY -->
+    <!-- PREMIUM RE-DESIGNED AUTH OVERLAY -->
     <div id="auth-box" class="auth-overlay">
         <div class="auth-card">
             <div class="logo">WATCH LIVE</div>
+            <div class="logo-sub">Ultimate Room Platform</div>
             
-            <div class="auth-tabs">
+            <div class="auth-tabs" id="auth-tabs-header">
                 <button id="tab-login-btn" class="tab-btn active" onclick="switchAuthMode('login')">Giriş Et</button>
                 <button id="tab-register-btn" class="tab-btn" onclick="switchAuthMode('register')">Qeydiyyat</button>
             </div>
 
-            <!-- LOGIN & ROOM ACTIONS (Merged into workflow) -->
+            <!-- LOGIN & ROOM ACTIONS -->
             <div id="auth-main-flow" class="tab-content active">
-                <input type="text" id="auth-username" placeholder="İSTİFADƏÇİ ADINIZ">
-                <input type="password" id="auth-password" placeholder="6 RƏQƏMLİ ŞİFRƏ" maxlength="6">
-                <button class="btn" onclick="handleAuthLogin()" style="margin-bottom: 20px;">HESABA GİRİŞ ET</button>
+                <div id="login-inputs-area">
+                    <input type="text" id="auth-username" placeholder="İSTİFADƏÇİ ADINIZ">
+                    <input type="password" id="auth-password" placeholder="6 RƏQƏMLİ ŞİFRƏ" maxlength="6" style="margin-bottom: 20px;">
+                    <button class="btn" onclick="handleAuthLogin()">HESABA GİRİŞ ET</button>
+                </div>
                 
-                <div id="room-actions-area" style="display: none; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <div style="font-size: 11px; color: var(--blue); font-weight: bold; margin-bottom: 15px;" id="welcome-user-text"></div>
+                <div id="room-actions-area" style="display: none;">
+                    <div style="font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 20px; background: rgba(0, 173, 181, 0.1); padding: 12px; border-radius: 12px; border: 1px solid rgba(0, 173, 181, 0.2);" id="welcome-user-text"></div>
                     
                     <div class="auth-tabs">
                         <button id="tab-create-btn" class="tab-btn active" onclick="switchTab('create')">Otaq Yarat</button>
@@ -205,12 +212,12 @@
                         </div>
                         
                         <button id="gen-btn" class="btn" onclick="generate6DigitCode()">KOD GENERASİYA ET</button>
-                        <button id="start-btn" class="btn" style="display: none; background: #2e7d32;" onclick="start('admin')">OTAĞI BAŞLAT</button>
+                        <button id="start-btn" class="btn" style="display: none; background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);" onclick="start('admin')">OTAĞI BAŞLAT</button>
                     </div>
 
                     <!-- JOIN ROOM SUB-TAB -->
                     <div id="tab-join" class="tab-content">
-                        <input type="text" id="room-join" placeholder="6 RƏQƏMLİ OTAQ KODU" maxlength="6">
+                        <input type="text" id="room-join" placeholder="6 RƏQƏMLİ OTAQ KODU" maxlength="6" style="margin-bottom: 20px;">
                         <button class="btn" onclick="start('member')">OTAĞA QOŞUL</button>
                     </div>
                 </div>
@@ -226,12 +233,13 @@
                 </div>
                 
                 <input type="text" id="reg-username" placeholder="YENİ İSTİFADƏÇİ ADI">
-                <input type="password" id="reg-password" placeholder="6 RƏQƏMLİ ŞİFRƏ (YALNIZ RƏQƏM)" maxlength="6">
-                <button class="btn" style="background: #2e7d32;" onclick="handleAuthRegister()">QEYDİYYATI TAMAMLA</button>
+                <input type="password" id="reg-password" placeholder="6 RƏQƏMLİ ŞİFRƏ (YALNIZ RƏQƏM)" maxlength="6" style="margin-bottom: 20px;">
+                <button class="btn" style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);" onclick="handleAuthRegister()">QEYDİYYATI TAMAMLA</button>
             </div>
         </div>
     </div>
 
+    <!-- APP MAIN CONTENT -->
     <div id="app">
         <div class="theme-btn" onclick="toggleThemePanel()">✨</div>
         <div id="theme-panel" class="theme-panel">
@@ -331,7 +339,6 @@
         const ctx = canvas.getContext('2d');
         let currentAnim = 'stars', animId = null, animData = [], globalSpeedModifier = 1;
 
-        // NEW GLOBAL APP/SOCIAL ANALYTICS STATE VARIABLES
         let activeSessionInterval = null;
         let localUserStats = { totalTime: 0, watched: {}, interacted: {} };
         let currentHasUploadedAvatar = false;
@@ -341,7 +348,6 @@
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         
-        // ŞƏKİLLƏRİ SIXIŞDIRMA FUNKSİYASI (Firebase-i boğmamaq üçün max 200px edir)
         function processAndPreviewImage(input, previewId) {
             if (input.files && input.files[0]) {
                 let reader = new FileReader();
@@ -368,7 +374,6 @@
             }
         }
 
-        // NEW AUTH TAB AND REGISTER LAW ENFORCEMENT FUNCTIONS
         function switchAuthMode(mode) {
             document.getElementById('tab-login-btn').classList.remove('active');
             document.getElementById('tab-register-btn').classList.remove('active');
@@ -409,9 +414,12 @@
                     db.ref(`registered_users/${uName}`).set(userData, (error) => {
                         if(!error) {
                             localStorage.setItem('wl_registered_device', uName);
-                            showToast("Qeydiyyat tamamlandı! Giriş edə bilərsiniz.");
-                            switchAuthMode('login');
-                            document.getElementById('auth-username').value = uName;
+                            // AVTOMATİK OLARAQ LOCALSTORAGE-Ə SESSİYA MƏLUMATINI DA YAZIRIQ
+                            localStorage.setItem('wl_logged_user', uName);
+                            localStorage.setItem('wl_logged_pass', uPass);
+                            
+                            showToast("Qeydiyyat tamamlandı və giriş edildi!");
+                            checkSavedLoginSession();
                         }
                     });
                 }
@@ -433,21 +441,50 @@
                     return showToast("Şifrə yanlışdır!");
                 }
 
-                myN = userData.username;
-                myPic = userData.avatar;
-                if(userData.stats) {
-                    localUserStats.totalTime = userData.stats.totalTime || 0;
-                    localUserStats.watched = userData.stats.watched || {};
-                    localUserStats.interacted = userData.stats.interacted || {};
-                }
+                // DAXİL OLANDAN SONRA SEANSLARI LOKALDA SAXLIYIRIQ
+                localStorage.setItem('wl_logged_user', uName);
+                localStorage.setItem('wl_logged_pass', uPass);
 
-                document.getElementById('welcome-user-text').innerText = "XOŞ GƏLDİNİZ, @" + myN.toUpperCase();
-                document.getElementById('auth-username').style.display = 'none';
-                document.getElementById('auth-password').style.display = 'none';
-                document.getElementById('auth-main-flow').querySelector('.btn').style.display = 'none';
-                document.getElementById('room-actions-area').style.display = 'block';
-                showToast("Giriş uğurludur!");
+                executeSessionLogin(uName, userData);
             });
+        }
+
+        // BİR DƏFƏ GİRİŞ EDİLDİSƏ BİRBAŞA OTAQ MENYUSUNU AÇAN METOD
+        function executeSessionLogin(username, userData) {
+            myN = username;
+            myPic = userData.avatar;
+            if(userData.stats) {
+                localUserStats.totalTime = userData.stats.totalTime || 0;
+                localUserStats.watched = userData.stats.watched || {};
+                localUserStats.interacted = userData.stats.interacted || {};
+            }
+
+            document.getElementById('auth-tabs-header').style.display = 'none';
+            document.getElementById('login-inputs-area').style.display = 'none';
+            document.getElementById('welcome-user-text').innerText = "XOŞ GƏLDİNİZ, @" + myN.toUpperCase();
+            document.getElementById('room-actions-area').style.display = 'block';
+            showToast("Giriş uğurludur!");
+        }
+
+        // SEHİFƏ YENİLƏNƏNDƏ GİRİŞİ YOXLAYAN FUNKSİYA
+        function checkSavedLoginSession() {
+            const savedUser = localStorage.getItem('wl_logged_user');
+            const savedPass = localStorage.getItem('wl_logged_pass');
+
+            if(savedUser && savedPass) {
+                db.ref(`registered_users/${savedUser}`).once('value', snapshot => {
+                    if(snapshot.exists()) {
+                        const userData = snapshot.val();
+                        if(userData.password === savedPass) {
+                            executeSessionLogin(savedUser, userData);
+                        } else {
+                            // Şifrə bazada dəyişibsə təmizlə
+                            localStorage.removeItem('wl_logged_user');
+                            localStorage.removeItem('wl_logged_pass');
+                        }
+                    }
+                });
+            }
         }
 
         function switchTab(type) {
@@ -552,7 +589,6 @@
         function toggleUsers() { const b = document.getElementById('users-box'); b.style.display = (b.style.display === 'block') ? 'none' : 'block'; }
         function toggleFS() { const v = document.getElementById('app'); if (!document.fullscreenElement) v.requestFullscreen(); else document.exitFullscreen(); }
 
-        // NEW SOCIAL EXPLORATION ANALYTICS PROFILE CARD MODAL VISUALIZER
         function showProfile(name, pic, role) {
             document.getElementById('p-modal-img').src = pic;
             document.getElementById('p-modal-name').innerText = "@" + name.toUpperCase();
@@ -603,7 +639,7 @@
                 myR = document.getElementById('room-join').value.trim();
             }
 
-            if(!myN || !myR) return showToast("Məlumatları tam doldurun və Giriş edin!");
+            if(!myN || !myR) return showToast("Məlumatları tam doldurun!");
             if(myR.length !== 6) return showToast("Otaq kodu 6 rəqəmli olmalıdır!");
             
             myL = l;
@@ -626,7 +662,6 @@
                 });
             }
 
-            // NEW APP ANALYTICS TRACKING RUNTIME TIMER
             activeSessionInterval = setInterval(() => {
                 localUserStats.totalTime += 1;
                 db.ref(`registered_users/${myN}/stats/totalTime`).set(localUserStats.totalTime);
@@ -862,7 +897,7 @@
             }
 
             pc.onicecandidate = e => {
-                if (e.candidate) db.ref(`rooms/${myR}/voice_signals/${targetId}`).push({ from: myId, ice: e.candidate });
+                if (e.candidate) db.ref(`rooms/${targetId}/voice_signals/${targetId}`).push({ from: myId, ice: e.candidate });
             };
 
             pc.ontrack = e => {
@@ -917,7 +952,6 @@
                         currentVideoId = d.v; 
                         ytP.loadVideoById(d.v); 
                         
-                        // NEW HIT-STATISTIC SYSTEM FOR HISTORICAL WATCH DATA
                         if(myN) {
                             localUserStats.watched[currentVideoId] = true;
                             db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true);
@@ -1030,7 +1064,6 @@
             db.ref(`rooms/${myR}/typing/${myId}`).remove();
         }
 
-        // ÇAT ŞƏKİLLƏRİNİ DƏ SIXIŞDIRIB GÖNDƏRMƏK (Database xətasının qarşısını alır)
         function sendImg(input) { 
             if(input.files[0]) { 
                 let reader = new FileReader(); 
@@ -1055,6 +1088,13 @@
         
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        
+        // SEHİFƏ YÜKLƏNƏNDƏ AVTOMATİK GİRİŞ SESSİYASINI YOXLA VƏ ANIMASIYANI BAŞLAT
+        window.onload = function() {
+            checkSavedLoginSession();
+            initAnimationData();
+            runAnimationLoop();
+        };
         resizeCanvas();
     </script>
 </body>
