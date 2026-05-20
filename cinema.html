@@ -61,7 +61,6 @@
         #player-container { width: 100%; height: 211px; position: relative; background: #000; }
         #player { width: 100%; height: 100%; }
         
-        /* SCREEN SHARE VIDEO ELEMENT */
         #screen-video { width: 100%; height: 100%; object-fit: contain; display: none; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
 
         .v-bar-cont { height: 25px; background: rgba(10,10,10,0.9); display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid var(--border); }
@@ -165,11 +164,10 @@
             <div id="tab-create" class="tab-content active">
                 <div class="avatar-upload" onclick="document.getElementById('file-input-create').click()">
                     <img id="avatar-preview" src="https://www.w3schools.com/howto/img_avatar.png">
-                    <input type="file" id="file-input-create" hidden accept="image/*" onchange="previewImage(this, 'avatar-preview')">
+                    <input type="file" id="file-input-create" hidden accept="image/*" onchange="processAndPreviewImage(this, 'avatar-preview')">
                 </div>
                 <input type="text" id="nick-create" placeholder="LƏQƏBİNİZ (NICKNAME)">
                 
-                <!-- NEW ROOM MODE SELECTOR -->
                 <div class="mode-selector">
                     <button id="mode-yt" class="mode-btn selected" onclick="selectRoomMode('youtube')">🍿 YouTube</button>
                     <button id="mode-screen" class="mode-btn" onclick="selectRoomMode('screen')">🖥️ Screen Share</button>
@@ -188,13 +186,12 @@
             <div id="tab-join" class="tab-content">
                 <div class="avatar-upload" onclick="document.getElementById('file-input-join').click()">
                     <img id="avatar-preview-join" src="https://www.w3schools.com/howto/img_avatar.png">
-                    <input type="file" id="file-input-join" hidden accept="image/*" onchange="previewImage(this, 'avatar-preview-join')">
+                    <input type="file" id="file-input-join" hidden accept="image/*" onchange="processAndPreviewImage(this, 'avatar-preview-join')">
                 </div>
                 <input type="text" id="nick-join" placeholder="LƏQƏBİNİZ (NICKNAME)">
                 <input type="text" id="room-join" placeholder="6 RƏQƏMLİ OTAQ KODU" maxlength="6">
                 <button class="btn" onclick="start('member')">OTAĞA QOŞUL</button>
             </div>
-
         </div>
     </div>
 
@@ -216,7 +213,6 @@
         <div class="video-section">
             <div id="player-container">
                 <div id="player"></div>
-                <!-- SCREEN SHARE LAYER -->
                 <video id="screen-video" autoplay playsinline></video>
             </div>
             <div class="v-bar-cont" id="progress-bar-wrapper">
@@ -228,7 +224,6 @@
             <div class="controls-bar">
                 <div class="main-btns">
                     <button id="voice-call-btn" onclick="toggleVoiceRoom()">🔊 SƏSLİ ZƏNGƏ QOŞUL</button>
-                    <!-- SCREEN SHARE BUTTON FOR ADMIN -->
                     <button id="screen-share-btn" style="display:none;" onclick="toggleScreenShare()">🖥️ EKRANI PAYLAŞ</button>
                     <button onclick="toggleFS()">TAM EKRAN</button>
                     <button id="sync-fix-btn" style="display:none; color:var(--blue);" onclick="forceSync()">🔄 SİNXRON ET</button>
@@ -286,9 +281,8 @@
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
         let typingTimeout, lastAdminTime = 0, currentVideoId = "";
         let playlistQueue = [];
-        let selectedRoomMode = "youtube"; // Default rejim
+        let selectedRoomMode = "youtube"; 
 
-        // WEBRTC SIGNALING SYSTEM (AUDIO & VIDEO MESH)
         let localVoiceStream = null;
         let localScreenStream = null;
         let peerConnections = {};
@@ -296,7 +290,6 @@
         let isInVoiceRoom = false;
         let isSharingScreen = false;
 
-        // ANIMATION SYSTEM
         const canvas = document.getElementById('animation-canvas');
         const ctx = canvas.getContext('2d');
         let currentAnim = 'stars', animId = null, animData = [], globalSpeedModifier = 1;
@@ -305,8 +298,33 @@
         window.addEventListener('resize', resizeCanvas);
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-        function previewImage(input, previewId) { if (input.files && input.files[0]) { let r = new FileReader(); r.onload = e => { myPic = e.target.result; document.getElementById(previewId).src = myPic; }; r.readAsDataURL(input.files[0]); } }
         
+        // ŞƏKİLLƏRİ SIXIŞDIRMA FUNKSİYASI (Firebase-i boğmamaq üçün max 200px edir)
+        function processAndPreviewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    let img = new Image();
+                    img.onload = function() {
+                        let max_size = 200;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
+                        else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+                        let canvasMat = document.createElement('canvas');
+                        canvasMat.width = width;
+                        canvasMat.height = height;
+                        canvasMat.getContext('2d').drawImage(img, 0, 0, width, height);
+                        let compressedDataUrl = canvasMat.toDataURL('image/jpeg', 0.7);
+                        myPic = compressedDataUrl;
+                        document.getElementById(previewId).src = compressedDataUrl;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
         function switchTab(type) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -319,7 +337,6 @@
             }
         }
 
-        // REJİM SEÇİMİ FUNKSİYASI
         function selectRoomMode(mode) {
             selectedRoomMode = mode;
             document.getElementById('mode-yt').classList.remove('selected');
@@ -472,7 +489,7 @@
         }
 
         function onYouTubeIframeAPIReady() {
-            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1 }, events: { 'onReady': () => { ok = true; tick(); }, 'onStateChange': onPlayerStateChange } });
+            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1, 'mute': 0 }, events: { 'onReady': () => { ok = true; tick(); }, 'onStateChange': onPlayerStateChange } });
         }
 
         function onPlayerStateChange(e) {
@@ -504,7 +521,8 @@
             const d = await r.json(); const b = document.getElementById('results'); b.innerHTML = "";
             d.items.forEach(i => {
                 const c = document.createElement('div'); c.className = "res-card";
-                c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}"><button class="add-q-btn" onclick="addToQueue('${i.id.videoId}', '${i.snippet.title.replace(/'/g, "\\'")}', event)">+ NÖVBƏ</button>`;
+                const safeTitle = i.snippet.title.replace(/['"]/g, ""); 
+                c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}"><button class="add-q-btn" onclick="addToQueue('${i.id.videoId}', '${safeTitle}', event)">+ NÖVBƏ</button>`;
                 c.onclick = () => {
                     db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 });
                 };
@@ -542,9 +560,6 @@
             document.getElementById(`pop-${msgId}`).style.display = 'none';
         }
 
-        // ==========================================
-        //  ADVANCED WEBRTC MULTI-USER VOICE SYSTEM
-        // ==========================================
         async function toggleVoiceRoom() {
             const btn = document.getElementById('voice-call-btn');
             if (!isInVoiceRoom) {
@@ -581,9 +596,6 @@
             }
         }
 
-        // ==========================================
-        //    SCREEN SHARING FUNCTION (GÜCLƏNDİRİLDİ)
-        // ==========================================
         async function toggleScreenShare() {
             const btn = document.getElementById('screen-share-btn');
             const scrVideo = document.getElementById('screen-video');
@@ -603,7 +615,7 @@
                     scrVideo.style.display = 'block';
                     
                     if(ytP && typeof ytP.pauseVideo === 'function') {
-                        try { ytP.pauseVideo(); } catch(e) { console.log("YT pleyer dayandırıla bilmədi:", e); }
+                        try { ytP.pauseVideo(); } catch(e) {}
                     }
                     
                     db.ref(`rooms/${myR}/screen_state`).set({ sharerId: myId, active: true });
@@ -619,12 +631,7 @@
                     };
                     
                 } catch (e) {
-                    console.error("Ekran paylaşımı xətası:", e);
-                    if (e.name === 'NotAllowedError') {
-                        showToast("İcazə verilmədi və ya pəncərə seçilmədi.");
-                    } else {
-                        showToast("Xəta: " + e.message);
-                    }
+                    showToast("Ekran paylaşımı iptal edildi.");
                 }
             } else {
                 stopLocalScreenShare();
@@ -649,7 +656,7 @@
             db.ref(`rooms/${myR}/screen_state`).set({ active: false });
             
             if(ytP && typeof ytP.playVideo === 'function' && ok) {
-                try { ytP.playVideo(); } catch(e) { console.log("YT pleyer başladıla bilmədi:", e); }
+                try { ytP.playVideo(); } catch(e) {}
             }
         }
 
@@ -674,6 +681,8 @@
         }
 
         function setupPeerConnection(targetId, isOffer) {
+            if(peerConnections[targetId]) return; // Qoşulma artıq varsa təkrar açma
+
             const pc = new RTCPeerConnection(rtcConfig);
             peerConnections[targetId] = pc;
 
@@ -844,9 +853,30 @@
             db.ref(`rooms/${myR}/typing/${myId}`).remove();
         }
 
-        function sendImg(input) { if(input.files[0]) { let r = new FileReader(); r.onload = e => db.ref('rooms/'+myR+'/chat').push({ n: myN, img: e.target.result, p: myPic, ts: Date.now() }); r.readAsDataURL(input.files[0]); } }
-        document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
+        // ÇAT ŞƏKİLLƏRİNİ DƏ SIXIŞDIRIB GÖNDƏRMƏK (Database xətasının qarşısını alır)
+        function sendImg(input) { 
+            if(input.files[0]) { 
+                let reader = new FileReader(); 
+                reader.onload = e => {
+                    let img = new Image();
+                    img.onload = function() {
+                        let canvasMat = document.createElement('canvas');
+                        let max_size = 400; // Çat şəkli üçün bir az daha böyük ölçü
+                        let width = img.width; let height = img.height;
+                        if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
+                        else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+                        canvasMat.width = width; canvasMat.height = height;
+                        canvasMat.getContext('2d').drawImage(img, 0, 0, width, height);
+                        
+                        db.ref('rooms/'+myR+'/chat').push({ n: myN, img: canvasMat.toDataURL('image/jpeg', 0.6), p: myPic, ts: Date.now() }); 
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]); 
+            } 
+        }
         
+        document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         resizeCanvas();
     </script>
