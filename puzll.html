@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Multiplayer Arena Puzzle v2</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0b0c10;
+            color: #c5c6c7;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 380px;
+            background: #1f2833;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
+            border: 1px solid #45f3ff;
+        }
+
+        .active { display: block; }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: 2px solid #0b0c10;
+            border-radius: 10px;
+            background: #0b0c10;
+            color: #fff;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+        input:focus { border-color: #66fcf1; }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #66fcf1, #45f3ff);
+            color: #0b0c10;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 8px 0;
+            box-shadow: 0 4px 15px rgba(102, 252, 241, 0.2);
+        }
+
+        #level-title {
+            font-size: 1.4rem;
+            color: #66fcf1;
+            margin: 5px 0;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+        }
+
+        #status-area {
+            font-size: 0.85rem;
+            background: #0b0c10;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #1f2833;
+        }
+
+        /* 4x4 Matris sahəsi */
+        #puzzle-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: repeat(4, 80px);
+            gap: 2px;
+            background: #0b0c10;
+            border: 4px solid #66fcf1;
+            border-radius: 14px;
+            margin: 15px auto;
+            width: 332px;
+            height: 332px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.3);
+        }
+
+        .grid-slot {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            background: #1f2833;
+            box-sizing: border-box;
+        }
+
+        .puzzle-piece {
+            width: 80px;
+            height: 80px;
+            background-size: 320px 320px;
+            border-radius: 6px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.6);
+            z-index: 10;
+            cursor: grab;
+            transform: translate3d(0px, 0px, 0px);
+            will-change: transform;
+        }
+
+        .dragging {
+            box-shadow: 0 10px 20px rgba(102, 252, 241, 0.6);
+            z-index: 100;
+            cursor: grabbing;
+            pointer-events: none;
+        }
+
+        .locked {
+            pointer-events: none !important;
+            box-shadow: none;
+            border: 1px solid #45f3ff;
+            animation: flashSuccess 0.4s ease-out;
+        }
+
+        @keyframes flashSuccess {
+            0% { filter: brightness(1.8); transform: scale3d(1.05, 1.05, 1.05); }
+            100% { filter: brightness(1); transform: scale3d(1, 1, 1); }
+        }
+
+        #game-message {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="lobby-screen" class="screen active">
+        <h1 style="color:#66fcf1; margin-top:0; letter-spacing:1px;">MATRIX PUZZLE</h1>
+        <input type="text" id="username-input" placeholder="Oyunçu adı...">
+        <hr style="border: 1px solid #45f3ff; margin: 20px 0; opacity: 0.2;">
+        <button onclick="createRoom()">Otaq Yarat ➕</button>
+        <input type="text" id="room-code-input" placeholder="Otaq Kodu...">
+        <button style="background:transparent; border:2px solid #66fcf1; color:#66fcf1;" onclick="joinRoom()">Otağa Qoşul 🔗</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <h2 id="level-title">Yüklənir...</h2>
+        <div id="status-area">
+            Otaq: <strong id="display-room-code" style="color:#66fcf1">----</strong> | 
+            <span id="players-status">Gözlənilir...</span>
+        </div>
+
+        <div id="puzzle-matrix"></div>
+
+        <div id="game-message" style="color: #e67e22;">Rəqib qoşulmalıdır...</div>
+    </div>
+
+    <script>
+        // --- FIREBASE KONFİQURASİYASI ---
+        const CF = { 
+            apiKey: "AIzaSyAGLab7iSmhRAIZGuwQLa7HeE_Kg_4PVqM", 
+            authDomain: "vkproject-63da1.firebaseapp.com",
+            databaseURL: "https://vkproject-63da1-default-rtdb.firebaseio.com/", 
+            projectId: "vkproject-63da1",
+            storageBucket: "vkproject-63da1.firebasestorage.app",
+            messagingSenderId: "510055616550",
+            appId: "1:510055616550:web:4ae0f0c28798669ccad6e7",
+            measurementId: "G-FJ5Q9YM3ST"
+        };
+        firebase.initializeApp(CF);
+        const db = firebase.database();
+
+        const levels = [
+            { name: "Mərhələ 1: İstanbul", img: "istanbul.png" },
+            { name: "Mərhələ 2: İsveç", img: "sweden.png" },
+            { name: "Mərhələ 3: Yunanıstan", img: "greek.png" }
+        ];
+
+        let myName = "", myRole = "", roomID = "", currentLevelIndex = 0;
+        let isGameStarted = false, isRoomFinished = false;
+        let currentGridOrder = []; 
+
+        function createRoom() {
+            myName = document.getElementById('username-input').value.trim();
+            if(!myName) return alert("Adınızı daxil edin!");
+            roomID = Math.floor(1000 + Math.random() * 9000).toString();
+            myRole = "creator";
+
+            db.ref('rooms/' + roomID).set({
+                levelIndex: 0, status: "waiting",
+                creator: { name: myName },
+                joiner: { name: "" },
+                sharedGrid: Array.from({length: 16}, (_, i) => i).sort(() => Math.random() - 0.5)
+            }).then(() => { enterGame(); });
+        }
+
+        function joinRoom() {
+            myName = document.getElementById('username-input').value.trim();
+            roomID = document.getElementById('room-code-input').value.trim();
+            if(!myName || !roomID) return alert("Boşluqları doldurun!");
+            myRole = "joiner";
+
+            db.ref('rooms/' + roomID).once('value', (snapshot) => {
+                if(!snapshot.exists() || snapshot.val().joiner.name !== "") return alert("Otaq doludur və ya yoxdur!");
+                db.ref('rooms/' + roomID).update({ status: "playing", "joiner/name": myName }).then(() => { enterGame(); });
+            });
+        }
+
+        function enterGame() {
+            document.getElementById('lobby-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            document.getElementById('display-room-code').innerText = roomID;
+            listenRoom();
+        }
+
+        function listenRoom() {
+            db.ref('rooms/' + roomID).on('value', (snapshot) => {
+                const data = snapshot.val(); if(!data) return;
+
+                document.getElementById('players-status').innerText = `${data.creator.name} vs ${data.joiner.name || '⏳'}`;
+                
+                if(data.status === "playing") {
+                    isGameStarted = true;
+                    
+                    // Firebase-dən gələn data ekrandakı düzülüşdən fərqlidirsə və ya level dəyişibsə yenidən render et
+                    if (JSON.stringify(currentGridOrder) !== JSON.stringify(data.sharedGrid) || currentLevelIndex !== data.levelIndex) {
+                        currentGridOrder = [...data.sharedGrid];
+                        currentLevelIndex = data.levelIndex;
+                        generateMatrixLayout();
+                    }
+                }
+
+                document.getElementById('level-title').innerText = levels[currentLevelIndex].name;
+
+                if(data.status === "finished") {
+                    isRoomFinished = true;
+                    document.getElementById('game-message').innerText = "MÜKƏMMƏL! BÜTÜN PUZZLE-LARI BİTİRDİNİZ! 🏆🏁";
+                    document.getElementById('game-message').style.color = "#66fcf1";
+                    document.getElementById('puzzle-matrix').innerHTML = "";
+                } else if(isGameStarted) {
+                    document.getElementById('game-message').innerText = "Ortaq puzlı birlikdə tamamlayın! 🤝";
+                    document.getElementById('game-message').style.color = "#66fcf1";
+                }
+            });
+        }
+
+        function generateMatrixLayout() {
+            const matrix = document.getElementById('puzzle-matrix');
+            matrix.innerHTML = '';
+
+            for(let slotIndex = 0; slotIndex < 16; slotIndex++) {
+                const slot = document.createElement('div');
+                slot.classList.add('grid-slot');
+                slot.dataset.slotIndex = slotIndex;
+
+                const pieceId = currentGridOrder[slotIndex];
+
+                const piece = document.createElement('div');
+                piece.classList.add('puzzle-piece');
+                piece.dataset.pieceId = pieceId;
+
+                const row = Math.floor(pieceId / 4);
+                const col = pieceId % 4;
+                piece.style.backgroundImage = `url('${levels[currentLevelIndex].img}')`;
+                piece.style.backgroundPosition = `-${col * 80}px -${row * 80}px`;
+
+                if(pieceId === slotIndex) {
+                    piece.classList.add('locked');
+                } else {
+                    piece.addEventListener('touchstart', touchStart, {passive: false});
+                    piece.addEventListener('touchmove', touchMove, {passive: false});
+                    piece.addEventListener('touchend', touchEnd, {passive: false});
+                }
+
+                slot.appendChild(piece);
+                matrix.appendChild(slot);
+            }
+        }
+
+        // --- TOXUNUŞ MEXANİKASI ---
+        let activePiece = null;
+        let sourceSlot = null;
+        let startX = 0, startY = 0;
+
+        function touchStart(e) {
+            if(!isGameStarted || isRoomFinished) return;
+            
+            activePiece = e.target;
+            if(!activePiece.classList.contains('puzzle-piece') || activePiece.classList.contains('locked')) { 
+                activePiece = null; 
+                return; 
+            }
+
+            sourceSlot = activePiece.parentElement;
+            
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            activePiece.classList.add('dragging');
+        }
+
+        function touchMove(e) {
+            if(!activePiece) return;
+            e.preventDefault();
+
+            const touch = e.touches[0];
+            let deltaX = touch.clientX - startX;
+            let deltaY = touch.clientY - startY;
+
+            activePiece.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0px)`;
+        }
+
+        function touchEnd(e) {
+            if(!activePiece) return;
+
+            activePiece.style.display = 'none';
+            const touch = e.changedTouches[0];
+            const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            activePiece.style.display = 'block';
+            activePiece.classList.remove('dragging');
+            activePiece.style.transform = 'translate3d(0px, 0px, 0px)';
+
+            let targetSlot = null;
+            if (elementAtPoint) {
+                targetSlot = elementAtPoint.closest('.grid-slot');
+            }
+
+            if(targetSlot && targetSlot !== sourceSlot) {
+                const targetPiece = targetSlot.querySelector('.puzzle-piece');
+
+                if(targetPiece && !targetPiece.classList.contains('locked')) {
+                    const idxSource = parseInt(sourceSlot.dataset.slotIndex);
+                    const idxTarget = parseInt(targetSlot.dataset.slotIndex);
+
+                    let temp = currentGridOrder[idxSource];
+                    currentGridOrder[idxSource] = currentGridOrder[idxTarget];
+                    currentGridOrder[idxTarget] = temp;
+
+                    // Yeni matris sırasını birbaşa Firebase-ə ötürürük (Sinxronizasiya anında baş verir)
+                    db.ref('rooms/' + roomID).update({
+                        sharedGrid: currentGridOrder
+                    }).then(() => {
+                        checkGridWinCondition();
+                    });
+                }
+            }
+
+            activePiece = null;
+            sourceSlot = null;
+        }
+
+        function checkGridWinCondition() {
+            let isLevelSolved = currentGridOrder.every((val, i) => val === i);
+
+            if(isLevelSolved) {
+                if(currentLevelIndex < levels.length - 1) {
+                    db.ref('rooms/' + roomID).update({
+                        levelIndex: currentLevelIndex + 1,
+                        sharedGrid: Array.from({length: 16}, (_, i) => i).sort(() => Math.random() - 0.5)
+                    });
+                } else {
+                    db.ref('rooms/' + roomID).update({ status: "finished" });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
