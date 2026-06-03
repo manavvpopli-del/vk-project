@@ -130,7 +130,6 @@
             box-shadow: 0 10px 20px rgba(102, 252, 241, 0.6);
             z-index: 100;
             cursor: grabbing;
-            pointer-events: none;
         }
 
         .locked {
@@ -242,7 +241,6 @@
                 if(data.status === "playing") {
                     isGameStarted = true;
                     
-                    // Firebase-dən gələn data ekrandakı düzülüşdən fərqlidirsə və ya level dəyişibsə yenidən render et
                     if (JSON.stringify(currentGridOrder) !== JSON.stringify(data.sharedGrid) || currentLevelIndex !== data.levelIndex) {
                         currentGridOrder = [...data.sharedGrid];
                         currentLevelIndex = data.levelIndex;
@@ -334,22 +332,36 @@
         function touchEnd(e) {
             if(!activePiece) return;
 
-            activePiece.style.display = 'none';
-            const touch = e.changedTouches[0];
-            const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
-            
-            activePiece.style.display = 'block';
             activePiece.classList.remove('dragging');
+            
+            const touch = e.changedTouches[0];
+            const clientX = touch.clientX;
+            const clientY = touch.clientY;
+
+            // Görünüşü sıfırlayırıq ki, növbəti renderə mane olmasın
             activePiece.style.transform = 'translate3d(0px, 0px, 0px)';
 
             let targetSlot = null;
-            if (elementAtPoint) {
-                targetSlot = elementAtPoint.closest('.grid-slot');
+            const slots = document.querySelectorAll('.grid-slot');
+
+            // HƏLL: Barmağın buraxıldığı nöqtə hansı damanın hüdudları (Kvadratı) daxilindədir?
+            for (let slot of slots) {
+                const rect = slot.getBoundingClientRect();
+                if (
+                    clientX >= rect.left && 
+                    clientX <= rect.right && 
+                    clientY >= rect.top && 
+                    clientY <= rect.bottom
+                ) {
+                    targetSlot = slot;
+                    break;
+                }
             }
 
             if(targetSlot && targetSlot !== sourceSlot) {
                 const targetPiece = targetSlot.querySelector('.puzzle-piece');
 
+                // Əgər hədəfdə parça varsa və kilidli deyilsə yerdəyişməni icra et
                 if(targetPiece && !targetPiece.classList.contains('locked')) {
                     const idxSource = parseInt(sourceSlot.dataset.slotIndex);
                     const idxTarget = parseInt(targetSlot.dataset.slotIndex);
@@ -358,7 +370,6 @@
                     currentGridOrder[idxSource] = currentGridOrder[idxTarget];
                     currentGridOrder[idxTarget] = temp;
 
-                    // Yeni matris sırasını birbaşa Firebase-ə ötürürük (Sinxronizasiya anında baş verir)
                     db.ref('rooms/' + roomID).update({
                         sharedGrid: currentGridOrder
                     }).then(() => {
