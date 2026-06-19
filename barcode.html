@@ -509,6 +509,62 @@
     color:#cfe0d6;
   }
 
+  /* ----- Price section ----- */
+  .price-note{
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--ink-dim);
+    letter-spacing:0.04em;
+    margin-bottom:14px;
+    line-height:1.6;
+  }
+  .price-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .price-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--panel);
+    border:1px solid #22302a;
+    border-radius:8px;
+    padding:12px 14px;
+  }
+  .price-market{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .price-dot{
+    width:8px; height:8px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .price-market-name{
+    font-size:13px;
+    font-weight:600;
+  }
+  .price-amount{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:15px;
+    color:var(--line-green);
+  }
+  .price-amount .currency{
+    font-size:10px;
+    color:var(--ink-dim);
+    font-weight:400;
+    margin-left:3px;
+  }
+  .price-empty{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-dim);
+    line-height:1.7;
+  }
+
   .allergen-row{
     display:flex;
     flex-wrap:wrap;
@@ -617,6 +673,12 @@
 
     <div class="badge-row" id="badgeRow"></div>
 
+    <div class="section" id="priceSection">
+      <div class="section-title">Bazar qiyməti (AZN)</div>
+      <div class="price-list" id="priceList"></div>
+      <div class="price-note" id="priceNote"></div>
+    </div>
+
     <div class="section" id="kcalSection">
       <div class="section-title">Enerji dəyəri (100 q/ml)</div>
       <div class="kcal-hero">
@@ -718,8 +780,17 @@
       // but stop it to release the camera cleanly
       testStream.getTracks().forEach(t => t.stop());
 
-      codeReader = new ZXing.BrowserMultiFormatReader();
-      const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+      // Step 2: enumerate devices using the STANDARD browser API.
+      // (ZXing's own static listVideoInputDevices() helper is deprecated /
+      // missing in some builds and was throwing a TypeError — avoid it.)
+      let devices = [];
+      try{
+        const allDevices = await navigator.mediaDevices.enumerateDevices();
+        devices = allDevices.filter(d => d.kind === 'videoinput');
+      }catch(enumErr){
+        showCamError(enumErr, null);
+        return;
+      }
 
       if (!devices || devices.length === 0){
         showCamError(null, 'NO_DEVICES_FOUND');
@@ -727,18 +798,30 @@
       }
 
       let deviceId = null;
-      const back = devices.find(d => /back|rear|environment/i.test(d.label));
+      const back = devices.find(d => /back|rear|environment/i.test(d.label || ''));
       deviceId = back ? back.deviceId : devices[0].deviceId;
 
-      scanning = true;
-      codeReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
-        if (result && scanning){
-          scanning = false;
-          handleScanSuccess(result.getText());
-        }
-      });
+      if (typeof ZXing === 'undefined' || !ZXing.BrowserMultiFormatReader){
+        showCamError(null, 'ZXING_NOT_LOADED');
+        return;
+      }
 
-      currentStream = video.srcObject;
+      codeReader = new ZXing.BrowserMultiFormatReader();
+      scanning = true;
+
+      try{
+        await codeReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
+          if (result && scanning){
+            scanning = false;
+            handleScanSuccess(result.getText());
+          }
+        });
+      }catch(decodeErr){
+        showCamError(decodeErr, null);
+        return;
+      }
+
+      currentStream = video.srcObject || null;
     }catch(err){
       showCamError(err, null);
     }
@@ -787,15 +870,28 @@
       case 'SecurityError':
         detail = 'Təhlükəsizlik məhdudiyyəti kameranı blokladı.';
         break;
+      case 'TypeError':
+        detail = 'Kamera kitabxanası ilə uyğunsuzluq baş verdi. Səhifəni yenilə (refresh) və yenidən cəhd et.';
+        break;
       default:
-        detail = 'Naməlum xəta: ' + code;
+        detail = 'Naməlum xəta: ' + code + (err && err.message ? ' — ' + err.message : '');
     }
 
     camError.innerHTML = `
       <div style="font-size:13px; color:#eef7f0; font-weight:600;">${title}</div>
       <div style="font-size:12px; color:#7d9488; line-height:1.6;">${detail}</div>
       <div style="font-size:10px; color:#3d5448; font-family:var(--mono); margin-top:6px;">CODE: ${code}</div>
+      <button class="btn" id="camRetryBtn" style="flex:none; padding:11px 22px; margin-top:6px;">YENİDƏN CƏHD ET</button>
     `;
+    document.getElementById('camRetryBtn').addEventListener('click', retryCamera);
+  }
+
+  function retryCamera(){
+    camError.style.display = 'none';
+    camError.innerHTML = '';
+    scanHint.style.display = 'block';
+    document.getElementById('scanFrame').style.display = 'flex';
+    startCamera();
   }
 
   function vibrateOk(){
@@ -887,6 +983,71 @@
     scanning = true;
   }
 
+  // ===== Demo Azərbaycan market qiymət bazası =====
+  // QEYD: bu, real-vaxt internet qiymət axtarışı deyil — bele bir aciq/ortaq
+  // baza Azerbaycan marketleri uchun movcud deyil. Bunlar numune/texmini
+  // qiymetlerdir, barkoda gore. Real qiymetler magazada deyishe biler.
+  const AZ_PRICE_DB = {
+    // Coca-Cola 0.5L
+    '5449000000996': [
+      { market: 'Bravo', price: 1.40, color: '#39ff8a' },
+      { market: 'Araz Market', price: 1.35, color: '#ffb547' },
+      { market: 'Bazarstore', price: 1.45, color: '#ff5d5d' },
+    ],
+    // Nutella 350g
+    '3017620422003': [
+      { market: 'Bravo', price: 12.90, color: '#39ff8a' },
+      { market: 'Araz Market', price: 13.50, color: '#ffb547' },
+      { market: 'Neptun', price: 12.50, color: '#ff5d5d' },
+    ],
+    // Pepsi 0.5L
+    '5410013130264': [
+      { market: 'Bravo', price: 1.30, color: '#39ff8a' },
+      { market: 'Araz Market', price: 1.25, color: '#ffb547' },
+      { market: 'Bazarstore', price: 1.35, color: '#ff5d5d' },
+    ],
+    // Lays Classic 80g (örnek)
+    '5410126121017': [
+      { market: 'Bravo', price: 2.20, color: '#39ff8a' },
+      { market: 'Araz Market', price: 2.10, color: '#ffb547' },
+      { market: 'Neptun', price: 2.35, color: '#ff5d5d' },
+    ],
+  };
+
+  function getDemoPrices(barcode){
+    return AZ_PRICE_DB[barcode] || null;
+  }
+
+  function renderPriceSection(barcode){
+    const priceList = document.getElementById('priceList');
+    const priceNote = document.getElementById('priceNote');
+    priceList.innerHTML = '';
+
+    const prices = getDemoPrices(barcode);
+
+    if (prices){
+      prices.forEach((row, i) => {
+        const div = document.createElement('div');
+        div.className = 'price-row';
+        div.style.opacity = '0';
+        div.style.animation = `fadeUp .35s ease both`;
+        div.style.animationDelay = (0.05 * i) + 's';
+        div.innerHTML = `
+          <div class="price-market">
+            <span class="price-dot" style="background:${row.color};"></span>
+            <span class="price-market-name">${row.market}</span>
+          </div>
+          <span class="price-amount">${row.price.toFixed(2)}<span class="currency">AZN</span></span>
+        `;
+        priceList.appendChild(div);
+      });
+      priceNote.textContent = '* Təxmini qiymətlər — nümunə məlumatdır, real qiymət mağazada fərqli ola bilər.';
+    } else {
+      priceList.innerHTML = `<div class="price-empty">Bu məhsul üçün qiymət məlumatı yoxdur. Hələlik yalnız bir neçə populyar məhsul üçün nümunə qiymət var.</div>`;
+      priceNote.textContent = '';
+    }
+  }
+
   // ===== Render product result =====
   function gradeColor(grade){
     const map = { a:'#2ecc71', b:'#8bc34a', c:'#ffc107', d:'#ff9800', e:'#f44336' };
@@ -901,6 +1062,9 @@
   }
 
   function renderProduct(p, barcode){
+    // price section (demo AZ market data)
+    renderPriceSection(barcode);
+
     // photo
     const photoWrap = document.getElementById('photoWrap');
     photoWrap.innerHTML = '<div class="scan-success-ping"></div>';
