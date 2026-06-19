@@ -693,12 +693,42 @@
 
   // ===== Camera + ZXing barcode scanning =====
   async function startCamera(){
+    // Step 0: basic environment checks with specific error messages
+    if (!window.isSecureContext){
+      showCamError(null, 'İNSECURE_CONTEXT');
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showCamError(null, 'NO_MEDIADEVICES_API');
+      return;
+    }
+    if (typeof ZXing === 'undefined'){
+      showCamError(null, 'ZXING_NOT_LOADED');
+      return;
+    }
+
     try{
+      // Step 1: directly request camera permission/stream FIRST.
+      // This is what actually triggers the OS/browser permission prompt,
+      // and gives us the real error name if it fails.
+      const testStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } }
+      });
+      // we don't need this test stream itself, ZXing will open its own,
+      // but stop it to release the camera cleanly
+      testStream.getTracks().forEach(t => t.stop());
+
       codeReader = new ZXing.BrowserMultiFormatReader();
       const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+
+      if (!devices || devices.length === 0){
+        showCamError(null, 'NO_DEVICES_FOUND');
+        return;
+      }
+
       let deviceId = null;
       const back = devices.find(d => /back|rear|environment/i.test(d.label));
-      deviceId = back ? back.deviceId : (devices[0] && devices[0].deviceId);
+      deviceId = back ? back.deviceId : devices[0].deviceId;
 
       scanning = true;
       codeReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
@@ -710,15 +740,62 @@
 
       currentStream = video.srcObject;
     }catch(err){
-      showCamError(err);
+      showCamError(err, null);
     }
   }
 
-  function showCamError(err){
+  function showCamError(err, customCode){
     camError.style.display = 'flex';
+    camError.style.flexDirection = 'column';
+    camError.style.gap = '10px';
     scanHint.style.display = 'none';
     document.getElementById('scanFrame').style.display = 'none';
-    camError.textContent = 'Kameraya icazə verilmədi və ya kamera tapılmadı. "Əl ilə yaz" düyməsindən istifadə et.';
+
+    let title = 'Kamera açılmadı';
+    let detail = '';
+    const code = customCode || (err && err.name) || 'UNKNOWN';
+
+    switch(code){
+      case 'İNSECURE_CONTEXT':
+        detail = 'Bu səhifə təhlükəsiz bağlantı (HTTPS) üzərində deyil.';
+        break;
+      case 'NO_MEDIADEVICES_API':
+        detail = 'Bu brauzer kamera API-sini dəstəkləmir.';
+        break;
+      case 'ZXING_NOT_LOADED':
+        detail = 'Barkod oxuyan kitabxana yüklənmədi (internet bağlantısını yoxla).';
+        break;
+      case 'NO_DEVICES_FOUND':
+        detail = 'Heç bir kamera tapılmadı.';
+        break;
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        detail = 'Kameraya icazə rədd edildi. Sayt ayarlarından icazə ver və səhifəni yenilə.';
+        break;
+      case 'NotFoundError':
+      case 'DevicesNotFoundError':
+        detail = 'Cihazda istifadə oluna bilən kamera tapılmadı.';
+        break;
+      case 'NotReadableError':
+      case 'TrackStartError':
+        detail = 'Kamera başqa bir tətbiq tərəfindən istifadə olunur. Digər tətbiqləri bağla.';
+        break;
+      case 'OverconstrainedError':
+      case 'ConstraintNotSatisfiedError':
+        detail = 'Kamera tələb olunan keyfiyyəti dəstəkləmir.';
+        break;
+      case 'SecurityError':
+        detail = 'Təhlükəsizlik məhdudiyyəti kameranı blokladı.';
+        break;
+      default:
+        detail = 'Naməlum xəta: ' + code;
+    }
+
+    camError.innerHTML = `
+      <div style="font-size:13px; color:#eef7f0; font-weight:600;">${title}</div>
+      <div style="font-size:12px; color:#7d9488; line-height:1.6;">${detail}</div>
+      <div style="font-size:10px; color:#3d5448; font-family:var(--mono); margin-top:6px;">CODE: ${code}</div>
+    `;
   }
 
   function vibrateOk(){
