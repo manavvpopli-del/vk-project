@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SkanKod — Məhsul Skaneri</title>
+<style>
+  :root{
+    --bg:#0a0e0c;
+    --bg-2:#0f1512;
+    --panel:#121a16;
+    --line-green:#39ff8a;
+    --line-green-dim:#1d8f53;
+    --ink:#eef7f0;
+    --ink-dim:#7d9488;
+    --amber:#ffb547;
+    --red:#ff5d5d;
+    --mono: 'IBM Plex Mono', 'SF Mono', ui-monospace, monospace;
+    --disp: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html, body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--disp);
+    height:100%;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* ===== Kopyalanmanın qarşısını al ===== */
+  *{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none;
+  }
+  input{
+    -webkit-user-select:text;
+    user-select:text;
+  }
+
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    background:var(--bg);
+    border-left:1px solid #1a2420;
+    border-right:1px solid #1a2420;
+  }
+
+  /* ===== Header ===== */
+  header{
+    padding:18px 20px 14px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid #182019;
+    flex-shrink:0;
+  }
+  .brand{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:0.18em;
+    color:var(--line-green);
+    font-weight:600;
+  }
+  .brand::before{ content:"// "; color:var(--line-green-dim); }
+  .clock{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-dim);
+    letter-spacing:0.05em;
+  }
+
+  /* ===== Views ===== */
+  .view{
+    flex:1;
+    min-height:0;
+    display:none;
+    flex-direction:column;
+    position:relative;
+  }
+  .view.active{ display:flex; }
+
+  /* ----- SCAN VIEW ----- */
+  #view-scan{ overflow:hidden; }
+
+  .camera-wrap{
+    position:relative;
+    flex:1;
+    background:#000;
+    overflow:hidden;
+  }
+  #video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .scan-frame{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .reticle{
+    width:78%;
+    max-width:340px;
+    height:130px;
+    position:relative;
+  }
+  .reticle .corner{
+    position:absolute;
+    width:26px; height:26px;
+    border:3px solid var(--line-green);
+  }
+  .corner.tl{ top:-2px; left:-2px; border-right:none; border-bottom:none; }
+  .corner.tr{ top:-2px; right:-2px; border-left:none; border-bottom:none; }
+  .corner.bl{ bottom:-2px; left:-2px; border-right:none; border-top:none; }
+  .corner.br{ bottom:-2px; right:-2px; border-left:none; border-top:none; }
+
+  .scanline{
+    position:absolute;
+    left:4%; right:4%;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--line-green) 20%, var(--line-green) 80%, transparent);
+    box-shadow:0 0 12px 2px rgba(57,255,138,0.8);
+    top:8%;
+    animation:sweep 1.85s ease-in-out infinite;
+  }
+  @keyframes sweep{
+    0%{ top:6%; opacity:.3; }
+    50%{ top:92%; opacity:1; }
+    100%{ top:6%; opacity:.3; }
+  }
+
+  .scan-dim-top, .scan-dim-bottom{
+    position:absolute;
+    left:0; right:0;
+    background:rgba(0,0,0,0.55);
+    pointer-events:none;
+  }
+
+  .scan-hint{
+    position:absolute;
+    bottom:14%;
+    left:0; right:0;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:12px;
+    color:#bdf3cf;
+    letter-spacing:0.08em;
+    text-shadow:0 1px 4px rgba(0,0,0,0.8);
+  }
+  .scan-hint .blink{ animation:blink 1.4s steps(1) infinite; color:var(--line-green); }
+  @keyframes blink{ 50%{ opacity:0.25; } }
+
+  .cam-error{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:30px;
+    font-family:var(--mono); font-size:13px; color:var(--ink-dim);
+  }
+
+  /* bottom action bar under camera */
+  .scan-actions{
+    flex-shrink:0;
+    padding:16px 20px 22px;
+    display:flex;
+    gap:10px;
+    background:var(--bg);
+    border-top:1px solid #182019;
+  }
+  .btn{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    border:1px solid var(--line-green-dim);
+    background:transparent;
+    color:var(--line-green);
+    padding:13px 14px;
+    border-radius:3px;
+    flex:1;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:background .15s, transform .1s;
+  }
+  .btn:active{ transform:scale(0.97); background:rgba(57,255,138,0.08); }
+  .btn.ghost{
+    color:var(--ink-dim);
+    border-color:#22302a;
+  }
+  .btn-icon{ width:14px; height:14px; flex-shrink:0; }
+
+  /* manual entry row (slides up inside scan view) */
+  .manual-panel{
+    flex-shrink:0;
+    padding:0 20px;
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .28s ease, padding .28s ease;
+    background:var(--bg);
+  }
+  .manual-panel.open{
+    max-height:90px;
+    padding:14px 20px 18px;
+  }
+  .manual-row{
+    display:flex; gap:8px;
+  }
+  .manual-row input{
+    flex:1;
+    background:var(--panel);
+    border:1px solid #22302a;
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:14px;
+    letter-spacing:0.05em;
+    padding:12px 12px;
+    border-radius:3px;
+    outline:none;
+  }
+  .manual-row input:focus{ border-color:var(--line-green-dim); }
+  .manual-row button{
+    background:var(--line-green);
+    color:#06140d;
+    border:none;
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:0.05em;
+    padding:0 16px;
+    border-radius:3px;
+  }
+
+  /* ----- LOADING VIEW ----- */
+  #view-loading{
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    padding:30px;
+  }
+  .loader-rings{
+    width:84px; height:84px;
+    position:relative;
+  }
+  .loader-rings span{
+    position:absolute; inset:0;
+    border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--line-green);
+    animation:spin 1.1s linear infinite;
+  }
+  .loader-rings span:nth-child(2){
+    inset:12px;
+    border-top-color:var(--amber);
+    animation-duration:.85s;
+    animation-direction:reverse;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loading-label{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.12em;
+    color:var(--ink-dim);
+  }
+  .loading-code{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--line-green-dim);
+  }
+
+  /* ----- ERROR VIEW ----- */
+  #view-error{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:16px;
+    padding:40px;
+  }
+  .error-glyph{
+    font-family:var(--mono);
+    font-size:42px;
+    color:var(--red);
+    line-height:1;
+  }
+  .error-title{ font-size:18px; font-weight:600; }
+  .error-sub{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-dim);
+    max-width:280px;
+    line-height:1.6;
+  }
+
+  /* ----- RESULT VIEW ----- */
+  #view-result{
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .result-top{
+    position:relative;
+    padding:26px 20px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(57,255,138,0.12), transparent 60%);
+    border-bottom:1px solid #182019;
+  }
+  .product-photo-wrap{
+    width:150px; height:150px;
+    border-radius:14px;
+    background:var(--panel);
+    border:1px solid #22302a;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    position:relative;
+    animation:popin .42s cubic-bezier(.2,.9,.25,1.2);
+  }
+  @keyframes popin{
+    0%{ transform:scale(.7); opacity:0; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .product-photo-wrap img{
+    width:100%; height:100%; object-fit:contain;
+    padding:8px;
+  }
+  .product-photo-wrap .noimg{
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--ink-dim);
+    letter-spacing:0.1em;
+  }
+  .scan-success-ping{
+    position:absolute;
+    inset:0;
+    border-radius:14px;
+    border:2px solid var(--line-green);
+    opacity:0;
+    animation:ping 0.9s ease-out;
+  }
+  @keyframes ping{
+    0%{ opacity:.9; transform:scale(1); }
+    100%{ opacity:0; transform:scale(1.18); }
+  }
+
+  .product-name{
+    font-size:21px;
+    font-weight:700;
+    text-align:center;
+    line-height:1.25;
+    animation:fadeUp .4s ease both;
+    animation-delay:.05s;
+  }
+  .product-brand{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--line-green);
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    animation:fadeUp .4s ease both;
+    animation-delay:.1s;
+  }
+  .product-barcode{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-dim);
+    letter-spacing:0.08em;
+    animation:fadeUp .4s ease both;
+    animation-delay:.15s;
+  }
+
+  @keyframes fadeUp{
+    0%{ opacity:0; transform:translateY(8px); }
+    100%{ opacity:1; transform:translateY(0); }
+  }
+
+  /* Nutri-score / eco badges row */
+  .badge-row{
+    display:flex;
+    gap:10px;
+    padding:16px 20px;
+    overflow-x:auto;
+    flex-shrink:0;
+    animation:fadeUp .4s ease both;
+    animation-delay:.2s;
+  }
+  .badge-chip{
+    flex-shrink:0;
+    background:var(--panel);
+    border:1px solid #22302a;
+    border-radius:10px;
+    padding:10px 14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    min-width:72px;
+  }
+  .badge-chip .grade{
+    font-family:var(--mono);
+    font-weight:800;
+    font-size:18px;
+    width:28px; height:28px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:#06140d;
+  }
+  .badge-chip .label{
+    font-family:var(--mono);
+    font-size:9px;
+    color:var(--ink-dim);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+
+  /* Section: nutrition bars */
+  .section{
+    padding:18px 20px;
+    border-bottom:1px solid #141c17;
+  }
+  .section-title{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.14em;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:#1c2620;
+  }
+
+  .nutri-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:13px;
+  }
+  .nutri-row:last-child{ margin-bottom:0; }
+  .nutri-label{
+    width:84px;
+    flex-shrink:0;
+    font-size:12.5px;
+    color:var(--ink-dim);
+  }
+  .nutri-bar-track{
+    flex:1;
+    height:7px;
+    background:#161f1a;
+    border-radius:4px;
+    overflow:hidden;
+    position:relative;
+  }
+  .nutri-bar-fill{
+    height:100%;
+    border-radius:4px;
+    width:0%;
+    transition:width 1s cubic-bezier(.16,.8,.3,1);
+  }
+  .nutri-val{
+    width:58px;
+    text-align:right;
+    flex-shrink:0;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink);
+  }
+
+  .kcal-hero{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .kcal-num{
+    font-size:34px;
+    font-weight:800;
+    font-family:var(--mono);
+    color:var(--line-green);
+  }
+  .kcal-unit{
+    font-size:12px;
+    color:var(--ink-dim);
+    font-family:var(--mono);
+  }
+
+  .ingredients-text{
+    font-size:13px;
+    line-height:1.7;
+    color:#cfe0d6;
+  }
+
+  .allergen-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .allergen-chip{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:6px 11px;
+    border-radius:20px;
+    border:1px solid rgba(255,93,93,0.4);
+    color:#ffb3b3;
+    background:rgba(255,93,93,0.08);
+  }
+
+  .empty-note{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-dim);
+    font-style:normal;
+  }
+
+  .scan-again-bar{
+    padding:20px 20px 28px;
+  }
+  .scan-again-bar .btn{
+    width:100%;
+  }
+
+  /* progress bar colors set via JS inline style for dynamic grade colors */
+
+  ::-webkit-scrollbar{ display:none; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <header>
+    <div class="brand">SKANKOD</div>
+    <div class="clock" id="clock">--:--</div>
+  </header>
+
+  <!-- SCAN VIEW -->
+  <div class="view active" id="view-scan">
+    <div class="camera-wrap">
+      <video id="video" muted playsinline autoplay></video>
+      <div class="scan-frame" id="scanFrame">
+        <div class="reticle">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+          <div class="scanline"></div>
+        </div>
+      </div>
+      <div class="scan-hint" id="scanHint"><span class="blink">●</span> BARKODU ÇƏRÇİVƏYƏ GƏTİR</div>
+      <div class="cam-error" id="camError" style="display:none;"></div>
+    </div>
+
+    <div class="manual-panel" id="manualPanel">
+      <div class="manual-row">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" id="manualInput" placeholder="Barkod nömrəsi (məs. 5901234123457)" maxlength="20">
+        <button id="manualSubmit">AXTAR</button>
+      </div>
+    </div>
+
+    <div class="scan-actions">
+      <button class="btn" id="toggleManual">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+        ƏL İLƏ YAZ
+      </button>
+      <button class="btn ghost" id="toggleTorch">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-6 6c0 2.5 1.5 4 2.5 5.5S10 16 10 18h4c0-2 .5-3 1.5-4.5S18 10.5 18 8a6 6 0 0 0-6-6z"/></svg>
+        FLAŞ
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING VIEW -->
+  <div class="view" id="view-loading">
+    <div class="loader-rings"><span></span><span></span></div>
+    <div class="loading-label">MƏLUMAT AXTARILIR…</div>
+    <div class="loading-code" id="loadingCode"></div>
+  </div>
+
+  <!-- ERROR VIEW -->
+  <div class="view" id="view-error">
+    <div class="error-glyph">!</div>
+    <div class="error-title">Məhsul tapılmadı</div>
+    <div class="error-sub" id="errorSub">Bu barkod bazada mövcud deyil. Başqa məhsul yoxla, ya da kodu yenidən daxil et.</div>
+    <button class="btn" id="errorBack" style="margin-top:8px; flex:none; padding:13px 28px;">YENİDƏN CƏHD ET</button>
+  </div>
+
+  <!-- RESULT VIEW -->
+  <div class="view" id="view-result">
+    <div class="result-top">
+      <div class="product-photo-wrap" id="photoWrap">
+        <div class="scan-success-ping"></div>
+      </div>
+      <div class="product-name" id="prodName">—</div>
+      <div class="product-brand" id="prodBrand">—</div>
+      <div class="product-barcode" id="prodBarcode">—</div>
+    </div>
+
+    <div class="badge-row" id="badgeRow"></div>
+
+    <div class="section" id="kcalSection">
+      <div class="section-title">Enerji dəyəri (100 q/ml)</div>
+      <div class="kcal-hero">
+        <span class="kcal-num" id="kcalNum">—</span>
+        <span class="kcal-unit">kcal</span>
+      </div>
+      <div id="nutriRows"></div>
+    </div>
+
+    <div class="section" id="allergenSection">
+      <div class="section-title">Allergenlər</div>
+      <div class="allergen-row" id="allergenRow"></div>
+    </div>
+
+    <div class="section" id="ingredientsSection">
+      <div class="section-title">Tərkibi</div>
+      <div class="ingredients-text" id="ingredientsText">—</div>
+    </div>
+
+    <div class="scan-again-bar">
+      <button class="btn" id="scanAgainBtn">YENİ SKAN</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // ===== Element refs =====
+  const views = {
+    scan: document.getElementById('view-scan'),
+    loading: document.getElementById('view-loading'),
+    error: document.getElementById('view-error'),
+    result: document.getElementById('view-result'),
+  };
+  const video = document.getElementById('video');
+  const camError = document.getElementById('camError');
+  const scanHint = document.getElementById('scanHint');
+  const manualPanel = document.getElementById('manualPanel');
+  const manualInput = document.getElementById('manualInput');
+  const clockEl = document.getElementById('clock');
+  const loadingCode = document.getElementById('loadingCode');
+  const errorSub = document.getElementById('errorSub');
+
+  let codeReader = null;
+  let currentStream = null;
+  let torchOn = false;
+  let scanning = false;
+
+  // ===== Clock =====
+  function tickClock(){
+    const d = new Date();
+    clockEl.textContent = d.toLocaleTimeString('az-AZ', {hour:'2-digit', minute:'2-digit'});
+  }
+  tickClock();
+  setInterval(tickClock, 1000 * 15);
+
+  // ===== View switching =====
+  function showView(name){
+    Object.keys(views).forEach(k => views[k].classList.toggle('active', k === name));
+  }
+
+  // ===== Disable copy / context-menu / selection further (extra safety net) =====
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('copy', e => {
+    if (document.activeElement !== manualInput) e.preventDefault();
+  });
+  document.addEventListener('selectstart', e => {
+    if (document.activeElement !== manualInput) e.preventDefault();
+  });
+
+  // ===== Camera + ZXing barcode scanning =====
+  async function startCamera(){
+    try{
+      codeReader = new ZXing.BrowserMultiFormatReader();
+      const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
+      let deviceId = null;
+      const back = devices.find(d => /back|rear|environment/i.test(d.label));
+      deviceId = back ? back.deviceId : (devices[0] && devices[0].deviceId);
+
+      scanning = true;
+      codeReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
+        if (result && scanning){
+          scanning = false;
+          handleScanSuccess(result.getText());
+        }
+      });
+
+      currentStream = video.srcObject;
+    }catch(err){
+      showCamError(err);
+    }
+  }
+
+  function showCamError(err){
+    camError.style.display = 'flex';
+    scanHint.style.display = 'none';
+    document.getElementById('scanFrame').style.display = 'none';
+    camError.textContent = 'Kameraya icazə verilmədi və ya kamera tapılmadı. "Əl ilə yaz" düyməsindən istifadə et.';
+  }
+
+  function vibrateOk(){
+    if (navigator.vibrate) navigator.vibrate([40, 30, 60]);
+  }
+
+  function handleScanSuccess(code){
+    vibrateOk();
+    fetchProduct(code.trim());
+  }
+
+  // ===== Torch toggle =====
+  document.getElementById('toggleTorch').addEventListener('click', async () => {
+    try{
+      const stream = video.srcObject;
+      if (!stream) return;
+      const track = stream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+      if (!capabilities.torch){
+        flashHint('Bu cihazda flaş dəstəklənmir');
+        return;
+      }
+      torchOn = !torchOn;
+      await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+    }catch(e){
+      flashHint('Flaş dəyişdirilə bilmədi');
+    }
+  });
+
+  function flashHint(msg){
+    const old = scanHint.innerHTML;
+    scanHint.innerHTML = msg;
+    setTimeout(() => { scanHint.innerHTML = old; }, 1800);
+  }
+
+  // ===== Manual entry =====
+  document.getElementById('toggleManual').addEventListener('click', () => {
+    manualPanel.classList.toggle('open');
+    if (manualPanel.classList.contains('open')){
+      setTimeout(() => manualInput.focus(), 200);
+    }
+  });
+
+  document.getElementById('manualSubmit').addEventListener('click', submitManual);
+  manualInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitManual();
+  });
+
+  function submitManual(){
+    const val = manualInput.value.trim();
+    if (!val) return;
+    fetchProduct(val);
+  }
+
+  // ===== API fetch (Open Food Facts) =====
+  async function fetchProduct(barcode){
+    showView('loading');
+    loadingCode.textContent = barcode;
+
+    try{
+      const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`);
+      const data = await res.json();
+
+      if (data.status !== 1 || !data.product){
+        errorSub.textContent = `Bu barkod (${barcode}) bazada mövcud deyil. Başqa məhsul yoxla, ya da kodu yenidən daxil et.`;
+        showView('error');
+        return;
+      }
+
+      renderProduct(data.product, barcode);
+      showView('result');
+    }catch(err){
+      errorSub.textContent = 'Bağlantı xətası baş verdi. İnternet bağlantını yoxla və yenidən cəhd et.';
+      showView('error');
+    }
+  }
+
+  document.getElementById('errorBack').addEventListener('click', () => {
+    resetToScan();
+  });
+  document.getElementById('scanAgainBtn').addEventListener('click', () => {
+    resetToScan();
+  });
+
+  function resetToScan(){
+    manualInput.value = '';
+    manualPanel.classList.remove('open');
+    showView('scan');
+    scanning = true;
+  }
+
+  // ===== Render product result =====
+  function gradeColor(grade){
+    const map = { a:'#2ecc71', b:'#8bc34a', c:'#ffc107', d:'#ff9800', e:'#f44336' };
+    return map[(grade||'').toLowerCase()] || '#555';
+  }
+
+  function nutriBarColor(value, max){
+    const pct = value / max;
+    if (pct < 0.33) return '#39ff8a';
+    if (pct < 0.66) return '#ffb547';
+    return '#ff5d5d';
+  }
+
+  function renderProduct(p, barcode){
+    // photo
+    const photoWrap = document.getElementById('photoWrap');
+    photoWrap.innerHTML = '<div class="scan-success-ping"></div>';
+    const imgUrl = p.image_front_url || p.image_url;
+    if (imgUrl){
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.alt = '';
+      img.draggable = false;
+      photoWrap.appendChild(img);
+    } else {
+      const noimg = document.createElement('div');
+      noimg.className = 'noimg';
+      noimg.textContent = 'ŞƏKİL YOXDUR';
+      photoWrap.appendChild(noimg);
+    }
+
+    document.getElementById('prodName').textContent = p.product_name_az || p.product_name || p.product_name_en || 'Adı naməlum məhsul';
+    document.getElementById('prodBrand').textContent = p.brands || '—';
+    document.getElementById('prodBarcode').textContent = '№ ' + barcode;
+
+    // badges: nutriscore + ecoscore + nova
+    const badgeRow = document.getElementById('badgeRow');
+    badgeRow.innerHTML = '';
+    const nutriGrade = (p.nutriscore_grade || p.nutrition_grades || '').toLowerCase();
+    const ecoGrade = (p.ecoscore_grade || '').toLowerCase();
+    const nova = p.nova_group;
+
+    if (nutriGrade && nutriGrade !== 'unknown' && nutriGrade !== 'not-applicable'){
+      badgeRow.appendChild(makeBadge(nutriGrade.toUpperCase(), 'Nutri-Score', gradeColor(nutriGrade)));
+    }
+    if (ecoGrade && ecoGrade !== 'unknown' && ecoGrade !== 'not-applicable'){
+      badgeRow.appendChild(makeBadge(ecoGrade.toUpperCase(), 'Eko-Bal', gradeColor(ecoGrade)));
+    }
+    if (nova){
+      const novaColors = {1:'#2ecc71', 2:'#ffc107', 3:'#ff9800', 4:'#f44336'};
+      badgeRow.appendChild(makeBadge('NV' + nova, 'Emal Səviyyəsi', novaColors[nova] || '#555'));
+    }
+    if (badgeRow.children.length === 0){
+      badgeRow.style.display = 'none';
+    } else {
+      badgeRow.style.display = 'flex';
+    }
+
+    // nutrition
+    const n = p.nutriments || {};
+    const kcal = n['energy-kcal_100g'] ?? n['energy-kcal'] ?? null;
+    document.getElementById('kcalNum').textContent = kcal != null ? Math.round(kcal) : '—';
+
+    const rowsDef = [
+      { key: 'fat_100g', label: 'Yağ', unit: 'q', max: 100 },
+      { key: 'saturated-fat_100g', label: 'Doymuş yağ', unit: 'q', max: 50 },
+      { key: 'carbohydrates_100g', label: 'Karbohidrat', unit: 'q', max: 100 },
+      { key: 'sugars_100g', label: 'Şəkər', unit: 'q', max: 100 },
+      { key: 'proteins_100g', label: 'Protein', unit: 'q', max: 100 },
+      { key: 'salt_100g', label: 'Duz', unit: 'q', max: 6 },
+    ];
+    const nutriRows = document.getElementById('nutriRows');
+    nutriRows.innerHTML = '';
+    let any = false;
+    rowsDef.forEach(def => {
+      const v = n[def.key];
+      if (v == null) return;
+      any = true;
+      const row = document.createElement('div');
+      row.className = 'nutri-row';
+      const pct = Math.min(100, (v / def.max) * 100);
+      const color = nutriBarColor(v, def.max);
+      row.innerHTML = `
+        <div class="nutri-label">${def.label}</div>
+        <div class="nutri-bar-track"><div class="nutri-bar-fill" style="background:${color};"></div></div>
+        <div class="nutri-val">${v.toFixed(1)} ${def.unit}</div>
+      `;
+      nutriRows.appendChild(row);
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          row.querySelector('.nutri-bar-fill').style.width = pct + '%';
+        }, 50);
+      });
+    });
+    document.getElementById('kcalSection').style.display = (kcal != null || any) ? 'block' : 'none';
+
+    // allergens
+    const allergenSection = document.getElementById('allergenSection');
+    const allergenRow = document.getElementById('allergenRow');
+    allergenRow.innerHTML = '';
+    const allergens = (p.allergens_tags || []).map(a => a.replace('en:', '').replace('az:', ''));
+    if (allergens.length){
+      allergens.forEach(a => {
+        const chip = document.createElement('div');
+        chip.className = 'allergen-chip';
+        chip.textContent = translateAllergen(a);
+        allergenRow.appendChild(chip);
+      });
+      allergenSection.style.display = 'block';
+    } else {
+      allergenSection.style.display = 'none';
+    }
+
+    // ingredients
+    const ingredientsSection = document.getElementById('ingredientsSection');
+    const ingredientsText = document.getElementById('ingredientsText');
+    const ing = p.ingredients_text_az || p.ingredients_text || p.ingredients_text_en;
+    if (ing){
+      ingredientsText.textContent = ing;
+      ingredientsSection.style.display = 'block';
+    } else {
+      ingredientsSection.style.display = 'none';
+    }
+
+    // scroll result to top
+    views.result.scrollTop = 0;
+  }
+
+  function makeBadge(grade, label, color){
+    const div = document.createElement('div');
+    div.className = 'badge-chip';
+    div.innerHTML = `<div class="grade" style="background:${color};">${grade}</div><div class="label">${label}</div>`;
+    return div;
+  }
+
+  function translateAllergen(tag){
+    const map = {
+      'gluten':'Qlüten', 'milk':'Süd', 'eggs':'Yumurta', 'nuts':'Qoz-fındıq',
+      'peanuts':'Yerfındığı', 'soybeans':'Soya', 'fish':'Balıq', 'crustaceans':'Xərçəngkimilər',
+      'sesame-seeds':'Küncüt', 'mustard':'Xardal', 'celery':'Kərəviz', 'sulphur-dioxide-and-sulphites':'Sulfit',
+      'molluscs':'Molyusklar', 'lupin':'Lupin'
+    };
+    return map[tag] || tag;
+  }
+
+  // ===== Init =====
+  startCamera();
+
+})();
+</script>
+</body>
+</html>
