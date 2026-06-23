@@ -150,9 +150,13 @@
         .res-card img { width: 100%; display: block; }
 
         /* GIF PANELİ */
-        .gif-panel { position: absolute; bottom: 65px; left: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 16px; width: 280px; height: 200px; display: none; flex-direction: column; padding: 10px; z-index: 1002; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-        .gif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow-y: auto; flex: 1; margin-top: 6px; }
-        .gif-item { width: 100%; height: 75px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+        .gif-panel { position: absolute; bottom: 65px; left: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 16px; width: 280px; height: 240px; display: none; flex-direction: column; padding: 12px; z-index: 1002; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .gif-search-cont { display: flex; gap: 5px; margin-bottom: 8px; }
+        .gif-search-cont input { height: 34px; padding: 5px 10px; font-size: 12px; background: #070a13; border-radius: 8px; margin: 0; }
+        .gif-search-cont button { width: 60px; height: 34px; background: var(--accent-gradient); border: none; color: white; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .gif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow-y: auto; flex: 1; }
+        .gif-item { width: 100%; height: 75px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .gif-item:hover { transform: scale(1.02); filter: brightness(1.1); }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(6px); }
         .profile-card { background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 30px; width: 300px; text-align: center; }
@@ -341,8 +345,11 @@
             <div id="messages"></div>
             <div id="typing-status"></div>
             
-            <div id="gif-box" class="gif-panel">
-                <div style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#64748b; margin-bottom:4px;">Trend GIF-lər</div>
+            <div id="gif-box" class="gif-panel" onclick="event.stopPropagation()">
+                <div class="gif-search-cont">
+                    <input type="text" id="gif-search-input" placeholder="GIF axtar...">
+                    <button onclick="searchGifs()">AXTAR</button>
+                </div>
                 <div class="gif-grid" id="gif-grid-content"></div>
             </div>
 
@@ -369,6 +376,8 @@
         };
         
         const YK = "AIzaSyAYacoXmlRcQBTsAsa23GanByLzUkLOwOk";
+        const GIPHY_KEY = "fAlRYYohKZcjAvq6ctLsgjDBHRl2U5OP";
+
         firebase.initializeApp(CF);
         const db = firebase.database();
         
@@ -672,19 +681,51 @@
         function toggleGifPanel(e) { 
             if(e) e.stopPropagation();
             const p = document.getElementById('gif-box'); 
-            if(p.style.display === 'none' || p.style.display === '') { p.style.display = 'flex'; loadTrendingGifs(); } else { p.style.display = 'none'; } 
+            if(p.style.display === 'none' || p.style.display === '') { 
+                p.style.display = 'flex'; 
+                document.getElementById('gif-search-input').value = '';
+                loadTrendingGifs(); 
+            } else { p.style.display = 'none'; } 
         }
         
-        function loadTrendingGifs() {
-            const grid = document.getElementById('gif-grid-content'); grid.innerHTML = '';
-            const sampleGifs = [
-                "https://media.giphy.com/media/cEODGfehCXixq/giphy.gif",
-                "https://media.giphy.com/media/tXhBA26kiVzy4F9RIF/giphy.gif",
-                "https://media.giphy.com/media/L3X9GvK6HCUK8EWsFT/giphy.gif",
-                "https://media.giphy.com/media/cl2PsDEg80omBDkqcH/giphy.gif"
-            ];
-            sampleGifs.forEach(url => {
-                const img = document.createElement('img'); img.className = 'gif-item'; img.src = url;
+        async function loadTrendingGifs() {
+            const grid = document.getElementById('gif-grid-content'); 
+            grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">Yüklənir...</div>';
+            try {
+                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=20&rating=g`);
+                const json = await res.json();
+                renderGifs(json.data);
+            } catch(err) {
+                grid.innerHTML = '<div style="font-size:11px; color:#ef4444; grid-column:span 2; text-align:center; padding-top:20px;">Xəta baş verdi!</div>';
+            }
+        }
+
+        async function searchGifs() {
+            const q = document.getElementById('gif-search-input').value.trim();
+            if(!q) return loadTrendingGifs();
+            const grid = document.getElementById('gif-grid-content'); 
+            grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">Axtarılır...</div>';
+            try {
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(q)}&limit=20&offset=0&rating=g&lang=az`);
+                const json = await res.json();
+                if(json.data.length === 0) {
+                    grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">GIF tapılmadı.</div>';
+                } else {
+                    renderGifs(json.data);
+                }
+            } catch(err) {
+                grid.innerHTML = '<div style="font-size:11px; color:#ef4444; grid-column:span 2; text-align:center; padding-top:20px;">Xəta baş verdi!</div>';
+            }
+        }
+
+        function renderGifs(gifData) {
+            const grid = document.getElementById('gif-grid-content'); 
+            grid.innerHTML = '';
+            gifData.forEach(gif => {
+                const url = gif.images.fixed_height_small.url;
+                const img = document.createElement('img'); 
+                img.className = 'gif-item'; 
+                img.src = url;
                 img.onclick = (e) => { 
                     e.stopPropagation();
                     db.ref('rooms/'+myR+'/chat').push({ n: myN, img: url, p: myPic, ts: Date.now() }); 
@@ -790,6 +831,7 @@
         }
         
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
+        document.getElementById('gif-search-input').onkeyup = e => { if(e.key === "Enter") searchGifs(); };
         window.onload = function() { checkSavedLoginSession(); };
     </script>
 </body>
