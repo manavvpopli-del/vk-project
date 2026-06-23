@@ -9,125 +9,52 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #00adb5; --bg: #050505; --card: rgba(18, 18, 18, 0.75); --border: rgba(255, 255, 255, 0.08); --text: #e5e5e5; }
+        :root { 
+            --accent: #ff4a5a; 
+            --accent-glow: rgba(255, 74, 90, 0.3);
+            --bg: #030305; 
+            --card: rgba(13, 13, 18, 0.85); 
+            --border: rgba(255, 255, 255, 0.05); 
+            --border-focus: rgba(255, 74, 90, 0.4);
+            --text: #f3f3f6; 
+            --surface: #0a0a0f;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body, html { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); position: fixed; }
 
-        #animation-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; background: #050505; }
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 100001; display: none; box-shadow: 0 12px 30px rgba(0, 173, 181, 0.4); text-transform: uppercase; letter-spacing: 1px; text-align: center; backdrop-filter: blur(5px); }
+        #animation-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; width: 100%; height: 100%; background: var(--bg); }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 100001; display: none; box-shadow: 0 12px 30px var(--accent-glow); text-transform: uppercase; letter-spacing: 1px; text-align: center; backdrop-filter: blur(5px); }
 
-        /* MÜKƏMMƏL MODERN GİRİŞ EKRANI (GLASSMORPHISM) */
-        .auth-overlay { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #0a191a 0%, #050505 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 15px; }
-        .auth-card { background: var(--card); padding: 40px 35px; border-radius: 24px; width: 100%; max-width: 440px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 10; backdrop-filter: blur(20px); box-shadow: 0 30px 70px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1); transform: translateY(0); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* SİNEMATİK PREMİUM GİRİŞ EKRANI */
+        .auth-overlay { position: fixed; inset: 0; background: radial-gradient(circle at 50% 40%, #0d0d14 0%, #030305 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 15px; }
+        .auth-card { background: var(--card); padding: 45px 40px; border-radius: 28px; width: 100%; max-width: 450px; text-align: center; border: 1px solid var(--border); position: relative; z-index: 10; backdrop-filter: blur(25px); box-shadow: 0 40px 90px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.05); }
         
-        .logo { font-family: 'Bebas Neue', sans-serif; color: #fff; font-size: 4.2rem; letter-spacing: 6px; margin-bottom: 5px; background: linear-gradient(180deg, #ffffff 30%, #00adb5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 10px 30px rgba(0, 173, 181, 0.2); }
-        .logo-sub { font-size: 11px; text-transform: uppercase; letter-spacing: 5px; color: #666; margin-bottom: 35px; font-weight: 700; }
+        .logo { font-family: 'Bebas Neue', sans-serif; color: #fff; font-size: 4.5rem; letter-spacing: 8px; margin-bottom: 2px; background: linear-gradient(180deg, #ffffff 40%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 15px 35px var(--accent-glow); }
+        .logo-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 6px; color: #5c5c6d; margin-bottom: 35px; font-weight: 700; }
         
-        .auth-tabs { display: flex; background: rgba(0, 0, 0, 0.4); padding: 6px; border-radius: 14px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.03); }
-        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #888; font-weight: 600; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 10px; }
-        .tab-btn.active { color: #fff; background: rgba(0, 173, 181, 0.25); box-shadow: 0 4px 15px rgba(0, 173, 181, 0.2); border: 1px solid rgba(0, 173, 181, 0.3); }
+        .auth-tabs { display: flex; background: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 16px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.02); }
+        .tab-btn { flex: 1; padding: 14px; background: none; border: none; color: #6e6e80; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; border-radius: 12px; letter-spacing: 0.5px; }
+        .tab-btn.active { color: #fff; background: rgba(255, 74, 90, 0.15); box-shadow: 0 4px 20px rgba(255, 74, 90, 0.1); border: 1px solid rgba(255, 74, 90, 0.2); }
         
         .tab-content { display: none; flex-direction: column; }
         .tab-content.active { display: flex; }
 
-        .avatar-upload { width: 100px; height: 100px; margin: 0 auto 25px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px dashed rgba(0, 173, 181, 0.5); transition: 0.3s; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
-        .avatar-upload:hover { border-color: var(--blue); transform: scale(1.03); }
-        #avatar-preview, #avatar-preview-join, #avatar-preview-register, #settings-avatar-preview { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-upload { width: 95px; height: 95px; margin: 0 auto 25px; position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; border: 2px dashed rgba(255, 74, 90, 0.4); transition: 0.3s; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
+        .avatar-upload:hover { border-color: var(--accent); transform: scale(1.03); }
+        #avatar-preview, #avatar-preview-register, #settings-avatar-preview { width: 100%; height: 100%; object-fit: cover; }
 
-        .input-group { position: relative; width: 100%; margin-bottom: 18px; }
-        input { width: 100%; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 14px; font-weight: 500; outline: none; transition: all 0.3s ease; }
-        input:focus { border-color: var(--blue); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 20px rgba(0, 173, 181, 0.15); }
-        input:disabled { background: rgba(173, 181, 181, 0.05); color: var(--blue); font-weight: 700; font-size: 18px; letter-spacing: 3px; text-align: center; border-color: rgba(0, 173, 181, 0.3); }
+        input { width: 100%; padding: 16px 20px; border-radius: 14px; border: 1px solid var(--border); background: rgba(5, 5, 8, 0.5); color: #fff; font-size: 14px; font-weight: 500; outline: none; transition: all 0.3s ease; margin-bottom: 18px; }
+        input:focus { border-color: var(--border-focus); background: rgba(5, 5, 8, 0.8); box-shadow: 0 0 25px rgba(255, 74, 90, 0.1); }
         
-        .mode-selector { display: flex; gap: 10px; margin-bottom: 18px; }
-        .mode-btn { flex: 1; padding: 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); color: #888; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .mode-btn.selected { background: rgba(0, 173, 181, 0.15); border-color: var(--blue); color: #fff; box-shadow: 0 0 15px rgba(0, 173, 181, 0.1); }
-
-        /* --- SƏNİN VERDİYİN KOMBİNASİYA KİLİDİ CSS --- */
-        .combination-lock {
-          position: relative;
-          display: flex;
-          gap: 0.8rem;
-          user-select: none;
-          margin: 30px 0 20px 0;
-          justify-content: center;
-        }
-
-        .dial {
-          width: 32px;
-          height: 110px;
-          overflow: hidden;
-          perspective: 500px;
-          border-radius: 10px / 250px;
-          outline: solid 3px #000;
-          outline-offset: 1px;
-          filter: drop-shadow(4px 0 0px #0006) drop-shadow(8px -1px 1px #0003)
-            drop-shadow(8px 10px 1px #0003) contrast(1.6);
-          box-shadow:
-            -2px -3px 0 4px #1115,
-            0 -3px 0 2px #fff,
-            0 2px 0 3px #eee,
-            0 4px 0 4px #0009;
-        }
-
-        .dial::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: radial-gradient(circle at 50% 50%, #000 40%, 40.5%, #fff0),
-            linear-gradient(to bottom, #fff, 50%, #111);
-          background-position: 0 16px, 0 0;
-          background-repeat: no-repeat;
-          mix-blend-mode: soft-light;
-          pointer-events: none;
-        }
-
-        .nonagon {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          top: 32px;
-          transform-style: preserve-3d;
-          transform-origin: 0 24px;
-          transform: rotateX(0deg);
-          transition: transform 300ms ease;
-        }
-
-        .face {
-          position: absolute;
-          display: grid;
-          place-items: center;
-          width: 32px;
-          height: 44px;
-          background-color: #bbbab8;
-          box-shadow: 0 -3px 1px 2px #000a, 0 0px 1px 3px #fffe;
-          font-family: "Lucida Console", Courier, monospace;
-          font-size: 1.5em;
-          font-weight: bolder;
-          text-shadow: 1px 1px 0.5px #fff, -1px -1px 0.5px #ccc, -0.5px -0.5px 0.5px #0005;
-          color: #000b;
-          -webkit-text-stroke: 1px #aaa6;
-        }
-
-        .face::before, .face::after {
-          content: "";
-          position: absolute;
-          height: 100%;
-          width: 4px;
-          border: 0.5px solid #0005;
-        }
-        .face::before { left: 0; background-color: #fff; }
-        .face::after { right: 0; background-color: #0004; }
+        /* KOMBİNASİYA KİLİDİ */
+        .combination-lock { position: relative; display: flex; gap: 0.8rem; user-select: none; margin: 25px 0 20px 0; justify-content: center; }
+        .dial { width: 34px; height: 110px; overflow: hidden; perspective: 500px; border-radius: 10px / 250px; outline: solid 3px #020203; outline-offset: 1px; filter: drop-shadow(4px 0 0px rgba(0,0,0,0.5)) contrast(1.5); box-shadow: -2px -3px 0 4px #0d0d12, 0 -3px 0 2px #333, 0 2px 0 3px #222, 0 4px 0 4px #000; }
+        .dial::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 50% 50%, #000 40%, 40.5%, #fff0), linear-gradient(to bottom, #fff, 50%, #111); background-position: 0 16px, 0 0; background-repeat: no-repeat; mix-blend-mode: soft-light; pointer-events: none; }
+        .nonagon { width: 100%; height: 100%; position: relative; top: 32px; transform-style: preserve-3d; transform-origin: 0 24px; transform: rotateX(0deg); transition: transform 300ms ease; }
+        .face { position: absolute; display: grid; place-items: center; width: 34px; height: 44px; background-color: #1a1a24; box-shadow: 0 -3px 1px 2px rgba(0,0,0,0.8), 0 0px 1px 3px rgba(255,255,255,0.05); font-family: "Lucida Console", Courier, monospace; font-size: 1.4em; font-weight: bolder; text-shadow: 1px 1px 0.5px #000; color: #fff; }
+        .face::before { left: 0; background-color: var(--accent); content: ""; position: absolute; height: 100%; width: 2px; opacity: 0.4; }
         .face span { position: absolute; pointer-events: none; }
-        .face .radio {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          cursor: pointer;
-          appearance: none;
-          opacity: 0;
-          z-index: 2;
-        }
+        .face .radio { position: absolute; width: 100%; height: 100%; cursor: pointer; appearance: none; opacity: 0; z-index: 2; }
 
         .nonagon:has(.radio-0:checked) { transform: rotateX(0deg); }
         .nonagon:has(.radio-1:checked) { transform: rotateX(36deg); }
@@ -151,145 +78,124 @@
         .face-8 { transform: rotateX(-288deg) translateZ(66px); }
         .face-9 { transform: rotateX(-324deg) translateZ(66px); }
 
-        .help {
-          position: absolute;
-          width: 100%;
-          text-align: center;
-          top: -25px;
-          font-family: sans-serif;
-          font-size: 0.8rem;
-          color: #888;
-          letter-spacing: 1px;
-        }
-        /* --- KİLİD CSS SONU --- */
+        .help { position: absolute; width: 100%; text-align: center; top: -22px; font-size: 0.75rem; color: #5c5c6d; letter-spacing: 1px; text-transform: uppercase; }
 
-        .btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #00adb5 0%, #007a80 100%); color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 13px; transition: all 0.3s ease; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(0, 173, 181, 0.3); }
-        .btn:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 173, 181, 0.5); }
-        .btn:active { transform: translateY(0); }
+        .btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #ff4a5a 0%, #b52230 100%); color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 12px; transition: all 0.3s ease; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(255, 74, 90, 0.25); }
+        .btn:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 74, 90, 0.4); }
 
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
-        /* INTERFEYS DIZAYNI PARAMETRLƏRİ */
-        .top-action-btn { position: absolute; top: 10px; z-index: 100; cursor: pointer; background: rgba(0,0,0,0.6); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .top-action-btn { position: absolute; top: 10px; z-index: 100; cursor: pointer; background: rgba(10,10,15,0.8); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s; }
+        .top-action-btn:hover { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
         .theme-btn { right: 10px; }
-        .settings-btn { right: 52px; font-size: 14px; }
+        .settings-btn { right: 55px; font-size: 14px; }
         
-        .theme-panel { position: absolute; top: 50px; right: 10px; background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; display: none; z-index: 1000; width: 220px; }
-        .anim-opt-btn { width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
+        .theme-panel { position: absolute; top: 55px; right: 10px; background: #0c0c12; border: 1px solid var(--border); padding: 15px; border-radius: 16px; display: none; z-index: 1000; width: 230px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        .anim-opt-btn { width: 100%; background: #13131c; border: 1px solid var(--border); color: #e1e1e6; padding: 10px; margin-bottom: 6px; border-radius: 8px; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
+        .anim-opt-btn:hover { border-color: var(--accent); background: rgba(255,74,90,0.05); }
         .speed-panel { display: flex; gap: 5px; margin-top: 5px; }
-        .speed-btn { flex: 1; background: #222; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 5px; font-size: 10px; border-radius: 4px; cursor: pointer; }
-        .speed-btn.active { background: var(--blue); }
+        .speed-btn { flex: 1; background: #13131c; border: 1px solid var(--border); color: #fff; padding: 6px; font-size: 10px; border-radius: 6px; cursor: pointer; }
+        .speed-btn.active { background: var(--accent); border-color: var(--accent); }
 
-        /* AYARLAR PANELİ (SLIDE OUT WINDOW) */
-        .settings-panel { position: absolute; top: 50px; right: 52px; background: rgba(18,18,18,0.95); border: 1px solid rgba(255,255,255,0.15); padding: 20px; border-radius: 16px; display: none; z-index: 1001; width: 310px; max-height: 80vh; overflow-y: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-        .settings-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #fff; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .settings-panel { position: absolute; top: 55px; right: 55px; background: rgba(12,12,18,0.96); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; display: none; z-index: 1001; width: 320px; max-height: 80vh; overflow-y: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+        .settings-title { font-size: 13px; font-weight: 700; text-transform: uppercase; color: #fff; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        .video-section { width: 100%; background: rgba(0,0,0,0.85); flex-shrink: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; backdrop-filter: blur(5px); }
-        #player-container { width: 100%; height: 211px; position: relative; background: #000; }
+        .video-section { width: 100%; background: #010102; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
+        #player-container { width: 100%; height: 215px; position: relative; background: #000; }
         #player { width: 100%; height: 100%; }
-        
-        #screen-video { width: 100%; height: 100%; object-fit: contain; display: none; position: absolute; top: 0; left: 0; z-index: 5; background: #000; }
 
-        .v-bar-cont { height: 25px; background: rgba(10,10,10,0.9); display: flex; align-items: center; padding: 0 10px; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
-        #v-time { font-size: 10px; font-weight: 700; color: #888; white-space: nowrap; }
-        .v-progress { flex: 1; height: 4px; background: #333; position: relative; border-radius: 2px; }
-        #v-fill { height: 100%; background: var(--blue); width: 0%; border-radius: 2px; }
+        .v-bar-cont { height: 28px; background: rgba(5,5,8,0.95); display: flex; align-items: center; padding: 0 12px; gap: 10px; border-top: 1px solid var(--border); }
+        #v-time { font-size: 10px; font-weight: 700; color: #7e7e94; white-space: nowrap; }
+        .v-progress { flex: 1; height: 5px; background: #181824; position: relative; border-radius: 3px; }
+        #v-fill { height: 100%; background: var(--accent); width: 0%; border-radius: 3px; box-shadow: 0 0 8px var(--accent); }
         .admin-seek { cursor: pointer; }
 
-        .controls-bar { background: rgba(10,10,10,0.9); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .controls-bar { background: rgba(5,5,8,0.95); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
         .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .main-btns button { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
-        
-        .voice-active { background: #2e7d32 !important; border-color: #4caf50 !important; font-weight: bold; }
-        .voice-muted { background: #c62828 !important; border-color: #ef5350 !important; }
-        .screen-active { background: #ff8f00 !important; border-color: #ffb300 !important; font-weight: bold; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .main-btns button { background: #13131c; border: 1px solid var(--border); color: #fff; padding: 11px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .main-btns button:hover { border-color: var(--accent); }
 
         .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
         .search-box { display: flex; gap: 5px; }
-        .search-box input { margin: 0; padding: 10px; font-size: 12px; }
-        .search-box button { width: 70px; background: var(--blue); border: none; color: white; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .search-box input { margin: 0; padding: 10px; font-size: 12px; background: #050508; border-radius: 8px; }
+        .search-box button { width: 70px; background: var(--accent); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        .queue-container { background: #111; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-        .queue-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 6px; font-size: 11px; border-radius: 4px; }
-        .queue-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
-        .queue-item button { background: none; border: none; color: #ff3333; cursor: pointer; font-weight: bold; }
+        .queue-container { background: #09090e; padding: 8px; border-radius: 8px; border: 1px solid var(--border); max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; background: #13131c; padding: 6px 10px; font-size: 11px; border-radius: 6px; }
+        .queue-item button { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: bold; }
 
-        .users-panel { position: absolute; top: 60px; right: 10px; width: 220px; background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; display: none; z-index: 1000; max-height: 250px; overflow-y: auto; }
-        .panel-header { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
-        #users-list-content { padding: 5px; display: flex; flex-direction: column; gap: 5px; }
-        .u-item { display: flex; align-items: center; justify-content: space-between; padding: 6px; font-size: 12px; cursor: pointer; border-radius: 4px; }
-        .u-item:hover { background: rgba(255,255,255,0.05); }
-        .u-info { display: flex; align-items: center; gap: 8px; }
-        .u-item img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-        .kick-btn { background: none; border: none; color: #c62828; cursor: pointer; font-weight: bold; font-size: 12px; padding: 2px 6px; }
+        .users-panel { position: absolute; top: 60px; right: 10px; width: 230px; background: #0c0c12; border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; max-height: 260px; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .panel-header { padding: 12px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #6e6e80; text-transform: uppercase; }
+        #users-list-content { padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+        .u-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; font-size: 12px; cursor: pointer; border-radius: 8px; }
+        .u-item:hover { background: rgba(255,255,255,0.03); }
+        .u-info { display: flex; align-items: center; gap: 10px; }
+        .u-item img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+        .kick-btn { background: none; border: none; color: #b52230; cursor: pointer; font-weight: bold; font-size: 12px; padding: 2px 6px; }
+        .auth-btn { background: none; border: none; color: #4caf50; cursor: pointer; font-weight: bold; font-size: 11px; margin-left: 5px; }
 
         .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: transparent; position: relative; overflow: hidden; z-index: 5; }
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 85px; }
         
         .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; position: relative; }
         .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
-        .m-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+        .m-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .m-bubble-wrap { display: flex; flex-direction: column; gap: 2px; position: relative; cursor: pointer; }
-        .m-bubble { background: rgba(26,26,26,0.85); padding: 10px; border-radius: 8px 8px 8px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); position: relative; }
-        .m-row.me .m-bubble { background: rgba(0, 173, 181, 0.9); border-radius: 8px 8px 2px 8px; color: #fff; border: none; }
-        .system-msg { align-self: center; background: rgba(255,255,255,0.05); color: #aaa; font-size: 11px; padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.02); text-align: center; max-width: 90%; font-style: italic; }
+        .m-bubble { background: rgba(19,19,28,0.85); padding: 11px; border-radius: 12px 12px 12px 2px; font-size: 13px; color: #eee; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.03); }
+        .m-row.me .m-bubble { background: linear-gradient(135deg, #ff4a5a 0%, #cd2737 100%); border-radius: 12px 12px 2px 12px; color: #fff; border: none; box-shadow: 0 4px 15px rgba(255,74,90,0.15); }
+        .system-msg { align-self: center; background: rgba(255,255,255,0.03); color: #8e8e9f; font-size: 11px; padding: 4px 14px; border-radius: 14px; text-align: center; font-style: italic; }
         
         .reactions-container { display: flex; gap: 3px; position: absolute; bottom: -10px; left: 5px; z-index: 10; }
         .m-row.me .reactions-container { left: auto; right: 5px; }
-        .react-badge { background: #222; border: 1px solid #333; border-radius: 8px; padding: 1px 5px; font-size: 10px; display: flex; align-items: center; }
+        .react-badge { background: #13131c; border: 1px solid #222; border-radius: 8px; padding: 1px 5px; font-size: 10px; display: flex; align-items: center; }
 
-        .react-popup { position: absolute; top: -35px; left: 0; background: #1a1a1a; border: 1px solid #333; border-radius: 20px; padding: 4px 8px; display: none; gap: 6px; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .react-popup span { cursor: pointer; transition: 0.2s; font-size: 16px; }
-        .react-popup span:hover { transform: scale(1.3); }
+        .react-popup { position: absolute; top: -35px; left: 0; background: #13131c; border: 1px solid #29293d; border-radius: 20px; padding: 4px 8px; display: none; gap: 6px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .react-popup span { cursor: pointer; font-size: 16px; }
 
-        #typing-status { position: absolute; bottom: 65px; left: 15px; font-size: 11px; font-style: italic; color: #ccc; display: none; text-shadow: 1px 1px 2px #000; }
-        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17,17,17,0.9); padding: 10px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); align-items: center; backdrop-filter: blur(5px); }
-        .input-bar input { margin: 0; background: #000; border: 1px solid #333; height: 40px; }
-        .chat-icon { width: 30px; height: 30px; cursor: pointer; object-fit: contain; }
+        #typing-status { position: absolute; bottom: 70px; left: 15px; font-size: 11px; font-style: italic; color: #a1a1b5; display: none; }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(8,8,12,0.94); padding: 12px; display: flex; gap: 8px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(10px); }
+        .input-bar input { margin: 0; background: #030305; border: 1px solid #1c1c28; height: 44px; border-radius: 12px; }
+        .chat-icon { width: 32px; height: 32px; cursor: pointer; opacity: 0.8; }
         .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 5px; }
         .res-card { position: relative; cursor: pointer; }
-        .res-card img { width: 100%; border-radius: 4px; display: block; }
-        .add-q-btn { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.8); border: 1px solid #555; color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
+        .res-card img { width: 100%; border-radius: 6px; display: block; }
+        .add-q-btn { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.85); border: 1px solid #333; color: #fff; font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(4px); }
-        .profile-card { background: rgb(18,18,18); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 25px; width: 280px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .profile-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); margin-bottom: 15px; }
-        .profile-card h3 { font-size: 18px; margin-bottom: 5px; color: #fff; }
-        .profile-card p { font-size: 12px; color: var(--blue); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        /* GIF PANELİ */
+        .gif-panel { position: absolute; bottom: 65px; left: 12px; background: #0c0c12; border: 1px solid var(--border); border-radius: 16px; width: 280px; height: 200px; display: none; flex-direction: column; padding: 10px; z-index: 1002; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        .gif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow-y: auto; flex: 1; margin-top: 6px; }
+        .gif-item { width: 100%; height: 75px; object-fit: cover; border-radius: 8px; cursor: pointer; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 20000; backdrop-filter: blur(6px); }
+        .profile-card { background: #0d0d14; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 30px; width: 300px; text-align: center; }
+        .profile-card img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); margin-bottom: 15px; }
+        .profile-card h3 { font-size: 17px; margin-bottom: 4px; color: #fff; }
+        .profile-card p { font-size: 11px; color: var(--accent); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         
-        .p-stat-box { margin-top: 12px; text-align: left; background: #181818; padding: 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); max-height: 150px; overflow-y: auto; }
-        .p-stat-title { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-        .p-stat-text { font-size: 11px; color: #ddd; margin-bottom: 8px; line-height: 1.4; }
-        .auth-notice { font-size: 11px; color: #ff8f00; font-weight: 600; margin-bottom: 20px; text-align: center; background: rgba(255,143,0,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,143,0,0.2); }
-
-        #remote-audios { display: none; }
+        .p-stat-box { margin-top: 15px; text-align: left; background: #050508; padding: 12px; border-radius: 12px; border: 1px solid var(--border); max-height: 150px; overflow-y: auto; }
+        .p-stat-title { font-size: 10px; color: #5c5c6d; font-weight: bold; text-transform: uppercase; margin-bottom: 3px; }
+        .p-stat-text { font-size: 11px; color: #c1c1cd; margin-bottom: 10px; }
+        .auth-notice { font-size: 11px; color: #ff8f00; font-weight: 600; margin-bottom: 20px; text-align: center; background: rgba(255,143,0,0.08); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,143,0,0.15); }
     </style>
 </head>
 <body>
     <canvas id="animation-canvas"></canvas>
     <div id="toast"></div>
-    <div id="remote-audios"></div>
 
     <div id="profile-modal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="profile-card" onclick="event.stopPropagation()">
             <img id="p-modal-img" src="">
             <h3 id="p-modal-name"></h3>
             <p id="p-modal-role"></p>
-            
             <div class="p-stat-box">
                 <div class="p-stat-title">⏱️ Saytda keçirdiyi vaxt:</div>
                 <div class="p-stat-text" id="p-modal-time">0 dəqiqə</div>
-                
                 <div class="p-stat-title">🎬 Son İzlədikləri:</div>
                 <div class="p-stat-text" id="p-modal-watched">Heç nə izləməyib</div>
-                
                 <div class="p-stat-title">👥 Ən çox vaxt keçirdiyi profillər:</div>
                 <div class="p-stat-text" id="p-modal-interacted">Heç kimlə</div>
             </div>
-            
-            <button class="btn" style="padding: 10px; font-size: 11px; margin-top: 15px; border-radius: 8px;" onclick="document.getElementById('profile-modal').style.display='none'">BAĞLA</button>
+            <button class="btn" style="padding: 12px; font-size: 11px; margin-top: 15px; border-radius: 10px;" onclick="document.getElementById('profile-modal').style.display='none'">BAĞLA</button>
         </div>
     </div>
 
@@ -306,27 +212,20 @@
             <div id="auth-main-flow" class="tab-content active">
                 <div id="login-inputs-area">
                     <input type="text" id="auth-username" placeholder="İSTİFADƏÇİ ADINIZ">
-                    <input type="password" id="auth-password" placeholder="6 RƏQƏMLİ ŞİFRƏ" maxlength="6" style="margin-bottom: 20px;">
+                    <input type="password" id="auth-password" placeholder="6 RƏQƏMLİ ŞİFRƏ" maxlength="6">
                     <button class="btn" onclick="handleAuthLogin()">HESABA GİRİŞ ET</button>
                 </div>
                 
                 <div id="room-actions-area" style="display: none;">
-                    <div style="font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 20px; background: rgba(0, 173, 181, 0.1); padding: 12px; border-radius: 12px; border: 1px solid rgba(0, 173, 181, 0.2);" id="welcome-user-text"></div>
-                    
+                    <div style="font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 20px; background: rgba(255, 74, 90, 0.1); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 74, 90, 0.15);" id="welcome-user-text"></div>
                     <div class="auth-tabs">
                         <button id="tab-create-btn" class="tab-btn active" onclick="switchTab('create')">Otaq Yarat</button>
                         <button id="tab-join-btn" class="tab-btn" onclick="switchTab('join')">Otağa Qoşul</button>
                     </div>
 
                     <div id="tab-create" class="tab-content active">
-                        <div class="mode-selector">
-                            <button id="mode-yt" class="mode-btn selected" onclick="selectRoomMode('youtube')">🍿 YouTube</button>
-                            <button id="mode-screen" class="mode-btn" onclick="selectRoomMode('screen')">🖥️ Screen Share</button>
-                        </div>
-                        
                         <div class="combination-lock">
                             <div class="help">Kodu fırladaraq təyin edin</div>
-                            
                             <div class="dial">
                               <div class="nonagon">
                                 <div class="face face-0"><input type="radio" name="wheel-1" value="0" class="radio radio-0" checked /><span>0</span></div>
@@ -341,7 +240,6 @@
                                 <div class="face face-9"><input type="radio" name="wheel-1" value="9" class="radio radio-9" /><span>9</span></div>
                               </div>
                             </div>
-
                             <div class="dial">
                               <div class="nonagon">
                                 <div class="face face-0"><input type="radio" name="wheel-2" value="0" class="radio radio-0" checked /><span>0</span></div>
@@ -356,7 +254,6 @@
                                 <div class="face face-9"><input type="radio" name="wheel-2" value="9" class="radio radio-9" /><span>9</span></div>
                               </div>
                             </div>
-
                             <div class="dial">
                               <div class="nonagon">
                                 <div class="face face-0"><input type="radio" name="wheel-3" value="0" class="radio radio-0" checked /><span>0</span></div>
@@ -372,28 +269,25 @@
                               </div>
                             </div>
                         </div>
-                        
-                        <button id="start-btn" class="btn" style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);" onclick="start('admin')">OTAĞI BAŞLAT</button>
+                        <button id="start-btn" class="btn" onclick="start('admin')">OTAĞI BAŞLAT</button>
                     </div>
 
                     <div id="tab-join" class="tab-content">
-                        <input type="text" id="room-join" placeholder="3 RƏQƏMLİ OTAQ KODU" maxlength="3" style="margin-bottom: 20px; text-align: center; letter-spacing: 5px; font-size: 18px; font-weight: bold;">
+                        <input type="text" id="room-join" placeholder="3 RƏQƏMLİ OTAQ KODU" maxlength="3" style="text-align: center; letter-spacing: 5px; font-size: 18px; font-weight: bold;">
                         <button class="btn" onclick="start('member')">OTAĞA QOŞUL</button>
                     </div>
                 </div>
             </div>
 
             <div id="tab-register" class="tab-content">
-                <div class="auth-notice">⚠️ DİQQƏT: Bu cihazda yalnız 1 hesab yaratmaq olar! Şifrənizi mütləq yadda saxlayın.</div>
-                
+                <div class="auth-notice">⚠️ DİQQƏT: Bu cihazda yalnız 1 hesab yaratmaq olar!</div>
                 <div class="avatar-upload" onclick="document.getElementById('file-input-register').click()">
                     <img id="avatar-preview-register" src="https://www.w3schools.com/howto/img_avatar.png">
                     <input type="file" id="file-input-register" hidden accept="image/*" onchange="processAndPreviewImage(this, 'avatar-preview-register')">
                 </div>
-                
                 <input type="text" id="reg-username" placeholder="YENİ İSTİFADƏÇİ ADI">
-                <input type="password" id="reg-password" placeholder="6 RƏQƏMLİ ŞİFRƏ (YALNIZ RƏQƏM)" maxlength="6" style="margin-bottom: 20px;">
-                <button class="btn" style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);" onclick="handleAuthRegister()">QEYDİYYATI TAMAMLA</button>
+                <input type="password" id="reg-password" placeholder="6 RƏQƏMLİ ŞİFRƏ (YALNIZ RƏQƏM)" maxlength="6">
+                <button class="btn" onclick="handleAuthRegister()">QEYDİYYATI TAMAMLA</button>
             </div>
         </div>
     </div>
@@ -403,11 +297,18 @@
         <div class="top-action-btn settings-btn" onclick="toggleSettingsPanel()">⚙️</div>
         
         <div id="theme-panel" class="theme-panel">
-            <div style="font-size: 11px; margin-bottom: 8px; color: #888; font-weight: bold; text-transform: uppercase;">Animasiya Tərzi</div>
-            <button class="anim-opt-btn" onclick="setAnimation('stars')">🌌 Parıldayan Ulduzlar</button>
-            <button class="anim-opt-btn" onclick="setAnimation('waves')">🔮 Neon Dalğalar</button>
-            <button class="anim-opt-btn" onclick="setAnimation('matrix')">🟢 Matris Yağışı</button>
-            <div style="font-size: 10px; margin: 5px 0; color: #888; font-weight: bold; text-transform: uppercase;">Sürət Parametri</div>
+            <div style="font-size: 11px; margin-bottom: 8px; color: #6e6e80; font-weight: bold; text-transform: uppercase;">Sinematik Animasiyalar</div>
+            <button class="anim-opt-btn" onclick="setAnimation('quantum')">⚛️ Kvant Sahəsi</button>
+            <button class="anim-opt-btn" onclick="setAnimation('plasma')">🔥 Plazma Fırtınası</button>
+            <button class="anim-opt-btn" onclick="setAnimation('dust')">✨ Kosmik Toz</button>
+            <button class="anim-opt-btn" onclick="setAnimation('cyber')">🟢 Kiberpank Yağış</button>
+            <button class="anim-opt-btn" onclick="setAnimation('aurora')">🌌 Aurora İşıqları</button>
+            <button class="anim-opt-btn" onclick="setAnimation('nebula')">🔮 Dumanlıq Sisi</button>
+            <button class="anim-opt-btn" onclick="setAnimation('vortex')">🌀 Zaman Örtüyü</button>
+            <button class="anim-opt-btn" onclick="setAnimation('digital')">💾 Rəqəmsal Axın</button>
+            <button class="anim-opt-btn" onclick="setAnimation('blizzard')">❄️ Neon Boran</button>
+            <button class="anim-opt-btn" onclick="setAnimation('comet')">☄️ Astro Yağış</button>
+            <div style="font-size: 10px; margin: 5px 0; color: #6e6e80; font-weight: bold; text-transform: uppercase;">Sürət Parametri</div>
             <div class="speed-panel">
                 <button class="speed-btn" id="sp-slow" onclick="setSpeed(0.5)">Yavaş</button>
                 <button class="speed-btn" id="sp-med" onclick="setSpeed(1)">Orta</button>
@@ -417,7 +318,6 @@
 
         <div id="settings-panel" class="settings-panel">
             <div class="settings-title"><span>⚙️ AYARLAR və STATİSTİKA</span> <span style="cursor:pointer;" onclick="toggleSettingsPanel()">❌</span></div>
-            
             <div style="text-align: center; margin-bottom: 15px;">
                 <div class="avatar-upload" style="width:75px; height:75px; margin-bottom:10px;" onclick="document.getElementById('file-input-settings').click()">
                     <img id="settings-avatar-preview" src="">
@@ -426,23 +326,19 @@
                 <input type="text" id="settings-display-name" placeholder="YENİ ADINIZ" style="padding: 10px; font-size: 12px; margin-bottom: 10px; text-align: center;">
                 <button class="btn" style="padding: 10px; font-size: 11px; border-radius: 8px;" onclick="saveProfileChanges()">MƏLUMATLARI YENİLƏ</button>
             </div>
-
             <div class="p-stat-box" style="max-height: none; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.05);">
-                <div class="p-stat-title" style="color:var(--blue)">⏱️ SƏNİN SƏRF ETDİYİN VAXT:</div>
-                <div class="p-stat-text" id="my-stat-time" style="font-weight: bold; font-size: 13px;">0 dəqiqə</div>
-                
-                <div class="p-stat-title" style="color:var(--blue)">🎬 SƏNİN İZLƏDİKLƏRİN (VİDEO ID):</div>
-                <div class="p-stat-text" id="my-stat-watched" style="font-size: 11px; word-break: break-all;">Heç nə baxılmayıb</div>
-                
-                <div class="p-stat-title" style="color:var(--blue)">👥 ƏN ÇOX BAXDIĞIN PROFİLLƏR:</div>
-                <div class="p-stat-text" id="my-stat-interacted" style="font-size: 11px;">Heç kim</div>
+                <div class="p-stat-title" style="color:var(--accent)">⏱️ SƏNİN SƏRF ETDİYİN VAXT:</div>
+                <div class="my-stat-text" id="my-stat-time" style="font-weight: bold; font-size: 13px;">0 dəqiqə</div>
+                <div class="p-stat-title" style="color:var(--accent)">🎬 SƏNİN İZLƏDİKLƏRİN (VİDEO ID):</div>
+                <div class="my-stat-text" id="my-stat-watched" style="font-size: 11px; word-break: break-all;">Heç nə baxılmayıb</div>
+                <div class="p-stat-title" style="color:var(--accent)">👥 ƏN ÇOX BAXDIĞIN PROFİLLƏR:</div>
+                <div class="my-stat-text" id="my-stat-interacted" style="font-size: 11px;">Heç kim</div>
             </div>
         </div>
 
         <div class="video-section">
             <div id="player-container">
                 <div id="player"></div>
-                <video id="screen-video" autoplay playsinline></video>
             </div>
             <div class="v-bar-cont" id="progress-bar-wrapper">
                 <span id="v-time">00:00 / 00:00</span>
@@ -452,26 +348,24 @@
             </div>
             <div class="controls-bar">
                 <div class="main-btns">
-                    <button id="voice-call-btn" onclick="toggleVoiceRoom()">🔊 SƏSLİ ZƏNGƏ QOŞUL</button>
-                    <button id="screen-share-btn" style="display:none;" onclick="toggleScreenShare()">🖥️ EKRANI PAYLAŞ</button>
                     <button onclick="toggleFS()">TAM EKRAN</button>
-                    <button id="sync-fix-btn" style="display:none; color:var(--blue);" onclick="forceSync()">🔄 SİNXRON ET</button>
+                    <button id="sync-fix-btn" style="display:none; color:var(--accent);" onclick="forceSync()">🔄 SİNXRON ET</button>
                     <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
-                    <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--blue); grid-column: span 2;">VİDEO PANEL</button>
+                    <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--accent); grid-column: span 2;">VİDEO PANEL</button>
                 </div>
                 <div id="admin-panel" class="admin-tools" style="display:none;">
                     <div style="display:flex; gap:5px;">
-                        <button class="btn" style="background:#222; padding:8px; flex:1" onclick="seek(-10)">-10s</button>
+                        <button class="btn" style="background:#13131c; padding:8px; flex:1" onclick="seek(-10)">-10s</button>
                         <button class="btn" style="background:#2e7d32; padding:8px; flex:1" onclick="sc('play')">BAŞLAT</button>
                         <button class="btn" style="background:#c62828; padding:8px; flex:1" onclick="sc('pause')">DAYANDIR</button>
-                        <button class="btn" style="background:#222; padding:8px; flex:1" onclick="seek(10)">+10s</button>
+                        <button class="btn" style="background:#13131c; padding:8px; flex:1" onclick="seek(10)">+10s</button>
                     </div>
                     <div class="search-box">
                         <input type="text" id="sq" placeholder="Video axtar və ya link yapışdır...">
                         <button onclick="yt()">TAP</button>
                     </div>
                     <div id="results" class="search-results"></div>
-                    <div style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Növbədəki Videolar</div>
+                    <div style="font-size: 10px; font-weight: bold; color: #5c5c6d; text-transform: uppercase;">Növbədəki Videolar</div>
                     <div id="queue-box" class="queue-container"></div>
                 </div>
             </div>
@@ -482,8 +376,15 @@
         <div class="chat-wrap">
             <div id="messages"></div>
             <div id="typing-status"></div>
+            
+            <div id="gif-box" class="gif-panel">
+                <div style="font-size:10px; font-weight:bold; text-transform:uppercase; color:#6e6e80; margin-bottom:4px;">Trend GIF-lər</div>
+                <div class="gif-grid" id="gif-grid-content"></div>
+            </div>
+
             <div class="input-bar">
                 <img src="galery.png" class="chat-icon" onclick="document.getElementById('chat-img').click()" alt="Galereya">
+                <span style="font-size: 20px; cursor: pointer; user-select: none;" onclick="toggleGifPanel()">🎬</span>
                 <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImg(this)">
                 <input type="text" id="mi" placeholder="Mesaj yazın..." oninput="handleTyping()">
                 <img src="send.png" class="chat-icon" onclick="sm()" alt="Göndər">
@@ -510,22 +411,15 @@
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
         let typingTimeout, lastAdminTime = 0, currentVideoId = "";
         let playlistQueue = [];
-        let selectedRoomMode = "youtube"; 
-
-        let localVoiceStream = null;
-        let localScreenStream = null;
-        let peerConnections = {};
-        const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-        let isInVoiceRoom = false;
-        let isSharingScreen = false;
 
         const canvas = document.getElementById('animation-canvas');
         const ctx = canvas.getContext('2d');
-        let currentAnim = 'stars', animId = null, animData = [], globalSpeedModifier = 1;
+        let currentAnim = 'quantum', animId = null, animData = [], globalSpeedModifier = 1;
 
         let activeSessionInterval = null;
         let localUserStats = { totalTime: 0, watched: {}, interacted: {} };
         let currentHasUploadedAvatar = false;
+        let hasVideoPermission = false;
 
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initAnimationData(); }
         window.addEventListener('resize', resizeCanvas);
@@ -538,14 +432,11 @@
                 reader.onload = function (e) {
                     let img = new Image();
                     img.onload = function() {
-                        let max_size = 200;
-                        let width = img.width;
-                        let height = img.height;
+                        let max_size = 200; let width = img.width; let height = img.height;
                         if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
                         else { if (height > max_size) { width *= max_size / height; height = max_size; } }
                         let canvasMat = document.createElement('canvas');
-                        canvasMat.width = width;
-                        canvasMat.height = height;
+                        canvasMat.width = width; canvasMat.height = height;
                         canvasMat.getContext('2d').drawImage(img, 0, 0, width, height);
                         let compressedDataUrl = canvasMat.toDataURL('image/jpeg', 0.7);
                         
@@ -568,7 +459,6 @@
             document.getElementById('tab-register-btn').classList.remove('active');
             document.getElementById('auth-main-flow').classList.remove('active');
             document.getElementById('tab-register').classList.remove('active');
-            
             if(mode === 'login') {
                 document.getElementById('tab-login-btn').classList.add('active');
                 document.getElementById('auth-main-flow').classList.add('active');
@@ -581,32 +471,21 @@
         function handleAuthRegister() {
             const uName = document.getElementById('reg-username').value.trim().toLowerCase();
             const uPass = document.getElementById('reg-password').value.trim();
-
             if(!uName || !uPass) return showToast("Bütün xanaları doldurun!");
             if(uPass.length !== 6 || isNaN(uPass)) return showToast("Şifrə mütləq 6 rəqəmdən ibarət olmalıdır!");
             if(!currentHasUploadedAvatar || myPic === "https://www.w3schools.com/howto/img_avatar.png") return showToast("Profil şəkli qoymaq məcburidir!");
-
-            if(localStorage.getItem('wl_registered_device')) {
-                return showToast("Bu cihazda artıq bir hesab açılıb! İkinci hesab açmaq olmaz.");
-            }
+            if(localStorage.getItem('wl_registered_device')) return showToast("Bu cihazda artıq bir hesab açılıb!");
 
             db.ref(`registered_users/${uName}`).once('value', snapshot => {
-                if(snapshot.exists()) {
-                    showToast("Bu istifadəçi adı artıq alınıb!");
-                } else {
-                    const userData = {
-                        username: uName,
-                        password: uPass,
-                        avatar: myPic,
-                        stats: { totalTime: 0, watched: "", interacted: "" }
-                    };
+                if(snapshot.exists()) { showToast("Bu istifadəçi adı artıq alınıb!"); } 
+                else {
+                    const userData = { username: uName, password: uPass, avatar: myPic, stats: { totalTime: 0, watched: "", interacted: "" } };
                     db.ref(`registered_users/${uName}`).set(userData, (error) => {
                         if(!error) {
                             localStorage.setItem('wl_registered_device', uName);
                             localStorage.setItem('wl_logged_user', uName);
                             localStorage.setItem('wl_logged_pass', uPass);
-                            
-                            showToast("Qeydiyyat tamamlandı və giriş edildi!");
+                            showToast("Qeydiyyat tamamlandı!");
                             checkSavedLoginSession();
                         }
                     });
@@ -617,83 +496,57 @@
         function handleAuthLogin() {
             const uName = document.getElementById('auth-username').value.trim().toLowerCase();
             const uPass = document.getElementById('auth-password').value.trim();
-
             if(!uName || !uPass) return showToast("İstifadəçi adı və şifrəni daxil edin!");
 
             db.ref(`registered_users/${uName}`).once('value', snapshot => {
-                if(!snapshot.exists()) {
-                    return showToast("Belə bir istifadəçi tapılmadı!");
-                }
+                if(!snapshot.exists()) return showToast("Belə bir istifadəçi tapılmadı!");
                 const userData = snapshot.val();
-                if(userData.password !== uPass) {
-                    return showToast("Şifrə yanlışdır!");
-                }
-
+                if(userData.password !== uPass) return showToast("Şifrə yanlışdır!");
                 localStorage.setItem('wl_logged_user', uName);
                 localStorage.setItem('wl_logged_pass', uPass);
-
                 executeSessionLogin(uName, userData);
             });
         }
 
         function executeSessionLogin(username, userData) {
-            myN = username;
-            myPic = userData.avatar;
+            myN = username; myPic = userData.avatar || "https://www.w3schools.com/howto/img_avatar.png";
             if(userData.stats) {
                 localUserStats.totalTime = userData.stats.totalTime || 0;
                 localUserStats.watched = userData.stats.watched || {};
                 localUserStats.interacted = userData.stats.interacted || {};
             }
-
             document.getElementById('auth-tabs-header').style.display = 'none';
             document.getElementById('login-inputs-area').style.display = 'none';
             document.getElementById('welcome-user-text').innerText = "XOŞ GƏLDİNİZ, @" + myN.toUpperCase();
             document.getElementById('room-actions-area').style.display = 'block';
-            
-            // Ayarlar panelindəki ilkin dataları doldurur
             document.getElementById('settings-avatar-preview').src = myPic;
             document.getElementById('settings-display-name').value = myN;
             updateMyLiveStatisticsUI();
-
             showToast("Giriş uğurludur!");
         }
 
         function checkSavedLoginSession() {
             const savedUser = localStorage.getItem('wl_logged_user');
             const savedPass = localStorage.getItem('wl_logged_pass');
-
             if(savedUser && savedPass) {
                 db.ref(`registered_users/${savedUser}`).once('value', snapshot => {
                     if(snapshot.exists()) {
                         const userData = snapshot.val();
-                        if(userData.password === savedPass) {
-                            executeSessionLogin(savedUser, userData);
-                        } else {
-                            localStorage.removeItem('wl_logged_user');
-                            localStorage.removeItem('wl_logged_pass');
-                        }
+                        if(userData.password === savedPass) executeSessionLogin(savedUser, userData);
                     }
                 });
             }
         }
 
-        /* AYARLAR PANELİ İDARƏETMƏSİ */
         function toggleSettingsPanel() {
             const p = document.getElementById('settings-panel');
-            if(p.style.display === 'none' || p.style.display === '') {
-                p.style.display = 'block';
-                updateMyLiveStatisticsUI();
-            } else {
-                p.style.display = 'none';
-            }
+            if(p.style.display === 'none' || p.style.display === '') { p.style.display = 'block'; updateMyLiveStatisticsUI(); } else { p.style.display = 'none'; }
         }
 
         function updateMyLiveStatisticsUI() {
             document.getElementById('my-stat-time').innerText = `${localUserStats.totalTime} dəqiqə`;
-            
             const wList = Object.keys(localUserStats.watched || {});
             document.getElementById('my-stat-watched').innerText = wList.length > 0 ? wList.slice(-5).join(', ') : "Heç nə izlənilməyib";
-            
             const sortedInteractions = Object.entries(localUserStats.interacted || {}).sort((a,b) => b[1] - a[1]).map(item => "@" + item[0].toUpperCase());
             document.getElementById('my-stat-interacted').innerText = sortedInteractions.length > 0 ? sortedInteractions.slice(0, 3).join(', ') : "Heç kim";
         }
@@ -701,61 +554,35 @@
         function saveProfileChanges() {
             const newName = document.getElementById('settings-display-name').value.trim().toLowerCase();
             const newPic = document.getElementById('settings-avatar-preview').src;
-
             if(!newName) return showToast("Ad boş ola bilməz!");
-
-            // Köhnə adından fərqlidirsə verilənlər bazasındakı unikal adı yoxlayırıq
             if(newName !== myN) {
                 db.ref(`registered_users/${newName}`).once('value', snapshot => {
-                    if(snapshot.exists()) {
-                        return showToast("Bu istifadəçi adı artıq başqası tərəfindən alınıb!");
-                    } else {
-                        proceedProfileUpdate(newName, newPic);
-                    }
+                    if(snapshot.exists()) return showToast("Bu istifadəçi adı artıq alınıb!");
+                    proceedProfileUpdate(newName, newPic);
                 });
-            } else {
-                proceedProfileUpdate(myN, newPic);
-            }
+            } else { proceedProfileUpdate(myN, newPic); }
         }
 
         function proceedProfileUpdate(finalName, finalPic) {
             const oldName = myN;
-            
-            // 1. Köhnə verilənlər strukturunu saxlayıb yenisinə daşımaq
             db.ref(`registered_users/${oldName}`).once('value', snapshot => {
                 const currentData = snapshot.val() || {};
-                currentData.username = finalName;
-                currentData.avatar = finalPic;
-                currentData.stats = localUserStats;
-
-                // Əgər ad dəyişibsə, köhnə nodu silib yenisini yaradırıq
+                currentData.username = finalName; currentData.avatar = finalPic; currentData.stats = localUserStats;
                 if(finalName !== oldName) {
                     db.ref(`registered_users/${finalName}`).set(currentData);
                     db.ref(`registered_users/${oldName}`).remove();
                     localStorage.setItem('wl_registered_device', finalName);
                     localStorage.setItem('wl_logged_user', finalName);
-                } else {
-                    db.ref(`registered_users/${oldName}`).update({ avatar: finalPic });
-                }
-
-                // Global dəyişənləri yeniləyirik
-                myN = finalName;
-                myPic = finalPic;
-
-                // Aktiv otaqdadırsa, otaqdakı canlı istifadəçi datasını da yeniləyirik
-                if(myR && myId) {
-                    db.ref(`rooms/${myR}/users/${myId}`).update({ n: finalName, p: finalPic });
-                }
-
-                showToast("Profil uğurla yeniləndi!");
-                toggleSettingsPanel();
+                } else { db.ref(`registered_users/${oldName}`).update({ avatar: finalPic }); }
+                myN = finalName; myPic = finalPic;
+                if(myR && myId) db.ref(`rooms/${myR}/users/${myId}`).update({ n: finalName, p: finalPic });
+                showToast("Profil yeniləndi!"); toggleSettingsPanel();
             });
         }
 
         function switchTab(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                if(b.id === 'tab-create-btn' || b.id === 'tab-join-btn') b.classList.remove('active');
-            });
+            document.getElementById('tab-create-btn').classList.remove('active');
+            document.getElementById('tab-join-btn').classList.remove('active');
             document.getElementById('tab-create').classList.remove('active');
             document.getElementById('tab-join').classList.remove('active');
             if(type === 'create') {
@@ -764,17 +591,6 @@
             } else {
                 document.getElementById('tab-join-btn').classList.add('active');
                 document.getElementById('tab-join').classList.add('active');
-            }
-        }
-
-        function selectRoomMode(mode) {
-            selectedRoomMode = mode;
-            document.getElementById('mode-yt').classList.remove('selected');
-            document.getElementById('mode-screen').classList.remove('selected');
-            if(mode === 'youtube') {
-                document.getElementById('mode-yt').classList.add('selected');
-            } else {
-                document.getElementById('mode-screen').classList.add('selected');
             }
         }
 
@@ -790,44 +606,91 @@
         }
 
         function initAnimationData() {
-            animData = [];
-            if (currentAnim === 'stars') {
-                for (let i = 0; i < 120; i++) {
-                    animData.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1, alpha: Math.random(), phase: Math.random() * Math.PI });
-                }
-            } else if (currentAnim === 'matrix') {
-                const columns = Math.floor(canvas.width / 16) + 1;
-                for (let i = 0; i < columns; i++) { animData.push({ x: i * 16, y: Math.random() * -100 - 50, speed: Math.random() * 3 + 2 }); }
-            } else if (currentAnim === 'waves') { animData = { hue: 0, time: 0 }; }
+            animData = []; ctx.clearRect(0,0,canvas.width,canvas.height);
+            if (currentAnim === 'quantum') {
+                for(let i=0; i<60; i++) animData.push({x: canvas.width/2, y: canvas.height/2, r: Math.random()*300, a: Math.random()*Math.PI*2, s: Math.random()*0.02+0.005, size: Math.random()*3+1});
+            } else if (currentAnim === 'plasma') { animData = { tick: 0 }; } 
+            else if (currentAnim === 'dust') {
+                for(let i=0; i<150; i++) animData.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*0.4-0.2, vy: Math.random()*0.4-0.2, r: Math.random()*2});
+            } else if (currentAnim === 'cyber') {
+                const cols = Math.floor(canvas.width / 20) + 1;
+                for(let i=0; i<cols; i++) animData.push({x: i*20, y: Math.random()*-200, speed: Math.random()*4+3, len: Math.random()*15+5});
+            } else if (currentAnim === 'aurora') { animData = { phase: 0 }; } 
+            else if (currentAnim === 'nebula') {
+                for(let i=0; i<6; i++) animData.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*150+100, dx: Math.random()*0.5-0.25, dy: Math.random()*0.5-0.25, c: i*60});
+            } else if (currentAnim === 'vortex') { animData = { angle: 0 }; } 
+            else if (currentAnim === 'digital') {
+                for(let i=0; i<40; i++) animData.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, val: Math.round(Math.random())});
+            } else if (currentAnim === 'blizzard') {
+                for(let i=0; i<100; i++) animData.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, speed: Math.random()*2+1, r: Math.random()*2+0.5});
+            } else if (currentAnim === 'comet') {
+                for(let i=0; i<15; i++) animData.push({x: Math.random()*canvas.width, y: Math.random()*-canvas.height, speed: Math.random()*5+5, len: Math.random()*40+20});
+            }
         }
 
         function runAnimationLoop() {
             if (animId) cancelAnimationFrame(animId);
             function draw() {
-                if (currentAnim === 'stars') {
-                    ctx.fillStyle = '#050505'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = '#ffffff';
+                const mod = globalSpeedModifier; ctx.fillStyle = 'rgba(3, 3, 5, 0.1)';
+                if (currentAnim === 'quantum') {
+                    ctx.fillStyle = '#030305'; ctx.fillRect(0,0,canvas.width,canvas.height);
                     animData.forEach(p => {
-                        p.phase += 0.02 * globalSpeedModifier;
-                        let curAlpha = p.alpha + Math.sin(p.phase) * 0.4;
-                        ctx.globalAlpha = Math.max(0, Math.min(1, curAlpha));
-                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                        p.y -= p.speed * globalSpeedModifier;
-                        if (p.y < 0) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
+                        p.a += p.s * mod; let cx = canvas.width/2 + Math.cos(p.a)*p.r; let cy = canvas.height/2 + Math.sin(p.a)*p.r;
+                        ctx.fillStyle = 'rgba(255, 74, 90, 0.6)'; ctx.beginPath(); ctx.arc(cx, cy, p.size, 0, Math.PI*2); ctx.fill();
                     });
-                    ctx.globalAlpha = 1.0;
-                } else if (currentAnim === 'matrix') {
-                    ctx.fillStyle = 'rgba(5, 5, 5, 0.08)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillStyle = '#0f0'; ctx.font = '14px monospace';
-                    animData.forEach(drop => {
-                        ctx.fillText(String.fromCharCode(0x30A0 + Math.random() * 96), drop.x, drop.y);
-                        drop.y += drop.speed * globalSpeedModifier;
-                        if (drop.y > canvas.height && Math.random() > 0.975) drop.y = Math.random() * -50;
+                } else if (currentAnim === 'plasma') {
+                    animData.tick += 0.01 * mod; ctx.fillRect(0,0,canvas.width,canvas.height);
+                    let grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 10, canvas.width/2, canvas.height/2, canvas.width/1.5);
+                    grad.addColorStop(0, `hsla(${Math.sin(animData.tick)*40+20}, 70%, 15%, 0.4)`); grad.addColorStop(1, 'transparent');
+                    ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+                } else if (currentAnim === 'dust') {
+                    ctx.fillStyle = '#030305'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    animData.forEach(p => {
+                        p.x += p.vx * mod; p.y += p.vy * mod; if(p.x<0||p.x>canvas.width) p.vx*=-1; if(p.y<0||p.y>canvas.height) p.vy*=-1;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
                     });
-                } else if (currentAnim === 'waves') {
-                    animData.time += 0.003 * globalSpeedModifier; animData.hue = (animData.hue + 0.1 * globalSpeedModifier) % 360;
-                    let grad = ctx.createRadialGradient(canvas.width/2 + Math.sin(animData.time) * (canvas.width/4), canvas.height/2 + Math.cos(animData.time * 1.5) * (canvas.height/4), 10, canvas.width/2, canvas.height/2, canvas.width);
-                    grad.addColorStop(0, `hsla(${animData.hue}, 70%, 15%, 1)`); grad.addColorStop(0.5, `hsla(${(animData.hue + 60) % 360}, 60%, 5%, 1)`); grad.addColorStop(1, '#050505');
-                    ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                } else if (currentAnim === 'cyber') {
+                    ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle = 'rgba(255, 74, 90, 0.25)'; ctx.lineWidth = 2;
+                    animData.forEach(d => {
+                        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y + d.len); ctx.stroke();
+                        d.y += d.speed * mod; if(d.y > canvas.height) d.y = -d.len;
+                    });
+                } else if (currentAnim === 'aurora') {
+                    animData.phase += 0.002 * mod; ctx.fillRect(0,0,canvas.width,canvas.height);
+                    let gradient = ctx.createLinearGradient(0,0,0,canvas.height);
+                    gradient.addColorStop(0, `hsla(${Math.sin(animData.phase)*60+330}, 80%, 10%, 0.4)`); gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient; ctx.fillRect(0,0,canvas.width,canvas.height);
+                } else if (currentAnim === 'nebula') {
+                    ctx.fillStyle = '#030305'; ctx.fillRect(0,0,canvas.width,canvas.height);
+                    animData.forEach(n => {
+                        n.x += n.dx * mod; n.y += n.dy * mod; if(n.x<0||n.x>canvas.width) n.dx*=-1; if(n.y<0||n.y>canvas.height) n.dy*=-1;
+                        let g = ctx.createRadialGradient(n.x, n.y, 10, n.x, n.y, n.r);
+                        g.addColorStop(0, `hsla(${n.c}, 60%, 20%, 0.15)`); g.addColorStop(1, 'transparent');
+                        ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height);
+                    });
+                } else if (currentAnim === 'vortex') {
+                    animData.angle += 0.005 * mod; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle = 'rgba(255, 74, 90, 0.08)'; ctx.lineWidth = 1;
+                    ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.rotate(animData.angle);
+                    for(let i=0; i<5; i++) { ctx.beginPath(); ctx.arc(0, 0, i*60, 0, Math.PI); ctx.stroke(); }
+                    ctx.restore();
+                } else if (currentAnim === 'digital') {
+                    ctx.fillRect(0,0,canvas.width,canvas.height); ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255, 74, 90, 0.15)';
+                    animData.forEach(d => {
+                        if(Math.random()>0.98) d.val = Math.round(Math.random());
+                        ctx.fillText(d.val, d.x, d.y);
+                    });
+                } else if (currentAnim === 'blizzard') {
+                    ctx.fillStyle = '#030305'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle = '#fff';
+                    animData.forEach(p => {
+                        p.y += p.speed * mod; p.x += Math.sin(p.y/30)*0.5; if(p.y > canvas.height) { p.y = -5; p.x = Math.random()*canvas.width; }
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+                    });
+                } else if (currentAnim === 'comet') {
+                    ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5;
+                    animData.forEach(c => {
+                        ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x - c.len, c.y + c.len); ctx.stroke();
+                        c.x -= c.speed * mod; c.y += c.speed * mod; if(c.y > canvas.height || c.x < 0) { c.y = Math.random()*-canvas.height; c.x = Math.random()*canvas.width + 100; }
+                    });
                 }
                 animId = requestAnimationFrame(draw);
             }
@@ -842,7 +705,6 @@
             document.getElementById('p-modal-img').src = pic;
             document.getElementById('p-modal-name').innerText = "@" + name.toUpperCase();
             document.getElementById('p-modal-role').innerText = role === 'admin' ? 'Qurucu / Admin' : 'İzləyici';
-            
             document.getElementById('p-modal-time').innerText = "Yüklənir...";
             document.getElementById('p-modal-watched').innerText = "Yüklənir...";
             document.getElementById('p-modal-interacted').innerText = "Yüklənir...";
@@ -851,127 +713,88 @@
                 localUserStats.interacted[name] = (localUserStats.interacted[name] || 0) + 1;
                 db.ref(`registered_users/${myN}/stats/interacted`).set(localUserStats.interacted);
             }
-
             db.ref(`registered_users/${name}/stats`).once('value', snapshot => {
                 if(snapshot.exists()) {
                     const stats = snapshot.val();
-                    const minutesSpent = stats.totalTime || 0;
-                    document.getElementById('p-modal-time').innerText = `${minutesSpent} dəqiqə`;
-                    
+                    document.getElementById('p-modal-time').innerText = `${stats.totalTime || 0} dəqiqə`;
                     if(stats.watched) {
                         const wList = Object.keys(stats.watched);
                         document.getElementById('p-modal-watched').innerText = wList.length > 0 ? wList.slice(-4).join(', ') : "Heç nə izləməyib";
-                    } else {
-                        document.getElementById('p-modal-watched').innerText = "Heç nə izləməyib";
-                    }
-
+                    } else { document.getElementById('p-modal-watched').innerText = "Heç nə izləməyib"; }
                     if(stats.interacted) {
                         const sortedInteractions = Object.entries(stats.interacted).sort((a,b) => b[1] - a[1]).map(item => "@" + item[0].toUpperCase());
                         document.getElementById('p-modal-interacted').innerText = sortedInteractions.length > 0 ? sortedInteractions.slice(0, 3).join(', ') : "Heç kimlə";
-                    } else {
-                        document.getElementById('p-modal-interacted').innerText = "Heç kimlə";
-                    }
-                } else {
-                    document.getElementById('p-modal-time').innerText = "0 dəqiqə";
-                    document.getElementById('p-modal-watched').innerText = "Heç nə izləməyib";
-                    document.getElementById('p-modal-interacted').innerText = "Heç kimlə";
+                    } else { document.getElementById('p-modal-interacted').innerText = "Heç kimlə"; }
                 }
             });
-
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
         function start(l) {
             if(l === 'admin') {
-                // SƏNİN KOMBİNASİYA KİLİDİNDƏN SEÇİLƏN RƏQƏMLƏRİ OXUYUR
                 const d1 = document.querySelector('input[name="wheel-1"]:checked').value;
                 const d2 = document.querySelector('input[name="wheel-2"]:checked').value;
                 const d3 = document.querySelector('input[name="wheel-3"]:checked').value;
                 myR = `${d1}${d2}${d3}`;
-            } else {
-                myR = document.getElementById('room-join').value.trim();
-            }
+            } else { myR = document.getElementById('room-join').value.trim(); }
 
             if(!myN || !myR) return showToast("Məlumatları tam doldurun!");
             if(myR.length !== 3) return showToast("Otaq kodu 3 rəqəmli olmalıdır!");
             
             myL = l;
             document.getElementById('auth-box').style.display = 'none'; document.getElementById('app').style.display = 'flex';
-            
             resizeCanvas();
-            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l, voice: false });
-            db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             
+            db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
+            db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${myN} otağa qoşuldu.` });
+            
             db.ref(`rooms/${myR}/kicked/${myId}`).on('value', s => { if(s.val()) { alert("Otaqdan qovuldunuz!"); window.location.reload(); } });
             
             if(l === 'admin') {
-                db.ref(`rooms/${myR}/base_mode`).set(selectedRoomMode);
-                setupInterfaceForMode(selectedRoomMode);
+                document.getElementById('admin-toggle-btn').style.display = 'block';
+                document.getElementById('progress-bar-wrapper').style.display = 'flex';
+                document.getElementById('v-seek-bar').classList.add('admin-seek');
             } else {
-                db.ref(`rooms/${myR}/base_mode`).once('value', s => {
-                    const mode = s.val() || 'youtube';
-                    setupInterfaceForMode(mode);
+                document.getElementById('sync-fix-btn').style.display = 'block';
+                db.ref(`rooms/${myR}/users/${myId}/hasPermission`).on('value', s => {
+                    hasVideoPermission = !!s.val();
+                    document.getElementById('admin-toggle-btn').style.display = hasVideoPermission ? 'block' : 'none';
+                    if(hasVideoPermission) showToast("Sizə video qoşma səlahiyyəti verildi!");
                 });
             }
 
             activeSessionInterval = setInterval(() => {
                 localUserStats.totalTime += 1;
                 db.ref(`registered_users/${myN}/stats/totalTime`).set(localUserStats.totalTime);
-                if(document.getElementById('settings-panel').style.display === 'block') {
-                    updateMyLiveStatisticsUI();
-                }
+                if(document.getElementById('settings-panel').style.display === 'block') updateMyLiveStatisticsUI();
             }, 60000);
 
             init();
-        }
-
-        function setupInterfaceForMode(mode) {
-            if(myL === 'admin') {
-                document.getElementById('voice-call-btn').style.display = 'block';
-                if(mode === 'screen') {
-                    document.getElementById('screen-share-btn').style.display = 'block';
-                    document.getElementById('admin-toggle-btn').style.display = 'none';
-                    document.getElementById('progress-bar-wrapper').style.display = 'none';
-                } else {
-                    document.getElementById('screen-share-btn').style.display = 'none';
-                    document.getElementById('admin-toggle-btn').style.display = 'block';
-                    document.getElementById('progress-bar-wrapper').style.display = 'flex';
-                    document.getElementById('v-seek-bar').classList.add('admin-seek');
-                }
-            } else {
-                document.getElementById('sync-fix-btn').style.display = (mode === 'youtube') ? 'block' : 'none';
-                if(mode === 'screen') {
-                    document.getElementById('progress-bar-wrapper').style.display = 'none';
-                }
-            }
         }
 
         function onYouTubeIframeAPIReady() {
             ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1, 'mute': 0 }, events: { 'onReady': () => { ok = true; tick(); }, 'onStateChange': onPlayerStateChange } });
         }
 
-        function onPlayerStateChange(e) {
-            if(myL === 'admin' && e.data === YT.PlayerState.ENDED) { playNextInQueue(); }
-        }
-
+        function onPlayerStateChange(e) { if((myL === 'admin' || hasVideoPermission) && e.data === YT.PlayerState.ENDED) playNextInQueue(); }
         function forceSync() { if(ok && lastAdminTime) { ytP.seekTo(lastAdminTime); showToast("Sinxronlaşdırıldı"); } }
 
         function tick() {
             setInterval(() => {
-                if(ok && ytP && ytP.getCurrentTime && !isSharingScreen) {
+                if(ok && ytP && ytP.getCurrentTime) {
                     const curr = ytP.getCurrentTime(); const dur = ytP.getDuration();
                     if(dur > 0) {
                         document.getElementById('v-fill').style.width = (curr/dur*100) + '%';
                         document.getElementById('v-time').innerText = `${fmt(curr)} / ${fmt(dur)}`;
                     }
-                    if(myL === 'admin') db.ref('rooms/'+myR+'/sync').update({ t: curr });
+                    if(myL === 'admin' || hasVideoPermission) db.ref('rooms/'+myR+'/sync').update({ t: curr });
                 }
             }, 1000);
         }
 
         function fmt(s) { let m = Math.floor(s / 60); s = Math.floor(s % 60); return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s); }
-        function handleSeek(e) { if(myL !== 'admin' || !ok || isSharingScreen) return; const bar = document.getElementById('v-seek-bar'); const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth; ytP.seekTo(pct * ytP.getDuration()); sc('play'); }
+        function handleSeek(e) { if((myL !== 'admin' && !hasVideoPermission) || !ok) return; const bar = document.getElementById('v-seek-bar'); const pct = (e.pageX - bar.offsetLeft) / bar.offsetWidth; ytP.seekTo(pct * ytP.getDuration()); sc('play'); }
         function handleTyping() { db.ref(`rooms/${myR}/typing/${myId}`).set(myN); clearTimeout(typingTimeout); typingTimeout = setTimeout(() => db.ref(`rooms/${myR}/typing/${myId}`).remove(), 2000); }
 
         async function yt() {
@@ -982,260 +805,60 @@
                 const c = document.createElement('div'); c.className = "res-card";
                 const safeTitle = i.snippet.title.replace(/['"]/g, ""); 
                 c.innerHTML = `<img src="${i.snippet.thumbnails.medium.url}"><button class="add-q-btn" onclick="addToQueue('${i.id.videoId}', '${safeTitle}', event)">+ NÖVBƏ</button>`;
-                c.onclick = () => {
-                    db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 });
-                };
+                c.onclick = () => { db.ref('rooms/'+myR+'/sync').set({ v: i.id.videoId, a: 'play', t: 0 }); };
                 b.appendChild(c);
             });
         }
 
-        function addToQueue(id, title, e) {
-            e.stopPropagation();
-            db.ref(`rooms/${myR}/queue`).push({ id, title });
-            showToast("Növbəyə əlavə edildi");
-        }
-
+        function addToQueue(id, title, e) { e.stopPropagation(); db.ref(`rooms/${myR}/queue`).push({ id, title }); showToast("Növbəyə əlavə edildi"); }
         function playNextInQueue() {
             if(playlistQueue.length > 0) {
-                const nextVid = playlistQueue[0];
-                db.ref(`rooms/${myR}/queue/${nextVid.key}`).remove();
+                const nextVid = playlistQueue[0]; db.ref(`rooms/${myR}/queue/${nextVid.key}`).remove();
                 db.ref('rooms/'+myR+'/sync').set({ v: nextVid.id, a: 'play', t: 0 });
             }
         }
-
         function removeFromQueue(key) { db.ref(`rooms/${myR}/queue/${key}`).remove(); }
-        function seek(s) { if(myL === 'admin' && !isSharingScreen) { ytP.seekTo(ytP.getCurrentTime() + s); sc('play'); } }
-        function sc(a) { if(myL === 'admin' && !isSharingScreen) db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
+        function seek(s) { if((myL === 'admin' || hasVideoPermission)) { ytP.seekTo(ytP.getCurrentTime() + s); sc('play'); } }
+        function sc(a) { if((myL === 'admin' || hasVideoPermission)) db.ref('rooms/'+myR+'/sync').update({ a: a, t: ytP.getCurrentTime() }); }
+        
         function kickUser(uid, name) { if(confirm(`${name} qovulsun?`)) db.ref(`rooms/${myR}/kicked/${uid}`).set(true); }
+        function grantPermission(uid, status) { db.ref(`rooms/${myR}/users/${uid}/hasPermission`).set(status); showToast("Səlahiyyət yeniləndi"); }
 
-        function openReactMenu(msgId, e) {
-            e.stopPropagation();
-            document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none');
-            const p = document.getElementById(`pop-${msgId}`); if(p) p.style.display = 'flex';
-        }
+        function openReactMenu(msgId, e) { e.stopPropagation(); document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none'); const p = document.getElementById(`pop-${msgId}`); if(p) p.style.display = 'flex'; }
+        function addReaction(msgId, emo) { db.ref(`rooms/${myR}/chat/${msgId}/reacts/${myId}`).set(emo); document.getElementById(`pop-${msgId}`).style.display = 'none'; }
 
-        function addReaction(msgId, emo) {
-            db.ref(`rooms/${myR}/chat/${msgId}/reacts/${myId}`).set(emo);
-            document.getElementById(`pop-${msgId}`).style.display = 'none';
-        }
-
-        async function toggleVoiceRoom() {
-            const btn = document.getElementById('voice-call-btn');
-            if (!isInVoiceRoom) {
-                try {
-                    localVoiceStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
-                    });
-                    isInVoiceRoom = true;
-                    btn.innerText = "🎙️ MİKRAFONU SÖNDÜR";
-                    btn.className = "voice-active";
-                    db.ref(`rooms/${myR}/users/${myId}/voice`).set(true);
-                    
-                    Object.keys(peerConnections).forEach(uid => {
-                        localVoiceStream.getTracks().forEach(track => peerConnections[uid].addTrack(track, localVoiceStream));
-                    });
-                    showToast("Səsli kanala qoşuldunuz!");
-                } catch (e) {
-                    showToast("Mikrofon icazəsi verilmədi!");
-                }
-            } else {
-                const audioTrack = localVoiceStream.getAudioTracks()[0];
-                if(audioTrack) {
-                    audioTrack.enabled = !audioTrack.enabled;
-                    if(audioTrack.enabled) {
-                        btn.innerText = "🎙️ MİKRAFONU SÖNDÜR";
-                        btn.className = "voice-active";
-                        db.ref(`rooms/${myR}/users/${myId}/voice`).set(true);
-                    } else {
-                        btn.innerText = "🔇 MİKRAFONU AÇ";
-                        btn.className = "voice-muted";
-                        db.ref(`rooms/${myR}/users/${myId}/voice`).set(false);
-                    }
-                }
-            }
-        }
-
-        async function toggleScreenShare() {
-            const btn = document.getElementById('screen-share-btn');
-            const scrVideo = document.getElementById('screen-video');
-            
-            if (!isSharingScreen) {
-                try {
-                    localScreenStream = await navigator.mediaDevices.getDisplayMedia({ 
-                        video: { cursor: "always" },
-                        audio: true 
-                    });
-                    
-                    isSharingScreen = true;
-                    btn.innerText = "⏹️ PAYLAŞIMI DAYANDIR";
-                    btn.className = "screen-active";
-                    
-                    scrVideo.srcObject = localScreenStream;
-                    scrVideo.style.display = 'block';
-                    
-                    if(ytP && typeof ytP.pauseVideo === 'function') {
-                        try { ytP.pauseVideo(); } catch(e) {}
-                    }
-                    
-                    db.ref(`rooms/${myR}/screen_state`).set({ sharerId: myId, active: true });
-
-                    Object.keys(peerConnections).forEach(uid => {
-                        localScreenStream.getVideoTracks().forEach(track => {
-                            peerConnections[uid].addTrack(track, localScreenStream);
-                        });
-                    });
-
-                    localScreenStream.getVideoTracks()[0].onended = () => {
-                        stopLocalScreenShare();
-                    };
-                    
-                } catch (e) {
-                    showToast("Ekran paylaşımı iptal edildi.");
-                }
-            } else {
-                stopLocalScreenShare();
-            }
-        }
-
-        function stopLocalScreenShare() {
-            const btn = document.getElementById('screen-share-btn');
-            const scrVideo = document.getElementById('screen-video');
-            
-            isSharingScreen = false;
-            btn.innerText = "🖥️ EKRANI PAYLAŞ";
-            btn.className = "";
-            scrVideo.style.display = 'none';
-            scrVideo.srcObject = null;
-            
-            if (localScreenStream) {
-                localScreenStream.getTracks().forEach(track => track.stop());
-                localScreenStream = null;
-            }
-            
-            db.ref(`rooms/${myR}/screen_state`).set({ active: false });
-            
-            if(ytP && typeof ytP.playVideo === 'function' && ok) {
-                try { ytP.playVideo(); } catch(e) {}
-            }
-        }
-
-        function initVoiceSignaling() {
-            db.ref(`rooms/${myR}/voice_signals/${myId}`).on('child_added', async snapshot => {
-                const signal = snapshot.val();
-                const fromId = signal.from;
-                if (!peerConnections[fromId]) setupPeerConnection(fromId, false);
-                
-                const pc = peerConnections[fromId];
-                if (signal.sdp) {
-                    await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-                    if (signal.sdp.type === 'offer') {
-                        const answer = await pc.createAnswer();
-                        await pc.setLocalDescription(answer);
-                        db.ref(`rooms/${myR}/voice_signals/${fromId}`).push({ from: myId, sdp: answer });
-                    }
-                } else if (signal.ice) {
-                    try { await pc.addIceCandidate(new RTCIceCandidate(signal.ice)); } catch(e){}
-                }
+        function toggleGifPanel() { const p = document.getElementById('gif-box'); if(p.style.display === 'none' || p.style.display === '') { p.style.display = 'flex'; loadTrendingGifs(); } else { p.style.display = 'none'; } }
+        function loadTrendingGifs() {
+            const grid = document.getElementById('gif-grid-content'); grid.innerHTML = '';
+            const sampleGifs = [
+                "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW83cXNid3p5bW84Nnd5ZndpOHo1bW83czF6bW83czF6bW83czF6byZjdD1n/cEODGfehCXixq/giphy.gif",
+                "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3B0bWw1MzV5bWw1MzV5bWw1MzV5bWw1MzV5bWw1MzV5bWw1M3Z5byZjdD1n/tXhBA26kiVzy4F9RIF/giphy.gif",
+                "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDRyaDNwNDRyaDNwNDRyaDNwNDRyaDNwNDRyaDNwNDRyaDNwNDRyaDbyZjdD1n/L3X9GvK6HCUK8EWsFT/giphy.gif",
+                "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzhvMDRyaDNwMDRyaDNwMDRyaDNwMDRyaDNwMDRyaDNwMDRyaDNieZjdD1n/cl2PsDEg80omBDkqcH/giphy.gif"
+            ];
+            sampleGifs.forEach(url => {
+                const img = document.createElement('img'); img.className = 'gif-item'; img.src = url;
+                img.onclick = () => { db.ref('rooms/'+myR+'/chat').push({ n: myN, img: url, p: myPic, ts: Date.now() }); document.getElementById('gif-box').style.display = 'none'; };
+                grid.appendChild(img);
             });
         }
 
-        function setupPeerConnection(targetId, isOffer) {
-            if(peerConnections[targetId]) return; 
-
-            const pc = new RTCPeerConnection(rtcConfig);
-            peerConnections[targetId] = pc;
-
-            if (localVoiceStream) {
-                localVoiceStream.getTracks().forEach(track => pc.addTrack(track, localVoiceStream));
-            }
-            if (localScreenStream && isSharingScreen) {
-                localScreenStream.getTracks().forEach(track => pc.addTrack(track, localScreenStream));
-            }
-
-            pc.onicecandidate = e => {
-                if (e.candidate) db.ref(`rooms/${targetId}/voice_signals/${targetId}`).push({ from: myId, ice: e.candidate });
-            };
-
-            pc.ontrack = e => {
-                if (e.track.kind === 'video') {
-                    const scrVideo = document.getElementById('screen-video');
-                    scrVideo.srcObject = e.streams[0];
-                    scrVideo.style.display = 'block';
-                    if(ytP && ytP.pauseVideo) ytP.pauseVideo();
-                } else {
-                    let audioEl = document.getElementById(`audio-${targetId}`);
-                    if (!audioEl) {
-                        audioEl = document.createElement('audio');
-                        audioEl.id = `audio-${targetId}`;
-                        audioEl.autoplay = true;
-                        document.getElementById('remote-audios').appendChild(audioEl);
-                    }
-                    audioEl.srcObject = e.streams[0];
-                }
-            };
-
-            if (isOffer) {
-                pc.onnegotiationneeded = async () => {
-                    const offer = await pc.createOffer();
-                    await pc.setLocalDescription(offer);
-                    db.ref(`rooms/${myR}/voice_signals/${targetId}`).push({ from: myId, sdp: offer });
-                };
-            }
-        }
-
-        function clearPeerConnection(targetId) {
-            if (peerConnections[targetId]) {
-                peerConnections[targetId].close();
-                delete peerConnections[targetId];
-            }
-            const audioEl = document.getElementById(`audio-${targetId}`);
-            if (audioEl) audioEl.remove();
-        }
-
         function init() {
-            window.onclick = () => document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none');
-            initVoiceSignaling();
+            window.onclick = () => { document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none'); document.getElementById('gif-box').style.display = 'none'; };
 
             db.ref(`rooms/${myR}/theme`).on('value', s => {
-                const t = s.val();
-                if(t) { currentAnim = t.type || 'stars'; globalSpeedModifier = t.speed || 1; }
+                const t = s.val(); if(t) { currentAnim = t.type || 'quantum'; globalSpeedModifier = t.speed || 1; }
                 updateSpeedUI(globalSpeedModifier); initAnimationData(); runAnimationLoop();
             });
 
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
                     if(d.v && d.v !== currentVideoId) { 
-                        currentVideoId = d.v; 
-                        ytP.loadVideoById(d.v); 
-                        
-                        if(myN) {
-                            localUserStats.watched[currentVideoId] = true;
-                            db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true);
-                            if(document.getElementById('settings-panel').style.display === 'block') {
-                                updateMyLiveStatisticsUI();
-                            }
-                        }
+                        currentVideoId = d.v; ytP.loadVideoById(d.v); 
+                        if(myN) { db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true); }
                     }
-                    if(!isSharingScreen) {
-                        d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo();
-                    }
-                    lastAdminTime = d.t;
-                    if(myL !== 'admin' && Math.abs(ytP.getCurrentTime() - d.t) > 5 && !isSharingScreen) ytP.seekTo(d.t);
-                }
-            });
-
-            db.ref(`rooms/${myR}/screen_state`).on('value', s => {
-                const data = s.val();
-                const scrVideo = document.getElementById('screen-video');
-                if (data && data.active) {
-                    if (data.sharerId !== myId) {
-                        showToast("Admin ekran paylaşımını başlatdı!");
-                        if(ytP && ytP.pauseVideo) ytP.pauseVideo();
-                    }
-                } else {
-                    scrVideo.style.display = 'none';
-                    scrVideo.srcObject = null;
-                    if(ytP && ytP.playVideo && ok) ytP.playVideo();
+                    d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo(); lastAdminTime = d.t;
+                    if(myL !== 'admin' && !hasVideoPermission && Math.abs(ytP.getCurrentTime() - d.t) > 5) ytP.seekTo(d.t);
                 }
             });
 
@@ -1244,7 +867,7 @@
                 s.forEach(child => {
                     const item = child.val(); playlistQueue.push({key: child.key, ...item});
                     const div = document.createElement('div'); div.className = 'queue-item';
-                    div.innerHTML = `<span>${item.title}</span> ${myL==='admin' ? `<button onclick="removeFromQueue('${child.key}')">❌</button>` : ''}`;
+                    div.innerHTML = `<span>${item.title}</span> ${(myL==='admin' || hasVideoPermission) ? `<button onclick="removeFromQueue('${child.key}')">❌</button>` : ''}`;
                     qBox.appendChild(div);
                 });
             });
@@ -1252,8 +875,7 @@
             db.ref('rooms/'+myR+'/chat').on('child_added', s => {
                 const m = s.val(); const b = document.getElementById('messages');
                 if(m.type === 'system') {
-                    const sysDiv = document.createElement('div'); sysDiv.className = 'system-msg';
-                    sysDiv.innerText = m.t; b.appendChild(sysDiv);
+                    const sysDiv = document.createElement('div'); sysDiv.className = 'system-msg'; sysDiv.innerText = m.t; b.appendChild(sysDiv);
                 } else {
                     const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`; d.id = `msg-${s.key}`;
                     d.innerHTML = `
@@ -1263,7 +885,7 @@
                                 <span onclick="addReaction('${s.key}', '👍')">👍</span><span onclick="addReaction('${s.key}', '❤️')">❤️</span>
                                 <span onclick="addReaction('${s.key}', '😂')">😂</span><span onclick="addReaction('${s.key}', '😮')">😮</span>
                             </div>
-                            <div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:4px;">` : m.t}</div></div>
+                            <div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:8px;">` : m.t}</div></div>
                             <div class="reactions-container" id="reacts-${s.key}"></div>
                         </div>`;
                     b.appendChild(d);
@@ -1273,8 +895,7 @@
                         const counts = {}; const vals = rSnap.val() || {};
                         Object.values(vals).forEach(v => counts[v] = (counts[v] || 0) + 1);
                         Object.keys(counts).forEach(emo => {
-                            const bge = document.createElement('div'); bge.className = 'react-badge'; bge.innerText = `${emo} ${counts[emo]}`;
-                            rBox.appendChild(bge);
+                            const bge = document.createElement('div'); bge.className = 'react-badge'; bge.innerText = `${emo} ${counts[emo]}`; rBox.appendChild(bge);
                         });
                     });
                 }
@@ -1289,30 +910,21 @@
             });
 
             db.ref(`rooms/${myR}/users`).on('value', s => {
-                const data = s.val() || {}; document.getElementById('user-count').innerText = s.numChildren();
+                document.getElementById('user-count').innerText = s.numChildren();
                 const listCont = document.getElementById('users-list-content'); listCont.innerHTML = '';
-                
-                Object.keys(peerConnections).forEach(id => {
-                    if (!data[id]) clearPeerConnection(id);
-                });
-
-                Object.entries(data).forEach(([uid, u]) => {
+                s.forEach(child => {
+                    const uid = child.key; const u = child.val();
                     const uRow = document.createElement('div'); uRow.className = 'u-item';
                     uRow.onclick = () => showProfile(u.n, u.p, u.role);
-                    
-                    const voiceIndicator = u.voice ? "🟢 Səsdə" : "⚪ Səsdə deyil";
-                    
-                    uRow.innerHTML = `
-                        <div class="u-info">
-                            <img src="${u.p}">
-                            <span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'}) <small style="color:${u.voice?'#4caf50':'#888'}">${voiceIndicator}</small></span>
-                        </div>
-                        ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}`;
-                    listCont.appendChild(uRow);
-
-                    if (uid !== myId && !peerConnections[uid]) {
-                        if (myId < uid) setupPeerConnection(uid, true);
+                    let permBtn = '';
+                    if(myL === 'admin' && uid !== myId) {
+                        const hasPerm = !!u.hasPermission;
+                        permBtn = `<button class="auth-btn" style="color:${hasPerm?'#ff4a5a':'#4caf50'}" onclick="event.stopPropagation(); grantPermission('${uid}', ${!hasPerm})">${hasPerm?'🔒 Al':'🔑 Ver'}</button>`;
                     }
+                    uRow.innerHTML = `
+                        <div class="u-info"><img src="${u.p}"><span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'})</span></div>
+                        <div>${permBtn} ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}</div>`;
+                    listCont.appendChild(uRow);
                 });
             });
         }
@@ -1329,14 +941,10 @@
                 reader.onload = e => {
                     let img = new Image();
                     img.onload = function() {
-                        let canvasMat = document.createElement('canvas');
-                        let max_size = 400; 
-                        let width = img.width; let height = img.height;
+                        let canvasMat = document.createElement('canvas'); let max_size = 400; let width = img.width; let height = img.height;
                         if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } } 
                         else { if (height > max_size) { width *= max_size / height; height = max_size; } }
-                        canvasMat.width = width; canvasMat.height = height;
-                        canvasMat.getContext('2d').drawImage(img, 0, 0, width, height);
-                        
+                        canvasMat.width = width; canvasMat.height = height; canvasMat.getContext('2d').drawImage(img, 0, 0, width, height);
                         db.ref('rooms/'+myR+'/chat').push({ n: myN, img: canvasMat.toDataURL('image/jpeg', 0.6), p: myPic, ts: Date.now() }); 
                     };
                     img.src = e.target.result;
@@ -1348,11 +956,7 @@
         document.getElementById('mi').onkeyup = e => { if(e.key === "Enter") sm(); };
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         
-        window.onload = function() {
-            checkSavedLoginSession();
-            initAnimationData();
-            runAnimationLoop();
-        };
+        window.onload = function() { checkSavedLoginSession(); initAnimationData(); runAnimationLoop(); };
         resizeCanvas();
     </script>
 </body>
