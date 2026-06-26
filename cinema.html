@@ -86,7 +86,7 @@
         .search-box input { margin: 0; padding: 10px; font-size: 12px; background: #0f172a; border-radius: 8px; }
         .search-box button { width: 70px; background: var(--accent-gradient); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        .users-panel { position: absolute; top: 60px; right: 10px; width: 230px; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; max-height: 260px; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        .users-panel { position: absolute; top: 60px; right: 10px; width: 250px; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; max-height: 260px; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .panel-header { padding: 12px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
         #users-list-content { padding: 6px; display: flex; flex-direction: column; gap: 5px; }
         .u-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; font-size: 12px; cursor: pointer; border-radius: 8px; }
@@ -142,10 +142,19 @@
         .p-stat-title { font-size: 10px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 3px; }
         .p-stat-text { font-size: 11px; color: #cbd5e1; margin-bottom: 10px; }
         .auth-notice { font-size: 11px; color: #fbbf24; font-weight: 600; margin-bottom: 20px; text-align: center; background: rgba(251,191,36,0.08); padding: 12px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.15); }
+
+        /* JUMPSCARE OVERLAY */
+        #jumpscare-overlay { position: fixed; inset: 0; background: #000; z-index: 1000000; display: none; align-items: center; justify-content: center; }
+        #jumpscare-overlay img { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
     <div id="toast"></div>
+
+    <div id="jumpscare-overlay">
+        <img src="ruh.png" alt="BOO!">
+    </div>
+    <audio id="jumpscare-audio" src="scream.ogg" preload="auto"></audio>
 
     <div id="profile-modal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="profile-card" onclick="event.stopPropagation()">
@@ -327,9 +336,7 @@
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         
-        function generateFourDigitCode() {
-            return Math.floor(1000 + Math.random() * 9000).toString();
-        }
+        function generateFourDigitCode() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
         function processAndPreviewImage(input, previewId, isSettings = false) {
             if (input.files && input.files[0]) {
@@ -536,11 +543,14 @@
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
-        function start(l) {
-            if(l !== 'admin') { 
-                myR = document.getElementById('room-join').value.trim(); 
+        function triggerScare(uid) {
+            if(confirm("Bu istifadəçini qorxutmaq istədiyinizdən əminsiniz?")) {
+                db.ref(`rooms/${myR}/users/${uid}/jumpscare`).set(Date.now());
             }
+        }
 
+        function start(l) {
+            if(l !== 'admin') { myR = document.getElementById('room-join').value.trim(); }
             if(!myN || !myR) return showToast("Məlumatları tam doldurun!");
             if(myR.length !== 4) return showToast("Otaq kodu 4 rəqəmli olmalıdır!");
             
@@ -679,6 +689,25 @@
         function init() {
             window.onclick = () => { document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none'); document.getElementById('gif-box').style.display = 'none'; };
 
+            // JUMPSCARE LISTENER
+            db.ref(`rooms/${myR}/users/${myId}/jumpscare`).on('value', s => {
+                if(s.val()) {
+                    const overlay = document.getElementById('jumpscare-overlay');
+                    const audio = document.getElementById('jumpscare-audio');
+                    
+                    overlay.style.display = 'flex';
+                    audio.volume = 1.0;
+                    audio.play().catch(e => console.log("Səs bloklandı:", e));
+                    
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        audio.pause();
+                        audio.currentTime = 0;
+                        db.ref(`rooms/${myR}/users/${myId}/jumpscare`).remove();
+                    }, 3000);
+                }
+            });
+
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
                     if(d.v && d.v !== currentVideoId) { 
@@ -734,14 +763,19 @@
                     const uid = child.key; const u = child.val();
                     const uRow = document.createElement('div'); uRow.className = 'u-item';
                     uRow.onclick = () => showProfile(u.n, u.p, u.role);
+                    
                     let permBtn = '';
+                    let scareBtn = '';
+                    
                     if(myL === 'admin' && uid !== myId) {
                         const hasPerm = !!u.hasPermission;
+                        scareBtn = `<button class="kick-btn" style="color:#a855f7; margin-right:5px;" onclick="event.stopPropagation(); triggerScare('${uid}')">👻</button>`;
                         permBtn = `<button class="auth-btn" style="color:${hasPerm?'#ff4a5a':'#10b981'}" onclick="event.stopPropagation(); grantPermission('${uid}', ${!hasPerm})">${hasPerm?'🔒 Al':'🔑 Ver'}</button>`;
                     }
+                    
                     uRow.innerHTML = `
                         <div class="u-info"><img src="${u.p}"><span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'})</span></div>
-                        <div>${permBtn} ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}</div>`;
+                        <div>${scareBtn} ${permBtn} ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}</div>`;
                     listCont.appendChild(uRow);
                 });
             });
