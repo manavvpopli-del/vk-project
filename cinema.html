@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Watch Live - Cyber Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -65,6 +65,7 @@
         .btn { width: 100%; padding: 16px; background: var(--accent-gradient); color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 11.5px; transition: all 0.3s ease; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2); text-align: center; }
         .btn:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3); }
 
+        /* PORTRAIT VƏ LANDSCAPE OPTİMİZASİYASI */
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
         .top-action-btn { position: absolute; top: 10px; z-index: 100; cursor: pointer; background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s; }
@@ -73,23 +74,9 @@
         .settings-panel { position: absolute; top: 55px; right: 10px; background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; display: none; z-index: 1001; width: 340px; max-height: 80vh; overflow-y: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .settings-title { font-size: 13px; font-weight: 700; text-transform: uppercase; color: #fff; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        .video-section { width: 100%; background: #020408; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; transition: all 0.3s ease; }
-        #player-container { width: 100%; height: 215px; position: relative; background: #000; transition: all 0.3s ease; }
+        .video-section { width: 100%; background: #020408; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
+        #player-container { width: 100%; height: 215px; position: relative; background: #000; }
         #player { width: 100%; height: 100%; }
-
-        /* KİNO REJİMİ (CINEMA MODE) CSS APDEYTİ */
-        body.cinema-active .video-section { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99999; border: none; background: #000; }
-        body.cinema-active #player-container { width: 100vw; height: 100vh; transform: rotate(0deg); }
-        body.cinema-active .v-bar-cont, body.cinema-active .controls-bar { display: none !important; }
-        
-        .cinema-close-btn { position: absolute; top: 20px; right: 20px; z-index: 100001; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 18px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; display: none; backdrop-filter: blur(5px); transition: 0.2s; }
-        body.cinema-active .cinema-close-btn { display: block; }
-        
-        .cinema-overlay-chat { position: absolute; bottom: 30px; left: 20px; width: 280px; max-height: 40vh; display: none; flex-direction: column; gap: 8px; z-index: 100000; pointer-events: none; justify-content: flex-end; }
-        body.cinema-active .cinema-overlay-chat { display: flex; }
-        .c-layer-msg { background: rgba(15, 23, 42, 0.75); color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 12px; backdrop-filter: blur(4px); border-left: 3px solid #a855f7; animation: fadeUpCinema 0.3s ease-out, fadeOutCinema 0.5s ease-in 4.5s forwards; max-width: 100%; word-break: break-all; }
-        @keyframes fadeUpCinema { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOutCinema { from { opacity: 1; } to { opacity: 0; } }
 
         .v-bar-cont { height: 28px; background: rgba(11, 15, 25, 0.95); display: flex; align-items: center; padding: 0 12px; gap: 10px; border-top: 1px solid var(--border); }
         #v-time { font-size: 10px; font-weight: 700; color: #94a3b8; white-space: nowrap; }
@@ -135,7 +122,7 @@
         .react-popup span { cursor: pointer; font-size: 16px; }
 
         #typing-status { position: absolute; bottom: 70px; left: 15px; font-size: 11px; font-style: italic; color: #fff; text-shadow: 0 1px 4px #000; display: none; z-index: 10; }
-        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); padding: 12px; display: flex; gap: 8px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(10px); }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); padding: 12px; display: flex; gap: 8px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(10px); padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
         .input-bar input { margin: 0; background: #070a13; border: 1px solid #1e293b; height: 44px; border-radius: 12px; text-align: left; }
         .chat-icon { width: 32px; height: 32px; cursor: pointer; opacity: 0.8; }
         .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 5px; }
@@ -167,6 +154,24 @@
         .mini-action-btn:hover { opacity: 0.9; }
         .live-join-btn { background: #10b981; animation: pulseGreen 1.5s infinite alternate; }
         @keyframes pulseGreen { from { box-shadow: 0 0 2px #10b981; } to { box-shadow: 0 0 10px #10b981; } }
+
+        /* TELEFONU YAN ÇEVİRƏNDƏ (LANDSCAPE) İŞƏ DÜŞƏN SEHRBANT CSS 🎬 */
+        @media (orientation: landscape) {
+            #app { flex-direction: row; height: 100vh; width: 100vw; }
+            
+            /* Sol Tərəf: Tam Video və tənzimləmələr */
+            .video-section { width: 60%; height: 100vh; border-bottom: none; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; }
+            #player-container { flex-grow: 1; height: auto; }
+            
+            /* Sağ Tərəf: Çat Paneli */
+            .chat-wrap { width: 40%; height: 100vh; }
+            #messages { padding-bottom: 80px; }
+            
+            /* Üzvlər paneli sağa uyğunlaşsın */
+            .users-panel { right: calc(40% + 10px); top: 50px; }
+            .settings-panel { right: calc(40% + 10px); top: 50px; }
+            .settings-btn { right: calc(40% + 10px); }
+        }
     </style>
 </head>
 <body>
@@ -265,12 +270,6 @@
         </div>
 
         <div class="video-section" id="main-video-section">
-            <!-- KİNO REJİMİNDƏN ÇIXIŞ DÜYMƏSİ -->
-            <button class="cinema-close-btn" onclick="toggleCinemaMode()">Geri Dön ↩️</button>
-            
-            <!-- VİDEONUN ÜSTÜNDƏ AXAN ÇAT LAYI -->
-            <div class="cinema-overlay-chat" id="cinema-floating-chat"></div>
-
             <div id="player-container">
                 <div id="player"></div>
             </div>
@@ -282,10 +281,9 @@
             </div>
             <div class="controls-bar">
                 <div class="main-btns">
-                    <!-- TAM EKRAN KİNO REJİMİ İLƏ ƏVƏZ OLUNDU -->
-                    <button onclick="toggleCinemaMode()" style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); font-weight: 800;">KİNO REJİMİ 🎬</button>
-                    <button id="sync-fix-btn" style="display:none; color:#a855f7;" onclick="forceSync()">🔄 SİNXRON ET</button>
-                    <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
+                    <!-- KİNO REJİMİ DÜYMƏSİ SİLİNDİ, YERİNƏ SİNXRON DÜYMƏSİ SÜRHƏTLƏNDİRİLDİ -->
+                    <button id="sync-fix-btn" style="display:none; color:#a855f7; grid-column: span 1;" onclick="forceSync()">🔄 SİNXRON ET</button>
+                    <button onclick="toggleUsers()" style="grid-column: span 1;">ÜZVLƏR (<span id="user-count">0</span>)</button>
                     <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--accent-gradient); grid-column: span 2;">VİDEO PANEL</button>
                 </div>
                 <div id="admin-panel" class="admin-tools" style="display:none;">
@@ -356,61 +354,6 @@
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         function generateFourDigitCode() { return Math.floor(1000 + Math.random() * 9000).toString(); }
-
-        // KİNO REJİMİNİ AKTİVLƏŞDİRƏN FUNKSİYA
-        function toggleCinemaMode() {
-            const body = document.body;
-            const videoSec = document.getElementById('main-video-section');
-            
-            if(!body.classList.contains('cinema-active')) {
-                body.classList.add('cinema-active');
-                if (videoSec.requestFullscreen) {
-                    videoSec.requestFullscreen().catch(err => {});
-                }
-                // Ekranı yan (Landscape) formaya məcbur etməyə çalışır (Mobil cihazlar üçün)
-                if(screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('landscape').catch(err => {});
-                }
-            } else {
-                body.classList.remove('cinema-active');
-                if (document.fullscreenElement) {
-                    document.exitFullscreen().catch(err => {});
-                }
-                if(screen.orientation && screen.orientation.unlock) {
-                    screen.orientation.unlock();
-                }
-            }
-        }
-
-        // Fullscreen dəyişəndə kino rejimindən çıxıb-çıxmamağı izləmək üçün qoruyucu
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                document.body.classList.remove('cinema-active');
-                if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
-            }
-        });
-
-        // KİNO REJİMİNDƏ VİDEONUN ÜSTÜNƏ MESAJ ƏLAVƏ EDƏN SİSTEM
-        function addMessageToCinemaOverlay(sender, messageText, isImg = false) {
-            const container = document.getElementById('cinema-floating-chat');
-            if(!container) return;
-            
-            const msgEl = document.createElement('div');
-            msgEl.className = 'c-layer-msg';
-            
-            if(isImg) {
-                msgEl.innerHTML = `<b>@${sender.toUpperCase()}:</b> <span style="color:#a855f7;">🖼️ [Şəkil göndərdi]</span>`;
-            } else {
-                msgEl.innerHTML = `<b>@${sender.toUpperCase()}:</b> ${messageText}`;
-            }
-            
-            container.appendChild(msgEl);
-            
-            // 5 saniyə sonra videonun üstündəki mesajı silir
-            setTimeout(() => {
-                msgEl.remove();
-            }, 5000);
-        }
 
         function processAndPreviewImage(input, previewId, isSettings = false) {
             if (input.files && input.files[0]) {
@@ -672,8 +615,22 @@
             init();
         }
 
+        // iOS SAFARI ÜÇÜN PLAYSINLINE SƏRT BƏNDİ 🍏
         function onYouTubeIframeAPIReady() {
-            ytP = new YT.Player('player', { height: '100%', width: '100%', videoId: '', playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1, 'mute': 0 }, events: { 'onReady': () => { ok = true; tick(); } } });
+            ytP = new YT.Player('player', { 
+                height: '100%', 
+                width: '100%', 
+                videoId: '', 
+                playerVars: { 
+                    'autoplay': 1, 
+                    'controls': 0, 
+                    'disablekb': 1, 
+                    'rel': 0, 
+                    'playsinline': 1, /* Safari tam ekrana məcbur etməsin */
+                    'mute': 0 
+                }, 
+                events: { 'onReady': () => { ok = true; tick(); } } 
+            });
         }
 
         function forceSync() { if(ok && lastAdminTime) { ytP.seekTo(lastAdminTime); showToast("Sinxronlaşdırıldı"); } }
@@ -804,18 +761,6 @@
                             <div class="reactions-container" id="reacts-${s.key}"></div>
                         </div>`;
                     b.appendChild(d);
-                    
-                    // KİNO REJİMİ AKTİVDİRSƏ MESAJI VİDEONUN ÜSTÜNƏ AXIT
-                    addMessageToCinemaOverlay(m.n, m.t, !!m.img);
-
-                    db.ref(`rooms/${myR}/chat/${s.key}/reacts`).on('value', rSnap => {
-                        const rBox = document.getElementById(`reacts-${s.key}`); if(!rBox) return; rBox.innerHTML = '';
-                        const counts = {}; const vals = rSnap.val() || {};
-                        Object.values(vals).forEach(v => counts[v] = (counts[v] || 0) + 1);
-                        Object.keys(counts).forEach(emo => {
-                            const bge = document.createElement('div'); bge.className = 'react-badge'; bge.innerText = `${emo} ${counts[emo]}`; rBox.appendChild(bge);
-                        });
-                    });
                 }
                 b.scrollTop = b.scrollHeight;
             });
