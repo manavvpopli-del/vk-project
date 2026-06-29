@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Watch Live - Stream Overlay Edition</title>
+    <title>Watch Live - Cyber Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -65,82 +65,34 @@
         .btn { width: 100%; padding: 16px; background: var(--accent-gradient); color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 11.5px; transition: all 0.3s ease; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2); text-align: center; }
         .btn:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3); }
 
-        /* ƏSAS STRUKTUR - TAM EKRAN VİDEO */
         #app { display: none; height: 100%; width: 100%; flex-direction: column; position: relative; z-index: 1; }
         
-        .top-action-btn { position: absolute; top: 10px; z-index: 1000; cursor: pointer; background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s; }
+        .top-action-btn { position: absolute; top: 10px; z-index: 100; cursor: pointer; background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 50%; border: 1px solid var(--border); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s; }
         .settings-btn { right: 10px; font-size: 14px; }
 
-        .settings-panel { position: absolute; top: 55px; right: 10px; background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; display: none; z-index: 2001; width: 340px; max-height: 80vh; overflow-y: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .settings-panel { position: absolute; top: 55px; right: 10px; background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; display: none; z-index: 1001; width: 340px; max-height: 80vh; overflow-y: auto; backdrop-filter: blur(15px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .settings-title { font-size: 13px; font-weight: 700; text-transform: uppercase; color: #fff; margin-bottom: 15px; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* VİDEO BÖLMƏSİ - EKRANI TUTUR */
-        .video-section { width: 100%; flex-grow: 1; background: #020408; z-index: 10; position: relative; display: flex; flex-direction: column; }
-        #player-container { width: 100%; flex-grow: 1; position: relative; background: #000; overflow: hidden; }
-        #player { width: 100%; height: 100%; pointer-events: none; } /* Klikləri bloklayırıq ki, iOS pleyeri açılmasın */
+        .video-section { width: 100%; background: #020408; flex-shrink: 0; z-index: 10; border-bottom: 1px solid var(--border); position: relative; }
+        #player-container { width: 100%; height: 215px; position: relative; background: #000; }
+        #player { width: 100%; height: 100%; }
 
-        /* 🎬 DANMAKU (VİDEO ÜZƏRİNDƏKİ ÇAT) LAYI */
-        #danmaku-container {
-            position: absolute;
-            inset: 0;
-            z-index: 500; /* Videonun düz üstündə, idarəetmələrin altında */
-            pointer-events: none; /* Altındakı elementlərə klikləmək üçün */
-            overflow: hidden;
-        }
-
-        /* Uçan mesaj dizaynı */
-        .danmaku-msg {
-            position: absolute;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.65);
-            padding: 6px 14px;
-            border-radius: 20px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transform: translateX(100vw);
-            animation: flyLeft 8s linear forwards;
-        }
-        .danmaku-msg img.d-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
-        .danmaku-msg img.d-content-img { max-height: 50px; border-radius: 6px; display: block; margin-top: 2px; }
-        .danmaku-msg .d-name { color: #a855f7; font-weight: 700; margin-right: 2px; }
-
-        @keyframes flyLeft {
-            0% { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* AŞAĞI İDARƏETMƏ VƏ DAXİLETMƏ PANELİ */
-        .bottom-controls-wrap {
-            width: 100%;
-            background: rgba(11, 15, 25, 0.95);
-            border-top: 1px solid var(--border);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .v-bar-cont { height: 28px; display: flex; align-items: center; padding: 0 12px; gap: 10px; }
+        .v-bar-cont { height: 28px; background: rgba(11, 15, 25, 0.95); display: flex; align-items: center; padding: 0 12px; gap: 10px; border-top: 1px solid var(--border); }
         #v-time { font-size: 10px; font-weight: 700; color: #94a3b8; white-space: nowrap; }
         .v-progress { flex: 1; height: 5px; background: #1e293b; position: relative; border-radius: 3px; }
         #v-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); width: 0%; border-radius: 3px; box-shadow: 0 0 6px #a855f7; }
         .admin-seek { cursor: pointer; }
 
-        .controls-bar { padding: 8px 12px; display: flex; flex-direction: column; gap: 8px; }
-        .main-btns { display: flex; gap: 8px; align-items: center; }
-        .main-btns button { flex: 1; background: #1e293b; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .controls-bar { background: rgba(11, 15, 25, 0.95); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .main-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .main-btns button { background: #1e293b; border: 1px solid var(--border); color: #fff; padding: 11px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
 
-        .admin-tools { display: flex; flex-direction: column; gap: 8px; padding-top: 5px; }
+        .admin-tools { display: flex; flex-direction: column; gap: 10px; padding-top: 5px; }
         .search-box { display: flex; gap: 5px; }
         .search-box input { margin: 0; padding: 10px; font-size: 12px; background: #0f172a; border-radius: 8px; text-align: left; }
         .search-box button { width: 70px; background: var(--accent-gradient); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        .users-panel { position: absolute; bottom: 120px; right: 10px; width: 250px; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 2000; max-height: 200px; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        .users-panel { position: absolute; top: 60px; right: 10px; width: 250px; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; display: none; z-index: 1000; max-height: 260px; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .panel-header { padding: 12px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
         #users-list-content { padding: 6px; display: flex; flex-direction: column; gap: 5px; }
         .u-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; font-size: 12px; cursor: pointer; border-radius: 8px; }
@@ -150,18 +102,33 @@
         .kick-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 12px; padding: 2px 6px; }
         .auth-btn { background: none; border: none; color: #10b981; cursor: pointer; font-weight: bold; font-size: 11px; margin-left: 5px; }
 
-        #typing-status { position: absolute; bottom: 62px; left: 15px; font-size: 11px; font-style: italic; color: #fff; text-shadow: 0 1px 4px #000; display: none; z-index: 1001; pointer-events: none; }
+        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: url('fon.gif') center center / cover no-repeat !important; position: relative; overflow: hidden; z-index: 5; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 85px; background: rgba(7, 10, 22, 0.4); }
         
-        /* MESAJ DAXİLETMƏ PANELİ */
-        .input-bar { width: 100%; background: rgba(15, 23, 42, 0.95); padding: 10px 12px; display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--border); padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
-        .input-bar input { margin: 0; background: #070a13; border: 1px solid #1e293b; height: 40px; border-radius: 12px; text-align: left; }
-        .chat-icon { width: 28px; height: 28px; cursor: pointer; opacity: 0.8; }
+        .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; position: relative; }
+        .m-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .m-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+        .m-bubble-wrap { display: flex; flex-direction: column; gap: 2px; position: relative; cursor: pointer; }
+        .m-bubble { background: rgba(15, 23, 42, 0.9); padding: 11px; border-radius: 12px 12px 12px 2px; font-size: 13px; color: #f1f5f9; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.03); }
+        .m-row.me .m-bubble { background: var(--accent-gradient); border-radius: 12px 12px 2px 12px; color: #fff; border: none; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2); }
+        .system-msg { align-self: center; background: rgba(15, 23, 42, 0.8); color: #94a3b8; font-size: 11px; padding: 4px 14px; border-radius: 14px; text-align: center; font-style: italic; }
         
-        .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 100px; overflow-y: auto; margin-bottom: 5px; }
+        .reactions-container { display: flex; gap: 3px; position: absolute; bottom: -10px; left: 5px; z-index: 10; }
+        .m-row.me .reactions-container { left: auto; right: 5px; }
+        .react-badge { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1px 5px; font-size: 10px; display: flex; align-items: center; }
+
+        .react-popup { position: absolute; top: -35px; left: 0; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 4px 8px; display: none; gap: 6px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .react-popup span { cursor: pointer; font-size: 16px; }
+
+        #typing-status { position: absolute; bottom: 70px; left: 15px; font-size: 11px; font-style: italic; color: #fff; text-shadow: 0 1px 4px #000; display: none; z-index: 10; }
+        .input-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); padding: 12px; display: flex; gap: 8px; border-top: 1px solid var(--border); align-items: center; backdrop-filter: blur(10px); padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        .input-bar input { margin: 0; background: #070a13; border: 1px solid #1e293b; height: 44px; border-radius: 12px; text-align: left; }
+        .chat-icon { width: 32px; height: 32px; cursor: pointer; opacity: 0.8; }
+        .search-results { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; max-height: 120px; overflow-y: auto; margin-bottom: 5px; }
         .res-card { position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
         .res-card img { width: 100%; display: block; }
 
-        .gif-panel { position: absolute; bottom: 65px; left: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 16px; width: 280px; height: 240px; display: none; flex-direction: column; padding: 12px; z-index: 2002; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .gif-panel { position: absolute; bottom: 65px; left: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 16px; width: 280px; height: 240px; display: none; flex-direction: column; padding: 12px; z-index: 1002; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
         .gif-search-cont { display: flex; gap: 5px; margin-bottom: 8px; }
         .gif-search-cont input { height: 34px; padding: 5px 10px; font-size: 12px; background: #070a13; border-radius: 8px; margin: 0; text-align: left; }
         .gif-search-cont button { width: 60px; height: 34px; background: var(--accent-gradient); border: none; color: white; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
@@ -187,11 +154,50 @@
         .live-join-btn { background: #10b981; animation: pulseGreen 1.5s infinite alternate; }
         @keyframes pulseGreen { from { box-shadow: 0 0 2px #10b981; } to { box-shadow: 0 0 10px #10b981; } }
 
-        /* LANDSCAPE OPTİMİZASİYASI - VİDEO MAKSİMAL GENİŞLƏNİR */
+        /* TELEFONU YAN ÇEVİRƏNDƏ (LANDSCAPE) İŞƏ DÜŞƏN SEYR REJİMİ CSS 🎬 */
         @media (orientation: landscape) {
-            .bottom-controls-wrap { background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(8px); }
-            .controls-bar { padding: 4px 12px; }
-            .input-bar { padding: 6px 12px; }
+            #app { flex-direction: column; height: 100vh; width: 100vw; position: relative; }
+            
+            /* Video tam ekran sahəni tutur */
+            .video-section { width: 100%; height: 100vh; border-bottom: none; position: absolute; inset: 0; z-index: 1; }
+            #player-container { width: 100%; height: 100%; }
+            
+            /* Kontrol bar və alt barlar videonun altında gizlənir / tam ekranda lazım deyil */
+            .v-bar-cont, .controls-bar { display: none !important; }
+
+            /* Çat konteyneri (Mətnlər videonun üzərinə çıxır) */
+            .chat-wrap { 
+                position: absolute; 
+                bottom: 10px; 
+                left: 10px; 
+                width: 320px; 
+                height: 180px; 
+                background: none !important; /* Arxa fon silindi */
+                z-index: 20; 
+                pointer-events: none; /* Klik videoya keçsin */
+            }
+            
+            /* Mesajların axdığı qutu şəffaflaşır */
+            #messages { 
+                background: transparent !important; 
+                padding-bottom: 5px; 
+                pointer-events: auto; /* Çat daxilində klik işləsin */
+                mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
+                -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
+            }
+            
+            /* Mesaj balonları daha yığcam və şəffaf olur */
+            .m-bubble { background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(255,255,255,0.1); font-size: 11px; padding: 6px 10px; }
+            .m-row.me .m-bubble { background: rgba(99, 102, 241, 0.6) !important; }
+            .m-avatar { width: 22px; height: 22px; }
+            
+            /* Yan ekranda yazma barını gizlədirik ki video tam görünsün */
+            .input-bar { display: none !important; }
+            
+            /* Panellərin yerləşməsi */
+            .users-panel { right: 10px; top: 50px; }
+            .settings-panel { right: 10px; top: 50px; }
+            .settings-btn { right: 10px; }
         }
     </style>
 </head>
@@ -290,64 +296,60 @@
             </div>
         </div>
 
-        <!-- VİDEO VƏ ÜZƏRİNDƏKİ CANLI AXIN LAYI -->
         <div class="video-section" id="main-video-section">
             <div id="player-container">
                 <div id="player"></div>
-                <!-- ÇAT MESAJLARININ UÇDUĞU SAHƏ -->
-                <div id="danmaku-container"></div>
             </div>
-            
-            <!-- PANEL BÖLMƏSİ -->
-            <div class="bottom-controls-wrap">
-                <div class="v-bar-cont" id="progress-bar-wrapper">
-                    <span id="v-time">00:00 / 00:00</span>
-                    <div class="v-progress" id="v-seek-bar" onclick="handleSeek(event)">
-                        <div id="v-fill"></div>
-                    </div>
+            <div class="v-bar-cont" id="progress-bar-wrapper">
+                <span id="v-time">00:00 / 00:00</span>
+                <div class="v-progress" id="v-seek-bar" onclick="handleSeek(event)">
+                    <div id="v-fill"></div>
                 </div>
-                <div class="controls-bar">
-                    <div class="main-btns">
-                        <button id="sync-fix-btn" style="display:none; color:#a855f7;" onclick="forceSync()">🔄 SİNXRON ET</button>
-                        <button onclick="toggleUsers()">ÜZVLƏR (<span id="user-count">0</span>)</button>
-                        <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--accent-gradient);">VİDEO PANEL</button>
-                    </div>
-                    <div id="admin-panel" class="admin-tools" style="display:none;">
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn" style="background:#1e293b; padding:8px; flex:1" onclick="seek(-10)">-10s</button>
-                            <button class="btn" style="background:#10b981; padding:8px; flex:1" onclick="sc('play')">BAŞLAT</button>
-                            <button class="btn" style="background:#ef4444; padding:8px; flex:1" onclick="sc('pause')">DAYANDIR</button>
-                            <button class="btn" style="background:#1e293b; padding:8px; flex:1" onclick="seek(10)">+10s</button>
-                        </div>
-                        <div class="search-box">
-                            <input type="text" id="sq" placeholder="Video axtar və ya link yapışdır...">
-                            <button onclick="yt()">TAP</button>
-                        </div>
-                        <div id="results" class="search-results"></div>
-                    </div>
+            </div>
+            <div class="controls-bar">
+                <div class="main-btns">
+                    <button id="sync-fix-btn" style="display:none; color:#a855f7; grid-column: span 1;" onclick="forceSync()">🔄 SİNXRON ET</button>
+                    <button onclick="toggleUsers()" style="grid-column: span 1;">ÜZVLƏR (<span id="user-count">0</span>)</button>
+                    <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="display:none; background:var(--accent-gradient); grid-column: span 2;">VİDEO PANEL</button>
                 </div>
-
-                <!-- DAXİLETMƏ LAYI -->
-                <div id="typing-status"></div>
-                <div id="gif-box" class="gif-panel" onclick="event.stopPropagation()">
-                    <div class="gif-search-cont">
-                        <input type="text" id="gif-search-input" placeholder="GIF axtar...">
-                        <button onclick="searchGifs()">AXTAR</button>
+                <div id="admin-panel" class="admin-tools" style="display:none;">
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn" style="background:#1e293b; padding:8px; flex:1" onclick="seek(-10)">-10s</button>
+                        <button class="btn" style="background:#10b981; padding:8px; flex:1" onclick="sc('play')">BAŞLAT</button>
+                        <button class="btn" style="background:#ef4444; padding:8px; flex:1" onclick="sc('pause')">DAYANDIR</button>
+                        <button class="btn" style="background:#1e293b; padding:8px; flex:1" onclick="seek(10)">+10s</button>
                     </div>
-                    <div class="gif-grid" id="gif-grid-content"></div>
-                </div>
-
-                <div class="input-bar">
-                    <img src="galery.png" class="chat-icon" onclick="document.getElementById('chat-img').click()" alt="Galereya">
-                    <img src="gifs.png" class="chat-icon" onclick="toggleGifPanel(event)" alt="GIF">
-                    <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImg(this)">
-                    <input type="text" id="mi" placeholder="Ekrana mesaj göndərin..." oninput="handleTyping()">
-                    <img src="send.png" class="chat-icon" onclick="sm()" alt="Göndər">
+                    <div class="search-box">
+                        <input type="text" id="sq" placeholder="Video axtar və ya link yapışdır...">
+                        <button onclick="yt()">TAP</button>
+                    </div>
+                    <div id="results" class="search-results"></div>
                 </div>
             </div>
         </div>
         
         <div id="users-box" class="users-panel"><div class="panel-header">Qoşulanlar</div><div id="users-list-content"></div></div>
+        
+        <div class="chat-wrap">
+            <div id="messages"></div>
+            <div id="typing-status"></div>
+            
+            <div id="gif-box" class="gif-panel" onclick="event.stopPropagation()">
+                <div class="gif-search-cont">
+                    <input type="text" id="gif-search-input" placeholder="GIF axtar...">
+                    <button onclick="searchGifs()">AXTAR</button>
+                </div>
+                <div class="gif-grid" id="gif-grid-content"></div>
+            </div>
+
+            <div class="input-bar">
+                <img src="galery.png" class="chat-icon" onclick="document.getElementById('chat-img').click()" alt="Galereya">
+                <img src="gifs.png" class="chat-icon" onclick="toggleGifPanel(event)" alt="GIF">
+                <input type="file" id="chat-img" hidden accept="image/*" onchange="sendImg(this)">
+                <input type="text" id="mi" placeholder="Mesaj yazın..." oninput="handleTyping()">
+                <img src="send.png" class="chat-icon" onclick="sm()" alt="Göndər">
+            </div>
+        </div>
     </div>
 
     <script>
@@ -370,7 +372,6 @@
         
         let ytP, myN, myR, myL, myPic = "https://www.w3schools.com/howto/img_avatar.png", ok = false, myId = Math.random().toString(36).substr(2, 9);
         let typingTimeout, lastAdminTime = 0, currentVideoId = "";
-        let danmakuRowsCount = 5; // Mesajların üst-üstə minməməsi üçün sətir sayı
 
         let activeSessionInterval = null;
         let localUserStats = { totalTime: 0, watched: {}, interacted: {} };
@@ -534,8 +535,15 @@
             });
         }
 
-        function createNewRoomAndStart() { myR = generateFourDigitCode(); start('admin'); }
-        function directJoinRoom(roomCode) { myR = roomCode; start('member'); }
+        function createNewRoomAndStart() {
+            myR = generateFourDigitCode();
+            start('admin');
+        }
+
+        function directJoinRoom(roomCode) {
+            myR = roomCode;
+            start('member');
+        }
 
         function toggleSettingsPanel() {
             const p = document.getElementById('settings-panel');
@@ -601,8 +609,14 @@
             db.ref(`rooms/${myR}/users/${myId}`).set({ n: myN, p: myPic, role: l });
             db.ref(`rooms/${myR}/users/${myId}`).onDisconnect().remove();
             
-            db.ref(`rooms/${myR}/users`).on('value', snap => { if(!snap.exists()) { db.ref(`rooms/${myR}`).remove(); } });
+            db.ref(`rooms/${myR}/users`).on('value', snap => {
+                if(!snap.exists()) {
+                    db.ref(`rooms/${myR}`).remove();
+                }
+            });
+
             db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${myN} otağa qoşuldu.` });
+            
             db.ref(`rooms/${myR}/kicked/${myId}`).on('value', s => { if(s.val()) { alert("Otaqdan qovuldunuz!"); window.location.reload(); } });
             
             if(l === 'admin') {
@@ -629,8 +643,17 @@
 
         function onYouTubeIframeAPIReady() {
             ytP = new YT.Player('player', { 
-                height: '100%', width: '100%', videoId: '', 
-                playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'playsinline': 1, 'mute': 0 }, 
+                height: '100%', 
+                width: '100%', 
+                videoId: '', 
+                playerVars: { 
+                    'autoplay': 1, 
+                    'controls': 0, 
+                    'disablekb': 1, 
+                    'rel': 0, 
+                    'playsinline': 1,
+                    'mute': 0 
+                }, 
                 events: { 'onReady': () => { ok = true; tick(); } } 
             });
         }
@@ -672,46 +695,16 @@
         function kickUser(uid, name) { if(confirm(`${name} qovulsun?`)) db.ref(`rooms/${myR}/kicked/${uid}`).set(true); }
         function grantPermission(uid, status) { db.ref(`rooms/${myR}/users/${uid}/hasPermission`).set(status); showToast("Səlahiyyət yeniləndi"); }
 
-        /* 🎬 DANMAKU STRUKTURUNU QURAN FUNKSİYA (VİDEO ÜZƏRİNDƏ SÜRÜŞMƏ) */
-        let rowTracker = 0;
-        function launchDanmaku(msgObj) {
-            const container = document.getElementById('danmaku-container');
-            if(!container) return;
-
-            const el = document.createElement('div');
-            el.className = 'danmaku-msg';
-            
-            // Mesajın kontenti (Mətn, Şəkil və ya GIF)
-            let content = '';
-            if(msgObj.img) {
-                content = `<img src="${msgObj.img}" class="d-content-img">`;
-            } else {
-                content = `<span>${msgObj.t}</span>`;
-            }
-
-            el.innerHTML = `
-                <img src="${msgObj.p}" class="d-avatar">
-                <span class="d-name">${msgObj.n}:</span>
-                ${content}
-            `;
-
-            // Fərqli sətirlərdən buraxırıq ki, üst-üstə minməsinlər
-            const rowHeight = 35; // Hər sətrin hündürlüyü (px)
-            const topPosition = (rowTracker % danmakuRowsCount) * rowHeight + 15;
-            el.style.top = `${topPosition}px`;
-            rowTracker++;
-
-            container.appendChild(el);
-
-            // Animasiya bitəndə elementi silirik (Yaddaş dolmasın)
-            el.addEventListener('animationend', () => el.remove());
-        }
+        function openReactMenu(msgId, e) { e.stopPropagation(); document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none'); const p = document.getElementById(`pop-${msgId}`); if(p) p.style.display = 'flex'; }
+        function addReaction(msgId, emo) { db.ref(`rooms/${myR}/chat/${msgId}/reacts/${myId}`).set(emo); document.getElementById(`pop-${msgId}`).style.display = 'none'; }
 
         function toggleGifPanel(e) { 
             if(e) e.stopPropagation();
             const p = document.getElementById('gif-box'); 
             if(p.style.display === 'none' || p.style.display === '') { 
-                p.style.display = 'flex'; document.getElementById('gif-search-input').value = ''; loadTrendingGifs(); 
+                p.style.display = 'flex'; 
+                document.getElementById('gif-search-input').value = '';
+                loadTrendingGifs(); 
             } else { p.style.display = 'none'; } 
         }
         
@@ -720,26 +713,39 @@
             grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">Yüklənir...</div>';
             try {
                 const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=20&rating=g`);
-                const json = await res.json(); renderGifs(json.data);
-            } catch(err) { grid.innerHTML = '<div style="font-size:11px; color:#ef4444; grid-column:span 2; text-align:center; padding-top:20px;">Xəta...</div>'; }
+                const json = await res.json();
+                renderGifs(json.data);
+            } catch(err) {
+                grid.innerHTML = '<div style="font-size:11px; color:#ef4444; grid-column:span 2; text-align:center; padding-top:20px;">Xəta baş verdi!</div>';
+            }
         }
 
         async function searchGifs() {
-            const q = document.getElementById('gif-search-input').value.trim(); if(!q) return loadTrendingGifs();
-            const grid = document.getElementById('gif-grid-content'); grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">Axtarılır...</div>';
+            const q = document.getElementById('gif-search-input').value.trim();
+            if(!q) return loadTrendingGifs();
+            const grid = document.getElementById('gif-grid-content'); 
+            grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">Axtarılır...</div>';
             try {
-                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(q)}&limit=20&rating=g&lang=az`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(q)}&limit=20&offset=0&rating=g&lang=az`);
                 const json = await res.json();
-                if(json.data.length === 0) { grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">Tapılmadı.</div>'; } 
-                else { renderGifs(json.data); }
-            } catch(err) { grid.innerHTML = '<div style="font-size:11px; color:#ef4444; grid-column:span 2; text-align:center; padding-top:20px;">Xəta...</div>'; }
+                if(json.data.length === 0) {
+                    grid.innerHTML = '<div style="font-size:11px; color:#64748b; grid-column:span 2; text-align:center; padding-top:20px;">GIF tapılmadı.</div>';
+                } else {
+                    renderGifs(json.data);
+                }
+            } catch(err) {
+                grid.innerHTML = '<div style="font-size:11px; color:#ef4444; grid-column:span 2; text-align:center; padding-top:20px;">Xəta baş verdi!</div>';
+            }
         }
 
         function renderGifs(gifData) {
-            const grid = document.getElementById('gif-grid-content'); grid.innerHTML = '';
+            const grid = document.getElementById('gif-grid-content'); 
+            grid.innerHTML = '';
             gifData.forEach(gif => {
                 const url = gif.images.fixed_height_small.url;
-                const img = document.createElement('img'); img.className = 'gif-item'; img.src = url;
+                const img = document.createElement('img'); 
+                img.className = 'gif-item'; 
+                img.src = url;
                 img.onclick = (e) => { 
                     e.stopPropagation();
                     db.ref('rooms/'+myR+'/chat').push({ n: myN, img: url, p: myPic, ts: Date.now() }); 
@@ -750,28 +756,43 @@
         }
 
         function init() {
-            window.onclick = () => { document.getElementById('gif-box').style.display = 'none'; };
+            window.onclick = () => { document.querySelectorAll('.react-popup').forEach(p => p.style.display = 'none'); document.getElementById('gif-box').style.display = 'none'; };
 
             db.ref('rooms/'+myR+'/sync').on('value', s => {
                 const d = s.val(); if(d && ok) {
-                    if(d.v && d.v !== currentVideoId) { currentVideoId = d.v; ytP.loadVideoById(d.v); if(myN) { db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true); } }
+                    if(d.v && d.v !== currentVideoId) { 
+                        currentVideoId = d.v; ytP.loadVideoById(d.v); 
+                        if(myN) { db.ref(`registered_users/${myN}/stats/watched/${currentVideoId}`).set(true); }
+                    }
                     d.a === 'play' ? ytP.playVideo() : ytP.pauseVideo(); lastAdminTime = d.t;
                     if(myL !== 'admin' && !hasVideoPermission && Math.abs(ytP.getCurrentTime() - d.t) > 5) ytP.seekTo(d.t);
                 }
             });
 
-            // 🎬 YENİ MESAJ GƏLƏNDƏ EKRANA BURAXILIR
             db.ref('rooms/'+myR+'/chat').on('child_added', s => {
-                const m = s.val();
+                const m = s.val(); const b = document.getElementById('messages');
                 if(m.type === 'system') {
-                    showToast(m.t);
+                    const sysDiv = document.createElement('div'); sysDiv.className = 'system-msg'; sysDiv.innerText = m.t; b.appendChild(sysDiv);
                 } else {
-                    launchDanmaku(m); // Videonun üzərində uçur
+                    const d = document.createElement('div'); d.className = `m-row ${m.n === myN ? 'me' : ''}`; d.id = `msg-${s.key}`;
+                    d.innerHTML = `
+                        <img src="${m.p}" class="m-avatar" onclick="showProfile('${m.n}','${m.p}','')">
+                        <div class="m-bubble-wrap" onclick="openReactMenu('${s.key}', event)">
+                            <div class="react-popup" id="pop-${s.key}">
+                                <span onclick="addReaction('${s.key}', '👍')">👍</span><span onclick="addReaction('${s.key}', '❤️')">❤️</span>
+                                <span onclick="addReaction('${s.key}', '😂')">😂</span><span onclick="addReaction('${s.key}', '😮')">😮</span>
+                            </div>
+                            <div class="m-bubble"><b>${m.n}</b><div>${m.img ? `<img src="${m.img}" style="max-width:150px; border-radius:8px;">` : m.t}</div></div>
+                            <div class="reactions-container" id="reacts-${s.key}"></div>
+                        </div>`;
+                    b.appendChild(d);
                 }
+                b.scrollTop = b.scrollHeight;
             });
 
             db.ref(`rooms/${myR}/typing`).on('value', s => {
-                const data = s.val(); const ts = document.getElementById('typing-status'); if(!data) { ts.style.display = 'none'; return; }
+                const data = s.val(); const ts = document.getElementById('typing-status');
+                if(!data) { ts.style.display = 'none'; return; }
                 const users = Object.values(data).filter(n => n !== myN);
                 if(users.length > 0) { ts.innerText = users.join(', ') + " yazır..."; ts.style.display = 'block'; } else { ts.style.display = 'none'; }
             });
@@ -783,11 +804,13 @@
                     const uid = child.key; const u = child.val();
                     const uRow = document.createElement('div'); uRow.className = 'u-item';
                     uRow.onclick = () => showProfile(u.n, u.p, u.role);
+                    
                     let permBtn = '';
                     if(myL === 'admin' && uid !== myId) {
                         const hasPerm = !!u.hasPermission;
                         permBtn = `<button class="auth-btn" style="color:${hasPerm?'#ff4a5a':'#10b981'}" onclick="event.stopPropagation(); grantPermission('${uid}', ${!hasPerm})">${hasPerm?'🔒 Al':'🔑 Ver'}</button>`;
                     }
+                    
                     uRow.innerHTML = `
                         <div class="u-info"><img src="${u.p}"><span>${u.n} (${u.role === 'admin' ? 'Q' : 'İ'})</span></div>
                         <div>${permBtn} ${myL === 'admin' && uid !== myId ? `<button class="kick-btn" onclick="event.stopPropagation(); kickUser('${uid}','${u.n}')">❌</button>` : ''}</div>`;
