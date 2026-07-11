@@ -102,7 +102,8 @@
         .kick-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 12px; padding: 2px 6px; }
         .auth-btn { background: none; border: none; color: #10b981; cursor: pointer; font-weight: bold; font-size: 11px; margin-left: 5px; }
 
-        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: url('fon.gif') center center / cover no-repeat !important; position: relative; overflow: hidden; z-index: 5; }
+        /* ARXA FON SADƏLƏŞDİRİLDİ (GIF SİLİNDİ) */
+        .chat-wrap { flex-grow: 1; display: flex; flex-direction: column; background: rgba(10, 15, 30, 0.4); position: relative; overflow: hidden; z-index: 5; }
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 85px; background: rgba(7, 10, 22, 0.4); }
         
         .m-row { display: flex; gap: 10px; max-width: 85%; align-items: flex-end; position: relative; }
@@ -154,47 +155,17 @@
         .live-join-btn { background: #10b981; animation: pulseGreen 1.5s infinite alternate; }
         @keyframes pulseGreen { from { box-shadow: 0 0 2px #10b981; } to { box-shadow: 0 0 10px #10b981; } }
 
-        /* TELEFONU YAN ÇEVİRƏNDƏ (LANDSCAPE) İŞƏ DÜŞƏN SEYR REJİMİ CSS 🎬 */
         @media (orientation: landscape) {
             #app { flex-direction: column; height: 100vh; width: 100vw; position: relative; }
-            
-            /* Video tam ekran sahəni tutur */
             .video-section { width: 100%; height: 100vh; border-bottom: none; position: absolute; inset: 0; z-index: 1; }
             #player-container { width: 100%; height: 100%; }
-            
-            /* Kontrol bar və alt barlar videonun altında gizlənir / tam ekranda lazım deyil */
             .v-bar-cont, .controls-bar { display: none !important; }
-
-            /* Çat konteyneri (Mətnlər videonun üzərinə çıxır) */
-            .chat-wrap { 
-                position: absolute; 
-                bottom: 10px; 
-                left: 10px; 
-                width: 320px; 
-                height: 180px; 
-                background: none !important; /* Arxa fon silindi */
-                z-index: 20; 
-                pointer-events: none; /* Klik videoya keçsin */
-            }
-            
-            /* Mesajların axdığı qutu şəffaflaşır */
-            #messages { 
-                background: transparent !important; 
-                padding-bottom: 5px; 
-                pointer-events: auto; /* Çat daxilində klik işləsin */
-                mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
-                -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
-            }
-            
-            /* Mesaj balonları daha yığcam və şəffaf olur */
+            .chat-wrap { position: absolute; bottom: 10px; left: 10px; width: 320px; height: 180px; background: none !important; z-index: 20; pointer-events: none; }
+            #messages { background: transparent !important; padding-bottom: 5px; pointer-events: auto; mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%); }
             .m-bubble { background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(255,255,255,0.1); font-size: 11px; padding: 6px 10px; }
             .m-row.me .m-bubble { background: rgba(99, 102, 241, 0.6) !important; }
             .m-avatar { width: 22px; height: 22px; }
-            
-            /* Yan ekranda yazma barını gizlədirik ki video tam görünsün */
             .input-bar { display: none !important; }
-            
-            /* Panellərin yerləşməsi */
             .users-panel { right: 10px; top: 50px; }
             .settings-panel { right: 10px; top: 50px; }
             .settings-btn { right: 10px; }
@@ -377,6 +348,25 @@
         let localUserStats = { totalTime: 0, watched: {}, interacted: {} };
         let currentHasUploadedAvatar = false;
         let hasVideoPermission = false;
+
+        // BOT SİSTEMİ ÜÇÜN RANDOM ADLAR SİYAHISI (35 ƏDƏD)
+        const fakeUsernames = [
+            "Elnur_99", "Aysel_M", "shadow_user", "Murad_Efendi", "Leyla_Aliyeva",
+            "cyber_king", "Nigar_v", "Kamran_01", "Rauf_G", "Gunel_88",
+            "Farid_H", "black_pearl", "Orxan_K", "Zeynab_95", "Tural_A",
+            "Sanan_M", "matrix_fan", "Vusal_10", "Aytac_R", "Rashad_B",
+            "Elvin_N", "Samira_G", "Perviz_X", "Emin_22", "Sabina_K",
+            "Anar_Mamedov", "royal_guest", "Elcin_S", "Xadica_00", "Jale_A",
+            "Nurlan_B", "Fuad_R", "Leman_M", "Seymur_H", "Kanan_99"
+        ];
+
+        // BOT MESAJLARI
+        const fakeMessages = [
+            "Salam, hər kəsə ✋", "Salam uşaqlar", "Nəsə dondu məndə yoxsa hamıda elədi?",
+            "Bu hansı kinodur? Adını deyə bilərsiz?", "Kino maraqlıdı?", "Bunun əvvəli necə olub ki?",
+            "Keyfiyyət bomba kimi gəlir 👍", "Yaxşı kinoya oxşayır", "Bunun 2-ci hissəsi çıxıb?",
+            "Mən bunu axırıncı dəfə kinoteatrda izləmişdim", "Səsi bir az qaldırmaq olar zəhmət olmasa?"
+        ];
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
         function generateFourDigitCode() { return Math.floor(1000 + Math.random() * 9000).toString(); }
@@ -602,6 +592,51 @@
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
+        // 5-10 DƏQİQƏDƏN BİR RANDOM QOŞULAN SÜNİ İSTİFADƏÇİ (BOT) LOGİKASI
+        function runBotSimulation() {
+            if (myL !== 'admin') return; 
+
+            // Hər 5-10 dəqiqədə bir yoxlanış edir (təxmini 300000ms - 600000ms arası)
+            let randomTimeInterval = Math.floor(Math.random() * (600000 - 300000 + 1)) + 300000;
+
+            setTimeout(() => {
+                db.ref(`rooms/${myR}/users`).once('value', snap => {
+                    let currentCount = snap.numChildren();
+                    
+                    // Film boyu otaqda maksimum 5-10 arası əlavə adamın idarə edilməsi
+                    if (currentCount < 12) { 
+                        // Bot daxil olur
+                        let botId = "bot_" + Math.random().toString(36).substr(2, 9);
+                        let randomName = fakeUsernames[Math.floor(Math.random() * fakeUsernames.length)];
+                        let randomPic = "https://picsum.photos/id/" + Math.floor(Math.random() * 100) + "/100/100";
+                        
+                        db.ref(`rooms/${myR}/users/${botId}`).set({ n: randomName, p: randomPic, role: 'member' });
+                        db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${randomName} otağa qoşuldu.` });
+
+                        // Bəzi botlar çatda yazı yazır (50% ehtimalla)
+                        if (Math.random() > 0.5) {
+                            setTimeout(() => {
+                                let randomMsg = fakeMessages[Math.floor(Math.random() * fakeMessages.length)];
+                                db.ref(`rooms/${myR}/chat`).push({ n: randomName, t: randomMsg, p: randomPic, ts: Date.now() });
+                            }, Math.floor(Math.random() * 15000) + 5000); // qoşulduqdan 5-20 saniyə sonra yazır
+                        }
+
+                        // Eləsi olsun otaqda qalsın (film sonunacan), eləsi olsun çıxsın (40% ehtimalla çıxır)
+                        if (Math.random() > 0.6) {
+                            let stayDuration = Math.floor(Math.random() * (1200000 - 400000 + 1)) + 400000; // 6-20 dəqiqə arası qalır
+                            setTimeout(() => {
+                                db.ref(`rooms/${myR}/users/${botId}`).remove();
+                                db.ref(`rooms/${myR}/chat`).push({ type: 'system', t: `${randomName} otaqdan çıxdı.` });
+                            }, stayDuration);
+                        }
+                    }
+                });
+
+                // Növbəti dövrü başladır
+                runBotSimulation();
+            }, randomTimeInterval);
+        }
+
         function start(l) {
             myL = l;
             document.getElementById('auth-box').style.display = 'none'; document.getElementById('app').style.display = 'flex';
@@ -623,6 +658,8 @@
                 document.getElementById('admin-toggle-btn').style.display = 'block';
                 document.getElementById('progress-bar-wrapper').style.display = 'flex';
                 document.getElementById('v-seek-bar').classList.add('admin-seek');
+                // Otağı yaradan admindirsə bot simulyasiyasını aktivləşdiririk
+                runBotSimulation();
             } else {
                 document.getElementById('sync-fix-btn').style.display = 'block';
                 db.ref(`rooms/${myR}/users/${myId}/hasPermission`).on('value', s => {
@@ -806,7 +843,7 @@
                     uRow.onclick = () => showProfile(u.n, u.p, u.role);
                     
                     let permBtn = '';
-                    if(myL === 'admin' && uid !== myId) {
+                    if(myL === 'admin' && uid !== myId && !uid.startsWith('bot_')) {
                         const hasPerm = !!u.hasPermission;
                         permBtn = `<button class="auth-btn" style="color:${hasPerm?'#ff4a5a':'#10b981'}" onclick="event.stopPropagation(); grantPermission('${uid}', ${!hasPerm})">${hasPerm?'🔒 Al':'🔑 Ver'}</button>`;
                     }
