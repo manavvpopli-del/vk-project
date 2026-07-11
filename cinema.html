@@ -217,10 +217,11 @@
                     <div style="font-size: 12px; color: #a855f7; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;" id="welcome-user-text"></div>
                     
                     <div class="room-panel-box">
-                        <button id="start-btn" class="btn" onclick="createNewRoomAndStart()">🚀 YENİ CANLI OTAQ YARAT</button>
+                        <input type="text" id="create-room-code-input" placeholder="YARATMAQ ÜÇÜN 6 RƏQƏMLİ KOD" maxlength="6">
+                        <button id="start-btn" class="btn" onclick="handleManualRoomCreate()">🚀 YENİ CANLI OTAQ YARAT</button>
                         <div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
-                            <input type="text" id="join-room-code-input" placeholder="6 RƏQƏMLİ OTAQ KODU" maxlength="6">
-                            <button class="btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-top: 5px;" onclick="handleManualRoomJoin()">OTAXA QOŞUL 🎬</button>
+                            <input type="text" id="join-room-code-input" placeholder="QOŞULMAQ ÜÇÜN 6 RƏQƏMLİ KOD" maxlength="6">
+                            <button class="btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-top: 5px;" onclick="handleManualRoomJoin()">OTAĞA QOŞUL 🎬</button>
                         </div>
                     </div>
 
@@ -353,7 +354,6 @@
         let hasVideoPermission = false;
 
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
-        function generateSixDigitCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
 
         function processAndPreviewImage(input, previewId, isSettings = false) {
             if (input.files && input.files[0]) {
@@ -509,9 +509,18 @@
             });
         }
 
-        function createNewRoomAndStart() {
-            myR = generateSixDigitCode();
-            start('admin');
+        function handleManualRoomCreate() {
+            const rCode = document.getElementById('create-room-code-input').value.trim();
+            if(rCode.length !== 6 || isNaN(rCode)) return showToast("Zəhmət olmasa otaq üçün 6 rəqəmli kod yazın!");
+            
+            db.ref(`rooms/${rCode}`).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    showToast("Bu kodda otaq artıq mövcuddur! Başqa kod yoxlayın.");
+                } else {
+                    myR = rCode;
+                    start('admin');
+                }
+            });
         }
 
         function handleManualRoomJoin() {
@@ -583,7 +592,7 @@
                     } else { document.getElementById('p-modal-watched').innerText = "Heç nə izləməyib"; }
                     if(stats.interacted) {
                         const sortedInteractions = Object.entries(stats.interacted).sort((a,b) => b[1] - a[1]).map(item => "@" + item[0].toUpperCase());
-                        document.getElementById('p-modal-interacted').innerText = sortedInteractions.length > 0 ? sortedInteractions.slice(0, 3).join(', ') : "Heç kimlə";
+                        document.getElementById('sortedInteractions').length > 0 ? sortedInteractions.slice(0, 3).join(', ') : "Heç kimlə";
                     } else { document.getElementById('p-modal-interacted').innerText = "Heç kimlə"; }
                 }
             });
