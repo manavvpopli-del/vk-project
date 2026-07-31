@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D FPS Forest - AKM Shooter</title>
+    
+    <!-- Three.js CDN və GLTFLoader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #fff;
+        }
+
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Glass UI Styling */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.05s ease, background-color 0.2s ease;
+        }
+
+        .glass-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .progress-box {
+            width: 280px;
+            height: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #FF512F, #DD2476);
+            transition: width 0.2s ease;
+            border-radius: 8px;
+        }
+
+        #loading-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        #error-banner {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(231, 76, 60, 0.85);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 90;
+            display: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        /* HUD Elements */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hud-top-left {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hud-top-right {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 10px 15px;
+            text-align: right;
+        }
+
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .bar-outer {
+            width: 100px;
+            height: 8px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .bar-inner-hp { width: 100%; height: 100%; background: #2ecc71; }
+        .bar-inner-armor { width: 100%; height: 100%; background: #3498db; }
+
+        .ammo-display {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #2ecc71;
+        }
+
+        .weapon-name {
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        /* Crosshair */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            transition: transform 0.1s ease, color 0.1s ease;
+        }
+
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1px;
+        }
+
+        #crosshair::before {
+            top: 9px; left: 0; width: 20px; height: 2px;
+        }
+        #crosshair::after {
+            top: 0; left: 9px; width: 2px; height: 20px;
+        }
+
+        /* Mobile Controls */
+        #controls-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: auto;
+        }
+
+        /* Joystick */
+        #joystick-zone {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+            touch-action: none;
+        }
+
+        #joystick-knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            margin-top: -25px;
+            margin-left: -25px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
+
+        /* Touch Look Area */
+        #touch-look-zone {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* Right Side Buttons */
+        .btn-fire {
+            position: absolute;
+            bottom: 50px;
+            right: 30px;
+            width: 85px;
+            height: 85px;
+            background: rgba(231, 76, 60, 0.3);
+            border-color: rgba(231, 76, 60, 0.6);
+        }
+
+        .btn-jump {
+            position: absolute;
+            bottom: 155px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .btn-sprint {
+            position: absolute;
+            bottom: 155px;
+            right: 105px;
+            width: 55px;
+            height: 55px;
+            font-size: 11px;
+        }
+
+        .btn-sprint.active {
+            background: rgba(46, 204, 113, 0.4);
+            border-color: rgba(46, 204, 113, 0.8);
+        }
+
+        .btn-pause {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        /* Pause Menu */
+        #pause-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 80;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-card {
+            width: 280px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .setting-row input[type=range] {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container"></div>
+
+    <div id="error-banner">AKM modeli (akm.glb) tapılmadı. Simulyasiya rejimi aktivdir.</div>
+
+    <div id="loading-screen">
+        <div class="loader-title">FOREST FPS</div>
+        <div class="progress-box glass-panel">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div id="loading-text">Meşə yüklənir...</div>
+    </div>
+
+    <div id="hud">
+        <div class="hud-top-left glass-panel">
+            <div style="font-size: 10px; color: #888;" id="fps-counter">FPS: 60</div>
+            <div class="stat-bar">
+                <span>HP</span>
+                <div class="bar-outer"><div class="bar-inner-hp" id="hp-bar"></div></div>
+            </div>
+            <div class="stat-bar">
+                <span>ARM</span>
+                <div class="bar-outer"><div class="bar-inner-armor" id="armor-bar"></div></div>
+            </div>
+        </div>
+
+        <div class="hud-top-right glass-panel">
+            <!-- MƏRMİ LİMİTSİZ -->
+            <div class="ammo-display">∞</div >
+            <div class="weapon-name">AKM 7.62mm</div>
+        </div>
+
+        <div id="crosshair"></div>
+    </div>
+
+    <div id="controls-layer">
+        <div id="joystick-zone">
+            <div id="joystick-knob"></div>
+        </div>
+
+        <div id="touch-look-zone"></div>
+
+        <button class="glass-btn btn-fire" id="btn-fire">FIRE</button>
+        <button class="glass-btn btn-jump" id="btn-jump">JUMP</button>
+        <button class="glass-btn btn-sprint" id="btn-sprint">RUN</button>
+        <button class="glass-btn btn-pause" id="btn-pause">||</button>
+    </div>
+
+    <div id="pause-menu">
+        <div class="menu-card glass-panel">
+            <h2>PAUZA</h2>
+            <button class="menu-btn" id="btn-resume">Davam Et</button>
+            <button class="menu-btn" id="btn-restart">Yenidən Başlat</button>
+            <div class="setting-row">
+                <span>Həssaslıq</span>
+                <input type="range" id="slider-sens" min="1" max="10" value="5">
+            </div>
+            <div class="setting-row">
+                <span>Qrafika</span>
+                <select id="select-graphics" style="background:#222; color:#fff; border:none; padding:4px; border-radius:4px;">
+                    <option value="high">Yüksək (60 FPS)</option>
+                    <option value="low">Aşağı</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            worldSize: 200,
+            treeCount: 180,
+            rockCount: 60,
+            fireRateRPM: 600,
+            gravity: -22.0,
+            jumpForce: 8.5,
+            walkSpeed: 6.0,
+            sprintSpeed: 10.5,
+            playerHeight: 1.75
+        };
+
+        const STATE = {
+            isPaused: false,
+            sensitivity: 0.003,
+            isSprinting: false,
+            isFiring: false,
+            health: 100,
+            armor: 100,
+            modelLoaded: false
+        };
+
+        class SoundSystem {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            playProceduralGunshot() {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const bufferSize = this.ctx.sampleRate * 0.08;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.08);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+        }
+
+        const audioSys = new SoundSystem();
+
+        const container = document.getElementById('game-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0xcce0ff, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 300);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.BasicShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        container.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xfffaed, 1.0);
+        dirLight.position.set(60, 100, 40);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 1024;
+        dirLight.shadow.mapSize.height = 1024;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 150;
+        const d = 60;
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
+        scene.add(dirLight);
+
+        scene.background = new THREE.Color(0xcce0ff);
+
+        function getTerrainHeight(x, z) {
+            return Math.sin(x * 0.03) * Math.cos(z * 0.03) * 2.5;
+        }
+
+        function createWorld() {
+            const groundGeo = new THREE.PlaneGeometry(CONFIG.worldSize, CONFIG.worldSize, 60, 60);
+            groundGeo.rotateX(-Math.PI / 2);
+
+            const pos = groundGeo.attributes.position;
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i);
+                const z = pos.getZ(i);
+                pos.setY(i, getTerrainHeight(x, z));
+            }
+            groundGeo.computeVertexNormals();
+
+            const groundMat = new THREE.MeshLambertMaterial({ color: 0x3b5e2b });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            createTrees();
+            createRocks();
+        }
+
+        function createTrees() {
+            const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 4, 5);
+            trunkGeo.translate(0, 2, 0);
+            const foliageGeo = new THREE.ConeGeometry(2, 5, 5);
+            foliageGeo.translate(0, 5, 0);
+
+            const trunkMat = new THREE.MeshLambertMaterial({ color: 0x4a2e18 });
+            const foliageMat = new THREE.MeshLambertMaterial({ color: 0x1b4d1b });
+
+            const trunkMesh = new THREE.InstancedMesh(trunkGeo, trunkMat, CONFIG.treeCount);
+            const foliageMesh = new THREE.InstancedMesh(foliageGeo, foliageMat, CONFIG.treeCount);
+
+            const dummy = new THREE.Object3D();
+            for (let i = 0; i < CONFIG.treeCount; i++) {
+                const x = (Math.random() - 0.5) * (CONFIG.worldSize - 20);
+                const z = (Math.random() - 0.5) * (CONFIG.worldSize - 20);
+                const y = getTerrainHeight(x, z);
+                const scale = 0.8 + Math.random() * 0.4;
+
+                dummy.position.set(x, y, z);
+                dummy.scale.set(scale, scale, scale);
+                dummy.rotation.y = Math.random() * Math.PI;
+                dummy.updateMatrix();
+
+                trunkMesh.setMatrixAt(i, dummy.matrix);
+                foliageMesh.setMatrixAt(i, dummy.matrix);
+            }
+
+            trunkMesh.castShadow = true;
+            foliageMesh.castShadow = true;
+            scene.add(trunkMesh);
+            scene.add(foliageMesh);
+        }
+
+        function createRocks() {
+            const rockGeo = new THREE.DodecahedronGeometry(1, 0);
+            const rockMat = new THREE.MeshLambertMaterial({ color: 0x666666 });
+            const rockInst = new THREE.InstancedMesh(rockGeo, rockMat, CONFIG.rockCount);
+
+            const dummy = new THREE.Object3D();
+            for (let i = 0; i < CONFIG.rockCount; i++) {
+                const x = (Math.random() - 0.5) * (CONFIG.worldSize - 20);
+                const z = (Math.random() - 0.5) * (CONFIG.worldSize - 20);
+                const y = getTerrainHeight(x, z);
+
+                dummy.position.set(x, y + 0.2, z);
+                dummy.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+                dummy.scale.set(0.8 + Math.random(), 0.5 + Math.random(), 0.8 + Math.random());
+                dummy.updateMatrix();
+
+                rockInst.setMatrixAt(i, dummy.matrix);
+            }
+            rockInst.castShadow = true;
+            scene.add(rockInst);
+        }
+
+        createWorld();
+
+        /* PLAYER & WEAPON RIG */
+        const playerGroup = new THREE.Group();
+        scene.add(playerGroup);
+        playerGroup.position.set(0, 5, 20);
+
+        const cameraRig = new THREE.Group();
+        playerGroup.add(cameraRig);
+        cameraRig.add(camera);
+        camera.position.set(0, CONFIG.playerHeight, 0);
+
+        const weaponContainer = new THREE.Group();
+        camera.add(weaponContainer);
+
+        const defaultGunPos = new THREE.Vector3(0.2, -0.2, -0.4);
+        weaponContainer.position.copy(defaultGunPos);
+
+        let akmModel = null;
+
+        function createProceduralAKM() {
+            const group = new THREE.Group();
+            const darkMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+            const woodMat = new THREE.MeshLambertMaterial({ color: 0x5c2c16 });
+
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.35), darkMat);
+            group.add(body);
+
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.45), darkMat);
+            barrel.rotation.x = Math.PI / 2;
+            barrel.position.set(0, 0.02, -0.35);
+            group.add(barrel);
+
+            const handguard = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.2), woodMat);
+            handguard.position.set(0, 0.01, -0.22);
+            group.add(handguard);
+
+            const stock = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.09, 0.25), woodMat);
+            stock.position.set(0, -0.02, 0.28);
+            group.add(stock);
+
+            const mag = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 0.08), woodMat);
+            mag.position.set(0, -0.1, -0.05);
+            mag.rotation.x = -0.3;
+            group.add(mag);
+
+            return group;
+        }
+
+        const loader = new THREE.GLTFLoader();
+        const loadingText = document.getElementById('loading-text');
+        const progressBar = document.getElementById('progress-bar');
+        const errorBanner = document.getElementById('error-banner');
+
+        loadingText.innerText = "AKM modeli yüklənir...";
+        progressBar.style.width = "40%";
+
+        loader.load('./akm.glb', 
+            (gltf) => {
+                akmModel = gltf.scene;
+                akmModel.scale.set(0.5, 0.5, 0.5);
+                akmModel.rotation.set(0, 0, 0); 
+
+                akmModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                    }
+                });
+                weaponContainer.add(akmModel);
+                STATE.modelLoaded = true;
+                finishLoading();
+            },
+            (xhr) => {
+                if (xhr.lengthComputable) {
+                    const percentComplete = (xhr.loaded / xhr.total) * 100;
+                    progressBar.style.width = (40 + percentComplete * 0.6) + '%';
+                }
+            },
+            (error) => {
+                errorBanner.style.display = "block";
+                setTimeout(() => { errorBanner.style.display = "none"; }, 4000);
+
+                akmModel = createProceduralAKM();
+                weaponContainer.add(akmModel);
+                finishLoading();
+            }
+        );
+
+        function finishLoading() {
+            progressBar.style.width = "100%";
+            loadingText.innerText = "Hazırdır!";
+            setTimeout(() => {
+                const screen = document.getElementById('loading-screen');
+                screen.style.opacity = '0';
+                setTimeout(() => screen.style.display = 'none', 500);
+            }, 200);
+        }
+
+        /* SHOOTING SYSTEM */
+        const bulletTracerMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+        const tracers = [];
+        const muzzleFlashLight = new THREE.PointLight(0xffaa22, 0, 5);
+        camera.add(muzzleFlashLight);
+        muzzleFlashLight.position.set(0.2, -0.1, -0.6);
+
+        let lastFireTime = 0;
+
+        function shoot() {
+            const now = performance.now();
+            const fireInterval = (60 / CONFIG.fireRateRPM) * 1000;
+
+            if (now - lastFireTime < fireInterval) return;
+
+            lastFireTime = now;
+
+            audioSys.playProceduralGunshot();
+
+            muzzleFlashLight.intensity = 2.0;
+            setTimeout(() => { muzzleFlashLight.intensity = 0; }, 30);
+
+            // Recoil
+            weaponRecoilTarget.z += 0.05;
+            weaponRecoilTarget.rotX += 0.08;
+            cameraRecoilTarget += 0.015;
+
+            // Bullet Tracer
+            const tracerGeo = new THREE.CylinderGeometry(0.005, 0.005, 1);
+            tracerGeo.rotateX(Math.PI / 2);
+            const tracerMesh = new THREE.Mesh(tracerGeo, bulletTracerMat);
+            
+            const startVec = new THREE.Vector3();
+            weaponContainer.getWorldPosition(startVec);
+            tracerMesh.position.copy(startVec);
+            tracerMesh.quaternion.copy(camera.quaternion);
+            scene.add(tracerMesh);
+
+            tracers.push({
+                mesh: tracerMesh,
+                dir: camera.getWorldDirection(new THREE.Vector3()),
+                speed: 140,
+                dist: 0
+            });
+        }
+
+        /* TOUCH CONTROLS */
+        const joystickZone = document.getElementById('joystick-zone');
+        const joystickKnob = document.getElementById('joystick-knob');
+        const touchLookZone = document.getElementById('touch-look-zone');
+
+        let joyTouchId = null;
+        let joyVector = new THREE.Vector2(0, 0);
+        let lookTouchId = null;
+        let lastLookPos = new THREE.Vector2(0, 0);
+
+        let pitch = 0;
+        let yaw = 0;
+
+        joystickZone.addEventListener('touchstart', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (joyTouchId === null) {
+                    const touch = e.changedTouches[i];
+                    joyTouchId = touch.identifier;
+                    updateJoystick(touch);
+                }
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                if (touch.identifier === joyTouchId) {
+                    updateJoystick(touch);
+                } else if (touch.identifier === lookTouchId) {
+                    const dx = touch.clientX - lastLookPos.x;
+                    const dy = touch.clientY - lastLookPos.y;
+                    
+                    yaw -= dx * STATE.sensitivity;
+                    pitch -= dy * STATE.sensitivity;
+                    pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, pitch));
+
+                    lastLookPos.set(touch.clientX, touch.clientY);
+                }
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchend', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                if (touch.identifier === joyTouchId) {
+                    joyTouchId = null;
+                    joyVector.set(0, 0);
+                    joystickKnob.style.transform = `translate(0px, 0px)`;
+                } else if (touch.identifier === lookTouchId) {
+                    lookTouchId = null;
+                }
+            }
+        });
+
+        touchLookZone.addEventListener('touchstart', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (lookTouchId === null) {
+                    const touch = e.changedTouches[i];
+                    lookTouchId = touch.identifier;
+                    lastLookPos.set(touch.clientX, touch.clientY);
+                }
+            }
+        }, { passive: false });
+
+        function updateJoystick(touch) {
+            const rect = joystickZone.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            let dx = touch.clientX - centerX;
+            let dy = touch.clientY - centerY;
+            const maxRadius = rect.width / 2;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > maxRadius) {
+                dx = (dx / dist) * maxRadius;
+                dy = (dy / dist) * maxRadius;
+            }
+
+            joyVector.set(dx / maxRadius, -dy / maxRadius);
+            joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+        }
+
+        const btnFire = document.getElementById('btn-fire');
+        const btnJump = document.getElementById('btn-jump');
+        const btnSprint = document.getElementById('btn-sprint');
+
+        btnFire.addEventListener('touchstart', (e) => { e.preventDefault(); STATE.isFiring = true; });
+        btnFire.addEventListener('touchend', (e) => { e.preventDefault(); STATE.isFiring = false; });
+
+        btnJump.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isGrounded) velocity.y = CONFIG.jumpForce;
+        });
+
+        btnSprint.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            STATE.isSprinting = !STATE.isSprinting;
+            btnSprint.classList.toggle('active', STATE.isSprinting);
+        });
+
+        /* GAME LOOP */
+        let velocity = new THREE.Vector3();
+        let isGrounded = false;
+        let walkTimer = 0;
+
+        let weaponRecoilTarget = { y: 0, z: 0, rotX: 0 };
+        let cameraRecoilTarget = 0;
+
+        const clock = new THREE.Clock();
+        let frameCount = 0;
+        let fpsTimer = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = Math.min(clock.getDelta(), 0.1);
+            frameCount++;
+            fpsTimer += delta;
+            if (fpsTimer >= 1.0) {
+                document.getElementById('fps-counter').innerText = `FPS: ${frameCount}`;
+                frameCount = 0;
+                fpsTimer = 0;
+            }
+
+            if (STATE.isPaused) return;
+
+            if (STATE.isFiring) shoot();
+
+            playerGroup.rotation.y = yaw;
+            camera.rotation.x = pitch + cameraRecoilTarget;
+            cameraRecoilTarget = THREE.MathUtils.lerp(cameraRecoilTarget, 0, delta * 12);
+
+            const speed = STATE.isSprinting ? CONFIG.sprintSpeed : CONFIG.walkSpeed;
+            const moveDir = new THREE.Vector3(joyVector.x, 0, joyVector.y).normalize();
+
+            if (moveDir.lengthSq() > 0) {
+                const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+                const side = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+                
+                const targetVel = new THREE.Vector3()
+                    .addScaledVector(side, joyVector.x * speed)
+                    .addScaledVector(forward, joyVector.y * speed);
+
+                velocity.x = THREE.MathUtils.lerp(velocity.x, targetVel.x, delta * 12);
+                velocity.z = THREE.MathUtils.lerp(velocity.z, targetVel.z, delta * 12);
+            } else {
+                velocity.x = THREE.MathUtils.lerp(velocity.x, 0, delta * 12);
+                velocity.z = THREE.MathUtils.lerp(velocity.z, 0, delta * 12);
+            }
+
+            velocity.y += CONFIG.gravity * delta;
+            playerGroup.position.x += velocity.x * delta;
+            playerGroup.position.z += velocity.z * delta;
+            playerGroup.position.y += velocity.y * delta;
+
+            const currentGroundY = getTerrainHeight(playerGroup.position.x, playerGroup.position.z);
+            if (playerGroup.position.y <= currentGroundY) {
+                playerGroup.position.y = currentGroundY;
+                velocity.y = 0;
+                isGrounded = true;
+            } else {
+                isGrounded = false;
+            }
+
+            let targetFOV = STATE.isSprinting && moveDir.lengthSq() > 0 ? 82 : 75;
+            camera.fov = THREE.MathUtils.lerp(camera.fov, targetFOV, delta * 10);
+            camera.updateProjectionMatrix();
+
+            const moveSpeed2D = Math.hypot(velocity.x, velocity.z);
+            if (moveSpeed2D > 0.1 && isGrounded) {
+                walkTimer += delta * moveSpeed2D * 2.2;
+            } else {
+                walkTimer = THREE.MathUtils.lerp(walkTimer, 0, delta * 5);
+            }
+
+            const headBobY = Math.sin(walkTimer) * 0.03;
+            const headBobX = Math.cos(walkTimer * 0.5) * 0.015;
+            cameraRig.position.set(headBobX, headBobY, 0);
+
+            weaponRecoilTarget.z = THREE.MathUtils.lerp(weaponRecoilTarget.z, 0, delta * 12);
+            weaponRecoilTarget.rotX = THREE.MathUtils.lerp(weaponRecoilTarget.rotX, 0, delta * 12);
+
+            weaponContainer.position.x = THREE.MathUtils.lerp(weaponContainer.position.x, defaultGunPos.x + headBobX * 0.5, delta * 14);
+            weaponContainer.position.y = THREE.MathUtils.lerp(weaponContainer.position.y, defaultGunPos.y + weaponRecoilTarget.y + headBobY * 0.5, delta * 14);
+            weaponContainer.position.z = THREE.MathUtils.lerp(weaponContainer.position.z, defaultGunPos.z + weaponRecoilTarget.z, delta * 14);
+
+            weaponContainer.rotation.x = weaponRecoilTarget.rotX;
+
+            for (let i = tracers.length - 1; i >= 0; i--) {
+                const t = tracers[i];
+                const step = t.speed * delta;
+                t.mesh.position.addScaledVector(t.dir, step);
+                t.dist += step;
+                if (t.dist > 100) {
+                    scene.remove(t.mesh);
+                    t.mesh.geometry.dispose();
+                    tracers.splice(i, 1);
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        /* PAUSE MENU & RESIZE */
+        const btnPause = document.getElementById('btn-pause');
+        const pauseMenu = document.getElementById('pause-menu');
+        const btnResume = document.getElementById('btn-resume');
+        const btnRestart = document.getElementById('btn-restart');
+        const sliderSens = document.getElementById('slider-sens');
+        const selectGraphics = document.getElementById('select-graphics');
+
+        btnPause.addEventListener('click', () => {
+            STATE.isPaused = true;
+            pauseMenu.style.display = 'flex';
+        });
+
+        btnResume.addEventListener('click', () => {
+            STATE.isPaused = false;
+            pauseMenu.style.display = 'none';
+        });
+
+        btnRestart.addEventListener('click', () => {
+            playerGroup.position.set(0, 5, 20);
+            STATE.health = 100;
+            STATE.armor = 100;
+            STATE.isPaused = false;
+            pauseMenu.style.display = 'none';
+        });
+
+        sliderSens.addEventListener('input', (e) => {
+            STATE.sensitivity = (e.target.value / 5) * 0.003;
+        });
+
+        selectGraphics.addEventListener('change', (e) => {
+            if (e.target.value === 'low') {
+                renderer.shadowMap.enabled = false;
+                renderer.setPixelRatio(0.8);
+            } else {
+                renderer.shadowMap.enabled = true;
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
