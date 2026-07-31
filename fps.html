@@ -123,6 +123,11 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(221, 36, 118, 0.4);
         }
+        
+        .lobby-btn-create {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+        }
 
         /* Loading Screen */
         #loading-screen {
@@ -197,6 +202,17 @@
             z-index: 10;
             pointer-events: none;
         }
+        
+        #room-info {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+        }
 
         .hud-top-left {
             position: absolute;
@@ -262,6 +278,7 @@
             border: 2px solid #2ecc71;
             box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
             overflow: hidden;
+            display: none; /* Only show in game */
         }
 
         #radar-canvas {
@@ -279,6 +296,7 @@
             height: 20px;
             pointer-events: none;
             transition: transform 0.1s ease, color 0.1s ease;
+            display: none;
         }
 
         #crosshair::before, #crosshair::after {
@@ -304,6 +322,7 @@
             height: 100%;
             z-index: 20;
             pointer-events: auto;
+            display: none; /* Hide until joined */
         }
 
         /* Joystick */
@@ -457,16 +476,23 @@
     <!-- LOBBY SCREEN -->
     <div id="lobby-screen">
         <div class="lobby-card glass-panel">
-            <h2 style="letter-spacing:2px;">MULTIPLAYER FPS</h2>
-            <input type="text" id="player-name-input" class="lobby-input" placeholder="Oyunçu Adı" value="Player1">
-            <input type="text" id="room-code-input" class="lobby-input" placeholder="Otaq Adı (Kodu)" value="room123">
+            <h2 style="letter-spacing:2px; font-size:22px;">ORMAN DÖYÜŞÜ</h2>
+            <input type="text" id="player-name-input" class="lobby-input" placeholder="Oyunçu Adı (İstəyə bağlı)">
+            
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 5px 0;">
+            
+            <button class="lobby-btn lobby-btn-create" id="btn-create-room">YENİ OTAQ YARAT</button>
+            
+            <div style="font-size: 12px; color: #ccc;">VƏ YA KODLA QOŞUL</div>
+            
+            <input type="number" id="room-code-input" class="lobby-input" placeholder="4 Rəqəmli Kod (Məs: 1234)">
             <button class="lobby-btn" id="btn-join-room">OTAĞA QOŞUL</button>
         </div>
     </div>
 
     <!-- LOADING SCREEN -->
     <div id="loading-screen">
-        <div class="loader-title">FOREST FPS</div>
+        <div class="loader-title">XƏRİTƏ YÜKLƏNİR...</div>
         <div class="progress-box glass-panel">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
@@ -475,7 +501,7 @@
 
     <!-- HUD -->
     <div id="hud">
-        <div class="hud-top-left glass-panel">
+        <div class="hud-top-left glass-panel" style="display:none;" id="hud-stats">
             <div style="font-size: 10px; color: #888;" id="fps-counter">FPS: 60</div>
             <div class="stat-bar">
                 <span>HP</span>
@@ -488,12 +514,16 @@
             </div>
         </div>
 
+        <div id="room-info" class="glass-panel">
+            OTAQ KODU: <span id="room-info-text" style="color: #2ecc71;">----</span>
+        </div>
+
         <!-- RADAR -->
         <div id="radar-container" class="glass-panel">
             <canvas id="radar-canvas" width="100" height="100"></canvas>
         </div>
 
-        <div class="hud-top-right glass-panel">
+        <div class="hud-top-right glass-panel" style="display:none;" id="hud-ammo">
             <div class="ammo-display">∞</div>
             <div class="weapon-name" id="weapon-name-text">AKM 7.62mm</div>
         </div>
@@ -582,6 +612,13 @@
             armor: 100,
             currentWeapon: 'akm'
         };
+
+        // Seeded Random Generator for deterministic map generation
+        let mapSeed = 1234;
+        function seededRandom() {
+            const x = Math.sin(mapSeed++) * 10000;
+            return x - Math.floor(x);
+        }
 
         /* ---------------- AUDIO SYSTEM ---------------- */
         class SoundSystem {
@@ -738,14 +775,14 @@
 
             const dummy = new THREE.Object3D();
             for (let i = 0; i < CONFIG.treeCount; i++) {
-                const x = (Math.random() - 0.5) * (CONFIG.worldSize - 30);
-                const z = (Math.random() - 0.5) * (CONFIG.worldSize - 30);
+                const x = (seededRandom() - 0.5) * (CONFIG.worldSize - 30);
+                const z = (seededRandom() - 0.5) * (CONFIG.worldSize - 30);
                 const y = getTerrainHeight(x, z);
-                const scale = 0.8 + Math.random() * 0.5;
+                const scale = 0.8 + seededRandom() * 0.5;
 
                 dummy.position.set(x, y, z);
                 dummy.scale.set(scale, scale, scale);
-                dummy.rotation.y = Math.random() * Math.PI;
+                dummy.rotation.y = seededRandom() * Math.PI;
                 dummy.updateMatrix();
 
                 trunkMesh.setMatrixAt(i, dummy.matrix);
@@ -765,13 +802,13 @@
 
             const dummy = new THREE.Object3D();
             for (let i = 0; i < CONFIG.rockCount; i++) {
-                const x = (Math.random() - 0.5) * (CONFIG.worldSize - 30);
-                const z = (Math.random() - 0.5) * (CONFIG.worldSize - 30);
+                const x = (seededRandom() - 0.5) * (CONFIG.worldSize - 30);
+                const z = (seededRandom() - 0.5) * (CONFIG.worldSize - 30);
                 const y = getTerrainHeight(x, z);
 
                 dummy.position.set(x, y + 0.3, z);
-                dummy.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
-                dummy.scale.set(1 + Math.random()*1.5, 0.8 + Math.random(), 1 + Math.random()*1.5);
+                dummy.rotation.set(seededRandom()*Math.PI, seededRandom()*Math.PI, 0);
+                dummy.scale.set(1 + seededRandom()*1.5, 0.8 + seededRandom(), 1 + seededRandom()*1.5);
                 dummy.updateMatrix();
 
                 rockInst.setMatrixAt(i, dummy.matrix);
@@ -786,13 +823,13 @@
 
             for (let i = 0; i < CONFIG.buildingCount; i++) {
                 const bGroup = new THREE.Group();
-                const x = (Math.random() - 0.5) * (CONFIG.worldSize - 50);
-                const z = (Math.random() - 0.5) * (CONFIG.worldSize - 50);
+                const x = (seededRandom() - 0.5) * (CONFIG.worldSize - 50);
+                const z = (seededRandom() - 0.5) * (CONFIG.worldSize - 50);
                 const y = getTerrainHeight(x, z);
 
-                const width = 8 + Math.random() * 6;
-                const height = 5 + Math.random() * 4;
-                const depth = 8 + Math.random() * 6;
+                const width = 8 + seededRandom() * 6;
+                const height = 5 + seededRandom() * 4;
+                const depth = 8 + seededRandom() * 6;
 
                 const body = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), wallMat);
                 body.position.set(0, height / 2, 0);
@@ -811,24 +848,18 @@
             }
         }
 
-        createWorld();
-
         /* ---------------- PLAYER & WEAPONS ---------------- */
         const playerGroup = new THREE.Group();
         scene.add(playerGroup);
 
-        // İki oyunçunun fərqli uzaq nöqtələrdə doğulması üçün təsadüfi spawn
         function getRandomSpawn() {
             const angle = Math.random() * Math.PI * 2;
-            const dist = 60 + Math.random() * 60; // Mərkəzdən uzaqda
+            const dist = 60 + Math.random() * 60; 
             const x = Math.cos(angle) * dist;
             const z = Math.sin(angle) * dist;
             const y = getTerrainHeight(x, z) + 2;
             return { x, y, z };
         }
-
-        const initialSpawn = getRandomSpawn();
-        playerGroup.position.set(initialSpawn.x, initialSpawn.y, initialSpawn.z);
 
         const cameraRig = new THREE.Group();
         playerGroup.add(cameraRig);
@@ -894,27 +925,31 @@
             return group;
         }
 
-        /* MODEL LOADERS */
+        /* MODEL LOADERS & DONMA (FREEZE) FIXİ */
         const loader = new THREE.GLTFLoader();
         const loadingText = document.getElementById('loading-text');
         const progressBar = document.getElementById('progress-bar');
 
         let modelsToLoad = 2;
         let loadedCount = 0;
+        let modelsLoaded = false; // BU DƏYİŞƏN DONMANIN QARŞISINI ALIR
 
         function checkAllLoaded() {
             loadedCount++;
-            progressBar.style.width = (loadedCount / modelsToLoad * 100) + '%';
+            if (progressBar) {
+                progressBar.style.width = (loadedCount / modelsToLoad * 100) + '%';
+            }
             if (loadedCount >= modelsToLoad) {
-                loadingText.innerText = "Hazırdır!";
-                setTimeout(() => {
-                    const screen = document.getElementById('loading-screen');
-                    screen.style.opacity = '0';
-                    setTimeout(() => screen.style.display = 'none', 500);
-                }, 200);
+                modelsLoaded = true;
+                if (loadingText) loadingText.innerText = "Hazırdır!";
+                
+                const screen = document.getElementById('loading-screen');
+                screen.style.opacity = '0';
+                setTimeout(() => screen.style.display = 'none', 500);
             }
         }
 
+        // Oyun arxa planda modelləri yükləməyə başlayır
         loader.load('./akm.glb', 
             (gltf) => {
                 const model = gltf.scene;
@@ -963,15 +998,15 @@
             const canvas = document.createElement('canvas');
             canvas.width = 256; canvas.height = 64;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'red';
-            ctx.font = '30px Arial';
+            ctx.fillStyle = '#ff3333';
+            ctx.font = 'bold 36px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(name || 'Enemy', 128, 40);
 
             const texture = new THREE.CanvasTexture(canvas);
-            const spriteMat = new THREE.SpriteMaterial({ map: texture });
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, depthTest: false });
             const sprite = new THREE.Sprite(spriteMat);
-            sprite.position.y = 1.9;
+            sprite.position.y = 2.2;
             sprite.scale.set(2, 0.5, 1);
             group.add(sprite);
 
@@ -979,35 +1014,65 @@
         }
 
         /* ---------------- MULTIPLAYER LOGIC (FIREBASE) ---------------- */
+        
+        // 1. Yeni Otaq Yaratmaq (4 Rəqəmli Kod verir)
+        document.getElementById('btn-create-room').addEventListener('click', () => {
+            const code = Math.floor(1000 + Math.random() * 9000).toString(); // 1000 - 9999
+            roomId = code;
+            startGame();
+        });
+
+        // 2. Koda əsasən Otağa Qoşulmaq
         document.getElementById('btn-join-room').addEventListener('click', () => {
             const rCode = document.getElementById('room-code-input').value.trim();
-            const pName = document.getElementById('player-name-input').value.trim();
-
-            if (!rCode) return alert("Zəhmət olmasa otaq adını yazın!");
+            if (!rCode || rCode.length !== 4) return alert("Zəhmət olmasa 4 rəqəmli otaq kodunu düzgün yazın! (Məsələn: 1234)");
+            
             roomId = rCode;
-            playerName = pName || "Player";
+            startGame();
+        });
+
+        function startGame() {
+            const pName = document.getElementById('player-name-input').value.trim();
+            playerName = pName || "Player_" + Math.floor(Math.random() * 1000);
 
             document.getElementById('lobby-screen').style.display = 'none';
-            document.getElementById('loading-screen').style.display = 'flex';
+            
+            // UI Elementlərini göstər
+            document.getElementById('hud-stats').style.display = 'flex';
+            document.getElementById('hud-ammo').style.display = 'block';
+            document.getElementById('radar-container').style.display = 'block';
+            document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('controls-layer').style.display = 'block';
+            document.getElementById('room-info').style.display = 'block';
+            document.getElementById('room-info-text').innerText = roomId;
+
+            // ƏGƏR MODELLƏR HƏLƏ YÜKLƏNMƏYİBSƏ, YÜKLƏMƏ EKRANINI GÖSTƏRİRİK
+            if (!modelsLoaded) {
+                document.getElementById('loading-screen').style.display = 'flex';
+                document.getElementById('loading-screen').style.opacity = '1';
+            }
+
+            // SEED-i otaq koduna bağlayırıq ki, xəritə eyni olsun
+            mapSeed = parseInt(roomId);
+            createWorld(); // Xəritə Otaq Koduna əsasən yaranır!
+
+            const initialSpawn = getRandomSpawn();
+            playerGroup.position.set(initialSpawn.x, initialSpawn.y, initialSpawn.z);
 
             initMultiplayer();
-        });
+        }
 
         function initMultiplayer() {
             roomRef = db.ref('rooms/' + roomId);
             playerRef = roomRef.child('players/' + playerId);
 
-            // Oyundan çıxdıqda silinmək
             playerRef.onDisconnect().remove();
 
-            // Öz datamızı yeniləmək
             updatePlayerDataInDB();
 
-            // Digər oyunçuları dinləmək
             roomRef.child('players').on('value', (snapshot) => {
                 const players = snapshot.val() || {};
                 
-                // Mövcud olmayanları silək
                 Object.keys(remotePlayers).forEach(id => {
                     if (!players[id]) {
                         otherPlayersGroup.remove(remotePlayers[id].mesh);
@@ -1015,7 +1080,6 @@
                     }
                 });
 
-                // Yeniləri əlavə edək və ya mövqelərini dəyişək
                 Object.keys(players).forEach(id => {
                     if (id !== playerId) {
                         const pData = players[id];
@@ -1027,7 +1091,6 @@
                                 data: pData
                             };
                         }
-                        // Mövqe yenilənməsi
                         remotePlayers[id].mesh.position.set(pData.x, pData.y, pData.z);
                         remotePlayers[id].mesh.rotation.y = pData.ry || 0;
                         remotePlayers[id].data = pData;
@@ -1035,12 +1098,11 @@
                 });
             });
 
-            // Zərər (Damage) almaq dinləyicisi
             playerRef.child('damage').on('value', (snapshot) => {
                 const dmg = snapshot.val();
                 if (dmg && dmg > 0) {
                     takeDamage(dmg);
-                    playerRef.child('damage').set(0); // Sıfırla
+                    playerRef.child('damage').set(0);
                 }
             });
         }
@@ -1123,8 +1185,7 @@
                 const raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
 
-                // Düşmən oyunçuları vurma kontrolu
-                checkPlayerHit(raycaster, 5); // AKM = 5 HP zərər
+                checkPlayerHit(raycaster, 5); 
 
                 tracers.push({
                     mesh: tracerMesh,
@@ -1181,10 +1242,8 @@
                     hitObj = hitObj.parent;
                 }
                 
-                // Tapılan düşmənin ID-sini tapırıq
                 Object.keys(remotePlayers).forEach(id => {
                     if (remotePlayers[id].mesh === hitObj) {
-                        // Firebase üzərindən həmin oyunçuya zərər göndəririk
                         db.ref(`rooms/${roomId}/players/${id}/damage`).transaction(current => (current || 0) + damageAmount);
                     }
                 });
@@ -1208,11 +1267,10 @@
 
             scene.add(expGroup);
 
-            // RPG Partlayış radiusu zərəri (100 HP)
             Object.keys(remotePlayers).forEach(id => {
                 const enemyPos = remotePlayers[id].mesh.position;
                 const dist = enemyPos.distanceTo(position);
-                if (dist < 8) { // 8 metr partlayış radiusu
+                if (dist < 8) { 
                     db.ref(`rooms/${roomId}/players/${id}/damage`).transaction(current => (current || 0) + 100);
                 }
             });
@@ -1233,22 +1291,19 @@
         function updateRadar() {
             radarCtx.clearRect(0, 0, 100, 100);
 
-            // Center (Mən)
             radarCtx.fillStyle = '#2ecc71';
             radarCtx.beginPath();
             radarCtx.arc(50, 50, 3, 0, Math.PI * 2);
             radarCtx.fill();
 
-            // Digər Oyunçular (Qırmızı nöqtələr)
             const myPos = playerGroup.position;
-            const radarRange = 100; // Radar məsafəsi
+            const radarRange = 100; 
 
             Object.keys(remotePlayers).forEach(id => {
                 const enemyPos = remotePlayers[id].mesh.position;
                 const dx = enemyPos.x - myPos.x;
                 const dz = enemyPos.z - myPos.z;
 
-                // Radarda nisbi koordinatlar
                 const radarX = 50 + (dx / radarRange) * 50;
                 const radarY = 50 + (dz / radarRange) * 50;
 
@@ -1406,7 +1461,6 @@
                 fpsTimer = 0;
             }
 
-            // Hər 0.05 saniyədən bir Firebase-də mövqeni yeniləyirik
             if (dbNetworkTimer >= 0.05) {
                 updatePlayerDataInDB();
                 dbNetworkTimer = 0;
@@ -1475,7 +1529,6 @@
 
             weaponContainer.rotation.x = weaponRecoilTarget.rotX;
 
-            // UPDATE AKM TRACERS
             for (let i = tracers.length - 1; i >= 0; i--) {
                 const t = tracers[i];
                 const step = t.speed * delta;
@@ -1488,7 +1541,6 @@
                 }
             }
 
-            // UPDATE RPG ROCKETS
             for (let i = rockets.length - 1; i >= 0; i--) {
                 const r = rockets[i];
                 const step = r.speed * delta;
@@ -1505,7 +1557,6 @@
                 }
             }
 
-            // UPDATE EXPLOSIONS
             for (let i = explosions.length - 1; i >= 0; i--) {
                 const exp = explosions[i];
                 exp.scale += delta * 12;
